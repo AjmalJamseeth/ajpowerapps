@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+html {
+  font-size: 115%;
+}
+
+:root {
+  --background: #020617;
+  --surface: #0f172a;
+  --surface-2: #1e293b;
+  --foreground: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #fbbf24;
+  --accent-2: #22d3ee;
+  --border: #1e293b;
+  --pass: #34d399;
+  --fail: #f87171;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-border: var(--border);
+  --color-pass: var(--pass);
+  --color-fail: var(--fail);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* ---- Light theme: applied via a `.light` class on <html>, toggled by
+   ThemeToggle.tsx and persisted to localStorage. Dark (the :root values
+   above) remains the default when no class is present. ---- */
+.light {
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #475569;
+  --border: #cbd5e1;
+  --pass: #15803d;
+  --fail: #b91c1c;
+  --accent: #b45309;
+  --accent-2: #0e7490;
+}
+
+/* ---- Report-mode: temporary light-theme + single-column override used
+   while ReportButton captures a calculator page as a PDF. Toggled on the
+   <html> element only for the duration of capture, then removed. ---- */
+.report-mode {
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #475569;
+  --border: #cbd5e1;
+  --pass: #15803d;
+  --fail: #b91c1c;
+  --accent: #b45309;
+  --accent-2: #0e7490;
+}
+.report-mode .no-print {
+  display: none !important;
+}
+.report-mode .grid {
+  display: block !important;
+}
+.report-mode .grid > * {
+  margin-bottom: 1rem;
+}
+.report-mode [class*="sticky"] {
+  position: static !important;
+  top: auto !important;
+}
+.report-mode * {
+  box-shadow: none !important;
+}
+.report-header-block {
+  display: none;
+}
+.report-mode .report-header-block {
+  display: block !important;
+}
