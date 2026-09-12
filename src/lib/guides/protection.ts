@@ -93,8 +93,8 @@ export const PROTECTION_GUIDE: GuideDoc = {
       calculatorName: "Fault Current Propagation (Base kVA Method)",
     },
     {
-      title: "Set phase overcurrent relay curves and check grading between two relays",
-      body: "Pick a curve shape and time multiplier for each relay, then verify the coordination time interval between an upstream and downstream relay pair holds across the fault current range.",
+      title: "Set phase overcurrent relay curves and check grading across the whole chain",
+      body: "Pick a curve shape and time multiplier for each relay, then verify the coordination time interval holds across the fault current range — add relays to the chain (not just a pair) to confirm every link from load end to source maintains its margin, not just one pair.",
       calculatorHref: "/calculators/idmt",
       calculatorName: "IDMT Relay Coordination",
     },
@@ -103,12 +103,6 @@ export const PROTECTION_GUIDE: GuideDoc = {
       body: "Set the more sensitive 50N/51N earth-fault stage using the same verified curve engine, sized for the site's earthing arrangement rather than load current.",
       calculatorHref: "/calculators/idmt-earth-fault",
       calculatorName: "IDMT Earth Fault Relay (50N/51N)",
-    },
-    {
-      title: "Verify grading holds across the whole chain, not just one pair",
-      body: "A pairwise grading check between two relays doesn't guarantee the entire source-to-load chain coordinates — run the full cascade to confirm every link maintains its margin.",
-      calculatorHref: "/calculators/idmt-grading",
-      calculatorName: "Multi-Bus IDMT Grading",
     },
     {
       title: "Protect major transformers with differential relaying",

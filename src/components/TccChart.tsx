@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Chart as ChartJS,
   LineElement,
@@ -12,41 +12,36 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { RelaySettings, curvePoints } from "@/lib/idmt";
-import { Lock } from "lucide-react";
 
 ChartJS.register(LineElement, PointElement, LogarithmicScale, Tooltip, Legend);
 
+// Cycled across relays if there are more curves than colors.
+const CURVE_COLORS = ["#fbbf24", "#22d3ee", "#a78bfa", "#f472b6", "#34d399", "#fb7185", "#60a5fa", "#facc15"];
+
 export default function TccChart({
-  relay1,
-  relay2,
+  relays,
   minCurrent,
   maxCurrent,
 }: {
-  relay1: RelaySettings;
-  relay2: RelaySettings;
+  relays: RelaySettings[];
   minCurrent: number;
   maxCurrent: number;
 }) {
-  const [showLockedMessage, setShowLockedMessage] = useState(false);
-
-  const relay1Points = useMemo(
-    () => curvePoints(relay1, minCurrent, maxCurrent),
-    [relay1, minCurrent, maxCurrent]
-  );
-
-  const data = {
-    datasets: [
-      {
-        label: relay1.label,
-        data: relay1Points,
-        borderColor: "#fbbf24",
-        backgroundColor: "#fbbf24",
+  const datasets = useMemo(
+    () =>
+      relays.map((relay, i) => ({
+        label: relay.label,
+        data: curvePoints(relay, minCurrent, maxCurrent),
+        borderColor: CURVE_COLORS[i % CURVE_COLORS.length],
+        backgroundColor: CURVE_COLORS[i % CURVE_COLORS.length],
         borderWidth: 2,
         pointRadius: 0,
         tension: 0,
-      },
-    ],
-  };
+      })),
+    [relays, minCurrent, maxCurrent]
+  );
+
+  const data = { datasets };
 
   const options: ChartOptions<"line"> = {
     responsive: true,
@@ -87,53 +82,13 @@ export default function TccChart({
 
   return (
     <div className="rounded-xl border border-border bg-surface p-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-foreground">
-          Time-current characteristic (TCC)
-        </h3>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted">
-            <span className="h-2 w-2 rounded-full bg-accent" /> {relay1.label}
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowLockedMessage(true)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent-2/50 hover:text-accent-2"
-          >
-            <Lock className="h-3 w-3" />
-            Add {relay2.label} to graph
-          </button>
-        </div>
-      </div>
+      <h3 className="text-base font-semibold text-foreground">
+        Time-current characteristic (TCC)
+      </h3>
 
       <div className="mt-4 h-80">
         <Line data={data} options={options} />
       </div>
-
-      {showLockedMessage && (
-        <div className="mt-4 flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/10 p-4">
-          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-          <div className="flex-1 text-sm">
-            <p className="font-medium text-foreground">
-              Overlaying a second relay on the graph is a subscriber feature.
-            </p>
-            <p className="mt-1 text-muted">
-              It&apos;s planned for a future release once subscriptions launch.
-              The numeric coordination check above already compares both
-              relays across the full range — the graph overlay just adds the
-              visual.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowLockedMessage(false)}
-            className="text-muted hover:text-foreground"
-            aria-label="Dismiss"
-          >
-            ✕
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -23,7 +23,7 @@ import { DEFAULT_EV_INPUT, calcEv } from "../src/lib/ev";
 import { DEFAULT_GEN_INPUT, DEFAULT_XFMR_INPUT, DEFAULT_NGR_INPUT, calcGen, calcXfmr, calcNgr } from "../src/lib/genxfmr";
 import { DEFAULT_HARMONICS_INPUT, calcHarmonics } from "../src/lib/harmonics";
 import { DEFAULT_HVAC_INPUT, calcHvac } from "../src/lib/hvac";
-import { DEFAULT_RELAY, tripTime, checkCoordination } from "../src/lib/idmt";
+import { DEFAULT_RELAY, tripTime, checkCoordination, checkChainCoordination } from "../src/lib/idmt";
 import { DEFAULT_LIGHTING_INPUT, calcLighting } from "../src/lib/lighting";
 import { DEFAULT_LIGHTNING_INPUT, calcLightning } from "../src/lib/lightning";
 import { CATEGORIES, calcMaxDemand, DEFAULT_MAXDEMAND_INPUT } from "../src/lib/maxdemand";
@@ -67,6 +67,30 @@ import { DEFAULT_VOLTAGE_UNBALANCE_INPUT, calcVoltageUnbalance } from "../src/li
 import { DEFAULT_PANEL_BALANCE_INPUT, calcPanelBalance } from "../src/lib/panelbalance";
 import { DEFAULT_GEN_SYNC_FAULT_INPUT, calcGenSyncFault } from "../src/lib/gensyncfault";
 import { DEFAULT_GENSET_FUEL_INPUT, calcGensetFuel } from "../src/lib/gensetfuel";
+import { DEFAULT_GROUND_RESISTANCE_INPUT, calcGroundResistance } from "../src/lib/groundresistance";
+import { DEFAULT_GROUND_RING_RESISTANCE_INPUT, calcGroundRingResistance } from "../src/lib/groundringresistance";
+import { DEFAULT_DIVERSITY_FACTOR_INPUT, calcDiversityFactor } from "../src/lib/diversityfactor";
+import { DEFAULT_TRANSFER_SWITCH_INPUT, calcTransferSwitch } from "../src/lib/transferswitch";
+import { DEFAULT_EMERGENCY_LIGHTING_INPUT, calcEmergencyLighting } from "../src/lib/emergencylighting";
+import { DEFAULT_WIRE_AMPACITY_INPUT, calcWireAmpacity, ambientCorrectionFactor, bundlingAdjustmentFactor } from "../src/lib/wireampacitynec";
+import { DEFAULT_FEEDER_TAP_INPUT, calcFeederTap } from "../src/lib/feedertaprule";
+import { DEFAULT_DUCT_BANK_HEAT_RISE_INPUT, calcDuctBankHeatRise } from "../src/lib/ductbankheatrise";
+import { DEFAULT_CABLE_TRAY_VENTILATION_INPUT, calcCableTrayVentilation } from "../src/lib/cabletrayventilation";
+import { DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, calcNecResidentialLoad } from "../src/lib/necresidentialload";
+import { DEFAULT_MOTOR_TORQUE_INPUT, calcMotorTorque } from "../src/lib/motortorque";
+import { DEFAULT_MOTOR_ACCEL_INPUT, calcMotorAccel } from "../src/lib/motoraccel";
+import { DEFAULT_SOFT_STARTER_INPUT, calcSoftStarter } from "../src/lib/softstarter";
+import { DEFAULT_VFD_PARAMETER_INPUT, calcVfdParameter } from "../src/lib/vfdparameter";
+import { DEFAULT_AFCI_GFCI_INPUT, lookupAfciGfci } from "../src/lib/afciGfciRequirements";
+import { DEFAULT_SWITCHGEAR_SCCR_INPUT, calcSwitchgearSccr } from "../src/lib/switchgearSccr";
+import { DEFAULT_SPD_RATING_INPUT, calcSpdRating } from "../src/lib/spdRating";
+import { DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT, calcSolarChargeController } from "../src/lib/solarChargeController";
+import { DEFAULT_SOLAR_TILT_ANGLE_INPUT, calcSolarTiltAngle } from "../src/lib/solarTiltAngle";
+import { DEFAULT_INVERTER_SIZING_INPUT, calcInverterSizing } from "../src/lib/inverterSizing";
+import { DEFAULT_WIND_TURBINE_POWER_INPUT, calcWindTurbinePower } from "../src/lib/windTurbinePower";
+import { DEFAULT_CHP_SIZING_INPUT, calcChpSizing } from "../src/lib/chpSizing";
+import { DEFAULT_MICROGRID_STABILITY_INPUT, calcMicrogridStability } from "../src/lib/microgridStability";
+import { DEFAULT_PEAK_SHAVING_INPUT, calcPeakShaving } from "../src/lib/peakShaving";
 
 // --------------------------------------------------------------------------
 // Tiny test harness
@@ -144,6 +168,28 @@ section("IDMT Relay Coordination");
   const coord = checkCoordination(r1, r2, { minCurrent: 300, maxCurrent: 5000, requiredMargin: 0.3 });
   assertTrue("Coordination sweep evaluates points", coord.anyEvaluated && coord.points.length > 0, `${coord.points.length} points`);
   assertTrue("Min margin is a finite number", coord.minMargin !== null && isFinite(coord.minMargin), String(coord.minMargin));
+
+  // Chain coordination: a 2-relay chain should reduce to exactly one step
+  // matching checkCoordination() directly (same underlying sweep, reused).
+  const chain2 = checkChainCoordination([r1, r2], { minCurrent: 300, maxCurrent: 5000, requiredMargin: 0.3 });
+  assertEqual("2-relay chain produces exactly 1 step", chain2.steps.length, 1);
+  assertClose("2-relay chain step matches checkCoordination's min margin", chain2.steps[0].minMargin, coord.minMargin!, 0.5);
+  assertEqual("2-relay chain step pass matches checkCoordination's overall pass", chain2.steps[0].pass, coord.overallPass);
+
+  // 3-relay chain (former Multi-Bus Grading worked example, now merged in):
+  // Relay1 pickup1A/CT200/TMS0.1, Relay2 pickup1.2A/CT300/TMS0.2, Relay3 pickup1.5A/CT400/TMS0.3, IEC SI, 0.4s required.
+  const g1 = { ...DEFAULT_RELAY("Relay 1"), pickupCurrent: 1, ctRatio: 200, timeDial: 0.1 };
+  const g2 = { ...DEFAULT_RELAY("Relay 2"), pickupCurrent: 1.2, ctRatio: 300, timeDial: 0.2 };
+  const g3 = { ...DEFAULT_RELAY("Relay 3"), pickupCurrent: 1.5, ctRatio: 400, timeDial: 0.3 };
+  // Single-point trip times at 5000A, cross-checked against the worked example.
+  assertClose("Relay 1 trip time at 5000A ~0.211s", tripTime(g1, 5000), 0.211, 1);
+  assertClose("Relay 2 trip time at 5000A ~0.518s", tripTime(g2, 5000), 0.518, 1);
+  assertClose("Relay 3 trip time at 5000A ~0.970s", tripTime(g3, 5000), 0.970, 1);
+
+  const chain3 = checkChainCoordination([g1, g2, g3], { minCurrent: 1, maxCurrent: 5000, requiredMargin: 0.4 });
+  assertEqual("3-relay chain produces exactly 2 steps", chain3.steps.length, 2);
+  assertTrue("Chain evaluates both steps", chain3.steps.every((s) => s.anyEvaluated));
+  assertEqual("Overall chain fails because step 1's full-range worst case is tighter than the single-point 5000A margin", chain3.allPass, false);
 }
 
 // ==========================================================================
@@ -1175,6 +1221,439 @@ section("Genset Fuel Consumption & Running Cost");
 
   const perKwh = calcGensetFuel({ ...DEFAULT_GENSET_FUEL_INPUT, fuelRateBasis: "perKwh", fuelRateValue: 0.3, loadKw: 150 });
   assertClose("L/kWh basis: rate = 0.3*150 = 45L/hr", perKwh.consumptionRateLPerHour, 45, 0.5);
+}
+
+// ==========================================================================
+// 59. Ground Resistance Calculator (single rod)
+// ==========================================================================
+section("Ground Resistance Calculator (single rod)");
+{
+  const r = calcGroundResistance(DEFAULT_GROUND_RESISTANCE_INPUT);
+  // R = (rho/2piL) * (ln(4L/a) - 1), rho=100, L=3, a=0.008m
+  const expected = (100 / (2 * Math.PI * 3)) * (Math.log((4 * 3) / 0.008) - 1);
+  assertClose("Default rod resistance ~33.5 ohms", r.resistanceOhms, expected, 0.5);
+  assertEqual("Grade is HIGH (33.5 > 25 target)", r.grade, "HIGH");
+  assertEqual("Fails default 25 ohm target", r.passesTarget, false);
+
+  const lowSoil = calcGroundResistance({ ...DEFAULT_GROUND_RESISTANCE_INPUT, rho: 20 });
+  assertTrue("Low resistivity soil gives a lower resistance", (lowSoil.resistanceOhms ?? 0) < (r.resistanceOhms ?? 0));
+
+  assertNull("Zero soil resistivity returns null", calcGroundResistance({ ...DEFAULT_GROUND_RESISTANCE_INPUT, rho: 0 }).resistanceOhms);
+}
+
+// ==========================================================================
+// 60. Ground Ring Resistance Calculator
+// ==========================================================================
+section("Ground Ring Resistance Calculator");
+{
+  const r = calcGroundRingResistance(DEFAULT_GROUND_RING_RESISTANCE_INPUT);
+  // R = (rho/2*pi^2*D) * (ln(8D/a) + ln(2D/h) - 2), rho=100, D=10, a=0.005, h=0.6
+  const expected = (100 / (2 * Math.PI * Math.PI * 10)) * (Math.log((8 * 10) / 0.005) + Math.log((2 * 10) / 0.6) - 2);
+  assertClose("Default ring resistance ~5.67 ohms", r.resistanceOhms, expected, 0.5);
+  assertEqual("Grade is LOW (well under 25 ohm target)", r.grade, "LOW");
+  assertEqual("Passes default 25 ohm target", r.passesTarget, true);
+
+  assertNull("Zero ring diameter returns null", calcGroundRingResistance({ ...DEFAULT_GROUND_RING_RESISTANCE_INPUT, ringDiameterM: 0 }).resistanceOhms);
+}
+
+// ==========================================================================
+// 61. Diversity Factor — Coincident Demand
+// ==========================================================================
+section("Diversity Factor — Coincident Demand");
+{
+  const r = calcDiversityFactor(DEFAULT_DIVERSITY_FACTOR_INPUT);
+  assertClose("Compute mode: DF = 850/620 = 1.371", r.diversityFactor, 1.371, 0.5);
+  assertClose("Non-coincidence saving = (850-620)/850*100 = 27.06%", r.noncoincidenceSavingsPct, 27.059, 0.5);
+  assertEqual("Grade is TYPICAL (1.15 <= DF < 1.5)", r.grade, "TYPICAL");
+
+  const solveSystem = calcDiversityFactor({ mode: "solveSystemMd", sumIndividualMaxKw: 850, systemMaxKw: null, diversityFactor: 1.5 });
+  assertClose("Solve system MD: 850/1.5 = 566.667", solveSystem.systemMaxKw, 566.667, 0.5);
+
+  const solveSum = calcDiversityFactor({ mode: "solveSumMd", sumIndividualMaxKw: null, systemMaxKw: 620, diversityFactor: 1.5 });
+  assertClose("Solve sum MD: 620*1.5 = 930", solveSum.sumIndividualMaxKw, 930, 0.5);
+
+  assertNull("Zero system demand in compute mode returns null", calcDiversityFactor({ mode: "compute", sumIndividualMaxKw: 850, systemMaxKw: 0, diversityFactor: null }).diversityFactor);
+}
+
+// ==========================================================================
+// 62. Transfer Switch Sizing Calculator
+// ==========================================================================
+section("Transfer Switch Sizing Calculator");
+{
+  const r = calcTransferSwitch(DEFAULT_TRANSFER_SWITCH_INPUT);
+  // I = (250/0.9*1000) / (sqrt3*480)
+  const expectedA = (250 / 0.9) * 1000 / (Math.sqrt(3) * 480);
+  assertClose("Default load current ~334.1A", r.totalLoadAmps, expectedA, 0.5);
+  assertClose("Min switch = 1.25 * load (fully continuous)", r.minSwitchAmps, expectedA * 1.25, 0.5);
+  assertEqual("Rounds up to next standard 600A rating", r.recommendedSwitchAmps, 600);
+
+  const directAmps = calcTransferSwitch({ ...DEFAULT_TRANSFER_SWITCH_INPUT, loadMethod: "amps", connectedAmps: 150, continuousFractionPct: 0 });
+  assertClose("Fully non-continuous load uses 100% factor only", directAmps.minSwitchAmps, 150, 0.5);
+  assertEqual("150A non-continuous rounds up to standard 150A rating", directAmps.recommendedSwitchAmps, 150);
+
+  assertNull("Zero load returns null", calcTransferSwitch({ ...DEFAULT_TRANSFER_SWITCH_INPUT, connectedKw: 0 }).totalLoadAmps);
+}
+
+// ==========================================================================
+// 63. Emergency Lighting Duration Calculator
+// ==========================================================================
+section("Emergency Lighting Duration Calculator");
+{
+  const r = calcEmergencyLighting(DEFAULT_EMERGENCY_LIGHTING_INPUT);
+  // usableWh = 108*0.8*0.9 = 77.76, runtime = 77.76/60*60 = 77.76 min
+  assertClose("Check mode runtime = 77.76 min", r.runtimeMin, 77.76, 0.5);
+  assertEqual("Below the 90-minute NFPA 101 reference", r.meetsMinimum, false);
+  assertEqual("Grade is BELOW MINIMUM", r.grade, "BELOW MINIMUM");
+
+  const sizeCase = calcEmergencyLighting({
+    mode: "size", loadW: 100, batteryWh: null, requiredDurationMin: 90,
+    usableDodPct: 80, inverterEfficiencyPct: 90, agingFactorPct: 25, systemVoltageV: 12,
+  });
+  // usableWhNeeded=150, bare=150/0.72=208.333, w/aging *1.25=260.417, Ah=260.417/12=21.70
+  assertClose("Size mode required Wh ~260.4Wh (with 25% aging margin)", sizeCase.requiredNameplateWh, 260.417, 0.5);
+  assertClose("Size mode required Ah ~21.70Ah at 12V", sizeCase.requiredAh, 21.701, 0.5);
+
+  assertNull("Zero load returns null", calcEmergencyLighting({ ...DEFAULT_EMERGENCY_LIGHTING_INPUT, loadW: 0 }).runtimeMin);
+}
+
+// ==========================================================================
+// 64. Wire Size / Ampacity Calculator (NEC)
+// ==========================================================================
+section("Wire Size / Ampacity Calculator (NEC)");
+{
+  assertEqual("30C is within the 1.00 band for all columns", ambientCorrectionFactor(30, 75), 1.0);
+  assertEqual("40C band gives 0.88 for 75C column", ambientCorrectionFactor(40, 75), 0.88);
+  assertEqual("1-3 conductors: no bundling adjustment", bundlingAdjustmentFactor(3), 1.0);
+  assertEqual("4-6 conductors: 0.8 adjustment", bundlingAdjustmentFactor(6), 0.8);
+  assertEqual("10-20 conductors: 0.5 adjustment", bundlingAdjustmentFactor(15), 0.5);
+
+  const r = calcWireAmpacity(DEFAULT_WIRE_AMPACITY_INPUT);
+  assertEqual("Auto-sizes to #6 AWG for a 65A load at 75C/75C, 30C ambient, 3 conductors", r.candidate?.size, "6");
+  assertEqual("Base ampacity of #6 Cu at 75C = 65A", r.candidate?.baseAmpacity, 65);
+  assertTrue("Passes the 65A load", r.passes === true);
+
+  const checkFail = calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, mode: "check", selectedSize: "10", loadAmps: 65 });
+  assertTrue("#10 AWG correctly fails a 65A load", checkFail.passes === false);
+
+  const hotBundled = calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, ambientC: 40, currentCarryingCount: 10 });
+  assertTrue("Hot ambient + bundling requires a larger conductor than the base case", (hotBundled.candidate?.size ?? "0") !== "6");
+
+  assertNull("Zero load current returns null candidate", calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, loadAmps: 0 }).candidate);
+}
+
+// ==========================================================================
+// 65. Feeder Tap Rule Calculator (NEC 240.21(B))
+// ==========================================================================
+section("Feeder Tap Rule Calculator (NEC 240.21(B))");
+{
+  const r = calcFeederTap(DEFAULT_FEEDER_TAP_INPUT);
+  assertClose("10-ft rule minimum tap ampacity = 400/10 = 40A", r.minTapAmpacityRequiredA, 40, 0.5);
+  assertTrue("Default 10-ft tap scenario is compliant", r.compliant === true);
+
+  const tooLong = calcFeederTap({ ...DEFAULT_FEEDER_TAP_INPUT, tapLengthFt: 12 });
+  assertTrue("13ft tap fails the 10-ft length condition", tooLong.compliant === false);
+
+  const twentyFive = calcFeederTap({ ...DEFAULT_FEEDER_TAP_INPUT, tapRuleType: "twentyFiveFoot", tapLengthFt: 20, tapConductorAmpacityA: 140, terminalOcpdRatingA: 125 });
+  assertClose("25-ft rule minimum tap ampacity = 400/3 = 133.3A", twentyFive.minTapAmpacityRequiredA, 133.333, 0.5);
+  assertTrue("140A tap conductor satisfies the 25-ft rule's 1/3 ratio", twentyFive.compliant === true);
+
+  const outside = calcFeederTap({ ...DEFAULT_FEEDER_TAP_INPUT, tapRuleType: "outsideUnlimited", tapConductorAmpacityA: 60, terminalOcpdRatingA: 60 });
+  assertTrue("Outside unlimited tap with all conditions met is compliant", outside.compliant === true);
+
+  const outsideFail = calcFeederTap({ ...DEFAULT_FEEDER_TAP_INPUT, tapRuleType: "outsideUnlimited", outsideExceptAtTermination: false });
+  assertTrue("Outside unlimited tap fails when not routed outside", outsideFail.compliant === false);
+}
+
+// ==========================================================================
+// 66. Duct Bank Heat Rise Calculator
+// ==========================================================================
+section("Duct Bank Heat Rise Calculator");
+{
+  const r = calcDuctBankHeatRise(DEFAULT_DUCT_BANK_HEAT_RISE_INPUT);
+  const deq = 2 * Math.sqrt((1.2 * 0.6) / Math.PI);
+  assertClose("Equivalent diameter ~0.957m", r.equivalentDiameterM, deq, 0.5);
+  const rext = (1.0 / (2 * Math.PI)) * Math.log((4 * 1.0) / deq);
+  assertClose("External thermal resistance ~0.228 K.m/W", r.externalThermalResistanceKmPerW, rext, 0.5);
+  assertClose("Temperature rise = 60 * Rext ~13.7K", r.deltaTK, 60 * rext, 0.5);
+  assertClose("Bank surface temp = 20 + rise ~33.7C", r.bankSurfaceTempC, 20 + 60 * rext, 0.5);
+
+  const maxLosses = calcDuctBankHeatRise({ ...DEFAULT_DUCT_BANK_HEAT_RISE_INPUT, mode: "maxLosses", maxAllowableTempC: 60 });
+  assertClose("Max losses = (60-20)/Rext", maxLosses.maxLossesWPerM, 40 / rext, 0.5);
+
+  assertNull("Zero burial depth returns null Rext", calcDuctBankHeatRise({ ...DEFAULT_DUCT_BANK_HEAT_RISE_INPUT, burialDepthM: 0 }).externalThermalResistanceKmPerW);
+}
+
+// ==========================================================================
+// 67. Cable Tray Ventilation Calculator
+// ==========================================================================
+section("Cable Tray Ventilation Calculator");
+{
+  const r = calcCableTrayVentilation(DEFAULT_CABLE_TRAY_VENTILATION_INPUT);
+  assertClose("Total tray area = 0.3*10 = 3.0 m2", r.totalTrayAreaM2, 3.0, 0.5);
+  assertClose("Ventilation ratio = 1.2/3.0*100 = 40%", r.ventilationRatioPct, 40, 0.5);
+  assertEqual("Grade is GOOD (25-50%)", r.grade, "GOOD");
+
+  const solid = calcCableTrayVentilation({ ...DEFAULT_CABLE_TRAY_VENTILATION_INPUT, openAreaM2: 0 });
+  assertEqual("Zero open area grades LOW", solid.grade, "LOW");
+
+  assertNull("Zero width returns null", calcCableTrayVentilation({ ...DEFAULT_CABLE_TRAY_VENTILATION_INPUT, trayWidthMm: 0 }).ventilationRatioPct);
+}
+
+// ==========================================================================
+// 68. NEC 220 Residential Electrical Load Calculator
+// ==========================================================================
+section("NEC 220 Residential Electrical Load Calculator");
+{
+  const r = calcNecResidentialLoad(DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT);
+  assertEqual("General loads subtotal = 6000+3000+1500 = 10500VA", r.generalLoadsSubtotalVa, 10500);
+  assertClose("General loads demand = 3000+(10500-3000)*0.35 = 5625VA", r.generalLoadsDemandVa, 5625, 0.5);
+  assertEqual("Fixed appliances stay at 100% (only 3, under the 4-appliance rule)", r.fixedApplianceDemandVa, 4500);
+  assertEqual("Range <=12kW demands a flat 8000VA", r.rangeDemandVa, 8000);
+  assertEqual("Dryer demand = max(5000, nameplate) = 5000VA", r.dryerDemandVa, 5000);
+  assertEqual("HVAC demand = max(cooling, heating) = 10000VA", r.hvacDemandVa, 10000);
+  assertClose("Total demand ~33125VA", r.totalDemandVa, 33125, 0.5);
+  assertClose("Demand current ~138.0A", r.serviceAmps, 138.021, 0.5);
+  assertEqual("Recommends 150A standard service", r.recommendedServiceA, 150);
+
+  const fourPlus = calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, otherFixedApplianceCount: 4 });
+  assertClose("4+ fixed appliances applies the 75% demand factor", fourPlus.fixedApplianceDemandVa, 4500 * 0.75, 0.5);
+
+  const optional = calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, method: "optional" });
+  assertClose("Optional method total demand ~28000VA", optional.totalDemandVa, 28000, 1);
+  assertEqual("Optional method recommends 125A standard service", optional.recommendedServiceA, 125);
+}
+
+// ==========================================================================
+// 69. Motor Torque Calculator
+// ==========================================================================
+section("Motor Torque Calculator");
+{
+  const r = calcMotorTorque(DEFAULT_MOTOR_TORQUE_INPUT);
+  assertClose("T = 9550*37/1480 = 238.75 Nm", r.torqueNm, 238.75, 0.5);
+  assertClose("lb-ft conversion", r.torqueLbFt, 238.75 / 1.35582, 0.5);
+
+  const imperial = calcMotorTorque({ unitSystem: "imperial", powerKw: null, powerHp: 50, speedRpm: 1480 });
+  assertClose("T = 5252*50/1480 = 177.43 lb-ft", imperial.torqueLbFt, 177.432, 0.5);
+
+  assertNull("Zero speed returns null", calcMotorTorque({ ...DEFAULT_MOTOR_TORQUE_INPUT, speedRpm: 0 }).torqueNm);
+}
+
+// ==========================================================================
+// 70. Motor Acceleration Time Calculator
+// ==========================================================================
+section("Motor Acceleration Time Calculator");
+{
+  const r = calcMotorAccel(DEFAULT_MOTOR_ACCEL_INPUT);
+  const omega = (2 * Math.PI * 1480) / 60;
+  assertClose("Angular velocity = 2*pi*1480/60", r.angularVelocityRadPerS, omega, 0.5);
+  assertClose("t = J*omega/T = 2.5*155.03/180 ~2.15s", r.accelTimeS, (2.5 * omega) / 180, 0.5);
+  assertEqual("Grade is NORMAL (2-10s)", r.grade, "NORMAL");
+
+  assertNull("Zero inertia returns null", calcMotorAccel({ ...DEFAULT_MOTOR_ACCEL_INPUT, momentOfInertiaKgm2: 0 }).accelTimeS);
+}
+
+// ==========================================================================
+// 71. Soft Starter Sizing Calculator
+// ==========================================================================
+section("Soft Starter Sizing Calculator");
+{
+  const r = calcSoftStarter(DEFAULT_SOFT_STARTER_INPUT);
+  assertEqual("No derating at 40C/1000m/5 starts-per-hour", r.deratedCapacityA, 105);
+  assertTrue("105A derated capacity adequate for 85A FLA", r.currentOk === true);
+  assertTrue("Voltage rating adequate (400>=400)", r.voltageOk === true);
+  assertTrue("Overall adequate", r.overallOk === true);
+
+  const hot = calcSoftStarter({ ...DEFAULT_SOFT_STARTER_INPUT, ambientTempC: 60 });
+  assertClose("60C ambient derates by 20% (1-0.01*20=0.8)", hot.tempFactor, 0.8, 1);
+
+  const underVoltage = calcSoftStarter({ ...DEFAULT_SOFT_STARTER_INPUT, softStarterRatedVoltageV: 230 });
+  assertTrue("Undersized voltage correctly fails", underVoltage.voltageOk === false);
+}
+
+// ==========================================================================
+// 72. VFD Parameter Selection Calculator
+// ==========================================================================
+section("VFD Parameter Selection Calculator");
+{
+  const r = calcVfdParameter(DEFAULT_VFD_PARAMETER_INPUT);
+  assertTrue("Voltage match OK (400V VFD for 400V motor)", r.voltageMatch === true);
+  assertClose("Current loading = 65/75*100 = 86.67%", r.currentLoadingPct, 86.667, 0.5);
+  assertClose("Base V/Hz = 400/50 = 8.0", r.baseVHzRatio, 8.0, 0.5);
+  assertClose("Ns = 120*50/4 = 1500rpm", r.synchronousSpeedRpm, 1500, 0.5);
+  assertClose("Slip = (1500-1480)/1500*100 = 1.33%", r.slipPct, 1.333, 0.5);
+  assertEqual("Status is ADEQUATE (70-90% loading band)", r.status, "ADEQUATE");
+
+  const overloaded = calcVfdParameter({ ...DEFAULT_VFD_PARAMETER_INPUT, vfdRatedCurrentA: 60 });
+  assertEqual("VFD undersized for motor FLA is a PARAMETER MISMATCH", overloaded.status, "PARAMETER MISMATCH");
+}
+
+// ==========================================================================
+// 73. AFCI / GFCI Protection Requirements
+// ==========================================================================
+section("AFCI / GFCI Protection Requirements");
+{
+  const kitchen = lookupAfciGfci(DEFAULT_AFCI_GFCI_INPUT);
+  assertEqual("Kitchen requires AFCI", kitchen.afciRequired, true);
+  assertEqual("Kitchen requires GFCI", kitchen.gfciRequired, true);
+
+  const bathroom = lookupAfciGfci({ location: "bathroom" });
+  assertEqual("Bathroom does not require AFCI", bathroom.afciRequired, false);
+  assertEqual("Bathroom requires GFCI", bathroom.gfciRequired, true);
+
+  const bedroom = lookupAfciGfci({ location: "bedroom" });
+  assertEqual("Bedroom requires AFCI", bedroom.afciRequired, true);
+  assertEqual("Bedroom does not require GFCI", bedroom.gfciRequired, false);
+}
+
+// ==========================================================================
+// 74. Switchgear Short-Circuit Rating Calculator
+// ==========================================================================
+section("Switchgear Short-Circuit Rating Calculator");
+{
+  const r = calcSwitchgearSccr(DEFAULT_SWITCHGEAR_SCCR_INPUT);
+  const flc = (1500 * 1000) / (Math.sqrt(3) * 480);
+  const expectedFault = flc / 0.0575;
+  assertClose("Fault current = FLC/%Z ~31.38kA", r.faultCurrentRmsA, expectedFault, 0.5);
+  assertClose("Peak = Ifault*sqrt2*1.8", r.peakFaultCurrentA, expectedFault * Math.sqrt(2) * 1.8, 0.5);
+  assertTrue("42kA OCPD adequate for ~31.4kA fault", r.deviceAicOk === true);
+  assertTrue("42kA switchgear SCCR adequate", r.equipmentSccrOk === true);
+
+  const undersized = calcSwitchgearSccr({ ...DEFAULT_SWITCHGEAR_SCCR_INPUT, deviceAicRatingA: 22000 });
+  assertTrue("22kA OCPD correctly fails against ~31.4kA fault", undersized.deviceAicOk === false);
+}
+
+// ==========================================================================
+// 75. Surge Protection Device (SPD) Rating Calculator
+// ==========================================================================
+section("Surge Protection Device (SPD) Rating Calculator");
+{
+  const r = calcSpdRating(DEFAULT_SPD_RATING_INPUT);
+  assertClose("Reference voltage = 480/sqrt3 = 277.1V", r.referenceVoltageV, 277.128, 0.5);
+  assertClose("Min recommended MCOV = 277.1*1.15 = 318.7V", r.minRecommendedMcovV, 318.7, 0.5);
+  assertTrue("320V candidate MCOV adequate", r.mcovOk === true);
+  assertTrue("65kA candidate SCCR adequate for 25kA available fault", r.sccrOk === true);
+  assertTrue("Overall adequate", r.overallOk === true);
+
+  const ungrounded = calcSpdRating({ ...DEFAULT_SPD_RATING_INPUT, groundingType: "highResistanceOrUngrounded" });
+  assertClose("Ungrounded system uses full L-L voltage as reference", ungrounded.referenceVoltageV, 480, 0.5);
+
+  const underMcov = calcSpdRating({ ...DEFAULT_SPD_RATING_INPUT, candidateSpdMcovV: 150 });
+  assertTrue("150V MCOV correctly fails for a 480Y/277 system", underMcov.mcovOk === false);
+}
+
+// ==========================================================================
+// 76. Solar Charge Controller Sizing Calculator
+// ==========================================================================
+section("Solar Charge Controller Sizing Calculator");
+{
+  const r = calcSolarChargeController(DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT);
+  assertClose("MPPT base current = 4000/48 = 83.33A", r.baseCurrentA, 83.333, 0.5);
+  assertClose("Required = 83.33*1.25*1.10 ~114.6A", r.requiredControllerA, 114.583, 0.5);
+  assertEqual("Rounds up to common 150A rating", r.recommendedCommonRatingA, 150);
+
+  const pwm = calcSolarChargeController({ ...DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT, controllerType: "pwm", pvStringIscA: 10, numParallelStrings: 2 });
+  assertClose("PWM base current = 10*2 = 20A", pwm.baseCurrentA, 20, 0.5);
+
+  assertNull("Missing MPPT inputs returns null", calcSolarChargeController({ ...DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT, arrayMaxPowerW: null }).baseCurrentA);
+}
+
+// ==========================================================================
+// 77. Solar Panel Tilt Angle Calculator
+// ==========================================================================
+section("Solar Panel Tilt Angle Calculator");
+{
+  const r = calcSolarTiltAngle(DEFAULT_SOLAR_TILT_ANGLE_INPUT);
+  assertEqual("Year-round tilt = latitude = 35", r.recommendedTiltDeg, 35);
+  assertEqual("35deg is MID-LATITUDE", r.latitudeRegime, "MID-LATITUDE");
+
+  const winter = calcSolarTiltAngle({ latitudeDeg: 35, mode: "winter" });
+  assertEqual("Winter-biased tilt = 35+15 = 50", winter.recommendedTiltDeg, 50);
+
+  const summer = calcSolarTiltAngle({ latitudeDeg: 35, mode: "summer" });
+  assertEqual("Summer-biased tilt = 35-15 = 20", summer.recommendedTiltDeg, 20);
+
+  const equatorial = calcSolarTiltAngle({ latitudeDeg: 5, mode: "yearRound" });
+  assertEqual("5deg is EQUATORIAL", equatorial.latitudeRegime, "EQUATORIAL");
+}
+
+// ==========================================================================
+// 78. Inverter Sizing Calculator (Solar/Off-Grid/ILR)
+// ==========================================================================
+section("Inverter Sizing Calculator (Solar/Off-Grid/ILR)");
+{
+  const r = calcInverterSizing(DEFAULT_INVERTER_SIZING_INPUT);
+  assertClose("Recommended inverter = 12/1.2 = 10kWac", r.recommendedInverterAcKw, 10, 0.5);
+  assertClose("Candidate ILR = 12/10 = 1.2", r.actualIlr, 1.2, 0.5);
+  assertEqual("ILR 1.2 grades as TYPICAL", r.ilrGrade, "TYPICAL");
+
+  const offGrid = calcInverterSizing({ ...DEFAULT_INVERTER_SIZING_INPUT, mode: "offGrid" });
+  assertClose("Off-grid continuous = 3.5/0.9 = 3.889kVA", offGrid.requiredContinuousKva, 3.889, 0.5);
+  assertClose("Off-grid surge = 3.889*3 = 11.67kVA", offGrid.requiredSurgeKva, 11.667, 0.5);
+}
+
+// ==========================================================================
+// 79. Wind Turbine Power Output Calculator
+// ==========================================================================
+section("Wind Turbine Power Output Calculator");
+{
+  const r = calcWindTurbinePower(DEFAULT_WIND_TURBINE_POWER_INPUT);
+  const area = Math.PI * Math.pow(10, 2);
+  const expectedW = 0.5 * 1.225 * area * 1000 * 0.4 * 0.95;
+  assertClose("Swept area = pi*10^2 ~314.16 m2", r.sweptAreaM2, area, 0.5);
+  assertClose("Power output matches hand calc ~73.1kW", r.powerOutputW, expectedW, 0.5);
+  assertTrue("Cp=0.4 does not exceed the Betz limit", r.cpExceedsBetzLimit === false);
+
+  const overBetz = calcWindTurbinePower({ ...DEFAULT_WIND_TURBINE_POWER_INPUT, powerCoefficientCp: 0.7 });
+  assertTrue("Cp=0.7 correctly flags exceeding the Betz limit", overBetz.cpExceedsBetzLimit === true);
+}
+
+// ==========================================================================
+// 80. Cogeneration (CHP) Sizing Calculator
+// ==========================================================================
+section("Cogeneration (CHP) Sizing Calculator");
+{
+  const r = calcChpSizing(DEFAULT_CHP_SIZING_INPUT);
+  assertClose("Thermal-based size = 800/1.3 = 615.4kW", r.sizeBasedOnThermalKw, 615.385, 0.5);
+  assertEqual("Recommended = min(500, 615.4) = 500kW", r.recommendedSizeKw, 500);
+  assertEqual("Electrical baseload governs", r.governingBaseload, "electrical");
+  assertEqual("500kW is STANDARD class", r.sizeClass, "STANDARD");
+
+  const thermalGoverned = calcChpSizing({ electricalDemandKw: 900, thermalDemandKw: 600, heatToPowerRatio: 1.3 });
+  assertEqual("Thermal baseload governs when it's more limiting", thermalGoverned.governingBaseload, "thermal");
+}
+
+// ==========================================================================
+// 81. Microgrid Stability Estimator
+// ==========================================================================
+section("Microgrid Stability Estimator");
+{
+  const r = calcMicrogridStability(DEFAULT_MICROGRID_STABILITY_INPUT);
+  assertClose("Support ratio = 1200/800 = 1.5", r.supportRatio, 1.5, 0.5);
+  assertClose("Headroom score = 40*min(1,0.5/0.5) = 40", r.headroomScore, 40, 1);
+  assertClose("Inertia score = 30*0.6 = 18", r.inertiaScore, 18, 1);
+  assertClose("Margin score = 30*min(1,15/20) = 22.5", r.marginScore, 22.5, 1);
+  assertClose("Stability Index ~80.5", r.stabilityIndex, 80.5, 1);
+  assertEqual("80.5 grades as STABLE", r.stabilityClass, "STABLE");
+
+  const weak = calcMicrogridStability({ sourceSupportCapacityKw: 850, loadDemandKw: 800, inertiaFactor: 0.1, reserveMarginPct: 2 });
+  assertEqual("Low headroom/inertia/margin grades as UNSTABLE", weak.stabilityClass, "UNSTABLE");
+}
+
+// ==========================================================================
+// 82. Smart Grid Peak Shaving Calculator
+// ==========================================================================
+section("Smart Grid Peak Shaving Calculator");
+{
+  const r = calcPeakShaving(DEFAULT_PEAK_SHAVING_INPUT);
+  assertEqual("Required shave = 1000-750 = 250kW", r.requiredShaveKw, 250);
+  assertClose("BESS power = 250*1.10 = 275kW", r.bessPowerRatingKw, 275, 0.5);
+  assertClose("BESS energy = (250*2)/0.9 = 555.6kWh", r.bessEnergyCapacityKwh, 555.556, 0.5);
+  assertClose("Annual savings = 250*15*12 = $45,000", r.annualSavings, 45000, 1);
+  assertClose("Payback ~4.94yr", r.simplePaybackYears, 4.938, 1);
+  assertEqual("Grades as STANDARD", r.shaveClass, "STANDARD");
+
+  const noReduction = calcPeakShaving({ ...DEFAULT_PEAK_SHAVING_INPUT, targetPeakKw: 1000 });
+  assertEqual("No shave needed when target equals current peak", noReduction.shaveClass, "NO REDUCTION NEEDED");
 }
 
 // --------------------------------------------------------------------------

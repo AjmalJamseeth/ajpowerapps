@@ -150,6 +150,57 @@ export function checkCoordination(
   };
 }
 
+export interface ChainStepResult {
+  label: string; // "Relay 1 -> Relay 2"
+  downstreamLabel: string;
+  upstreamLabel: string;
+  minMargin: number | null;
+  minMarginAt: number | null;
+  pass: boolean | null;
+  anyEvaluated: boolean;
+}
+
+export interface ChainCoordinationResult {
+  steps: ChainStepResult[];
+  allPass: boolean | null;
+}
+
+/**
+ * Generalizes checkCoordination() from a single relay pair to a full radial
+ * chain of N relays (ordered downstream/load-end -> upstream/source): every
+ * successive adjacent pair is swept across the full fault-current range
+ * (reusing checkCoordination for each step), so the chain check is the
+ * full-range equivalent of a multi-relay grading study, not just a
+ * single-point check. A 2-relay chain reduces to exactly one step, i.e. the
+ * same result as calling checkCoordination() directly.
+ */
+export function checkChainCoordination(
+  relays: RelaySettings[],
+  opts: { minCurrent: number; maxCurrent: number; steps?: number; requiredMargin: number }
+): ChainCoordinationResult {
+  const steps: ChainStepResult[] = [];
+
+  for (let i = 0; i < relays.length - 1; i++) {
+    const downstream = relays[i];
+    const upstream = relays[i + 1];
+    const c = checkCoordination(downstream, upstream, opts);
+    steps.push({
+      label: `${downstream.label} → ${upstream.label}`,
+      downstreamLabel: downstream.label,
+      upstreamLabel: upstream.label,
+      minMargin: c.minMargin,
+      minMarginAt: c.minMarginAt,
+      pass: c.anyEvaluated ? c.overallPass : null,
+      anyEvaluated: c.anyEvaluated,
+    });
+  }
+
+  const evaluated = steps.filter((s) => s.anyEvaluated);
+  const allPass = evaluated.length > 0 ? evaluated.every((s) => s.pass !== false) : null;
+
+  return { steps, allPass };
+}
+
 /** Generates log-spaced sample points of a single relay's TCC curve for plotting. */
 export function curvePoints(
   relay: RelaySettings,

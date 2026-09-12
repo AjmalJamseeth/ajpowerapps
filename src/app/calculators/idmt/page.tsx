@@ -9,39 +9,43 @@ import { Tip } from "@/components/fields";
 import RelayForm from "@/components/RelayForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import TccChart from "@/components/TccChart";
-import { DEFAULT_RELAY, checkCoordination, RelaySettings } from "@/lib/idmt";
+import { DEFAULT_RELAY, checkChainCoordination, RelaySettings } from "@/lib/idmt";
+
+const ACCENT_CLASSES = ["bg-accent", "bg-accent-2", "bg-[#a78bfa]", "bg-[#f472b6]", "bg-[#34d399]", "bg-[#fb7185]"];
 
 export default function IdmtCalculatorPage() {
-  const [relay1, setRelay1] = useState<RelaySettings>(() => ({
-    ...DEFAULT_RELAY("Relay 1 (Downstream)"),
-    pickupCurrent: 100,
-    timeDial: 0.1,
-    curveType: "SI",
-  }));
-  const [relay2, setRelay2] = useState<RelaySettings>(() => ({
-    ...DEFAULT_RELAY("Relay 2 (Upstream)"),
-    pickupCurrent: 150,
-    timeDial: 0.25,
-    curveType: "SI",
-  }));
+  const [relays, setRelays] = useState<RelaySettings[]>(() => [
+    { ...DEFAULT_RELAY("Relay 1 (Downstream)"), pickupCurrent: 100, timeDial: 0.1, curveType: "SI" },
+    { ...DEFAULT_RELAY("Relay 2 (Upstream)"), pickupCurrent: 150, timeDial: 0.25, curveType: "SI" },
+  ]);
+
+  const updateRelay = (i: number, next: RelaySettings) => {
+    setRelays((prev) => prev.map((r, idx) => (idx === i ? next : r)));
+  };
+  const addRelay = () => {
+    setRelays((prev) => [...prev, DEFAULT_RELAY(`Relay ${prev.length + 1} (Upstream)`)]);
+  };
+  const removeRelay = (i: number) => {
+    setRelays((prev) => (prev.length <= 2 ? prev : prev.filter((_, idx) => idx !== i)));
+  };
 
   const [faultCurrent, setFaultCurrent] = useState(2000);
   const [maxCurrent, setMaxCurrent] = useState(10000);
   const [requiredMargin, setRequiredMargin] = useState(0.4);
 
   const minCurrent = useMemo(
-    () => Math.max(1, Math.min(relay1.pickupCurrent, relay2.pickupCurrent) * 1.05),
-    [relay1.pickupCurrent, relay2.pickupCurrent]
+    () => Math.max(1, Math.min(...relays.map((r) => r.pickupCurrent)) * 1.05),
+    [relays]
   );
 
-  const coordination = useMemo(
+  const chainResult = useMemo(
     () =>
-      checkCoordination(relay1, relay2, {
+      checkChainCoordination(relays, {
         minCurrent,
         maxCurrent,
         requiredMargin,
       }),
-    [relay1, relay2, minCurrent, maxCurrent, requiredMargin]
+    [relays, minCurrent, maxCurrent, requiredMargin]
   );
 
   return (
@@ -53,29 +57,48 @@ export default function IdmtCalculatorPage() {
           IDMT Relay Coordination Calculator
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Enter settings for two relays to compute trip times and check
-          grading margin across the full fault-current range. Curves per IEC
-          60255-151 and IEEE C37.112.
+          Enter settings for two or more relays (downstream to source) to
+          compute trip times and check grading margin across the full
+          fault-current range. Curves per IEC 60255-151 and IEEE C37.112.
         </p>
 
-<div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <ReportButton title="IDMT Relay Coordination Calculator" standardsLine="IEC 60255-151 / IEEE C37.112" />
           <FeedbackButton calculatorName="IDMT Relay Coordination Calculator" />
         </div>
 
         <div className="mt-6">
           <InfoPanel
-          purpose={"Checks that two overcurrent relays in series (an upstream and downstream device protecting the same feeder) trip in the correct order with adequate time separation across the ENTIRE fault-current range they could see — not just at one arbitrarily chosen current — using inverse-time (IDMT) curves from IEC 60255-151 or IEEE C37.112."}
-          standards={["IEC 60255-151 (measuring relays and protection equipment — functional requirements for over/undercurrent protection)", "IEEE C37.112 (IEEE standard for inverse-time characteristics for overcurrent relays)"]}
-          capabilities={["Computes trip time for both relays at any single fault current, given curve family/type, pickup, TMS/time-dial and CT ratio.", "Sweeps the full fault-current range (not just one point) and reports the worst-case (minimum) grading margin anywhere in that range, so a violation buried at one particular current can't be missed.", "Plots a log-log Time-Current Characteristic (TCC) graph of Relay 1.", "Pass/fail verdict against a configurable required grading margin (CTI), defaulting to the commonly used 0.4s for electromechanical relays."]}
-          example={{ problem: "A downstream relay (pickup 100A, TMS 0.1, IEC Standard Inverse) must grade against an upstream relay (pickup 150A, TMS 0.25, same curve) at a 2000A fault.", steps: ["Compute each relay's multiple of pickup: downstream = 2000/100 = 20×, upstream = 2000/150 = 13.3×.", "Apply the IEC Standard Inverse equation t = TMS × (0.14 / (M^0.02 − 1)) to each relay using its own multiple and TMS.", "Compare the two trip times — the difference is the grading margin at this specific current.", "Repeat across the full current sweep range to find the worst-case (minimum) margin anywhere, not just at this one point."], result: "The full-range sweep is what determines pass/fail against the required CTI — a comfortable margin at one current doesn't guarantee compliance everywhere, which is why this calculator checks the whole range rather than a single point." }}
-          notes="Curve outputs were checked against the published IEC 60255-151 SI/VI/EI reference table at TMS=1.0 for multiple current multiples."
+            purpose={"Checks that a chain of two or more overcurrent relays in series (from the load end up to the source) trips in the correct order with adequate time separation across the ENTIRE fault-current range they could see — not just at one arbitrarily chosen current — using inverse-time (IDMT) curves from IEC 60255-151 or IEEE C37.112. Add relays to check a full radial grading chain, not just a single pair."}
+            standards={["IEC 60255-151 (measuring relays and protection equipment — functional requirements for over/undercurrent protection)", "IEEE C37.112 (IEEE standard for inverse-time characteristics for overcurrent relays)"]}
+            capabilities={["Computes trip time for every relay in the chain at any single fault current, given curve family/type, pickup, TMS/time-dial and CT ratio.", "Sweeps the full fault-current range (not just one point) for every successive relay pair, reporting the worst-case (minimum) grading margin anywhere in that range for each step.", "Plots a log-log Time-Current Characteristic (TCC) graph with every relay's curve overlaid.", "Pass/fail verdict per step and for the overall chain, against a configurable required grading margin (CTI), defaulting to the commonly used 0.4s for electromechanical relays."]}
+            example={{ problem: "A downstream relay (pickup 100A, TMS 0.1, IEC Standard Inverse) must grade against an upstream relay (pickup 150A, TMS 0.25, same curve) at a 2000A fault.", steps: ["Compute each relay's multiple of pickup: downstream = 2000/100 = 20×, upstream = 2000/150 = 13.3×.", "Apply the IEC Standard Inverse equation t = TMS × (0.14 / (M^0.02 − 1)) to each relay using its own multiple and TMS.", "Compare the two trip times — the difference is the grading margin at this specific current.", "Repeat across the full current sweep range to find the worst-case (minimum) margin anywhere, not just at this one point — and repeat again for every additional relay pair if more than two relays are in the chain."], result: "The full-range sweep is what determines pass/fail against the required CTI — a comfortable margin at one current doesn't guarantee compliance everywhere, which is why this calculator checks the whole range, for every adjacent pair, rather than a single point on a single pair." }}
+            notes="Curve outputs were checked against the published IEC 60255-151 SI/VI/EI reference table at TMS=1.0 for multiple current multiples. This calculator previously shipped as two separate tools (a 2-relay full-range checker, and a separate Multi-Bus Grading tool limited to a single fault current) — they've been merged here so any chain length gets the more rigorous full-range sweep."
           />
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <RelayForm relay={relay1} onChange={setRelay1} accentClass="bg-accent" />
-          <RelayForm relay={relay2} onChange={setRelay2} accentClass="bg-accent-2" />
+        <div className="mt-8 space-y-4">
+          {relays.map((relay, i) => (
+            <div key={i} className="relative">
+              <RelayForm relay={relay} onChange={(next) => updateRelay(i, next)} accentClass={ACCENT_CLASSES[i % ACCENT_CLASSES.length]} />
+              {relays.length > 2 && (
+                <button
+                  type="button"
+                  onClick={() => removeRelay(i)}
+                  className="absolute right-4 top-4 rounded-md border border-border px-2 py-1 text-xs text-muted hover:border-fail/40 hover:text-fail"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addRelay}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-accent-2 hover:border-accent-2/60"
+          >
+            + Add relay upstream
+          </button>
         </div>
 
         <div className="mt-6 grid gap-4 rounded-xl border border-border bg-surface p-6 sm:grid-cols-2">
@@ -96,7 +119,7 @@ export default function IdmtCalculatorPage() {
           <div>
             <label className="flex items-center text-xs font-medium text-muted">
               Max fault current for graph & sweep (A)
-              <Tip text="Upper bound of the current axis for the TCC graph and the full-range coordination sweep — set it to at least the maximum fault current either relay could realistically see, so the sweep can't miss a grading violation just outside its range." />
+              <Tip text="Upper bound of the current axis for the TCC graph and the full-range coordination sweep — set it to at least the maximum fault current any relay could realistically see, so the sweep can't miss a grading violation just outside its range." />
             </label>
             <input
               type="number"
@@ -112,20 +135,18 @@ export default function IdmtCalculatorPage() {
         <div className="mt-6 grid gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
             <TccChart
-              relay1={relay1}
-              relay2={relay2}
+              relays={relays}
               minCurrent={minCurrent}
               maxCurrent={maxCurrent}
             />
           </div>
           <div className="lg:col-span-2">
             <ResultsPanel
-              relay1={relay1}
-              relay2={relay2}
+              relays={relays}
               faultCurrent={faultCurrent}
               requiredMargin={requiredMargin}
               onRequiredMarginChange={setRequiredMargin}
-              coordination={coordination}
+              chainResult={chainResult}
             />
           </div>
         </div>

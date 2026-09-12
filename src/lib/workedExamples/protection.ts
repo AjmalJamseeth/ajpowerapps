@@ -156,8 +156,8 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
   {
     slug: "multi-bus-idmt-relay-grading-chain",
     groupId: "protection",
-    calculatorHref: "/calculators/idmt-grading",
-    calculatorName: "Multi-Bus IDMT Grading",
+    calculatorHref: "/calculators/idmt",
+    calculatorName: "IDMT Relay Coordination",
     title: "Worked Example: Grading a Three-Relay IDMT Chain at a Single Fault Current",
     dek: "A load-end, mid-feeder and source relay all see the same fault — checking whether each step up the chain has enough time separation from the one below it.",
     standard: "IEC 60255-151",
