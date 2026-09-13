@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { FREE_LAUNCH, FREE_LAUNCH_END_LABEL } from "@/lib/launchConfig";
+import { MobileNav } from "@/components/MobileNav";
+import { FREE_LAUNCH } from "@/lib/launchConfig";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import {
   ShieldCheck,
@@ -38,13 +39,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
 
 export default function NavBar() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur">
-      {FREE_LAUNCH && (
-        <div className="border-b border-accent/25 bg-accent/10 px-6 py-2 text-center text-xs font-medium text-foreground sm:text-sm">
-          🎉 Free launch period — every calculator, every feature unlocked, no account needed, through {FREE_LAUNCH_END_LABEL}.{" "}
-          <span className="text-muted">PDF reports carry a watermark for everyone during this period.</span>
-        </div>
-      )}
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur relative">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-background font-bold">
@@ -148,10 +143,11 @@ export default function NavBar() {
           />
           <Link
             href="/calculators"
-            className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+            className="hidden rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90 sm:inline-block"
           >
             Browse calculators
           </Link>
+          <MobileNav />
         </div>
       </div>
     </header>
