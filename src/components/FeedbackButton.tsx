@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export interface FeedbackButtonProps {
   /** Calculator name, e.g. "Transformer Sizer", or "General / Site Feedback" for the NavBar link. */
@@ -170,7 +171,7 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
         {buttonLabel ?? "💬 Feedback / feature request"}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
           className="fixed inset-0 z-50 overflow-y-auto bg-black/60 px-4 py-8"
           onClick={() => {
@@ -304,7 +305,8 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
               </p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
