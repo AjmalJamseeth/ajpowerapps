@@ -7,7 +7,7 @@ import { GUIDES } from "@/lib/guides";
 // themselves render from, so every live calculator, worked example and
 // guide is listed here automatically — new content added to those source
 // files shows up in the sitemap on the next deploy with no manual step.
-const BASE_URL = "https://ajpowerapps.com";
+const BASE_URL = "https://www.ajpowerapps.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
