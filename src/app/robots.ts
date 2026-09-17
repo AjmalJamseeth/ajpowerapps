@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://ajpowerapps.com/sitemap.xml",
+    sitemap: "https://www.ajpowerapps.com/sitemap.xml",
   };
 }

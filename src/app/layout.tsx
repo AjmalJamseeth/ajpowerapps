@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ajpowerapps.com"),
+  metadataBase: new URL("https://www.ajpowerapps.com"),
   title: {
     default: "AJapps — Electrical Engineering Calculators",
     template: "%s | AJapps",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: "AJapps — Electrical Engineering Calculators",
     description:
       "81 standards-based electrical engineering calculators — protection relay coordination, cable sizing, earthing, transformers, power quality, backup power, renewables and more. Free, no signup required.",
-    url: "https://ajpowerapps.com",
+    url: "https://www.ajpowerapps.com",
     siteName: "AJapps",
     type: "website",
   },
