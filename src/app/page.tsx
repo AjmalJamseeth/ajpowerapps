@@ -227,23 +227,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing / subscriber teaser */}
-      <section id="pricing" className="mx-auto w-full max-w-6xl px-6 py-20">
-        <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-surface to-surface-2 p-8 sm:p-12">
-          <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-            Coming soon
-          </span>
-          <h2 className="mt-4 text-2xl font-semibold text-foreground">
-            Subscriber features
-          </h2>
-          <p className="mt-3 max-w-2xl text-muted">
-            Every calculator on AJapps will stay free for single-relay,
-            single-circuit results. Subscribers will unlock multi-device TCC
-            overlays, exportable coordination reports, saved projects and more.
-          </p>
-        </div>
-      </section>
-
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
           © {new Date().getFullYear()} AJapps. For preliminary engineering

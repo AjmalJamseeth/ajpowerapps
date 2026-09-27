@@ -124,12 +124,6 @@ export default function NavBar() {
               </div>
             </div>
           </div>
-          <a
-            href="#pricing"
-            className="hover:text-foreground transition-colors"
-          >
-            Pricing
-          </a>
         </nav>
         <div className="flex items-center gap-3">
           <span className="hidden rounded-full border border-border px-3 py-1 text-xs text-muted sm:inline">

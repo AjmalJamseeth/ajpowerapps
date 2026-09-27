@@ -60,13 +60,6 @@ export function MobileNav() {
             >
               All resources →
             </Link>
-            <a
-              href="/#pricing"
-              onClick={close}
-              className="rounded-md px-2 py-2.5 text-muted hover:bg-surface-2 hover:text-foreground"
-            >
-              Pricing
-            </a>
             <div className="mt-1 border-t border-border pt-2">
               <FeedbackButton
                 calculatorName="General / Site Feedback"
