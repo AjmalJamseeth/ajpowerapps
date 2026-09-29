@@ -26,10 +26,10 @@ export default function LightningProtectionPage() {
           Lightning Protection &amp; Risk Assessment Calculator
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          IEC 62305-1/2 risk assessment — collection area, structure risk
-          (R<sub>A</sub> + R<sub>B</sub>) and minimum LPS class. Connected-line
-          risk (R<sub>U</sub>/R<sub>V</sub>) and SPD/LEMP protection sizing are
-          subscriber features.
+          IEC 62305-1/2 risk assessment and risk management measures —
+          collection area, structure risk (R<sub>A</sub> + R<sub>B</sub>) and
+          minimum LPS class. Connected-line risk (R<sub>U</sub>/R<sub>V</sub>)
+          and SPD/LEMP protection sizing are subscriber features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -39,7 +39,7 @@ export default function LightningProtectionPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Performs an IEC 62305-2 lightning risk assessment for a structure: collection area and expected annual flash frequency, the structure's own risk components (touch/step voltage risk RA, physical damage risk RB), a pass/fail check against the standard's tolerable risk threshold, and \u2014 if risk is too high \u2014 the minimum LPS (Lightning Protection System) class needed to bring it into compliance, with the resulting rolling-sphere radius, mesh size and down-conductor spacing."
+          purpose="Performs an IEC 62305-2 lightning risk assessment and risk management measures evaluation for a structure: collection area and expected annual flash frequency, the structure's own risk components (touch/step voltage risk RA, physical damage risk RB), a pass/fail check against the standard's tolerable risk threshold, and \u2014 if risk is too high \u2014 the minimum LPS (Lightning Protection System) class needed to bring it into compliance, with the resulting rolling-sphere radius, mesh size and down-conductor spacing."
           standards={["IEC 62305-1 (general principles)", "IEC 62305-2 (risk management)", "IEC 62305-3 (physical damage & LPS design)"]}
           capabilities={["Collection area and flash frequency from structure dimensions and ground flash density.", "Structure risk R1 = RA (touch/step voltage) + RB (physical damage), checked against the standard tolerable risk RT = 1\u00d710\u207b\u2075.", "Searches for the minimum LPS class (I-IV) that brings a failing structure into compliance, with rolling-sphere/mesh/down-conductor design values.", "Subscriber: connected-line risk (RU/RV from power & telecom line data) added into R1, and SPD/LEMP protection coordination."]}
           example={{ problem: "This calculator's default scenario reproduces the source app's own documented IEC 62305-2 Annex E 'country house' case study.", steps: ["Compute collection area Ad from the structure's L, W, H and Cd.", "Compute expected flash frequency Nd = Ng \u00d7 Ad \u00d7 Cd \u00d7 10\u207b\u2076.", "Compute RA (touch/step voltage risk) and RB (physical damage risk) from the entered loss factors.", "Sum R1 = RA + RB (plus RU/RV connected-line risk on the subscriber tier) and compare to the tolerable risk RT = 1\u00d710\u207b\u2075."], result: "R1 \u2248 2.5056\u00d710\u207b\u2075 with connected-line risk included, matching the source case study's documented expected value of \u22482.51\u00d710\u207b\u2075 \u2014 confirming the risk-assessment math is faithfully reproduced." }}

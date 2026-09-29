@@ -87,6 +87,8 @@ import { DEFAULT_SPD_RATING_INPUT, calcSpdRating } from "../src/lib/spdRating";
 import { DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT, calcSolarChargeController } from "../src/lib/solarChargeController";
 import { DEFAULT_SOLAR_TILT_ANGLE_INPUT, calcSolarTiltAngle } from "../src/lib/solarTiltAngle";
 import { DEFAULT_INVERTER_SIZING_INPUT, calcInverterSizing } from "../src/lib/inverterSizing";
+import { DEFAULT_VFD_SIZING_INPUT, calcVfdSizing } from "../src/lib/vfdsizing";
+import { DEFAULT_ELEVATOR_ENERGY_INPUT, calcElevatorEnergy } from "../src/lib/elevatorenergy";
 import { DEFAULT_WIND_TURBINE_POWER_INPUT, calcWindTurbinePower } from "../src/lib/windTurbinePower";
 import { DEFAULT_CHP_SIZING_INPUT, calcChpSizing } from "../src/lib/chpSizing";
 import { DEFAULT_MICROGRID_STABILITY_INPUT, calcMicrogridStability } from "../src/lib/microgridStability";
@@ -1654,6 +1656,53 @@ section("Smart Grid Peak Shaving Calculator");
 
   const noReduction = calcPeakShaving({ ...DEFAULT_PEAK_SHAVING_INPUT, targetPeakKw: 1000 });
   assertEqual("No shave needed when target equals current peak", noReduction.shaveClass, "NO REDUCTION NEEDED");
+}
+
+// ==========================================================================
+// 83. VFD Sizing Calculator
+// ==========================================================================
+section("VFD Sizing Calculator");
+{
+  const r = calcVfdSizing(DEFAULT_VFD_SIZING_INPUT);
+  assertClose("Required output current = 65*1.10*1.0 = 71.5A", r.requiredOutputCurrentA, 71.5, 0.1);
+  assertClose("Min required rated current = 71.5/(1.0*1.0) = 71.5A", r.minRequiredRatedCurrentA, 71.5, 0.1);
+  assertEqual("No temp/altitude derating at 40C/1000m", r.tempFactor, 1.0);
+  assertEqual("No temp/altitude derating at 40C/1000m (altitude)", r.altitudeFactor, 1.0);
+
+  const ct = calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, dutyType: "ct" });
+  assertClose("CT duty multiplier = 1.15", ct.dutyMultiplier, 1.15, 0.01);
+
+  const hot = calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, ambientTempC: 60 });
+  assertClose("60C ambient derates by 20% (1-0.01*20=0.8)", hot.tempFactor, 0.8, 0.01);
+
+  const candidateOk = calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, candidateVfdRatedCurrentA: 75, candidateVfdRatedVoltageV: 400 });
+  assertTrue("75A/400V candidate passes for 71.5A required", candidateOk.candidateOverallOk === true);
+
+  const candidateFail = calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, candidateVfdRatedCurrentA: 60, candidateVfdRatedVoltageV: 400 });
+  assertTrue("60A candidate correctly fails for 71.5A required", candidateFail.candidateOverallOk === false);
+
+  assertNull("Zero motor FLA returns null", calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, motorFlaA: 0 }).requiredOutputCurrentA);
+}
+
+// ==========================================================================
+// 84. Elevator Energy Calculator
+// ==========================================================================
+section("Elevator Energy Calculator");
+{
+  const r = calcElevatorEnergy(DEFAULT_ELEVATOR_ENERGY_INPUT);
+  assertClose("Net load = 1000*(1-0.5) = 500kg", r.netLoadKg, 500, 0.5);
+  assertClose("Running power = 500*9.81*1.5/(1000*0.7) = 10.511kW", r.runningPowerKw, 10.511, 0.01);
+  assertClose("Energy/trip = 10.511*(25/3600) = 0.0730kWh", r.energyPerTripKwh, 0.0730, 0.001);
+  assertClose("Daily running hours = 150*25/3600 = 1.042h", r.dailyRunningHours, 1.042, 0.01);
+  assertClose("Daily running energy = 150*0.0730 = 10.94kWh", r.dailyRunningEnergyKwh, 10.94, 0.05);
+  assertClose("Daily standby energy = 0.150*22.958 = 3.44kWh", r.dailyStandbyEnergyKwh, 3.44, 0.05);
+  assertClose("Daily total = 10.94+3.44 = 14.38kWh", r.dailyTotalEnergyKwh, 14.38, 0.05);
+  assertClose("Annual = 14.38*365 ~5,249kWh/year", r.annualEnergyKwh, 5249, 5);
+
+  const regen = calcElevatorEnergy({ ...DEFAULT_ELEVATOR_ENERGY_INPUT, regenCreditPct: 20 });
+  assertClose("20% regen credit reduces energy/trip by 20%", regen.energyPerTripKwh, 0.0730 * 0.8, 0.001);
+
+  assertNull("Zero trips-related null input returns null", calcElevatorEnergy({ ...DEFAULT_ELEVATOR_ENERGY_INPUT, ratedLoadKg: null }).runningPowerKw);
 }
 
 // --------------------------------------------------------------------------

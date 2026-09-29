@@ -19,11 +19,11 @@ export default function MotorTorquePage() {
       <NavBar />
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
-          Motor Torque Calculator
+          Motor Torque Calculator (Motor &amp; Engine Torque)
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Steady-state motor shaft torque from output power and operating
-          speed, in N·m or lb-ft.
+          Steady-state motor or engine shaft torque from output power and
+          operating speed, in N·m or lb-ft.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -33,7 +33,7 @@ export default function MotorTorquePage() {
 
         <div className="mt-6">
           <InfoPanel
-            purpose="Calculates the steady-state shaft torque a motor delivers at its rated (or any operating) power and speed, using the standard power-torque-speed relation. Useful for coupling, gearbox, and mechanical drive-train selection once electrical sizing (see the Motor Calculator) is done."
+            purpose="Calculates the steady-state shaft torque a motor (or any rotating prime mover, including engines) delivers at its rated (or any operating) power and speed, using the standard power-torque-speed relation. Useful for coupling, gearbox, and mechanical drive-train selection once electrical sizing (see the Motor Calculator) is done."
             standards={["Standard power-torque-speed relation: T(N·m) = 9550 × P(kW) / N(rpm); T(lb-ft) = 5252 × P(hp) / N(rpm)"]}
             capabilities={[
               "Metric (kW → N·m) or imperial (hp → lb-ft) input, with both units shown in the result.",
