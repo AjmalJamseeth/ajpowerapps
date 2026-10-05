@@ -152,12 +152,18 @@ export function calcHarmonics(input: HarmonicsInput, premiumEnabled: boolean): H
       const pass = pctIL == null ? null : pctIL <= limit;
       return { h, pctI1, pctIL, limit, pass };
     });
-    let kSum = 1; // h=1 term: 1^2 * 1^2
+    // K = sum(h^2 * Ih^2) / sum(Ih^2), with Ih as a fraction of I1 (fundamental term = 1).
+    let kNum = 1; // h=1 term: 1^2 * 1^2
+    let kDen = 1;
     HARMONIC_ORDERS.forEach((h) => {
-      kSum += h * h * Math.pow((iVals[h] || 0) / 100, 2);
+      const r2 = Math.pow((iVals[h] || 0) / 100, 2);
+      kNum += h * h * r2;
+      kDen += r2;
     });
-    kSum += Math.pow((input.iResidualPct || 0) / 100, 2) * Math.pow(20, 2);
-    pro = { rows, kFactor: kSum };
+    const resid2 = Math.pow((input.iResidualPct || 0) / 100, 2);
+    kNum += resid2 * Math.pow(20, 2);
+    kDen += resid2;
+    pro = { rows, kFactor: kNum / kDen };
   }
 
   return {

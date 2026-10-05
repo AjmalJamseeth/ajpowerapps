@@ -106,23 +106,19 @@ function computeSections(periods: BattPeriod[], ktTable: BattKtPoint[]) {
     cum += p.duration || 0;
     return { i: p.current || 0, t: cum };
   });
-  let prevI = 0,
-    prevA = 0,
-    prevT = 0;
+  // IEEE 485 section method: for section s, F_s = sum over periods p=1..s of
+  // (A_p - A_(p-1)) * Kt(T_s - T_(p-1)), i.e. each load step is weighted by the
+  // capacity-rating factor for the time from the start of THAT step to the end
+  // of section s (A_0 = 0, T_0 = 0). The governing section is the largest F_s.
   const rows: BattSectionRow[] = [];
   secs.forEach((s, idx) => {
-    const ktj = ktAt(s.t, ktTable);
-    let aj: number;
-    if (idx === 0) {
-      aj = s.i * ktj;
-    } else {
-      const ktPrev = ktAt(prevT, ktTable);
-      aj = prevA * (ktPrev > 0 ? ktj / ktPrev : 1) + (s.i - prevI) * ktj;
+    let aj = 0;
+    for (let p = 0; p <= idx; p++) {
+      const stepAmps = secs[p].i - (p === 0 ? 0 : secs[p - 1].i);
+      const tStart = p === 0 ? 0 : secs[p - 1].t;
+      aj += stepAmps * ktAt(s.t - tStart, ktTable);
     }
-    rows.push({ section: idx + 1, i: s.i, t: s.t, kt: ktj, a: aj });
-    prevI = s.i;
-    prevA = aj;
-    prevT = s.t;
+    rows.push({ section: idx + 1, i: s.i, t: s.t, kt: ktAt(s.t, ktTable), a: aj });
   });
   let maxRow = rows[0];
   rows.forEach((r) => {

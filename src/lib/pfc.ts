@@ -91,7 +91,9 @@ export function calcPfc(input: PfcInput): PfcResult | null {
 
     const p = input.detuningPct;
     const ft = f / Math.sqrt(p / 100);
-    const XL = (p / 100) * ((V * V) / (Qc * 1000)) * 3;
+    // Per-phase (star-equivalent) series reactance: Xc = V^2/Qc, XL = p * Xc, so that
+    // tuning frequency ft = f/sqrt(p) holds (p = XL/Xc on the same per-phase basis).
+    const XL = (p / 100) * ((V * V) / (Qc * 1000));
     const reactorKvar = Qc * (p / 100);
     reactor = { ft, XL, reactorKvar };
 

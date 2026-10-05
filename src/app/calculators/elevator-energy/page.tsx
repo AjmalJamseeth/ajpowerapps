@@ -48,11 +48,11 @@ export default function ElevatorEnergyPage() {
                 "Net unbalanced load = 1000 × (1 − 0.50) = 500kg.",
                 "Running power = 500 × 9.81 × 1.5 / (1000 × 0.70) = 10.511kW.",
                 "Energy/trip = 10.511 × (25/3600) × (1 − 0) = 0.0730kWh.",
-                "Daily running hours = 150 × 25/3600 = 1.042h; daily running energy = 150 × 0.0730 = 10.94kWh.",
+                "Daily running hours = 150 × 25/3600 = 1.042h; daily running energy = 150 × 0.0730 = 10.95kWh.",
                 "Standby hours = 24 − 1.042 = 22.958h; standby energy = 0.150 × 22.958 = 3.44kWh.",
-                "Daily total = 10.94 + 3.44 = 14.38kWh; annual = 14.38 × 365 ≈ 5,249kWh/year.",
+                "Daily total = 10.95 + 3.44 = 14.39kWh; annual = 14.39 × 365 ≈ 5,253kWh/year.",
               ],
-              result: "≈5,249 kWh/year — hand-checked and matched the live code exactly.",
+              result: "≈5,253 kWh/year — hand-checked and matched the live code exactly.",
             }}
             notes="This is a preliminary planning estimate, not a substitute for manufacturer-measured energy data or a full ISO 25745-2 classification. The regenerative-drive credit is a simplified flat percentage reduction on running energy — actual regeneration depends on the specific drive's ability to return energy to the supply and on real trip load/direction patterns. Standby power varies significantly by controller technology (LED vs fluorescent car lighting, sleep-mode controllers, etc.) — use the manufacturer's published standby figure where available."
           />

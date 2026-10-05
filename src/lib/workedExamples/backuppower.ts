@@ -25,23 +25,23 @@ export const BACKUPPOWER_EXAMPLES: WorkedExample[] = [
     steps: [
       {
         title: "Compute the required capacity section by section (IEEE 485 method)",
-        body: "Each later section's requirement isn't just its own current — it accounts for the capacity already 'used up' by earlier sections, scaled by how the battery's capacity-rating factor (Kt) changes with duration.",
+        body: "For each section, every load step (the change in current when a new period begins) is multiplied by the capacity-rating factor (Kt) for the time from the start of that step to the end of the section, then the steps are summed: F = Σ (Ip − Ip−1) × Kt(time from start of step p to end of section).",
         table: {
-          headers: ["Section", "Current", "Cumulative time", "Kt factor", "Required capacity"],
+          headers: ["Section", "Current", "Cumulative time", "Kt (full duration)", "Required capacity"],
           rows: [
             ["1", "5 A", "15 min", "1.75", "8.75 A"],
-            ["2", "35 A", "25 min", "2.15", "75.25 A"],
-            ["3", "15 A", "100 min", "4.10", "61.5 A"],
-            ["4", "45 A", "110 min", "4.35", "195.75 A"],
+            ["2", "35 A", "25 min", "2.15", "54.25 A"],
+            ["3", "15 A", "100 min", "4.10", "62.75 A"],
+            ["4", "45 A", "110 min", "4.35", "110.0 A"],
           ],
         },
-        result: "The governing (largest) requirement is Section 4: 195.75 A",
+        result: "The governing (largest) requirement is Section 4: 110.0 A",
       },
       {
         title: "Apply temperature, aging and design-margin correction factors",
         equation: "final = maxSectionA x tempCF x agingCF x marginCF",
-        substitution: "195.75 x 1.0 x 1.25 x 1.1",
-        result: "final = 269.2 Ah required battery capacity",
+        substitution: "110.0 x 1.0 x 1.25 x 1.1",
+        result: "final = 151.3 Ah required battery capacity",
       },
       {
         title: "Find the number of cells for the 125 V system",
@@ -63,11 +63,11 @@ export const BACKUPPOWER_EXAMPLES: WorkedExample[] = [
       },
     ],
     resultSummary: [
-      { check: "Required battery capacity", requirement: "n/a (this is the sizing result)", actual: "269.2 Ah", pass: true },
+      { check: "Required battery capacity", requirement: "n/a (this is the sizing result)", actual: "151.3 Ah", pass: true },
       { check: "String voltage at equalize charge", requirement: "≤ 140 V", actual: "135.14 V", pass: true },
       { check: "String voltage at end of discharge", requirement: "≥ 105 V", actual: "101.5 V", pass: false },
     ],
-    finalAnswer: "The duty-cycle capacity sizing itself is sound (269.2 Ah), but 58 cells at 1.75 V end-of-discharge only delivers 101.5 V — 3.5 V short of this system's 105 V minimum acceptance window. The cell count needs revisiting, not the capacity.",
+    finalAnswer: "The duty-cycle capacity sizing itself is sound (151.3 Ah), but 58 cells at 1.75 V end-of-discharge only delivers 101.5 V — 3.5 V short of this system's 105 V minimum acceptance window. The cell count needs revisiting, not the capacity.",
     keyInsight: "Battery capacity sizing (how many amp-hours) and cell-count/voltage-window checking (how many cells, and does the string stay in an acceptable voltage range through the full discharge) are two genuinely separate calculations that can each pass or fail independently — a battery with plenty of capacity can still be the wrong string configuration if its end-of-discharge voltage falls outside what the connected DC equipment can tolerate.",
     faqs: [
       {
@@ -76,7 +76,7 @@ export const BACKUPPOWER_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Why does the required capacity look at the largest single section instead of summing all four?",
-        a: "The section method reflects that later sections have to be supported by whatever capacity remains after earlier sections have already drawn on the battery — so Section 4's 195.75 A requirement already implicitly accounts for the capacity used in Sections 1-3 (that's what the ktPrev/kt ratio term in each section's formula does), rather than needing to be added to them separately. Simply summing all four sections' raw currents would badly oversize the battery.",
+        a: "The section method reflects that later sections have to be supported by whatever capacity remains after earlier sections have already drawn on the battery — so Section 4's 110.0 A requirement already accounts for the earlier load steps (each weighted by the Kt for how long it has been drawing by the end of Section 4: 5 A × Kt(110 min) + 30 A × Kt(95 min) − 20 A × Kt(85 min) + 30 A × Kt(10 min) = 21.75 + 119.25 − 74.5 + 43.5), rather than needing the sections added to one another separately. Simply summing all four sections' raw currents would badly oversize the battery.",
       },
     ],
   },

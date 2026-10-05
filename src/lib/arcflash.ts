@@ -31,7 +31,7 @@ export const EB_CAL = 1.2; // cal/cm² — second-degree burn threshold (arc fla
 export const AF_EQUIP_CLASSES: Record<EquipClassKey, { label: string; G: number; x: number; D: number }> = {
   lv_mcc: { label: "LV MCC / Panelboard", G: 25, x: 1.641, D: 455 },
   lv_swgr: { label: "LV Switchgear", G: 32, x: 1.473, D: 610 },
-  mv5_swgr: { label: "5kV Switchgear", G: 104, x: 1.641, D: 914 },
+  mv5_swgr: { label: "5kV Switchgear", G: 102, x: 0.973, D: 914 },
   mv15_swgr: { label: "15kV Switchgear", G: 152, x: 0.973, D: 914 },
   cable: { label: "Cable (any voltage)", G: 13, x: 2.0, D: 455 },
 };

@@ -273,6 +273,12 @@ section("Earthing Grid Design");
   // README: default (no surface layer, no mitigation) is flagged unsafe.
   assertTrue("Default unmitigated grid correctly fails touch-voltage check", pro.mesh !== null && pro.mesh.touchPass === false, JSON.stringify(pro.mesh?.touchPass));
 
+  // IEEE 80: 70 kg -> k=0.157, 50 kg -> k=0.116. (1000+1.5*100)*0.157/sqrt(0.5) = 255.3 V
+  assertClose("70kg Etouch = 1150*0.157/sqrt(0.5) = 255.3V", r.Etouch, 255.3, 0.1);
+  assertClose("70kg Estep = 1600*0.157/sqrt(0.5) = 355.3V", r.Estep, 355.3, 0.1);
+  const r50 = calcEarthing({ ...DEFAULT_EARTHING_INPUT, bw: 50 });
+  assertClose("50kg Etouch = 1150*0.116/sqrt(0.5) = 188.7V", r50.Etouch, 188.7, 0.1);
+
   const free = calcEarthing({ ...DEFAULT_EARTHING_INPUT, premiumEnabled: false });
   assertNull("Mesh analysis withheld on free tier", free.mesh);
 }
@@ -285,6 +291,11 @@ section("Power Factor Correction");
   const r = calcPfc(DEFAULT_PFC_INPUT); // 500kW, PF 0.75→0.95 — README: Qc=276.6kVAr
   assertClose("Default scenario Qc ≈276.6kVAr", r?.Qc, 276.6, 0.5);
   assertTrue("Improved current is lower than existing current", (r?.I2 ?? Infinity) < (r?.I1 ?? 0), `I1=${r?.I1}, I2=${r?.I2}`);
+
+  // Detuning reactor: XL = p * Xc, Xc = V^2/Qc (per-phase star-equivalent) = 0.05670*415^2/276617 = 0.0353 ohm
+  const pro = calcPfc({ ...DEFAULT_PFC_INPUT, premiumEnabled: true, shortCircuitMva: 20 });
+  assertClose("5.67% reactor XL = 0.0353 ohm", pro?.reactor?.XL, 0.0353, 0.5);
+  assertClose("5.67% reactor tuned to ~210 Hz", pro?.reactor?.ft, 210, 0.5);
 
   const invalid = calcPfc({ ...DEFAULT_PFC_INPUT, activeLoadKw: 0 });
   assertNull("Zero load returns null", invalid);
@@ -322,10 +333,11 @@ section("VT Sizing");
 section("Battery & DC System Sizing");
 {
   const r = calcBattery(DEFAULT_BATTERY_INPUT, true);
-  // README: governing section 4 = 195.75, final corrected capacity 269.156
+  // IEEE 485 section method (hand-checked): F4 = 5*Kt(110)+30*Kt(95)-20*Kt(85)+30*Kt(10) = 110.0; final = 110*1.25*1.1 = 151.25
   assertTrue("Battery result computed", r !== null, "should not be null");
-  assertClose("Final corrected capacity ≈269.156Ah", r?.final, 269.156, 0.5);
-  assertClose("Governing section demand ≈195.75A", r?.maxA, 195.75, 0.5);
+  assertClose("Final corrected capacity = 151.25Ah", r?.final, 151.25, 0.1);
+  assertClose("Governing section demand = 110.0", r?.maxA, 110.0, 0.1);
+  assertClose("Section 2 = 5*Kt(25)+30*Kt(10) = 54.25", r?.rows[1]?.a, 54.25, 0.1);
 
   const noPeriods = calcBattery({ ...DEFAULT_BATTERY_INPUT, periods: [] }, true);
   assertNoThrow("Empty duty cycle does not throw", () => calcBattery({ ...DEFAULT_BATTERY_INPUT, periods: [] }, true));
@@ -1692,17 +1704,35 @@ section("Elevator Energy Calculator");
   const r = calcElevatorEnergy(DEFAULT_ELEVATOR_ENERGY_INPUT);
   assertClose("Net load = 1000*(1-0.5) = 500kg", r.netLoadKg, 500, 0.5);
   assertClose("Running power = 500*9.81*1.5/(1000*0.7) = 10.511kW", r.runningPowerKw, 10.511, 0.01);
-  assertClose("Energy/trip = 10.511*(25/3600) = 0.0730kWh", r.energyPerTripKwh, 0.0730, 0.001);
-  assertClose("Daily running hours = 150*25/3600 = 1.042h", r.dailyRunningHours, 1.042, 0.01);
-  assertClose("Daily running energy = 150*0.0730 = 10.94kWh", r.dailyRunningEnergyKwh, 10.94, 0.05);
-  assertClose("Daily standby energy = 0.150*22.958 = 3.44kWh", r.dailyStandbyEnergyKwh, 3.44, 0.05);
-  assertClose("Daily total = 10.94+3.44 = 14.38kWh", r.dailyTotalEnergyKwh, 14.38, 0.05);
-  assertClose("Annual = 14.38*365 ~5,249kWh/year", r.annualEnergyKwh, 5249, 5);
+  assertClose("Energy/trip = 10.511*(25/3600) = 0.0730kWh", r.energyPerTripKwh, 0.07299, 0.1);
+  assertClose("Daily running hours = 150*25/3600 = 1.042h", r.dailyRunningHours, 1.04167, 0.1);
+  assertClose("Daily running energy = 150*0.0730 = 10.95kWh", r.dailyRunningEnergyKwh, 10.9487, 0.1);
+  assertClose("Daily standby energy = 0.150*22.958 = 3.44kWh", r.dailyStandbyEnergyKwh, 3.44375, 0.1);
+  assertClose("Daily total = 10.95+3.44 = 14.39kWh", r.dailyTotalEnergyKwh, 14.3924, 0.1);
+  assertClose("Annual = 14.3924*365 ~5,253kWh/year", r.annualEnergyKwh, 5253.3, 0.1);
 
   const regen = calcElevatorEnergy({ ...DEFAULT_ELEVATOR_ENERGY_INPUT, regenCreditPct: 20 });
-  assertClose("20% regen credit reduces energy/trip by 20%", regen.energyPerTripKwh, 0.0730 * 0.8, 0.001);
+  assertClose("20% regen credit reduces energy/trip by 20%", regen.energyPerTripKwh, 0.07299107 * 0.8, 0.1);
 
   assertNull("Zero trips-related null input returns null", calcElevatorEnergy({ ...DEFAULT_ELEVATOR_ENERGY_INPUT, ratedLoadKg: null }).runningPowerKw);
+}
+
+// ==========================================================================
+// 85. Audit regression locks (table values / formulas corrected in audit)
+// ==========================================================================
+section("Audit regression locks");
+{
+  // NEC Table 310.16: #3 AWG Cu 90C = 115A; 300 kcmil Al 60C = 195A
+  assertEqual("NEC 310.16 #3 Cu 90C = 115A", calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, mode: "check", selectedSize: "3", insulationTemp: 90, terminationTemp: 75, loadAmps: 1 }).candidate?.baseAmpacity, 115);
+  assertEqual("NEC 310.16 300kcmil Al 60C = 195A", calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, mode: "check", material: "Al", selectedSize: "300", insulationTemp: 60, terminationTemp: 60, loadAmps: 1 }).candidate?.baseAmpacity, 195);
+  // NEC Table 5: THW 12 AWG = 0.0260 in2 (not the TW value 0.0181)
+  const thw = calcConduitFillNec({ ...DEFAULT_CONDUITFILL_INPUT, necWires: [{ insulation: "THW_THHW", size: 12, qty: 10 }, { insulation: "THHN", size: 12, qty: 0 }, { insulation: "THHN", size: 12, qty: 0 }] });
+  assertClose("THW 12AWG x10 = 0.260 in2", thw?.sumArea, 0.26, 0.1);
+  // IEEE 485 hand check done in Battery section; K-factor now normalised
+  const h = calcHarmonics(DEFAULT_HARMONICS_INPUT, true);
+  assertTrue("K-factor is >= 1", (h?.pro?.kFactor ?? 0) >= 1, `K=${h?.pro?.kFactor}`);
+  // IEEE 1584-2002 Table 4: 5kV switchgear gap 102mm, x=0.973
+  assertEqual("5kV switchgear exponent x = 0.973", AF_EQUIP_CLASSES.mv5_swgr.x, 0.973);
 }
 
 // --------------------------------------------------------------------------

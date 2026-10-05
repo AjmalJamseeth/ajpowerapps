@@ -24,11 +24,11 @@ export function calcCs(rho: number, rhos: number | null, hs: number): number {
   return 1.0 - (0.09 * (1 - rho / rhos)) / (2 * hs + 0.09);
 }
 export function calcEtouch(rhos: number, Cs: number, tf: number, bw: BodyWeight): number {
-  const Ib = bw === 70 ? 0.116 / Math.sqrt(tf) : 0.157 / Math.sqrt(tf);
+  const Ib = bw === 70 ? 0.157 / Math.sqrt(tf) : 0.116 / Math.sqrt(tf); // IEEE 80: 70 kg -> 0.157, 50 kg -> 0.116
   return (1000 + 1.5 * rhos * Cs) * Ib;
 }
 export function calcEstep(rhos: number, Cs: number, tf: number, bw: BodyWeight): number {
-  const Ib = bw === 70 ? 0.116 / Math.sqrt(tf) : 0.157 / Math.sqrt(tf);
+  const Ib = bw === 70 ? 0.157 / Math.sqrt(tf) : 0.116 / Math.sqrt(tf); // IEEE 80: 70 kg -> 0.157, 50 kg -> 0.116
   return (1000 + 6 * rhos * Cs) * Ib;
 }
 /** Sverak grid resistance, IEEE 80 Eq. 57. */

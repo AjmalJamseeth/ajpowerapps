@@ -34,7 +34,7 @@ export const EARTHING_EXAMPLES: WorkedExample[] = [
         title: "Compute the tolerable touch and step voltage limits",
         body: "These are the maximum voltages a person is allowed to experience — a completely separate quantity from GPR itself, which is why a high GPR alone doesn't automatically mean a failed design.",
         equation: "Etouch = (1000 + 1.5·ρs·Cs) x Ib          Estep = (1000 + 6·ρs·Cs) x Ib",
-        result: "Etouch = 188.7 V, Estep = 262.5 V (no surface layer, so Cs = 1.0)",
+        result: "Etouch = 255.3 V, Estep = 355.3 V (no surface layer, so Cs = 1.0)",
       },
       {
         title: "Compute the actual mesh (touch) and step voltages the grid produces",
@@ -48,27 +48,27 @@ export const EARTHING_EXAMPLES: WorkedExample[] = [
         table: {
           headers: ["Check", "Tolerable limit", "Actual", "Result"],
           rows: [
-            ["Touch (mesh) voltage", "188.7 V", "6813 V (36x over)", "FAIL"],
-            ["Step voltage", "262.5 V", "2651 V (10x over)", "FAIL"],
+            ["Touch (mesh) voltage", "255.3 V", "6813 V (27x over)", "FAIL"],
+            ["Step voltage", "355.3 V", "2651 V (7.5x over)", "FAIL"],
           ],
         },
       },
     ],
     resultSummary: [
       { check: "Grid resistance / GPR", requirement: "n/a (informational — not itself a pass/fail limit)", actual: "Rg = 2.285 Ω, GPR = 22,851 V", pass: true },
-      { check: "Mesh (touch) voltage", requirement: "≤ 188.7 V", actual: "6813 V", pass: false },
-      { check: "Step voltage", requirement: "≤ 262.5 V", actual: "2651 V", pass: false },
+      { check: "Mesh (touch) voltage", requirement: "≤ 255.3 V", actual: "6813 V", pass: false },
+      { check: "Step voltage", requirement: "≤ 355.3 V", actual: "2651 V", pass: false },
     ],
-    finalAnswer: "This grid's resistance (2.285 Ω) and GPR look like unremarkable, almost reassuring numbers on their own — but the actual mesh and step voltages a person would experience near the grid are 36x and 10x over the tolerable limits respectively. As designed, this grid is not safe and needs a fundamental redesign, not a minor tweak.",
+    finalAnswer: "This grid's resistance (2.285 Ω) and GPR look like unremarkable, almost reassuring numbers on their own — but the actual mesh and step voltages a person would experience near the grid are 27x and 7.5x over the tolerable limits respectively. As designed, this grid is not safe and needs a fundamental redesign, not a minor tweak.",
     keyInsight: "Grid resistance and GPR describe the whole grid's behavior relative to remote earth; mesh and step voltage describe what a specific person standing at a specific point actually experiences, which depends heavily on mesh spacing and geometry, not just total resistance. A grid can have an excellent (low) resistance and still be dangerous to stand near if the conductor spacing is too wide — which is exactly the trap a resistance-only check falls into.",
     faqs: [
       {
         q: "Does tightening the mesh spacing alone fix this grid?",
-        a: "Not on its own — narrowing the mesh from 4x3 to a much finer 16x11 grid (D_avg dropping from 10 m to 2 m) reduces the mesh voltage from 6813 V to about 2755 V, real progress, but still far above the 188.7 V limit. At this fault current and soil resistivity, mesh spacing alone has diminishing returns; other levers have to be combined with it.",
+        a: "Not on its own — narrowing the mesh from 4x3 to a much finer 16x11 grid (D_avg dropping from 10 m to 2 m) reduces the mesh voltage from 6813 V to about 2755 V, real progress, but still far above the 255.3 V limit. At this fault current and soil resistivity, mesh spacing alone has diminishing returns; other levers have to be combined with it.",
       },
       {
         q: "What combination of changes would actually make this design pass?",
-        a: "Adding a high-resistivity surface layer (e.g. a crushed-rock surface, resistivity ~10,000 Ω·m) raises the tolerable touch-voltage limit dramatically — because Cs and ρs both increase, Etouch rises from 188.7 V to about 1869 V in this case. Combined with a much finer mesh (which still helps reduce Em, just not enough alone), step voltage moves to a clear pass, and touch voltage gets close but can still fall short — showing why real designs typically stack several levers together (mesh density, surface treatment, faster protection clearing time, or lower soil resistivity via treatment) rather than relying on any single one.",
+        a: "Adding a high-resistivity surface layer (e.g. a crushed-rock surface, resistivity ~10,000 Ω·m) raises the tolerable touch-voltage limit dramatically — because Cs and ρs both increase, Etouch rises from 255.3 V to about 2529 V in this case. Combined with a much finer mesh (which still helps reduce Em, just not enough alone), step voltage moves to a clear pass, and touch voltage gets close but can still fall short — showing why real designs typically stack several levers together (mesh density, surface treatment, faster protection clearing time, or lower soil resistivity via treatment) rather than relying on any single one.",
       },
       {
         q: "Why does fault clearing time (tf) matter so much?",

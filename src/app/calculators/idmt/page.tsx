@@ -11,6 +11,9 @@ import ResultsPanel from "@/components/ResultsPanel";
 import TccChart from "@/components/TccChart";
 import { DEFAULT_RELAY, checkChainCoordination, RelaySettings } from "@/lib/idmt";
 
+// Matches the 8 distinct curve colors in TccChart so every relay stays distinguishable.
+const MAX_RELAYS = 8;
+
 const ACCENT_CLASSES = ["bg-accent", "bg-accent-2", "bg-[#a78bfa]", "bg-[#f472b6]", "bg-[#34d399]", "bg-[#fb7185]"];
 
 export default function IdmtCalculatorPage() {
@@ -23,7 +26,25 @@ export default function IdmtCalculatorPage() {
     setRelays((prev) => prev.map((r, idx) => (idx === i ? next : r)));
   };
   const addRelay = () => {
-    setRelays((prev) => [...prev, DEFAULT_RELAY(`Relay ${prev.length + 1} (Upstream)`)]);
+    setRelays((prev) =>
+      prev.length >= MAX_RELAYS ? prev : [...prev, DEFAULT_RELAY(`Relay ${prev.length + 1} (Upstream)`)]
+    );
+  };
+  const loadFiveRelayExample = () => {
+    // Verified to grade with >=0.47s margin across the full sweep up to 3,000A (CTI 0.4s).
+    const pickups = [100, 150, 225, 340, 500];
+    const tms = [0.05, 0.25, 0.5, 0.75, 1.0];
+    setMaxCurrent(3000);
+    setRelays(
+      pickups.map((p, i) => ({
+        ...DEFAULT_RELAY(
+          i === 0 ? "Relay 1 (Downstream)" : i === pickups.length - 1 ? `Relay ${i + 1} (Source)` : `Relay ${i + 1}`
+        ),
+        pickupCurrent: p,
+        timeDial: tms[i],
+        curveType: "SI" as RelaySettings["curveType"],
+      }))
+    );
   };
   const removeRelay = (i: number) => {
     setRelays((prev) => (prev.length <= 2 ? prev : prev.filter((_, idx) => idx !== i)));
@@ -57,7 +78,7 @@ export default function IdmtCalculatorPage() {
           IDMT Relay Coordination Calculator
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Enter settings for two or more relays (downstream to source) to
+          Enter settings for up to {MAX_RELAYS} relays (downstream to source) to
           compute trip times and check grading margin across the full
           fault-current range. Curves per IEC 60255-151 and IEEE C37.112.
         </p>
@@ -92,13 +113,26 @@ export default function IdmtCalculatorPage() {
               )}
             </div>
           ))}
-          <button
-            type="button"
-            onClick={addRelay}
-            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-accent-2 hover:border-accent-2/60"
-          >
-            + Add relay upstream
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={addRelay}
+              disabled={relays.length >= MAX_RELAYS}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              + Add relay upstream
+            </button>
+            <button
+              type="button"
+              onClick={loadFiveRelayExample}
+              className="rounded-md border border-border px-3 py-2 text-sm font-medium text-accent-2 hover:border-accent-2/60"
+            >
+              Load 5-relay sample chain
+            </button>
+            <span className="text-xs text-muted">
+              {relays.length} of {MAX_RELAYS} relays
+            </span>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4 rounded-xl border border-border bg-surface p-6 sm:grid-cols-2">

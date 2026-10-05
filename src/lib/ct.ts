@@ -182,14 +182,17 @@ export function calcCt(input: CtInput, premiumEnabled: boolean): CtResult | null
       const denom = ktd * ifSecA * (rct + rb);
       let tsMs: number | null = null;
       let instantSaturation = false;
+      // Standard time-to-saturation for a fully offset fault current:
+      //   k = Vk / (If_sec * (Rct + Rb));  saturation-free if k >= Ktd;
+      //   otherwise  ts = -tau * ln(1 - (k - 1)/(w*tau)), and k <= 1 saturates even on symmetrical current.
+      const kSat = ifSecA * (rct + rb) > 0 ? vk / (ifSecA * (rct + rb)) : Infinity;
       if (vk > 0 && denom > 0) {
-        const ratio = vk / denom;
-        if (ratio >= 1) {
+        if (kSat >= ktd) {
           tsMs = null; // no saturation within tf
-        } else if (ratio <= 0) {
+        } else if (kSat <= 1) {
           instantSaturation = true;
         } else {
-          const ts = -tau * Math.log(1 - ratio);
+          const ts = -tau * Math.log(1 - (kSat - 1) / (omega * tau));
           tsMs = ts * 1000;
         }
       }
