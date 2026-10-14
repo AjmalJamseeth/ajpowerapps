@@ -12,14 +12,9 @@ export interface FeedbackButtonProps {
   buttonClassName?: string;
 }
 
-// Where reports go. The app has no backend/database yet (see README "Next
-// steps"), so this is a zero-setup, zero-cost approach: pre-fill an email to
-// AJMAL via a mailto: link, with a copy/download fallback in case the
-// visitor's browser has no mail client configured (common on work machines,
-// locked-down browsers, or mobile). Swap this out for a form-backend
-// service (Formspree, Web3Forms) or a server email API (Resend, etc.) once
-// the site is deployed publicly and a proper inbox pipeline is worth setting up.
-const RECIPIENT_EMAIL = "oneandonlyajmal@gmail.com";
+// The app has no backend yet, so reports are copied to the clipboard or
+// downloaded as a .txt. Swap in a form-backend service (Formspree, Web3Forms)
+// or a server email API when a proper inbox pipeline is wanted.
 
 const ISSUE_TYPES = [
   "Incorrect calculation result",
@@ -31,7 +26,6 @@ const ISSUE_TYPES = [
 
 const CONTAINER_SELECTOR = ".mx-auto.w-full.max-w-6xl.px-6.py-10";
 const SNAPSHOT_CAP = 3000; // for clipboard copy / .txt download
-const MAILTO_SNAPSHOT_CAP = 1200; // mailto URLs have practical length limits
 
 function todayLabel(): string {
   return new Date().toLocaleString(undefined, {
@@ -124,14 +118,6 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
       return false;
     }
     return true;
-  };
-
-  const handleEmail = () => {
-    if (!validate()) return;
-    const subject = `AJapps feedback: ${issueType} — ${calculatorName}`;
-    const body = buildReportText(MAILTO_SNAPSHOT_CAP);
-    const url = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
   };
 
   const handleCopy = async () => {
@@ -279,15 +265,8 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
               <div className="flex flex-wrap gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={handleEmail}
-                  className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-                >
-                  ✉️ Email report
-                </button>
-                <button
-                  type="button"
                   onClick={handleCopy}
-                  className="rounded-md border border-border bg-surface-2 px-4 py-2 text-sm text-foreground hover:border-accent-2/60"
+                  className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
                 >
                   {status === "copied" ? "Copied ✓" : "Copy report text"}
                 </button>
@@ -299,10 +278,6 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
                   {status === "downloaded" ? "Downloaded ✓" : "Download .txt"}
                 </button>
               </div>
-              <p className="text-[11px] text-muted">
-                &quot;Email report&quot; opens your default mail client addressed to {RECIPIENT_EMAIL}. If nothing
-                opens (no mail client configured), use Copy or Download and send it however&apos;s easiest.
-              </p>
             </div>
           </div>
         </div>,

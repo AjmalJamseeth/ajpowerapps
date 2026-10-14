@@ -2,7 +2,6 @@ import Link from "next/link";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MobileNav } from "@/components/MobileNav";
-import { FREE_LAUNCH } from "@/lib/launchConfig";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import {
   ShieldCheck,
@@ -126,9 +125,6 @@ export default function NavBar() {
           </div>
         </nav>
         <div className="flex items-center gap-3">
-          <span className="hidden rounded-full border border-border px-3 py-1 text-xs text-muted sm:inline">
-            {FREE_LAUNCH ? "Free for launch" : "Subscriptions coming soon"}
-          </span>
           <ThemeToggle />
           <FeedbackButton
             calculatorName="General / Site Feedback"

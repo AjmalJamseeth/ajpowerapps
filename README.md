@@ -156,23 +156,16 @@ calculator. Both open the same form: issue type, description (required),
 an optional reply-to email.
 
 The app has no backend or database yet (see "Next steps" below), so
-reports don't get silently lost or need one set up just to ship this:
-submitting the form pre-fills an email addressed to
-**oneandonlyajmal@gmail.com** (`mailto:`, opens the visitor's default
-mail client) with the form fields plus an auto-captured snapshot of the
-page — every input's label + current value, and the visible page text
-(which includes computed results). Since some browsers/work machines
-have no mail client configured, there are also **"Copy report text"**
-and **"Download .txt"** fallback buttons that produce the identical
-report so it can be pasted or attached anywhere.
+submitting the form offers **"Copy report text"** and **"Download .txt"**
+buttons that produce a report with the form fields plus an auto-captured
+snapshot of the page — every input's label + current value, and the
+visible page text (which includes computed results).
 
-To swap this for something more robust once the site is deployed
-publicly — e.g. a form-backend service (Formspree, Web3Forms) that
-doesn't rely on the visitor having a mail client, or a Next.js API route
-+ transactional email API (Resend, etc.) that logs reports server-side
-— the whole mechanism is isolated in `src/components/FeedbackButton.tsx`
-(see the `RECIPIENT_EMAIL` constant and `handleEmail`/`handleCopy`/
-`handleDownload` functions).
+To deliver reports to an inbox once the site is deployed publicly — e.g.
+a form-backend service (Formspree, Web3Forms), or a Next.js API route +
+transactional email API (Resend, etc.) that logs reports server-side —
+the whole mechanism is isolated in `src/components/FeedbackButton.tsx`
+(see the `handleCopy`/`handleDownload` functions).
 
 ## Free launch period
 
