@@ -8,7 +8,7 @@ export interface ReportButtonProps {
 }
 
 const REPORT_MODE_EVENT = "ajapps:report-mode";
-const WATERMARK_TEXT = "AJapps";
+const FOOTER_URL = "www.ajpowerapps.com";
 
 function todayLabel(): string {
   return new Date().toLocaleString(undefined, {
@@ -88,26 +88,11 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
       const pxToPt = contentWidthPt / canvas.width;
       const pagePxHeight = Math.floor(contentHeightPt / pxToPt);
 
-      const drawWatermark = () => {
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(42);
-        pdf.setTextColor(232, 232, 232);
-        for (let y = 70; y < pageHeight; y += 150) {
-          for (let x = -40; x < pageWidth + 80; x += 210) {
-            pdf.text(WATERMARK_TEXT, x, y, { angle: 35 });
-          }
-        }
-      };
-
       const drawFooter = (pageNum: number, pageCount: number) => {
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(8);
         pdf.setTextColor(120, 120, 120);
-        pdf.text(
-          `AJapps — ${title} — generated ${label} — for preliminary engineering use only, verify against project-specific standards.`,
-          margin,
-          pageHeight - 12
-        );
+        pdf.text(FOOTER_URL, margin, pageHeight - 12);
         pdf.text(String(pageNum) + " / " + String(pageCount), pageWidth - margin - 24, pageHeight - 12);
       };
 
@@ -129,7 +114,6 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
 
         if (page > 0) pdf.addPage();
         pdf.addImage(sliceData, "PNG", margin, margin, contentWidthPt, sliceHeightPt, undefined, "FAST");
-        drawWatermark();
         drawFooter(page + 1, totalPages);
       }
 
