@@ -150,7 +150,7 @@ export interface EarthingResult {
   Rg: number | null;
   GPR: number | null;
 
-  // subscriber
+  // advanced
   mesh: {
     Km: number;
     Ki: number;

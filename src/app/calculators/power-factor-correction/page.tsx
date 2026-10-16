@@ -16,7 +16,7 @@ export default function PfcPage() {
   const update = (patch: Partial<PfcInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Harmonic resonance, detuning reactor and energy-savings sections are
-  // subscriber features — never enabled on the free site.
+  // advanced features — never enabled on the free site.
   const result = useMemo(() => calcPfc({ ...input, premiumEnabled: FREE_LAUNCH }), [input]);
 
   return (
@@ -29,7 +29,7 @@ export default function PfcPage() {
         <p className="mt-2 max-w-2xl text-muted">
           IEC 60831 capacitor bank sizing — reactive compensation, capacitance
           and the resulting current/kVA reduction. Harmonic resonance,
-          detuning reactor sizing and energy-savings analysis are subscriber
+          detuning reactor sizing and energy-savings analysis are advanced
           features.
         </p>
 
@@ -40,9 +40,9 @@ export default function PfcPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes a power-factor-correction capacitor bank from a load's real power and existing/target power factor, and (on the subscriber tier) checks for harmonic resonance risk, sizes a detuning reactor, and estimates the resulting energy/demand-charge savings."
+          purpose="Sizes a power-factor-correction capacitor bank from a load's real power and existing/target power factor, and (on the advanced) checks for harmonic resonance risk, sizes a detuning reactor, and estimates the resulting energy/demand-charge savings."
           standards={["IEC 60831 (shunt power capacitors)", "IEC 61000-4-7 (harmonic resonance guidance, referenced by the resonance check)"]}
-          capabilities={["Required reactive compensation Qc and capacitor bank capacitance from existing and target power factor.", "Before/after comparison table of kVA, current, and kVAr.", "Subscriber: harmonic resonance check against system short-circuit level, detuning reactor sizing, and annual energy/cost savings."]}
+          capabilities={["Required reactive compensation Qc and capacitor bank capacitance from existing and target power factor.", "Before/after comparison table of kVA, current, and kVAr.", "Advanced: harmonic resonance check against system short-circuit level, detuning reactor sizing, and annual energy/cost savings."]}
           example={{ problem: "A 500kW load at 0.75 power factor needs correcting to 0.95.", steps: ["Reactive power before: Q1 = P \u00d7 tan(acos(PF1)) = 500 \u00d7 tan(acos(0.75)).", "Reactive power after: Q2 = P \u00d7 tan(acos(PF2)) = 500 \u00d7 tan(acos(0.95)).", "Required compensation: Qc = Q1 \u2212 Q2."], result: "Qc = 276.6 kVAr \u2014 hand-checked and matched the live code exactly." }}
           />
         </div>

@@ -29,7 +29,7 @@ export default function CableSizingPage() {
   const [input, setInput] = useState<CableSizingInput>(DEFAULT_CABLE_INPUT);
   const update = (patch: Partial<CableSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
-  // Premium calculation is never enabled on the free site — subscriber
+  // Premium calculation is never enabled on the free site — advanced
   // sections below are shown for preview only, per the site's freemium model.
   const result = useMemo(() => sizeCable({ ...input, premiumEnabled: FREE_LAUNCH }), [input]);
 
@@ -43,7 +43,7 @@ export default function CableSizingPage() {
         <p className="mt-2 max-w-2xl text-muted">
           LV cable sizing per IEC 60364-5-52 — current-carrying capacity and
           voltage-drop verification, plus derating, short-circuit withstand,
-          CPC sizing and lifecycle cost as subscriber features.
+          CPC sizing and lifecycle cost as advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -55,7 +55,7 @@ export default function CableSizingPage() {
           <InfoPanel
           purpose="Sizes an LV cable's cross-sectional area and checks its voltage drop against IEC 60364-5-52 \u2014 the core, most-used calculator in the suite, feeding conductor sizes into several other calculators (Solar PV, EV Charging, Energy Storage) via the same engine."
           standards={["IEC 60364-5-52 (electrical installations \u2014 selection and erection of wiring systems)", "IEC 60364-5-54 (earthing arrangements and protective conductors, for CPC sizing)"]}
-          capabilities={["Recommends the smallest standard cable size (1.5-630mm\u00b2) that satisfies both ampacity and voltage-drop limits, from a load specified by kW+PF or a direct design current.", "Full sizing comparison table across every standard size, showing ampacity and voltage drop for each.", "Subscriber: motor-starting voltage drop, full derating (ambient, grouping, layering, spacing, soil resistivity, harmonics), adiabatic short-circuit withstand, CPC/earth sizing, and a lifecycle-cost optimizer."]}
+          capabilities={["Recommends the smallest standard cable size (1.5-630mm\u00b2) that satisfies both ampacity and voltage-drop limits, from a load specified by kW+PF or a direct design current.", "Full sizing comparison table across every standard size, showing ampacity and voltage drop for each.", "Advanced: motor-starting voltage drop, full derating (ambient, grouping, layering, spacing, soil resistivity, harmonics), adiabatic short-circuit withstand, CPC/earth sizing, and a lifecycle-cost optimizer."]}
           example={{ problem: "A 50kW, 415V, 3-phase load at 0.9 PF, copper conductors, PVC70 insulation, installation method C, 50m route length, 5% max voltage drop.", steps: ["Design current Ib = 50,000 / (\u221a3 \u00d7 415 \u00d7 0.9) \u2248 77.3A.", "Check each standard cable size's method-C ampacity against 77.3A, moving up until one satisfies it.", "For the smallest ampacity-satisfying size, compute voltage drop = (mV/A/m table value \u00d7 Ib \u00d7 length) / 1000, as a % of 415V.", "If that size's voltage drop exceeds 5%, move to the next larger standard size and recheck."], result: "25mm\u00b2 at 2.64% voltage drop \u2014 hand-checked against the live code and matched exactly." }}
           />
         </div>

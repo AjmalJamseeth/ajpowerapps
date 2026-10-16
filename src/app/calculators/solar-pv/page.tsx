@@ -17,7 +17,7 @@ export default function SolarPvPage() {
   const update = (patch: Partial<PvInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Multi-string array design (combined MPPT current, OCPD, fuse rating) is
-  // a subscriber feature — never computed on the free site.
+  // an advanced feature — never computed on the free site.
   const result = useMemo(() => calcPv(input, FREE_LAUNCH), [input]);
 
   return (
@@ -31,7 +31,7 @@ export default function SolarPvPage() {
           IEC 62548 &amp; IEC 60364-7-712 — string voltage window, inverter
           matching, and DC/AC cable sizing for a single string and inverter.
           Multi-string parallel arrays with combiner/feeder sizing are a
-          subscriber feature.
+          advanced feature.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -43,7 +43,7 @@ export default function SolarPvPage() {
           <InfoPanel
           purpose="Sizes a single-string PV array against its inverter: checks the string voltage window against the inverter's MPPT range and absolute maximum DC voltage across the site's full temperature range, checks array current against the inverter's MPPT current limit, and sizes both the DC array cable and AC grid-connection cable."
           standards={["IEC 62548 (photovoltaic array design requirements)", "IEC 60364-7-712 (electrical installations \u2014 solar photovoltaic power supply systems)"]}
-          capabilities={["Temperature-corrected string voltage window (cold-weather maximum Voc, hot-weather minimum Vmpp) checked against the inverter's MPPT range and absolute maximum DC voltage.", "String design current (Isc \u00d7 1.25 margin, per IEC 62548 \u00a77) checked against the inverter's maximum DC input current.", "DC and AC cable sizing, reusing the same ampacity/derating/voltage-drop engine as the Cable Sizing calculator.", "DC:AC oversizing ratio with an over/undersizing note against the typical 1.0-1.3 accepted range.", "Subscriber: multi-string array design \u2014 combined MPPT current across parallel strings and string-level overcurrent protection sizing."]}
+          capabilities={["Temperature-corrected string voltage window (cold-weather maximum Voc, hot-weather minimum Vmpp) checked against the inverter's MPPT range and absolute maximum DC voltage.", "String design current (Isc \u00d7 1.25 margin, per IEC 62548 \u00a77) checked against the inverter's maximum DC input current.", "DC and AC cable sizing, reusing the same ampacity/derating/voltage-drop engine as the Cable Sizing calculator.", "DC:AC oversizing ratio with an over/undersizing note against the typical 1.0-1.3 accepted range.", "Advanced: multi-string array design \u2014 combined MPPT current across parallel strings and string-level overcurrent protection sizing."]}
           example={{ problem: "A 20-module string with 49.5V Voc, \u22120.29%/\u00b0C temperature coefficient, at a site ranging from 5\u00b0C to 65\u00b0C.", steps: ["Cold factor at 5\u00b0C (20\u00b0C below the 25\u00b0C STC reference) = 1 + 0.0029\u00d720 \u2248 1.058.", "Maximum string voltage = 20 \u00d7 49.5 \u00d7 1.058 \u2248 1047.42V \u2014 checked against the inverter's max DC voltage.", "Hot factor at 65\u00b0C (40\u00b0C above reference) = 1 \u2212 0.0029\u00d740 \u2248 0.884.", "Minimum string Vmpp range = 20 \u00d7 Vmpp \u00d7 0.884, checked against the inverter's MPPT minimum voltage.", "DC cable sizing iterates through standard sizes until both ampacity and the ~2% voltage-drop guideline are satisfied."], result: "Cold factor 1.058 \u2192 Vmax 1047.42V, hot factor 0.884 \u2192 Vmpp range 733.72-878.14V, DC cable sizing correctly iterates past two undersized options to 4mm\u00b2 at 1.382% VD \u2014 every intermediate value hand-checked and matched the live code exactly (this particular default scenario intentionally fails the Vmax and MPPT window checks, since the module/inverter placeholder values weren't chosen as a mutually-consistent example)." }}
           />
         </div>
@@ -61,7 +61,7 @@ export default function SolarPvPage() {
 
             <Section title="Array & site conditions">
               <NumberField label="Modules per string (Ns)" tip={"Number of modules wired in series to form one string \u2014 directly multiplies string voltage, the main lever for landing the string inside the inverter's MPPT window while staying under its maximum DC input voltage."} value={input.ns} onChange={(v) => update({ ns: v })} min={1} step={1} />
-              <NumberField label="Strings in parallel (Np)" tip={"Number of strings wired in parallel \u2014 multiplies total array current. The free tier sizes one representative string; multi-string combiner/OCPD sizing is a subscriber feature."} value={input.np} onChange={(v) => update({ np: v })} min={1} step={1} />
+              <NumberField label="Strings in parallel (Np)" tip={"Number of strings wired in parallel \u2014 multiplies total array current. The core sizes one representative string; multi-string combiner/OCPD sizing is an advanced feature."} value={input.np} onChange={(v) => update({ np: v })} min={1} step={1} />
               <NumberField label="Site min temperature" unit="°C" tip={"Lowest ambient temperature reasonably expected at the site \u2014 drives the WORST-CASE (highest) string voltage, since module Voc rises as temperature falls. An over-cautious guess oversizes the array; an optimistic one risks a voltage that damages the inverter."} value={input.siteTempMinC} onChange={(v) => update({ siteTempMinC: v })} />
               <NumberField label="Site max temperature" unit="°C" tip={"Highest module operating temperature reasonably expected \u2014 for rooftop modules this can run 20-30\u00b0C above ambient air temperature. Drives the WORST-CASE (lowest) string operating voltage, checked against the inverter's minimum MPPT voltage."} value={input.siteTempMaxC} onChange={(v) => update({ siteTempMaxC: v })} />
             </Section>
@@ -135,7 +135,7 @@ export default function SolarPvPage() {
               unlocked={FREE_LAUNCH}
             >
               <div className="col-span-2 text-xs text-muted">
-                Preview only — full multi-string combiner/feeder sizing unlocks with subscriber accounts.
+                Preview only — full multi-string combiner/feeder sizing unlocks with advanced accounts.
               </div>
             </PremiumSection>
           </div>

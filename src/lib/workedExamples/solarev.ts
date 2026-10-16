@@ -95,7 +95,7 @@ export const SOLAREV_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Could adding a second parallel string (Np=2) fix the current problem?",
-        a: "Not on this calculator's free-tier per-MPPT current check — that check compares a single string's Isc-based design current against the inverter's per-MPPT limit, because each string is assumed to land on its own MPPT input. A second string only helps if it is wired to a separate MPPT channel with its own headroom, not if both strings are combined onto the same overloaded input; combining multiple strings onto a shared combiner is exactly what the subscriber-tier multi-string OCPD sizing in this calculator is for.",
+        a: "Not on this calculator's free-tier per-MPPT current check — that check compares a single string's Isc-based design current against the inverter's per-MPPT limit, because each string is assumed to land on its own MPPT input. A second string only helps if it is wired to a separate MPPT channel with its own headroom, not if both strings are combined onto the same overloaded input; combining multiple strings onto a shared combiner is exactly what the advanced multi-string OCPD sizing in this calculator is for.",
       },
     ],
   },

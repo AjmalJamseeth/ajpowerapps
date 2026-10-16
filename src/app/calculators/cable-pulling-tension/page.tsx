@@ -41,7 +41,7 @@ export default function CablePullingTensionPage() {
           standards={["IEEE 1185 (cable pulling tension/capstan equations)"]}
           capabilities={["Segment-by-segment tension buildup across up to 6 pull-route segments (straight horizontal/vertical, or bends) in actual pull order.", "Capstan-equation tension multiplication at each bend, from bend angle and friction coefficient.", "Sidewall bearing pressure at each bend, checked against the cable's rated limit.", "3-cable jam ratio (conduit ID \u00f7 cable OD) with a check against the published 2.6-3.2 jamming danger zone."]}
           example={{ problem: "A pull route has two 50ft horizontal straight sections and one 90\u00b0 bend of 2ft radius, with friction coefficient 0.35 and cable weight 3.3 lb/ft.", steps: ["First straight section: tension builds from friction alone \u2192 57.75 lbf.", "Second straight section (before the bend): tension continues to build \u2192 115.5 lbf.", "At the 90\u00b0 bend, the capstan equation (T_out = T_in \u00d7 e^(f\u00d7\u03b8)) multiplies tension to 200.146 lbf.", "Peak sidewall pressure at the bend = T_out / radius = 200.146 / 2 = 100.073 lb/ft."], result: "Final tension 200.146 lbf and peak sidewall pressure 100.073 lb/ft \u2014 both comfortably pass typical 5,000 lbf / 300 lb/ft limits. A separate 3-cable jam-ratio check (4in conduit ID / 1.45in cable OD = 2.759) falls inside the 2.6-3.2 danger zone, flagging a real jamming risk worth mitigating." }}
-          notes="This calculator is entirely a subscriber feature in the source app; it's unlocked here for free during launch (see the banner at the top of the site for the current promo window)."
+          notes="This calculator is free to use in full."
           />
         </div>
 

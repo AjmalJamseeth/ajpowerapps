@@ -19,7 +19,7 @@ export default function PremiumSection({
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-base font-semibold text-foreground">{title}</h3>
         <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-          Subscriber
+          Advanced
         </span>
       </div>
 
@@ -28,7 +28,7 @@ export default function PremiumSection({
           <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
           <span>
             {description} Fields below are shown for preview — full
-            calculation unlocks with subscriber accounts, coming soon.
+            calculation is coming soon.
           </span>
         </div>
       )}

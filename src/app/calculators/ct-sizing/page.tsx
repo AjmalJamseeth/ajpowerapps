@@ -18,7 +18,7 @@ export default function CtSizingPage() {
   const [tapsText, setTapsText] = useState(DEFAULT_CT_INPUT.taps.join(", "));
 
   // Saturation, thermal/mechanical, metering class, multi-ratio taps and
-  // REF/differential matching are subscriber features — never computed on
+  // REF/differential matching are advanced features — never computed on
   // the free site.
   const result = useMemo(() => calcCt(input, FREE_LAUNCH), [input]);
 
@@ -34,7 +34,7 @@ export default function CtSizingPage() {
           accuracy-limit-factor (ALF) / knee-point voltage (Vk) check.
           Saturation and transient analysis, metering accuracy class,
           thermal &amp; mechanical withstand, multi-ratio taps and
-          REF/differential ratio matching are subscriber features.
+          REF/differential ratio matching are advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -44,9 +44,9 @@ export default function CtSizingPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes a protection current transformer (CT): ratio, itemized secondary burden, and the accuracy-limit-factor/knee-point-voltage check that confirms the CT won't saturate before delivering the accuracy a protection relay needs \u2014 plus subscriber-tier saturation/transient, metering-class, thermal/mechanical withstand, multi-ratio-tap and REF/differential ratio-matching checks."
+          purpose="Sizes a protection current transformer (CT): ratio, itemized secondary burden, and the accuracy-limit-factor/knee-point-voltage check that confirms the CT won't saturate before delivering the accuracy a protection relay needs \u2014 plus advanced saturation/transient, metering-class, thermal/mechanical withstand, multi-ratio-tap and REF/differential ratio-matching checks."
           standards={["IEC 61869-2 (current transformers)"]}
-          capabilities={["CT ratio (Ip/Is), itemized secondary burden (relay/meter/instrument devices summed with lead resistance), and total burden Rb.", "Required Vk (from ALF, rated secondary current and total burden) vs. actual Vk, with a pass/fail verdict.", "Fault-current table (primary/secondary current at 0.2\u00d7-50\u00d7 rated primary current).", "Subscriber: saturation & transient analysis, metering accuracy class limits, thermal & mechanical withstand, multi-ratio tap analysis, and REF/differential CT ratio matching."]}
+          capabilities={["CT ratio (Ip/Is), itemized secondary burden (relay/meter/instrument devices summed with lead resistance), and total burden Rb.", "Required Vk (from ALF, rated secondary current and total burden) vs. actual Vk, with a pass/fail verdict.", "Fault-current table (primary/secondary current at 0.2\u00d7-50\u00d7 rated primary current).", "Advanced: saturation & transient analysis, metering accuracy class limits, thermal & mechanical withstand, multi-ratio tap analysis, and REF/differential CT ratio matching."]}
           example={{ problem: "A 400/1A CT feeds a 2.5VA relay over a 20m run of 2.5mm\u00b2 lead wire, with a go-and-return loop, and needs ALF 20.", steps: ["Lead resistance from cable length, cross-section and return factor.", "Total burden resistance Rb = relay burden resistance + CT winding resistance (Rct) + lead resistance.", "Required Vk = ALF \u00d7 rated secondary current \u00d7 Rb."], result: "Rb = 2.78\u03a9, Vk required = 105.6V at ALF=20 \u2014 hand-checked and matched the live code exactly." }}
           />
         </div>

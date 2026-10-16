@@ -69,7 +69,7 @@ export const CABLES_GUIDE: GuideDoc = {
   ],
   standardsLandscape: [
     { standard: "IEC 60364-5-52:2009", scope: "LV cable current-carrying capacity, installation reference methods, and correction/derating factors — the basis for the LV Cable Sizing calculator's ampacity tables." },
-    { standard: "IEC 60364-5-54", scope: "Protective conductor (CPC) sizing and adiabatic short-circuit withstand — a subscriber feature of the LV Cable Sizing calculator." },
+    { standard: "IEC 60364-5-54", scope: "Protective conductor (CPC) sizing and adiabatic short-circuit withstand — an advanced feature of the LV Cable Sizing calculator." },
     { standard: "IEC 60287-1-1 / -2-1 / -3-1", scope: "First-principles thermal-circuit current rating method for MV/HV cables — current rating equations, thermal resistance, and operating-condition sections." },
     { standard: "NEC Chapter 9 Table 1 / IEC / BS 7671 space-factor method", scope: "Conduit fill percentage limits by conductor count (NEC) or a flat 45%/40% space factor for conduit/trunking (IEC/BS 7671)." },
     { standard: "NEC §392.22 / IEC 61537", scope: "Cable tray fill rules — width/area limits by tray type and cable category (NEC), or area-fill method (IEC)." },

@@ -32,8 +32,7 @@ export default function PowerConverterPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Essential single-phase and three-phase power and current
           conversions from a load profile — enter voltage, power factor,
-          and any one known quantity to get the rest. Fully free — no
-          subscriber gate.
+          and any one known quantity to get the rest.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

@@ -38,7 +38,7 @@ export interface BusbarInput {
   kp: number;
   maxRiseK: number;
 
-  // Subscriber
+  // Advanced
   ifKa: number;
   tfS: number;
   ipKa: number;
@@ -152,7 +152,7 @@ export interface BusbarResult {
   tempPass: boolean | null;
   maxIA: number;
 
-  // subscriber
+  // advanced
   thermal: {
     kUsed: number;
     minCsaMm2: number;

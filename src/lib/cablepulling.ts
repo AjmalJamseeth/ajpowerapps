@@ -1,6 +1,6 @@
 // Cable Pulling Tension — IEEE 1185 tension/capstan equations, sidewall
 // bearing pressure & jam ratio. Ported and verified from the AJ Apps Suite's
-// `CablePulling` module. Entirely a subscriber feature in the source app.
+// `CablePulling` module. Entirely an advanced feature in the source app.
 
 export type PullUnits = "imperial" | "metric";
 export type SegmentType = "none" | "straightH" | "straightUp" | "straightDown" | "bend";

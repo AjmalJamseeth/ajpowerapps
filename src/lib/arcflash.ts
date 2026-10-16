@@ -1,11 +1,11 @@
 // Arc Flash incident energy, arc-flash boundary and PPE category.
 //
 // Three methods:
-//  - IEEE 1584-2002 (empirical) — free tier. Valid 0.208-15kV, 0.7-106kA.
-//  - Ralph Lee (theoretical) — free tier. No upper voltage limit; the
+//  - IEEE 1584-2002 (empirical) — core. Valid 0.208-15kV, 0.7-106kA.
+//  - Ralph Lee (theoretical) — core. No upper voltage limit; the
 //    fallback method above 15kV or wherever the empirical model doesn't
 //    apply. Simpler, generally more conservative.
-//  - IEEE 1584-2018 (empirical) — subscriber tier. Implements the
+//  - IEEE 1584-2018 (empirical) — advanced. Implements the
 //    600V < Voc <= 15000V range only. Coefficients verified end-to-end
 //    against IEEE's own Annex D worked example (4.16kV, VCB, 15kA,
 //    G=104mm, 762x1143mm typical enclosure): arcing current, incident

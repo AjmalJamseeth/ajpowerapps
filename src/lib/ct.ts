@@ -25,7 +25,7 @@ export interface CtInput {
   returnFactor: 1 | 2; // 1 = one-way (shared neutral/common return), 2 = go-and-return loop
   freqHz: number;
 
-  // Subscriber
+  // Advanced
   ifKa: number; // system fault current, kA rms symmetrical
   xr: number; // system X/R ratio at the fault point
   tf: number; // fault clearance duration, s
@@ -112,7 +112,7 @@ export interface CtResult {
   alfPass: boolean;
   faultTable: CtFaultRow[];
 
-  // subscriber
+  // advanced
   saturation: {
     tau: number;
     ktd: number;

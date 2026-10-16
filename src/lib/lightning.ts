@@ -63,7 +63,7 @@ export interface LightningInput {
   totalPersons: number;
   timePresentH: number;
 
-  // Subscriber — connected lines
+  // Advanced — connected lines
   touchProtectionLine: number; // Ptu
   lineSpd: number; // Peb
   powerLineLengthM: number;

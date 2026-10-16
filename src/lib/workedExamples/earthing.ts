@@ -94,7 +94,7 @@ export const EARTHING_EXAMPLES: WorkedExample[] = [
       { label: "Time occupied", value: "8760 h/year (continuously staffed)" },
       { label: "Tolerable risk (R1, per IEC 62305)", value: "1 x 10⁻⁵ per year" },
     ],
-    scenarioNote: "This example covers the free-tier structure-only risk (loss of human life from direct strikes to the structure). Risk contributions from connected power/telecom lines are a separate subscriber-tier calculation and are not included here.",
+    scenarioNote: "This example covers the free-tier structure-only risk (loss of human life from direct strikes to the structure). Risk contributions from connected power/telecom lines are a separate advanced calculation and are not included here.",
     steps: [
       {
         title: "Compute the structure's equivalent collection area",

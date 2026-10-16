@@ -1,6 +1,6 @@
 // HVAC Electrical Sizing — motor-compressor branch-circuit sizing per NEC
 // Article 440, or IEC 60364-5-52/60947-4-1 general method. Single motor
-// free — multi-motor combination-load and VFD-fed motor are subscriber
+// free — multi-motor combination-load and VFD-fed motor are advanced
 // features. Ported and verified from the AJ Apps Suite's `HVACElec` module.
 
 export type HvacStandard = "nec" | "iec";

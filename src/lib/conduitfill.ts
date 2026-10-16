@@ -1,6 +1,6 @@
 // Conduit Fill — NEC Chapter 9 Table 1/4/5 (US) and IEC/BS 7671 space-factor
 // method (conduit 45% / trunking 40%). Ported and verified from the AJ Apps
-// Suite's `ConduitFill` module. Entirely free — no subscriber gating in the
+// Suite's `ConduitFill` module. in the
 // source app.
 
 export type ConduitType = "EMT" | "RMC" | "IMC" | "PVC40" | "PVC80" | "FMC" | "LFMC" | "ENT";

@@ -29,7 +29,7 @@ import {
 const METHOD_OPTIONS: { value: ArcFlashMethod; label: string }[] = [
   { value: "ieee2002", label: "IEEE 1584-2002 (Empirical)" },
   { value: "lee", label: "Ralph Lee (Theoretical)" },
-  { value: "ieee2018", label: "IEEE 1584-2018 (Empirical) — subscriber" },
+  { value: "ieee2018", label: "IEEE 1584-2018 (Empirical) — advanced" },
 ];
 
 export default function ArcFlashPage() {
@@ -72,7 +72,7 @@ export default function ArcFlashPage() {
     }
 
     if (method === "ieee2018") {
-      // Subscriber-only — no live calculation on the free site yet.
+      // Advanced-only — no live calculation on the free site yet.
       return { ready: false, arcingCurrent: null, incidentEnergy: null, boundaryMm: null, ppe: null, rangeWarning: null };
     }
 
@@ -101,7 +101,7 @@ export default function ArcFlashPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Incident energy, arc flash boundary and PPE category. IEEE 1584-2002
           and the Ralph Lee theoretical method are free; IEEE 1584-2018 is a
-          subscriber feature.
+          advanced feature.
         </p>
 
 <div className="mt-6 flex flex-wrap gap-3">
@@ -112,8 +112,8 @@ export default function ArcFlashPage() {
         <div className="mt-6">
           <InfoPanel
           purpose={"Calculates the incident energy, arc flash boundary and required PPE category for a point in an electrical system — the core hazard analysis behind arc-flash warning labels and safe-work-distance/PPE decisions for live or potentially-live electrical work."}
-          standards={["IEEE 1584-2002 (empirical arc-flash hazard model)", "IEEE 1584-2018 (current edition, subscriber feature)", "Ralph Lee theoretical model (Lee, 1982)"]}
-          capabilities={["IEEE 1584-2002 empirical model — arcing current, incident energy, arc flash boundary and PPE category from equipment class, enclosure, gap and grounding.", "Ralph Lee theoretical model — no equipment class or gap needed, works at any voltage, generally more conservative and used as the fallback above 15kV.", "Out-of-range warnings when inputs fall outside the IEEE 1584-2002 validated range (0.7-106kA, 0.208-15kV).", "Subscriber: IEEE 1584-2018, the current edition, with electrode configuration and enclosure size correction."]}
+          standards={["IEEE 1584-2002 (empirical arc-flash hazard model)", "IEEE 1584-2018 (current edition, advanced feature)", "Ralph Lee theoretical model (Lee, 1982)"]}
+          capabilities={["IEEE 1584-2002 empirical model — arcing current, incident energy, arc flash boundary and PPE category from equipment class, enclosure, gap and grounding.", "Ralph Lee theoretical model — no equipment class or gap needed, works at any voltage, generally more conservative and used as the fallback above 15kV.", "Out-of-range warnings when inputs fall outside the IEEE 1584-2002 validated range (0.7-106kA, 0.208-15kV).", "Advanced: IEEE 1584-2018, the current edition, with electrode configuration and enclosure size correction."]}
           example={{ problem: "A 415V LV MCC with a 25kA bolted fault current, 455mm working distance and a 0.2s clearing time. Estimate the incident energy using IEEE 1584-2002.", steps: ["Look up typical gap (G) and distance exponent (x) for the LV MCC equipment class.", "Compute arcing current Ia from bolted fault current, voltage, gap and enclosure type.", "Compute normalized incident energy En from Ia, gap, enclosure and grounding.", "Scale En by voltage, time and working distance to get incident energy E, and compute the arc flash boundary from the same normalized energy."], result: "The resulting incident energy determines the PPE category (from a standard cal/cm² table) and the arc flash boundary defines the distance at which incident energy drops to the 1.2 cal/cm² onset-of-second-degree-burn threshold." }}
           notes="A bug in the source app was found and fixed here: IEEE 1584-2002 defines separate arcing-current equations for ≤1kV and 1-15kV systems, but the source app applied the ≤1kV equation at every voltage, producing nonphysical results (arcing current exceeding the bolted fault current) above 1kV. This calculator implements both equations correctly."
           />
@@ -136,7 +136,7 @@ export default function ArcFlashPage() {
                 {method === "lee" &&
                   "Theoretical model — no equipment class, enclosure or gap needed, just voltage, fault current, time and distance. Use above 15 kV or wherever the empirical model doesn't apply. Generally more conservative."}
                 {method === "ieee2018" &&
-                  "Subscriber feature — see the locked section below. Switch to 2002 or Ralph Lee above for a computed result today."}
+                  "Advanced feature — see the locked section below. Switch to 2002 or Ralph Lee above for a computed result today."}
               </div>
             </Section>
 

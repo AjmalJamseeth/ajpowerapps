@@ -17,7 +17,7 @@ export default function BatterySizingPage() {
   const [input, setInput] = useState<BatteryInput>(DEFAULT_BATTERY_INPUT);
   const update = (patch: Partial<BatteryInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
-  // Random loads, cell/voltage window and charger sizing are subscriber
+  // Random loads, cell/voltage window and charger sizing are advanced
   // features — never computed on the free site.
   const result = useMemo(() => calcBattery(input, FREE_LAUNCH), [input]);
 
@@ -34,7 +34,7 @@ export default function BatterySizingPage() {
           capacity-rating (Kt) table — IEEE 485 defines the calculation
           method, not the table itself. Random/intermittent loads, cell
           count &amp; voltage window checks, and charger sizing (IEEE
-          946-style) are subscriber features.
+          946-style) are advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -45,8 +45,8 @@ export default function BatterySizingPage() {
         <div className="mt-6">
           <InfoPanel
           purpose="Sizes a stationary lead-acid battery (vented or VRLA) for a DC system \u2014 substation control power, UPS, switchgear tripping supply \u2014 using IEEE 485's changing-load duty-cycle section method, which correctly identifies which period of a multi-stage discharge actually governs the required battery size (not simply the highest current or the longest duration alone)."
-          standards={["IEEE 485 (recommended practice for sizing lead-acid batteries for stationary applications)", "IEEE 1188 (aging factor guidance)", "IEEE 946 (charger sizing, referenced for the subscriber-tier charger calculation)"]}
-          capabilities={["Duty-cycle section-by-section required capacity, using the IEEE 485 section method (each load step weighted by its own Kt, not just the worst single period in isolation).", "Your own manufacturer's Kt (capacity-rating factor) table \u2014 IEEE 485 defines the calculation method, not the table itself, since Kt is product/chemistry-specific.", "Temperature, aging and design-margin correction factors producing the final required rated capacity.", "Subscriber: random/intermittent loads added on top of the governing section, cell count & voltage window check, and charger sizing."]}
+          standards={["IEEE 485 (recommended practice for sizing lead-acid batteries for stationary applications)", "IEEE 1188 (aging factor guidance)", "IEEE 946 (charger sizing, referenced for the advanced charger calculation)"]}
+          capabilities={["Duty-cycle section-by-section required capacity, using the IEEE 485 section method (each load step weighted by its own Kt, not just the worst single period in isolation).", "Your own manufacturer's Kt (capacity-rating factor) table \u2014 IEEE 485 defines the calculation method, not the table itself, since Kt is product/chemistry-specific.", "Temperature, aging and design-margin correction factors producing the final required rated capacity.", "Advanced: random/intermittent loads added on top of the governing section, cell count & voltage window check, and charger sizing."]}
           example={{ problem: "This calculator's default scenario reproduces an illustrative 4-period duty cycle end to end, using the IEEE 485 section method.", steps: ["For each period, compute the net current (background load \u00b1 switching events).", "Apply the section method: F\u209b = \u03a3 (I\u209a - I(p-1)) \u00d7 Kt(T\u209b - T(p-1)), weighting each load step by the Kt for the time from the start of that step to the end of the section.", "Identify the governing (worst-case) section \u2014 the one demanding the largest required capacity, not necessarily the highest-current or longest one.", "Apply temperature, aging and design-margin correction factors to the governing section's capacity."], result: "Governing section 4 requires 110.00 Ah; after \u00d71.00 temperature \u00d7 1.25 aging \u00d7 1.10 margin, final corrected capacity = 151.25 Ah." }}
           />
         </div>

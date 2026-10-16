@@ -29,7 +29,7 @@ export default function EvChargingPage() {
     update({ phase, voltage: phase === "3ph" ? 400 : 230 });
   };
 
-  // Multi charge point site design (with diversity/LMS) is a subscriber
+  // Multi charge point site design (with diversity/LMS) is an advanced
   // feature — never computed on the free site.
   const result = useMemo(() => calcEv(input, FREE_LAUNCH), [input]);
 
@@ -43,7 +43,7 @@ export default function EvChargingPage() {
         <p className="mt-2 max-w-2xl text-muted">
           IEC 61851-1 · IEC 60364-7-722 · IEC 62955 — charge point
           cable/breaker/RCD sizing for a single point is free. Multi-point
-          site demand with load management diversity is a subscriber
+          site demand with load management diversity is an advanced
           feature.
         </p>
 
@@ -54,9 +54,9 @@ export default function EvChargingPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes the cable, breaker and RCD protection for a single EV charge point per IEC 61851-1/60364-7-722/62955, with guidance on earthing-arrangement compatibility and the correct RCD type \u2014 plus subscriber-tier multi-point site demand aggregation with Load Management System diversity."
+          purpose="Sizes the cable, breaker and RCD protection for a single EV charge point per IEC 61851-1/60364-7-722/62955, with guidance on earthing-arrangement compatibility and the correct RCD type \u2014 plus advanced multi-point site demand aggregation with Load Management System diversity."
           standards={["IEC 61851-1 (electric vehicle conductive charging system \u2014 charging modes)", "IEC 60364-7-722 (electrical installations \u2014 supplies for electric vehicles)", "IEC 62955 (residual direct current detecting devices, RDC-DD)"]}
-          capabilities={["Charging-mode guidance (Mode 1-4) with mode-specific notes and scope warnings.", "Cable sizing to a single charge point (ampacity + voltage drop) and recommended breaker from standard sizes.", "Earthing-arrangement guidance including the TN-C-S/PME PEN-conductor warning for the final circuit.", "RCD protection guidance (Type B vs. Type A/F + RDC-DD per IEC 62955).", "Subscriber: multi charge point site design \u2014 raw vs. diversified design current (IEC 60364-7-722.311 diversity rules, with or without an LMS) and recommended feeder cable size."]}
+          capabilities={["Charging-mode guidance (Mode 1-4) with mode-specific notes and scope warnings.", "Cable sizing to a single charge point (ampacity + voltage drop) and recommended breaker from standard sizes.", "Earthing-arrangement guidance including the TN-C-S/PME PEN-conductor warning for the final circuit.", "RCD protection guidance (Type B vs. Type A/F + RDC-DD per IEC 62955).", "Advanced: multi charge point site design \u2014 raw vs. diversified design current (IEC 60364-7-722.311 diversity rules, with or without an LMS) and recommended feeder cable size."]}
           example={{ problem: "A Mode 3, 32A, single-phase charge point, copper conductors, XLPE90 insulation, installation method C, 25m route length.", steps: ["Design current = EVSE rated current directly = 32A (unlike most loads, no power/PF derivation needed).", "Size the cable to satisfy both method-C ampacity at 32A and the 5% voltage-drop limit over 25m.", "Select the standard breaker size that protects the chosen cable."], result: "4mm\u00b2 cable at 3.811% voltage drop (within the 5% limit) with a 32A breaker \u2014 matches the calculator's default scenario exactly. The default 10-point multi-site scenario (no LMS, diversity=1) correctly sizes the feeder to 120mm\u00b2 at 1.995% VD for 320A raw/diversified current." }}
           />
         </div>

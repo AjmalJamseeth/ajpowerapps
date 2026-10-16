@@ -24,7 +24,7 @@ export default function UpsSizingPage() {
           redundancy configuration, plus an approximate battery energy/Ah
           figure for the stated backup time. For a full IEEE 485
           duty-cycle battery design, see the Battery &amp; DC System
-          Sizing calculator. Fully free — no subscriber gate.
+          Sizing calculator.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

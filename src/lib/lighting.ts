@@ -1,6 +1,6 @@
 // Lighting Design — lumen method (EN 12464-1 or IES Handbook). Interior room
 // types free; exterior/area lighting and EN 1838 emergency lighting check are
-// subscriber features. Ported and verified from the AJ Apps Suite's
+// advanced features. Ported and verified from the AJ Apps Suite's
 // `LightingDesign` module.
 
 export type LightingStandard = "en" | "ies";

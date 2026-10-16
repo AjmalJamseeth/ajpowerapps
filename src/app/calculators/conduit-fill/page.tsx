@@ -70,7 +70,7 @@ export default function ConduitFillPage() {
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Conduit Fill Calculator</h1>
         <p className="mt-2 max-w-2xl text-muted">
           NEC Chapter 9 Table 1/4/5 (US) or IEC/BS 7671 45% space-factor
-          method (conduit) / 40% (trunking). Free — no subscriber gating.
+          method (conduit) / 40% (trunking).
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -82,7 +82,7 @@ export default function ConduitFillPage() {
           <InfoPanel
           purpose="Checks whether a set of conductors or cables fits within a conduit, tubing, or trunking raceway without exceeding the maximum allowable fill percentage \u2014 the rule that keeps conductors coolable and pullable without insulation damage."
           standards={["NEC Chapter 9 Table 1 (fill percentages)", "NEC Chapter 9 Table 4 (conduit internal area)", "NEC Chapter 9 Table 5 (conductor area)", "IEC / BS 7671 45%/40% space-factor practice"]}
-          capabilities={["NEC path: select conduit type & trade size, add any number of conductor rows (insulation + AWG size + quantity), and get the fill percentage against the correct 1/2/3+ conductor fill tier.", "Suggests the minimum standard trade size that keeps the fill percentage compliant.", "IEC/BS 7671 path: circular conduit (45%) or rectangular trunking (40%) space-factor check from actual cable outer diameters.", "Fully free \u2014 no subscriber gate, matching the source app's own tiering."]}
+          capabilities={["NEC path: select conduit type & trade size, add any number of conductor rows (insulation + AWG size + quantity), and get the fill percentage against the correct 1/2/3+ conductor fill tier.", "Suggests the minimum standard trade size that keeps the fill percentage compliant.", "IEC/BS 7671 path: circular conduit (45%) or rectangular trunking (40%) space-factor check from actual cable outer diameters.", "Fully free \u2014 no advanced gate, matching the source app's own tiering."]}
           example={{ problem: "Six 12 AWG THHN conductors are pulled into a 3/4\" EMT conduit. Check the fill percentage.", steps: ["Look up each conductor's individual area from NEC Chapter 9 Table 5 (12 AWG THHN) and sum: total conductor area = 0.0798 in\u00b2.", "With 3+ conductors, the applicable fill tier is 40% of the conduit's internal area.", "3/4\" EMT internal area (Table 4) = 0.533 in\u00b2 \u2192 40% allowable = 0.2132 in\u00b2.", "Fill % = 0.0798 / 0.533 = 14.97%."], result: "14.97% fill, well within the 40% limit \u2014 pass, with 1/2\" EMT suggested as the minimum size that would still work." }}
           />
         </div>

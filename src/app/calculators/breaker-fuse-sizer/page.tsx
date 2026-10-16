@@ -26,7 +26,6 @@ export default function BreakerFuseSizerPage() {
           210.19/215.2 + 240.4, or IEC 60364-4-43 Ib≤In≤Iz), or motor
           starting-current withstand sizing (NEC 430.52(C)(1) percentage
           method, cross-checked against the standalone Motor Calculator).
-          Fully free — no subscriber gate.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

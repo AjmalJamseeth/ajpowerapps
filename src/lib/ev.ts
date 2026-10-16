@@ -39,7 +39,7 @@ export interface EvInput {
   earthing: EvEarthing;
   rcdChoice: EvRcdChoice;
 
-  // Subscriber — multi charge point site
+  // Advanced — multi charge point site
   numPoints: number;
   perPointCurrentA: number; // 0 = defaults to ratedCurrentA
   hasLms: boolean;
@@ -145,7 +145,7 @@ export interface EvResult {
   earthingWarning: string | null;
   rcdNote: string;
 
-  // subscriber
+  // advanced
   multiSite: {
     rawA: number;
     diversifiedA: number;

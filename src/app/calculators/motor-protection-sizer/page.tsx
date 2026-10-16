@@ -22,8 +22,7 @@ export default function MotorProtectionSizerPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Overload relay setting &amp; trip class (NEC 430.32 / IEC
           60947-4-1), contactor sizing by AC-3/AC-4 utilization category,
-          and ground-fault pickup guidance by system grounding type. Fully
-          free — no subscriber gate. The ground-fault section is typical-
+          and ground-fault pickup guidance by system grounding type. Fully The ground-fault section is typical-
           practice guidance, not a substitute for a coordination study.
         </p>
 

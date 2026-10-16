@@ -23,7 +23,7 @@ export default function VtSizingPage() {
   const update = (patch: Partial<VtInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Protection class limits, rated thermal limiting output and open-delta
-  // residual voltage are subscriber features — never computed on the free site.
+  // residual voltage are advanced features — never computed on the free site.
   const result = useMemo(() => calcVt(input, FREE_LAUNCH), [input]);
 
   return (
@@ -38,7 +38,7 @@ export default function VtSizingPage() {
           system earthing, itemized burden against standard rated outputs,
           and secondary lead voltage drop. Protection accuracy classes,
           rated thermal limiting output and open-delta residual voltage
-          are subscriber features.
+          are advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -48,9 +48,9 @@ export default function VtSizingPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes a voltage transformer (VT): rated voltage factor by system earthing, turns ratio, and itemized secondary burden checked against standard rated outputs and the accuracy-guarantee range \u2014 plus subscriber-tier protection accuracy class limits, thermal limiting output, and open-delta residual voltage estimation."
+          purpose="Sizes a voltage transformer (VT): rated voltage factor by system earthing, turns ratio, and itemized secondary burden checked against standard rated outputs and the accuracy-guarantee range \u2014 plus advanced protection accuracy class limits, thermal limiting output, and open-delta residual voltage estimation."
           standards={["IEC 61869-3 (inductive voltage transformers)"]}
-          capabilities={["Rated voltage factor (Vf) selection by connection type and network earthing system.", "Turns ratio and rated primary/secondary voltage.", "Itemized secondary burden checked against standard rated VA sizes (10-500VA) and the 25-100%-of-rated-output accuracy-guarantee range.", "Secondary lead voltage drop to a remote instrument or relay panel.", "Subscriber: protection accuracy class (3P/6P) limits, rated thermal limiting output check, and open-delta residual voltage estimate."]}
+          capabilities={["Rated voltage factor (Vf) selection by connection type and network earthing system.", "Turns ratio and rated primary/secondary voltage.", "Itemized secondary burden checked against standard rated VA sizes (10-500VA) and the 25-100%-of-rated-output accuracy-guarantee range.", "Secondary lead voltage drop to a remote instrument or relay panel.", "Advanced: protection accuracy class (3P/6P) limits, rated thermal limiting output check, and open-delta residual voltage estimate."]}
           example={{ problem: "An 11kV system, phase-to-earth VT, 110V rated secondary, connected to an 8VA burden.", steps: ["Rated primary voltage Up = 11kV / \u221a3 = 6.351kV.", "Rated secondary voltage Us = 110V / \u221a3 = 63.51V (phase-to-earth convention).", "Turns ratio = Up / Us = 100.0 (independent of the \u221a3 division, since it cancels between line-to-line and phase-to-earth VTs on the same system).", "8VA connected burden rounds up to the nearest standard 10VA rated output \u2192 80% loaded, within the 25-100% accuracy-guaranteed range."], result: "Up = 6.351kV, Us = 63.51V, ratio = 100.0, 10VA recommended standard size at 80% loading \u2014 hand-checked and matched the live code exactly." }}
           notes="Built from scratch \u2014 no equivalent module exists in the source app. Two simplifications: the secondary lead voltage-drop calculation ignores burden power factor, and the open-delta residual voltage figure (3\u00d7 phase-earth secondary voltage) is a theoretical estimate \u2014 actual broken-delta winding ratios are manufacturer-specific."
           />

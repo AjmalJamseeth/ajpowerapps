@@ -68,7 +68,7 @@ export const TRANSFORMERS_GUIDE: GuideDoc = {
     { standard: "IEC 60865-1", scope: "Electrodynamic force calculation method for busbars carrying high fault current, used in the Busbar & Switchgear Rating calculator." },
     { standard: "IEC 60890", scope: "Formal type-test verification of enclosure/busbar temperature rise — the authoritative reference this calculator's heat-balance approximation is explicitly not a substitute for." },
     { standard: "IEEE 43-2013", scope: "Insulation resistance (kV+1 rule) and polarization index acceptance criteria for rotating machinery and wound equipment." },
-    { standard: "IEEE 142", scope: "Neutral earthing resistor (NGR/NET) sizing — R = V(line-neutral)/rated fault current — a subscriber feature of the Generator & Transformer Analysis calculator." },
+    { standard: "IEEE 142", scope: "Neutral earthing resistor (NGR/NET) sizing — R = V(line-neutral)/rated fault current — an advanced feature of the Generator & Transformer Analysis calculator." },
   ],
   workflow: [
     {

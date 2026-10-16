@@ -15,7 +15,7 @@ export default function LightingDesignPage() {
   const update = (patch: Partial<LightingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Exterior/area room types and EN 1838 emergency lighting check are
-  // subscriber features — never computed on the free site.
+  // advanced features — never computed on the free site.
   const result = useMemo(() => calcLighting(input, FREE_LAUNCH), [input]);
   const rows = ROOM_TYPES[input.standard];
 
@@ -35,7 +35,7 @@ export default function LightingDesignPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Lumen method (EN 12464-1 or IES Handbook). Interior room types are
           free — exterior/area lighting and EN 1838 emergency lighting checks
-          are subscriber features.
+          are advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -45,9 +45,9 @@ export default function LightingDesignPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes the number of luminaires needed to hit a target maintained illuminance in a room, using the standard lumen method \u2014 and, on the subscriber tier, checks measured emergency/escape lighting illuminance against EN 1838's minimum and uniformity-ratio requirements."
+          purpose="Sizes the number of luminaires needed to hit a target maintained illuminance in a room, using the standard lumen method \u2014 and, on the advanced, checks measured emergency/escape lighting illuminance against EN 1838's minimum and uniformity-ratio requirements."
           standards={["EN 12464-1 (interior lighting of work places)", "IES Lighting Handbook (US)", "EN 1838 (emergency lighting)"]}
-          capabilities={["Interior room-type presets with standard representative illuminance targets (EN 12464-1 or IES).", "Room Index (K), exact and rounded-up required luminaire count, and achieved illuminance from the rounded count.", "Subscriber: exterior/area room types (car parks, building exteriors).", "Subscriber: EN 1838 escape-route/anti-panic/high-risk-area minimum illuminance and uniformity-ratio pass/fail check."]}
+          capabilities={["Interior room-type presets with standard representative illuminance targets (EN 12464-1 or IES).", "Room Index (K), exact and rounded-up required luminaire count, and achieved illuminance from the rounded count.", "Advanced: exterior/area room types (car parks, building exteriors).", "Advanced: EN 1838 escape-route/anti-panic/high-risk-area minimum illuminance and uniformity-ratio pass/fail check."]}
           example={{ problem: "A 10m \u00d7 8m office needs a maintained 500 lux, using luminaires rated 5,000 lm each, with utilization factor 0.6 and maintenance factor 0.8.", steps: ["Room area = 10 \u00d7 8 = 80 m\u00b2.", "Room Index K = (L\u00d7W) / (Hm\u00d7(L+W)) \u2014 with a typical mounting height, K \u2248 1.778.", "Exact luminaire count N = (E \u00d7 Area) / (Flux \u00d7 UF \u00d7 MF) = (500 \u00d7 80) / (5000 \u00d7 0.6 \u00d7 0.8) \u2248 22.73.", "Round up to a whole number of luminaires: N = 23.", "Achieved illuminance with 23 luminaires \u2248 506 lux."], result: "23 luminaires required, achieving 506 lux against the 500 lux target \u2014 matches the calculator's default scenario exactly." }}
           />
         </div>

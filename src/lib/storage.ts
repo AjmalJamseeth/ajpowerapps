@@ -88,7 +88,7 @@ export interface BessInput {
   acCableLengthM: number;
   acAmbientC: number;
   acGrouping: number;
-  // Subscriber
+  // Advanced
   numBanks: number;
 }
 

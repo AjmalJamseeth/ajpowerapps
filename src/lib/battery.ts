@@ -26,13 +26,13 @@ export interface BattKtPoint {
 export interface BatteryInput {
   // Free
   periods: BattPeriod[];
-  randomLoads: BattRandomLoad[]; // subscriber, but kept in one input type
+  randomLoads: BattRandomLoad[]; // advanced, but kept in one input type
   ktTable: BattKtPoint[];
   tempCF: number;
   agingCF: number;
   marginCF: number;
 
-  // Subscriber
+  // Advanced
   sysV: number;
   vNomCell: number;
   vEqCell: number;
@@ -135,7 +135,7 @@ export interface BatteryResult {
   uncorrected: number;
   final: number;
 
-  // subscriber
+  // advanced
   cell: {
     nCells: number;
     vEqString: number;

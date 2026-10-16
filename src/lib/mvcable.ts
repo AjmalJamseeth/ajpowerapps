@@ -8,7 +8,7 @@
 // cable, buried (duct or direct). Free-air installation and armoured cables
 // (with their circulating/eddy current losses) are not yet supported.
 //
-// No subscriber gating — this calculator is fully free in the source app
+// No advanced gating — this calculator is fully free in the source app
 // ("v1: fully available, no PRO gate yet") and mirrored the same way here.
 
 export type MvConductorMaterial = "Cu" | "Al";

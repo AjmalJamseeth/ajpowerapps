@@ -37,7 +37,7 @@ export default function MvCablePage() {
           cross-checked against CIGRE Technical Brochure 880. v1 scope:
           single-core, unarmoured, XLPE-insulated, buried (duct or direct)
           cables. Free-air installation and armoured cables are not yet
-          supported. This calculator is fully free — no subscriber gate.
+          supported. This calculator is fully
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

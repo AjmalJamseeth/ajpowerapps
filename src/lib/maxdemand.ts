@@ -54,7 +54,7 @@ export interface MaxDemandInput {
   powerFactor: number;
   categories: CategoryInput[];
 
-  // subscriber: multi-board site aggregation
+  // advanced: multi-board site aggregation
   premiumEnabled: boolean;
   numBoards: number;
   siteDiversityPct: number;

@@ -131,7 +131,7 @@ export function NgrResultPanel({ result }: { result: NgrResult | null }) {
       <div className="rounded-xl border border-border bg-surface p-6">
         <h3 className="text-base font-semibold text-foreground">Results</h3>
         <div className="mt-4 rounded-lg border border-border bg-surface-2 p-4 text-sm text-muted">
-          Subscriber feature — shown for preview only on the free site.
+          Advanced feature — shown for preview only on the free site.
         </div>
       </div>
     );

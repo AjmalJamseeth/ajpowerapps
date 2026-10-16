@@ -1,7 +1,7 @@
 // Standalone Motor Calculator — NEC Article 430 (FLC tables, branch-circuit/
 // OCPD/overload/disconnect sizing) or IEC general method. Independent of any
 // protection-relay motor tab. Ported and verified from the AJ Apps Suite's
-// `MotorCalc` module. Entirely a subscriber feature in the source app.
+// `MotorCalc` module. Entirely an advanced feature in the source app.
 
 export type MotorStandard = "nec" | "iec";
 export type MotorPhase = "1" | "3";

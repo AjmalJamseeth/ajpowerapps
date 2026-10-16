@@ -1,7 +1,7 @@
 // Emergency Power (Genset+UPS) Load Sequencing — NFPA 110 Type/Class
 // classification, UPS-to-genset bridge timing check, and staged load-step
 // pickup planner. Ported and verified from the AJ Apps Suite's
-// `EmergencyPower` module. Entirely a subscriber feature in the source app.
+// `EmergencyPower` module. Entirely an advanced feature in the source app.
 
 export type EpsStandard = "nfpa" | "general";
 export type EpsPriority = "emergency" | "legal" | "optional";

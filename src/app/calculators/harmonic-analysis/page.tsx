@@ -27,7 +27,7 @@ export default function HarmonicAnalysisPage() {
   const updateV = (h: HarmonicOrder, val: number) => setInput((prev) => ({ ...prev, vPct: { ...prev.vPct, [h]: val } }));
   const updateI = (h: HarmonicOrder, val: number) => setInput((prev) => ({ ...prev, iPctOfI1: { ...prev.iPctOfI1, [h]: val } }));
 
-  // Full harmonic breakdown table & K-factor are subscriber features,
+  // Full harmonic breakdown table & K-factor are advanced features,
   // gated by FREE_LAUNCH (unlocked during the launch promo).
   const result = useMemo(() => calcHarmonics(input, FREE_LAUNCH), [input]);
 
@@ -41,7 +41,7 @@ export default function HarmonicAnalysisPage() {
         <p className="mt-2 max-w-2xl text-muted">
           IEEE 519-2014 Table 1 (voltage) &amp; Table 2 (current, TDD-referenced
           to max demand load current I<sub>L</sub>) distortion limit checks.
-          Full per-order breakdown table and K-factor estimate are subscriber
+          Full per-order breakdown table and K-factor estimate are advanced
           features.
         </p>
 
@@ -54,8 +54,8 @@ export default function HarmonicAnalysisPage() {
           <InfoPanel
           purpose="Checks a site's voltage and current harmonic distortion against IEEE 519-2014's limits \u2014 the standard used across North America (and widely referenced elsewhere) to keep non-linear loads (VFDs, rectifiers, switch-mode supplies) from degrading power quality for other customers on the same system."
           standards={["IEEE 519-2014 Table 1 (voltage distortion limits)", "IEEE 519-2014 Table 2 (current distortion limits, TDD-referenced)"]}
-          capabilities={["Voltage THD and worst individual-order check against Table 1, banded by bus voltage.", "Current TDD (referenced to maximum demand load current IL) and worst individual-order check against Table 2, banded by Isc/IL ratio.", "Accepts up to 7 individually-entered harmonic orders (2nd-13th) plus a residual term for everything else.", "Subscriber: full per-order breakdown table (% of IL vs. limit) and an approximate transformer K-factor."]}
-          example={{ problem: "A 0.4kV bus with an Isc/IL ratio in the 20-50 band shows a 5th voltage harmonic of 2% and a 5th current harmonic of 4% of IL. Check compliance.", steps: ["Table 1 (0.4kV, general system) limits: 5% individual, 8% VTHD.", "Combine all entered orders by RSS to get VTHD \u2248 2.8% \u2014 passes the 8% limit.", "Worst individual voltage order (h5 = 2%) passes the 5% individual limit.", "Table 2 (Isc/IL 20-50 band) individual current limit for h5 is 7% of IL \u2014 the entered 4% passes.", "Combine all current orders by RSS, referenced to IL, to get TDD \u2248 5.330% \u2014 passes the 8% TDD limit for this Isc/IL band."], result: "VTHD 2.8% (pass), ITDD 5.330% (pass), both worst individual orders pass \u2014 matches the calculator's default scenario exactly, including an approximate K-factor \u22481.147 on the subscriber tier." }}
+          capabilities={["Voltage THD and worst individual-order check against Table 1, banded by bus voltage.", "Current TDD (referenced to maximum demand load current IL) and worst individual-order check against Table 2, banded by Isc/IL ratio.", "Accepts up to 7 individually-entered harmonic orders (2nd-13th) plus a residual term for everything else.", "Advanced: full per-order breakdown table (% of IL vs. limit) and an approximate transformer K-factor."]}
+          example={{ problem: "A 0.4kV bus with an Isc/IL ratio in the 20-50 band shows a 5th voltage harmonic of 2% and a 5th current harmonic of 4% of IL. Check compliance.", steps: ["Table 1 (0.4kV, general system) limits: 5% individual, 8% VTHD.", "Combine all entered orders by RSS to get VTHD \u2248 2.8% \u2014 passes the 8% limit.", "Worst individual voltage order (h5 = 2%) passes the 5% individual limit.", "Table 2 (Isc/IL 20-50 band) individual current limit for h5 is 7% of IL \u2014 the entered 4% passes.", "Combine all current orders by RSS, referenced to IL, to get TDD \u2248 5.330% \u2014 passes the 8% TDD limit for this Isc/IL band."], result: "VTHD 2.8% (pass), ITDD 5.330% (pass), both worst individual orders pass \u2014 matches the calculator's default scenario exactly, including an approximate K-factor \u22481.147 on the advanced." }}
           notes="TDD requires both the measured current (at the time harmonics were recorded) and the maximum demand load current IL \u2014 without IL, the calculator can report ITHD but not the standard's TDD/pass-fail verdict."
           />
         </div>

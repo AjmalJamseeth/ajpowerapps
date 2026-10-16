@@ -210,7 +210,7 @@ export const POWERQUALITY_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "How would adding a second board with site-wide diversity change this?",
-        a: "Aggregating multiple boards at a site level applies a further site diversity factor on top of each board's own diversified demand (since not every board peaks at exactly the same moment either), which is exactly what this calculator's subscriber-tier multi-board aggregation feature computes — for a single board like this office example, that additional layer of diversity doesn't apply.",
+        a: "Aggregating multiple boards at a site level applies a further site diversity factor on top of each board's own diversified demand (since not every board peaks at exactly the same moment either), which is exactly what this calculator's advanced multi-board aggregation feature computes — for a single board like this office example, that additional layer of diversity doesn't apply.",
       },
     ],
   },

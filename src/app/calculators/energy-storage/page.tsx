@@ -15,7 +15,7 @@ export default function EnergyStoragePage() {
   const [input, setInput] = useState<BessInput>(DEFAULT_BESS_INPUT);
   const update = (patch: Partial<BessInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
-  // Multi-bank site aggregation & cycle-life estimate are subscriber
+  // Multi-bank site aggregation & cycle-life estimate are advanced
   // features — gated by FREE_LAUNCH (unlocked during the launch promo).
   const result = useMemo(() => calcBess(input, FREE_LAUNCH), [input]);
 
@@ -35,7 +35,7 @@ export default function EnergyStoragePage() {
           IEEE 1547 / IEC 62933 / IEC 61427-2 aligned usable-energy, nameplate
           capacity and C-rate sizing, PCS voltage-window &amp; power checks,
           and AC cable sizing. Multi-bank site aggregation and cycle-life
-          estimate are subscriber features.
+          estimate are advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -47,9 +47,9 @@ export default function EnergyStoragePage() {
           <InfoPanel
           purpose="Sizes a battery energy storage system (BESS) from a backup power/duration requirement: usable energy, nameplate capacity (after DoD and round-trip-efficiency derating), maximum continuous power at the chosen C-rate, PCS DC voltage-window and AC power checks, and the AC interconnection cable."
           standards={["IEEE 1547 (interconnection)", "IEC 62933 (electrical energy storage systems)", "IEC 61427-2 (RTE measurement/reporting)", "IEC 60364-5-52 (AC cable sizing, reused)"]}
-          capabilities={["Converts a power+duration backup requirement into usable and nameplate battery energy, accounting for DoD and round-trip efficiency.", "Checks the bank's C-rate can actually deliver the required power.", "Checks the battery's voltage window against the PCS's DC input range.", "Sizes the PCS-to-load/grid AC cable using the same ampacity/voltage-drop engine as the Cable Sizing calculator.", "Subscriber: multi-bank site aggregation and an approximate DoD-vs-cycle-life estimate."]}
-          example={{ problem: "Size a Li-ion BESS for a 100kW critical load with 2 hours of required backup, at 90% DoD and 92% round-trip efficiency, discharging at 0.5C.", steps: ["Usable energy = Load \u00d7 Duration = 100kW \u00d7 2h = 200 kWh.", "Nameplate capacity = Usable Energy / (DoD \u00d7 RTE) = 200 / (0.9 \u00d7 0.92) \u2248 241.546 kWh.", "Max power at 0.5C = 0.5 \u00d7 241.546 \u2248 120.773 kW, which exceeds the 100kW requirement \u2014 C-rate check passes.", "AC cable sized to the PCS's rated output \u2014 the default scenario resolves to 70mm\u00b2 at 0.984% voltage drop."], result: "241.546 kWh nameplate capacity, 120.773 kW max power, 70mm\u00b2 AC cable \u2014 matches the calculator's default scenario exactly. With 2 identical banks, site energy aggregates to 483.092 kWh and the DoD-vs-cycle-life curve estimates \u22483750 cycles at 90% DoD (both subscriber features)." }}
-          notes="Multi-bank site aggregation and the cycle-life estimate are subscriber features \u2014 inputs remain editable but results show as locked on the free tier."
+          capabilities={["Converts a power+duration backup requirement into usable and nameplate battery energy, accounting for DoD and round-trip efficiency.", "Checks the bank's C-rate can actually deliver the required power.", "Checks the battery's voltage window against the PCS's DC input range.", "Sizes the PCS-to-load/grid AC cable using the same ampacity/voltage-drop engine as the Cable Sizing calculator.", "Advanced: multi-bank site aggregation and an approximate DoD-vs-cycle-life estimate."]}
+          example={{ problem: "Size a Li-ion BESS for a 100kW critical load with 2 hours of required backup, at 90% DoD and 92% round-trip efficiency, discharging at 0.5C.", steps: ["Usable energy = Load \u00d7 Duration = 100kW \u00d7 2h = 200 kWh.", "Nameplate capacity = Usable Energy / (DoD \u00d7 RTE) = 200 / (0.9 \u00d7 0.92) \u2248 241.546 kWh.", "Max power at 0.5C = 0.5 \u00d7 241.546 \u2248 120.773 kW, which exceeds the 100kW requirement \u2014 C-rate check passes.", "AC cable sized to the PCS's rated output \u2014 the default scenario resolves to 70mm\u00b2 at 0.984% voltage drop."], result: "241.546 kWh nameplate capacity, 120.773 kW max power, 70mm\u00b2 AC cable \u2014 matches the calculator's default scenario exactly. With 2 identical banks, site energy aggregates to 483.092 kWh and the DoD-vs-cycle-life curve estimates \u22483750 cycles at 90% DoD (both advanced features)." }}
+          notes="Multi-bank site aggregation and the cycle-life estimate are advanced features \u2014 inputs remain editable but results show as locked on the core."
           />
         </div>
 

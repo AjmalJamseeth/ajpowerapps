@@ -243,11 +243,11 @@ export function ProBanner({ feature }: { feature: string }) {
   return (
     <div className="flex items-start gap-2 rounded-lg border border-accent/25 bg-accent/10 px-4 py-3 text-sm text-muted">
       <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-        Subscriber
+        Advanced
       </span>
       <span>
-        {feature} is a subscriber feature. Inputs below are fully usable for
-        preview — results unlock with subscriber accounts, coming soon.
+        {feature} is an advanced feature. Inputs below are fully usable for
+        preview — full results are coming soon.
       </span>
     </div>
   );

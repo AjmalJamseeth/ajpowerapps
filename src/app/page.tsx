@@ -35,18 +35,23 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(600px circle at 15% 20%, rgba(251,191,36,0.15), transparent 40%), radial-gradient(600px circle at 85% 30%, rgba(34,211,238,0.15), transparent 40%)",
-          }}
-        />
+        <div className="hero-grid pointer-events-none absolute inset-0" />
+        <div className="hero-orb -left-24 top-0 h-80 w-80 bg-accent-2/25" />
+        <div className="hero-orb -right-16 top-24 h-72 w-72 bg-accent/20" style={{ animationDelay: "-6s" }} />
+        <svg
+          className="hero-wave pointer-events-none absolute inset-x-0 bottom-0 h-32 w-full opacity-60"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0 60 Q150 0 300 60 T600 60 T900 60 T1200 60" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
+          <path d="M0 70 Q150 10 300 70 T600 70 T900 70 T1200 70" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.6" />
+        </svg>
         <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
-          <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+          <span className="inline-flex items-center rounded-full border border-accent-2/40 bg-accent-2/10 px-3 py-1 text-xs font-medium tracking-wide text-accent-2 shadow-[0_0_20px_-4px_rgba(34,211,238,0.5)]">
             {TOTAL_LIVE_COUNT} standards-based calculators, one suite
           </span>
-          <h1 className="mt-6 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="hero-title mt-6 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Your one-stop shop for electrical engineering calculations.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
@@ -127,7 +132,7 @@ export default function Home() {
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
                 <li>Every module cites the specific standard clause or table it implements, not just a standard&apos;s name.</li>
                 <li>Rule-of-thumb figures (e.g. altitude/ambient derating rates without a full thermal model) are labeled as such, not dressed up as normative values.</li>
-                <li>Core results are free with no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked where it sits behind a subscriber tier.</li>
+                <li>Core results are free with no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked as advanced.</li>
                 <li>Hover tooltips and a worked example on every calculator, so the tool teaches the standard as you use it.</li>
                 <li>Runs entirely in the browser — no installation, no plugin, results update live as inputs change.</li>
               </ul>

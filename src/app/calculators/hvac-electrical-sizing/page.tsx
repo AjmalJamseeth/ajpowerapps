@@ -18,7 +18,7 @@ export default function HvacElectricalSizingPage() {
   const removeRow = (i: number) => update({ comboRows: input.comboRows.filter((_, idx) => idx !== i) });
 
   const nec = input.standard === "nec";
-  // Multi-motor combination-load and VFD-fed motor sizing are subscriber
+  // Multi-motor combination-load and VFD-fed motor sizing are advanced
   // features — never computed on the free site.
   const result = useMemo(() => calcHvac(input, FREE_LAUNCH), [input]);
 
@@ -30,7 +30,7 @@ export default function HvacElectricalSizingPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Motor-compressor branch-circuit sizing (NEC Article 440) or general
           method (IEC 60364-5-52). Single motor free — multi-motor
-          combination-load equipment and VFD-fed motors are subscriber
+          combination-load equipment and VFD-fed motors are advanced
           features.
         </p>
 
@@ -41,9 +41,9 @@ export default function HvacElectricalSizingPage() {
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Sizes the branch-circuit conductors, overcurrent protection and disconnect for HVAC motor-compressor equipment \u2014 the NEC Article 440 hermetic-compressor-specific method (which differs from a standard motor's NEC Article 430 sizing) or the IEC general method \u2014 with subscriber-tier support for multi-motor combination equipment and VFD-fed motors."
+          purpose="Sizes the branch-circuit conductors, overcurrent protection and disconnect for HVAC motor-compressor equipment \u2014 the NEC Article 440 hermetic-compressor-specific method (which differs from a standard motor's NEC Article 430 sizing) or the IEC general method \u2014 with advanced support for multi-motor combination equipment and VFD-fed motors."
           standards={["NEC Article 440 (air-conditioning and refrigerating equipment)", "IEC 60364-5-52 / IEC 60947-4-1 general method"]}
-          capabilities={["Single motor-compressor Minimum Circuit Ampacity (MCA), Maximum Overcurrent Protection (MOCP) and disconnect sizing from RLA (and optional LRA).", "IEC general-method design current from a configurable margin factor.", "Subscriber: multi-motor combination-load equipment sizing (largest-motor-at-125% + sum-of-others method).", "Subscriber: VFD-fed motor input-side and output-side minimum circuit ampacity, sized separately."]}
+          capabilities={["Single motor-compressor Minimum Circuit Ampacity (MCA), Maximum Overcurrent Protection (MOCP) and disconnect sizing from RLA (and optional LRA).", "IEC general-method design current from a configurable margin factor.", "Advanced: multi-motor combination-load equipment sizing (largest-motor-at-125% + sum-of-others method).", "Advanced: VFD-fed motor input-side and output-side minimum circuit ampacity, sized separately."]}
           example={{ problem: "A hermetic compressor has a nameplate RLA of 18A (no LRA given). Size its NEC Article 440 branch circuit.", steps: ["Minimum Circuit Ampacity (MCA) = 125% \u00d7 RLA = 1.25 \u00d7 18 = 22.5A.", "Maximum Overcurrent Protection (MOCP), per NEC 440.22, rounds 175% \u00d7 RLA = 31.5A up to the next standard size.", "Disconnect minimum ampacity = 115% \u00d7 RLA = 20.7A."], result: "MCA 22.5A, MOCP 35A (next standard size above 31.5A), disconnect 20.7A minimum \u2014 matches the calculator's default scenario exactly." }}
           />
         </div>

@@ -41,7 +41,7 @@ export default function MaxDemandPage() {
         phase,
         powerFactor,
         categories,
-        premiumEnabled: FREE_LAUNCH, // multi-board/transformer sizing is a subscriber feature — preview only
+        premiumEnabled: FREE_LAUNCH, // multi-board/transformer sizing is an advanced feature — preview only
         numBoards,
         siteDiversityPct,
         growthMarginPct,
@@ -71,7 +71,7 @@ export default function MaxDemandPage() {
           <InfoPanel
           purpose={"Estimates a facility's diversified maximum demand from a load-category schedule — the design current and switchgear/transformer sizing basis, rather than sizing for the (much higher, unrealistic) sum of every connected load's full nameplate rating simultaneously."}
           standards={["IEC 60439 (demand-factor guidance by load category)", "IEC 60364-7-722 (EV charging diversity requirements)"]}
-          capabilities={["Per-category connected load and demand factor for 8 common categories (lighting, sockets, HVAC, heating, motors, cooking, EV charging, other).", "Total connected load, diversified maximum demand, effective diversity factor, and design current.", "Recommended main switch/breaker from standard IEC frame sizes.", "Subscriber: multi-board site aggregation with a further site-level diversity factor and future growth margin, producing a recommended transformer size."]}
+          capabilities={["Per-category connected load and demand factor for 8 common categories (lighting, sockets, HVAC, heating, motors, cooking, EV charging, other).", "Total connected load, diversified maximum demand, effective diversity factor, and design current.", "Recommended main switch/breaker from standard IEC frame sizes.", "Advanced: multi-board site aggregation with a further site-level diversity factor and future growth margin, producing a recommended transformer size."]}
           example={{ problem: "A site has 4 load categories: 100kW lighting at 90% DF, 80kW sockets at 70% DF, 150kW HVAC at 80% DF, and 200kW motors at 75% DF, on a 415V 3-phase supply at 0.9 assumed PF.", steps: ["Demand per category = connected load × demand factor: lighting 90kW, sockets 56kW, HVAC 120kW, motors 150kW.", "Total connected load = 100+80+150+200 = 530kW.", "Total diversified maximum demand = 90+56+120+150 = 416kW.", "Effective diversity factor = 416/530 ≈ 78.5%.", "Design current (3-phase) = 416,000 / (√3 × 415 × 0.9) ≈ 643A."], result: "Every intermediate value — connected load, weighted demand, design current, and breaker selection — was hand-checked end to end and matched the live code exactly." }}
           />
         </div>

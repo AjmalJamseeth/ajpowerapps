@@ -30,7 +30,7 @@ export interface VtInput {
   leadReturnFactor: 1 | 2;
   accuracyClass: "0.1" | "0.2" | "0.5" | "1" | "3";
 
-  // Subscriber
+  // Advanced
   protectionClass: "" | "3P" | "6P";
   thermalLimitVa: number; // rated thermal limiting output, VA (0 = not specified)
   openDeltaEnabled: boolean;
@@ -114,7 +114,7 @@ export interface VtResult {
   vdropV: number;
   vdropPct: number;
 
-  // subscriber
+  // advanced
   meterLimits: { ratioErrPct: number; phaseMin: number | null } | null;
   protectionTable: { point: string; ratioErrPct: number; phaseMin: number }[] | null;
   thermal: { thermPass: boolean; marginVa: number } | null;

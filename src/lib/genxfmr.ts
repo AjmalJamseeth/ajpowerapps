@@ -9,7 +9,7 @@
 //      approximate voltage-regulation formula).
 //  (3) Neutral Earthing Resistor/Transformer sizing — R = V(LN)/If per
 //      IEEE 142, including the "If should exceed system charging current
-//      Ic" design check. Subscriber feature in the source app.
+//      Ic" design check. Advanced feature in the source app.
 
 // ---------- (1) Generator sizing ----------
 
@@ -150,7 +150,7 @@ export function calcXfmr(input: XfmrInput): XfmrResult | null {
   return { totalLossW, outputW, effPct, maxEffX, maxEffPct, vrPct, vxPct, regPct, annual };
 }
 
-// ---------- (3) NGR / NET sizing (subscriber) ----------
+// ---------- (3) NGR / NET sizing (advanced) ----------
 
 export interface NgrInput {
   sysVllKv: number;

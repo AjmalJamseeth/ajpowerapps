@@ -146,7 +146,7 @@ export interface PvResult {
   ac: CableSizeResult;
   dcAcRatio: { ratio: number; arrayKwp: number; note: string } | null;
 
-  // subscriber
+  // advanced
   multiString: {
     combinedIscA: number;
     ocpdRequired: boolean;

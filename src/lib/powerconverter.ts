@@ -5,7 +5,7 @@
 //   S (kVA) = √(P² + Q²),  P = S·PF,  Q = S·sin(φ) = √(S² − P²)
 //   3-phase:  S(kVA) = √3 · V(LL) · I(A) / 1000
 //   1-phase:  S(kVA) = V · I / 1000
-// Free — no subscriber gate, matching the app's other pure-utility
+// Free — no advanced gate, matching the app's other pure-utility
 // calculators (Conduit Fill, MV Cable Sizing).
 
 export type ConverterPhase = "1ph" | "3ph";

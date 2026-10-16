@@ -1,6 +1,6 @@
 // Cable Tray Fill — NEC §392.22 (US) and IEC 61537-style area-fill (International).
 // Ported and verified from the AJ Apps Suite's `CableTray` module. Entirely a
-// subscriber feature in the source app — no free tier at all.
+// advanced feature in the source app — no core at all.
 
 export type TrayType = "ladder" | "ventilatedTrough" | "solid";
 export type TrayCategory = "powerMixed" | "controlSignal" | "singleConductor";

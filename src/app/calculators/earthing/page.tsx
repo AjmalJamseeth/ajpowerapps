@@ -42,7 +42,7 @@ export default function EarthingPage() {
   const [parallelN, setParallelN] = useState(4);
   const [parallelS, setParallelS] = useState(3);
 
-  // Mesh/step voltage and other subscriber sub-calculations are never
+  // Mesh/step voltage and other advanced sub-calculations are never
   // enabled on the free site.
   const result = useMemo(() => calcEarthing({ ...input, premiumEnabled: FREE_LAUNCH }), [input]);
 
@@ -78,7 +78,7 @@ export default function EarthingPage() {
           Grid resistance, ground potential rise and tolerable touch/step
           limits per IEEE Std 80, plus BS 7430 electrode sizing. Mesh/step
           voltage (the pass/fail safety check), two-layer soil, parallel
-          electrodes and transferred potential are subscriber features.
+          electrodes and transferred potential are advanced features.
         </p>
 
 <div className="mt-6 flex flex-wrap gap-3">
@@ -90,9 +90,9 @@ export default function EarthingPage() {
           <InfoPanel
           purpose={"Designs a substation/site earthing (grounding) grid per IEEE Std 80: grid resistance, ground potential rise (GPR) and the tolerable touch/step voltage safety limits people must be protected against during a ground fault, plus BS 7430 single-electrode resistance formulas for rods, plates, strips and rings."}
           standards={["IEEE Std 80 (guide for safety in AC substation grounding)", "BS 7430 (code of practice for protective earthing of electrical installations)"]}
-          capabilities={["Grid resistance (Sverak formula) and ground potential rise from soil resistivity, grid geometry and fault current.", "Tolerable touch and step voltage limits from body weight and fault clearing time.", "Surface layer derating (crushed rock, asphalt, concrete, gravel) to raise tolerable limits.", "Single electrode resistance for rod, plate, strip and ring geometries (BS 7430).", "Subscriber: the actual mesh (Em) and step (Es) voltage pass/fail check against the tolerable limits, plus two-layer soil, parallel electrodes and transferred (offsite) potential."]}
-          example={{ problem: "Analyze a default 30m×20m grid with 4×3 conductors, 100 Ω·m uniform soil, and a 10kA ground fault.", steps: ["Compute grid resistance Rg from the Sverak formula using grid area, conductor length, and burial depth.", "Compute ground potential rise GPR = fault current × Rg.", "Compute tolerable touch and step voltage limits from body weight and fault clearing time.", "Compare (on the subscriber tier) actual mesh voltage Em and step voltage Es against those tolerable limits."], result: "The default grid configuration (no surface layer, no mitigation) correctly flags as unsafe — the calculation chain from Rg through GPR to Em/Es pass/fail was confirmed internally consistent end to end." }}
-          notes="The free tier computes Rg/GPR and the tolerable limits themselves, but not the actual mesh/step voltage pass/fail verdict — that comparison is a subscriber feature, matching the source app's own tiering exactly."
+          capabilities={["Grid resistance (Sverak formula) and ground potential rise from soil resistivity, grid geometry and fault current.", "Tolerable touch and step voltage limits from body weight and fault clearing time.", "Surface layer derating (crushed rock, asphalt, concrete, gravel) to raise tolerable limits.", "Single electrode resistance for rod, plate, strip and ring geometries (BS 7430).", "Advanced: the actual mesh (Em) and step (Es) voltage pass/fail check against the tolerable limits, plus two-layer soil, parallel electrodes and transferred (offsite) potential."]}
+          example={{ problem: "Analyze a default 30m×20m grid with 4×3 conductors, 100 Ω·m uniform soil, and a 10kA ground fault.", steps: ["Compute grid resistance Rg from the Sverak formula using grid area, conductor length, and burial depth.", "Compute ground potential rise GPR = fault current × Rg.", "Compute tolerable touch and step voltage limits from body weight and fault clearing time.", "Compare (on the advanced) actual mesh voltage Em and step voltage Es against those tolerable limits."], result: "The default grid configuration (no surface layer, no mitigation) correctly flags as unsafe — the calculation chain from Rg through GPR to Em/Es pass/fail was confirmed internally consistent end to end." }}
+          notes="The core computes Rg/GPR and the tolerable limits themselves, but not the actual mesh/step voltage pass/fail verdict — that comparison is an advanced feature, matching the source app's own tiering exactly."
           />
         </div>
 

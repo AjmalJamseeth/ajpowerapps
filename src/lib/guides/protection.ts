@@ -57,7 +57,7 @@ export const PROTECTION_GUIDE: GuideDoc = {
       heading: "Arc flash: why clearing time matters as much as fault current",
       body: [
         "Arc flash incident energy — the quantity that ultimately determines the PPE category a worker needs before opening a panel — depends on both the available fault current and how long the arc is allowed to burn before a protective device clears it. This is the single most important reason arc flash studies are done after protection coordination is settled, not before: two sites with identical fault current levels can have wildly different incident energy purely because one clears the fault in 3 cycles and the other in 30, and a coordination change made for an unrelated reason (a new grading margin, a different curve shape) can silently move a piece of equipment into a higher hazard category.",
-        "This category's Arc Flash calculator supports both the long-standing Ralph Lee method (a simpler, generally conservative model, useful for a quick bounding estimate) and the IEEE 1584 empirical model (2002 edition free, 2018 edition — with its refined equations and enclosure-size dependence — as a subscriber feature), reflecting that different projects and jurisdictions still specify different methods.",
+        "This category's Arc Flash calculator supports both the long-standing Ralph Lee method (a simpler, generally conservative model, useful for a quick bounding estimate) and the IEEE 1584 empirical model (2002 edition free, 2018 edition — with its refined equations and enclosure-size dependence — as an advanced feature), reflecting that different projects and jurisdictions still specify different methods.",
       ],
     },
     {
