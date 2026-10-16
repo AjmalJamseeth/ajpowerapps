@@ -12,9 +12,11 @@ export interface FeedbackButtonProps {
   buttonClassName?: string;
 }
 
-// The app has no backend yet, so reports are copied to the clipboard or
-// downloaded as a .txt. Swap in a form-backend service (Formspree, Web3Forms)
-// or a server email API when a proper inbox pipeline is wanted.
+// "Send" posts the report to Web3Forms (https://web3forms.com), which emails it
+// to the inbox registered with the access key — so no email address is ever
+// exposed in the site code. Set NEXT_PUBLIC_WEB3FORMS_KEY (Vercel env var).
+// Without a key, the Send button is hidden and Copy / Download still work.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "";
 
 const ISSUE_TYPES = [
   "Incorrect calculation result",
@@ -82,7 +84,7 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
   const [description, setDescription] = useState("");
   const [expected, setExpected] = useState("");
   const [reporterEmail, setReporterEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "copied" | "downloaded" | "needs-description">("idle");
+  const [status, setStatus] = useState<"idle" | "copied" | "downloaded" | "needs-description" | "sending" | "sent" | "error">("idle");
 
   const reset = () => {
     setIssueType(ISSUE_TYPES[0]);
@@ -118,6 +120,31 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
       return false;
     }
     return true;
+  };
+
+  const handleSend = async () => {
+    if (!validate() || status === "sending") return;
+    setStatus("sending");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `AJapps feedback: ${issueType} — ${calculatorName}`,
+          from_name: "AJapps feedback",
+          ...(reporterEmail ? { email: reporterEmail } : {}),
+          message: buildReportText(SNAPSHOT_CAP),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) throw new Error("send failed");
+      setStatus("sent");
+      setDescription("");
+      setExpected("");
+    } catch {
+      setStatus("error");
+    }
   };
 
   const handleCopy = async () => {
@@ -262,11 +289,34 @@ export function FeedbackButton({ calculatorName, buttonLabel, buttonClassName }:
                 <p className="text-xs text-fail">Please describe the issue before sending.</p>
               )}
 
+              {status === "sent" && (
+                <p className="text-xs text-pass">Thanks — your feedback was sent. We read every report.</p>
+              )}
+              {status === "error" && (
+                <p className="text-xs text-fail">
+                  Couldn&apos;t send right now. Please use Copy or Download instead and try again later.
+                </p>
+              )}
+
               <div className="flex flex-wrap gap-2 pt-2">
+                {WEB3FORMS_KEY && (
+                  <button
+                    type="button"
+                    onClick={handleSend}
+                    disabled={status === "sending"}
+                    className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {status === "sending" ? "Sending…" : status === "sent" ? "Sent ✓" : "Send feedback"}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+                  className={
+                    WEB3FORMS_KEY
+                      ? "rounded-md border border-border bg-surface-2 px-4 py-2 text-sm text-foreground hover:border-accent-2/60"
+                      : "rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+                  }
                 >
                   {status === "copied" ? "Copied ✓" : "Copy report text"}
                 </button>

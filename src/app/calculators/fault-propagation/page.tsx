@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import FaultSld from "@/components/FaultSld";
 import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/components/fields";
 import { DEFAULT_FAULT_PROPAGATION_INPUT, FaultElement, FaultPropagationInput, calcFaultPropagation } from "@/lib/faultpropagation";
 
@@ -121,6 +122,8 @@ export default function FaultPropagationPage() {
             <Section title="Series elements (source → load)">
               <ElementsEditor elements={input.elements} onChange={(elements) => update({ elements })} />
             </Section>
+
+            <FaultSld points={result.points} />
           </div>
 
           <div className="lg:col-span-2">
