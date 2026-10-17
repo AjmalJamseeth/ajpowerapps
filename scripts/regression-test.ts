@@ -13,6 +13,9 @@ import { readFileSync } from "fs";
 import * as CE from "../src/lib/curveEngine";
 import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
 import { tripTime as idmtTripTime } from "../src/lib/idmt";
+import { relaysToSuiteProject } from "../src/lib/studioProject";
+import { defaultEngine, baseCurrentA } from "../src/lib/deviceModels";
+import { deviceKvOf } from "../src/lib/protsettings";
 import { suiteToRelays, applyHandoff, buildHandoff, parseInstText, isSuiteProject } from "../src/lib/suiteBridge";
 import { makeDefaultProtStudy, solveProtection, relayTimeS, evaluateSet, mergeAlt } from "../src/lib/protsettings";
 import { calcAf2018, enclosureCorrection, ppeForEnergy, shockBoundaries, interpolateVoltage, iarcLowVoltage } from "../src/lib/arcflash2018";
@@ -2046,6 +2049,27 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
   const cable = makeDefaultProtStudy();
   cable.relays = cable.relays.map((r) => (r.id === "r1" ? { ...r, damage: { kind: "cable" as const, material: "copper" as const, insulation: "xlpe" as const, csaMm2: 25 } } : r));
   assertTrue("Cable adiabatic check runs", solveProtection(cable).damageAfter.length === 1);
+  // writing the studio's devices as a workbench project and reading them back
+  const stX = makeDefaultProtStudy();
+  const kinds = ["dt", "instantaneous", "lsig", "thermalmag", "mcb", "fuse", "motor", "negseq", "custom_equation", "points"];
+  const fixedX = kinds.map((k, i) => ({ ...stX.relays[0], id: "x" + i, name: "DEV-" + k, tms: 0, engine: defaultEngine(k, 200), pickupA: baseCurrentA(defaultEngine(k, 200)!), bandTol: k === "lsig" ? 0.2 : 0, downstream: [] as string[] }));
+  stX.relays[2].downstream = ["r2", "x2"];
+  const allX = [...stX.relays, ...fixedX];
+  const exp = relaysToSuiteProject(allX, { projectName: "Round trip", plotRefKV: 0.4, defaultCTI: 0.3, buses: stX.net.buses, kvOf: (r) => deviceKvOf(r, stX.net), faultA: { r1: 23000, r2: 20000 } });
+  assertTrue("Exported project is a valid workbench project", isSuiteProject(exp));
+  assertEqual("All devices are written", exp.curves.length, allX.length);
+  assertEqual("Circuit names are unique", new Set(exp.curves.map((c) => c.circuit.toLowerCase())).size, exp.curves.length);
+  const back = suiteToRelays(JSON.parse(JSON.stringify(exp)));
+  assertEqual("All devices come back", back.relays.length, allX.length);
+  const same = allX.every((r) => {
+    const b = back.relays.find((x) => x.id === r.id)!;
+    return b && b.name === r.name && Math.abs(b.pickupA - r.pickupA) < 1e-9 && (r.engine ? b.engine?.type === (r.engine.type) : b.curveType === r.curveType && b.tms === r.tms) && [...b.downstream].sort().join() === [...r.downstream].sort().join();
+  });
+  assertTrue("Names, pickups, curve types, settings and grading links survive the round trip", same);
+  assertEqual("Same-voltage grading pair carries the maximum fault current", exp.gradingPairs!.find((g) => g.up === "r2" && g.down === "r1")!.maxFaultA, 23000);
+  assertTrue("Cross-voltage grading pair carries none", exp.gradingPairs!.find((g) => g.up === "r3" && g.down === "r2")!.maxFaultA === undefined);
+  assertEqual("LSIG band tolerance is exported", (exp.curves.find((c) => c.id === "x2")!.engine as { bandTolerance?: number }).bandTolerance, 0.2);
+  assertTrue("Custom point table is exported as native points", ((exp.curves.find((c) => c.id === "x9") as { nativePts?: unknown[] }).nativePts ?? []).length >= 2);
   // imported relays run through the optimiser without error
   const base = makeDefaultProtStudy();
   const solImp = solveProtection({ ...base, relays: imp.relays });

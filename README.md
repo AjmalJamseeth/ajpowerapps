@@ -1384,7 +1384,7 @@ checked against known values before shipping, not just ported and trusted:
 - Links the IEC 60909 network, the IEEE 1584-2018 study and IDMT grading of up to 8 relays. The user sets a target PPE category per bus; `solveProtection` processes relays from the load end to the source end and tries, in order: TMS to the grading limit at the preferred margin, TMS at the minimum margin, pickup toward `overloadFactor × load`, an instantaneous element at `instMarginX ×` the downstream maximum fault (and above inrush, below 80 % of the lowest arcing current), optionally a more inverse curve, optionally speeding up downstream relays. The slowest TMS that still meets the target is kept, so coordination is left as relaxed as possible.
 - Grading is re-checked numerically (48 log-spaced currents) for every proposal. If a target cannot be met, the best coordinated setting is returned with the blocking constraint, the clearing time still needed, the maintenance-mode result and hardware recommendations (ZSI, arc-flash relay, bus differential).
 - Not verified: earth-fault grading, transformer/cable damage curves, CT saturation, manufacturer-specific curves, phase-shift/L-L correction across transformers.
-- Tests: section "Arc-Flash & Protection Setting Optimiser" in `scripts/regression-test.ts` (666 checks in total).
+- Tests: section "Arc-Flash & Protection Setting Optimiser" in `scripts/regression-test.ts` (675 checks in total).
 - Comparison: an optional second set of settings (`ProtStudy.alt`, e.g. the arc-flash consultant's proposal) is evaluated — not optimised — and shown beside the existing settings and the tool's proposal (targets met, incident energy, grading margins).
 
 ## Protection Coordination Suite (PCW-PRO) — Phase 1
@@ -1402,3 +1402,10 @@ checked against known values before shipping, not just ported and trusted:
 - The optimiser now handles every device type: IDMT relays are tuned; LSIG, thermal-magnetic, MCB, fuse, motor, definite-time and custom-curve devices are imported as **fixed** devices (`RelayDef.engine`) that take part in grading and in the arc-flash clearing time (LSIG ± band applied as `bandTol`) but are never changed. Differential (unit) protection has no time-current curve and is skipped.
 - New: damage-curve check (`RelayDef.damage`): total clearing time vs the transformer through-fault withstand (IEEE C57.109 thermal part) or the cable adiabatic limit (IEC 60364-5-54), shown before and after the proposal.
 - Not yet: importing the workbench's own damage-curve reference curves, plotting LSIG bands on the optimiser chart, and earth-fault grading.
+
+## Protection & Arc-Flash Studio — Phase 3 (native)
+
+- The optimiser page (`/calculators/arc-flash-protection-settings`) is now the studio: one project holds the IEC 60909 network, the arc-flash data and **all protection devices**, edited natively (no iframe): IDMT relays (tuned by the solver) and DT, instantaneous, LSIG, thermal-magnetic, MCB, fuse, motor, negative-sequence, custom-equation and custom-point-table devices (fixed). Limit raised to 30 devices.
+- Chart: per-device toggles, LSIG time bands, asset withstand (damage) curves, arcing-current markers, before/after curves. Tables: grading, damage-curve check, changes.
+- Files: "Open a PCW-PRO project…" reads a workbench project directly (same banner as the hand-off); "Download as a PCW-PRO project" writes devices, grading links and same-voltage maximum fault levels in the workbench's format (`src/lib/studioProject.ts`). The export was loaded into the real workbench under jsdom (14 devices of all kinds, no errors, grading table built) and a round-trip test is in the regression suite.
+- The full workbench (`/calculators/protection-suite`, unchanged file) remains for the function modules not yet native: 87T/87B/87L, distance 21, 24/32, 46/49/51V, 81/27/59, CT/VT and Metrosil sizing, LV board coordination, relay-export import, settings sheets and Excel export.

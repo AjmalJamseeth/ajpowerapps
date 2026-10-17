@@ -1,6 +1,7 @@
 "use client";
 
-import { relayTimeS, type BusOutcome, type RelayDef } from "@/lib/protsettings";
+import { useState } from "react";
+import { relayTimeS, type BusOutcome, type DamageCurve, type RelayDef } from "@/lib/protsettings";
 
 // Time-current chart (log-log) of the relays before (dashed) and after (solid)
 // the proposal, with vertical markers for the arcing and maximum fault
@@ -17,6 +18,7 @@ export default function TccChart({
   bus,
   busKv,
   targetMs,
+  damage = [],
 }: {
   before: RelayDef[];
   after: RelayDef[];
@@ -25,7 +27,10 @@ export default function TccChart({
   bus: BusOutcome | null;
   busKv: number;
   targetMs: number | null;
+  damage?: DamageCurve[];
 }) {
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setHidden((h) => { const n = new Set(h); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const W = 760;
   const H = 420;
   const L = 56;
@@ -39,7 +44,7 @@ export default function TccChart({
   const lx = (i: number) => L + ((Math.log10(Math.max(i, xMin)) - Math.log10(xMin)) / (Math.log10(xMax) - Math.log10(xMin))) * (W - L - R);
   const ly = (t: number) => T + (1 - (Math.log10(Math.min(Math.max(t, yMin), yMax)) - Math.log10(yMin)) / (Math.log10(yMax) - Math.log10(yMin))) * (H - T - B);
 
-  const path = (r: RelayDef) => {
+  const path = (r: RelayDef, mult = 1) => {
     const k = refKv / devKvOf(r);
     const pts: [number, number][] = [];
     const N = 140;
@@ -49,10 +54,16 @@ export default function TccChart({
     xs.push(...extra);
     xs.sort((a, b) => a - b);
     for (const x of xs) {
-      const t = relayTimeS(r, x * k);
+      const t = relayTimeS(r, x * k) * mult;
       if (Number.isFinite(t) && t >= yMin * 0.5) pts.push([lx(x), ly(t)]);
     }
     return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  };
+
+  const dmgPath = (c: DamageCurve) => {
+    const rel = after.find((r) => r.id === c.relayId);
+    const k = rel ? refKv / devKvOf(rel) : 1;
+    return c.points.map((p, i) => `${i === 0 ? "M" : "L"}${lx(p[0] * k).toFixed(1)},${ly(p[1]).toFixed(1)}`).join(" ");
   };
 
   const markers: { x: number; label: string; color: string; dash: string }[] = [];
@@ -100,20 +111,33 @@ export default function TccChart({
           </g>
         ))}
 
-        {before.map((r, i) => (
+        {damage.filter((c) => !hidden.has(c.relayId)).map((c) => (
+          <path key={`d${c.relayId}`} d={dmgPath(c)} fill="none" stroke="#ef4444" strokeWidth={1.6} strokeDasharray="2 3" opacity={0.85} />
+        ))}
+        {after.map((r, i) =>
+          !hidden.has(r.id) && r.bandTol && r.bandTol > 0 ? (
+            <g key={`band${r.id}`}>
+              <path d={path(r, 1 + r.bandTol)} fill="none" stroke={COLORS[i % COLORS.length]} strokeWidth={1} opacity={0.4} />
+              <path d={path(r, 1 - r.bandTol)} fill="none" stroke={COLORS[i % COLORS.length]} strokeWidth={1} opacity={0.4} />
+            </g>
+          ) : null
+        )}
+        {before.map((r, i) => hidden.has(r.id) ? null : (
           <path key={`b${r.id}`} d={path(r)} fill="none" stroke={COLORS[i % COLORS.length]} strokeWidth={1.4} strokeDasharray="5 4" opacity={0.55} />
         ))}
-        {after.map((r, i) => (
+        {after.map((r, i) => hidden.has(r.id) ? null : (
           <path key={`a${r.id}`} d={path(r)} fill="none" stroke={COLORS[i % COLORS.length]} strokeWidth={2.4} />
         ))}
       </svg>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
         {after.map((r, i) => (
-          <span key={r.id} className="inline-flex items-center gap-1.5">
+          <label key={r.id} className="inline-flex cursor-pointer items-center gap-1.5">
+            <input type="checkbox" checked={!hidden.has(r.id)} onChange={() => toggle(r.id)} className="accent-cyan-400" />
             <span className="h-0.5 w-5" style={{ background: COLORS[i % COLORS.length] }} />
             {r.name}
-          </span>
+          </label>
         ))}
+        {damage.length > 0 && <span className="inline-flex items-center gap-1.5"><span className="h-0 w-5 border-t-2 border-dotted border-red-500" />asset withstand curve</span>}
         <span className="inline-flex items-center gap-1.5"><span className="h-0 w-5 border-t-2 border-dashed border-muted" />before</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-0 w-5 border-t-2 border-muted" />proposed</span>
       </div>

@@ -16,7 +16,8 @@ import TccChart from "@/components/protection/TccChart";
 import CompareSection from "@/components/protection/CompareSection";
 import { analyseShortCircuit, type ScNetwork } from "@/lib/iec60909";
 import { DEVICE_TYPE_LABEL } from "@/lib/deviceModels";
-import { buildHandoff, HANDOFF_TO_OPTIMISER, HANDOFF_TO_SUITE, putHandoff, takeHandoff } from "@/lib/suiteBridge";
+import { relaysToSuiteProject } from "@/lib/studioProject";
+import { buildHandoff, HANDOFF_TO_OPTIMISER, HANDOFF_TO_SUITE, isSuiteProject, putHandoff, suiteToRelays, takeHandoff } from "@/lib/suiteBridge";
 import {
   deviceKvOf,
   isProtStudy,
@@ -91,7 +92,7 @@ export default function ProtectionSettingsPage() {
         const same = st.net.buses.filter((b) => Math.abs(b.unKv - r.deviceKv) < 0.01 * Math.max(r.deviceKv, 0.1));
         return { ...r, busId: same.length === 1 ? same[0].id : "" };
       });
-      return { ...st, relays, alt: undefined, suiteLink: { projectName: incoming.projectName } };
+      return { ...st, relays, alt: undefined, projectName: incoming.projectName, suiteLink: { projectName: incoming.projectName } };
     });
     takeHandoff(HANDOFF_TO_OPTIMISER);
     setIncoming(null);
@@ -100,19 +101,47 @@ export default function ProtectionSettingsPage() {
     takeHandoff(HANDOFF_TO_OPTIMISER);
     setIncoming(null);
   };
-  const sendToSuite = () => {
+  const faultsMap = () => {
     const faults: Record<string, number> = {};
     for (const r of study.relays) {
       const b = study.net.buses.find((x) => x.id === r.busId);
       const res = b ? sc.buses.find((x) => x.busId === b.id) : undefined;
       if (b && res?.energised) faults[r.id] = (res.ik3 * 1000 * b.unKv) / deviceKvOf(r, study.net);
     }
-    const h = buildHandoff(study.relays, sol.proposed, faults);
+    return faults;
+  };
+  const sendToSuite = () => {
+    const h = buildHandoff(study.relays, sol.proposed, faultsMap());
     if (!putHandoff(HANDOFF_TO_SUITE, h)) {
       setSendMsg("The browser blocked local storage, so the proposal cannot be passed on. Allow site data and try again.");
       return;
     }
     router.push("/calculators/protection-suite");
+  };
+  const [fileMsg, setFileMsg] = useState("");
+  const openProject = async (file: File) => {
+    try {
+      const data: unknown = JSON.parse(await file.text());
+      if (!isSuiteProject(data)) throw new Error("This does not look like a PCW-PRO project file (formatVersion 1).");
+      const imp = suiteToRelays(data);
+      if (imp.relays.length === 0) throw new Error(imp.notes[0] ?? "No devices to import.");
+      setIncoming({ at: new Date().toISOString(), projectName: data.projectName ?? file.name, relays: imp.relays, skipped: imp.skipped, notes: imp.notes });
+      setFileMsg("");
+    } catch (e) {
+      setFileMsg((e as Error).message);
+    }
+  };
+  const exportProject = () => {
+    const name = study.projectName?.trim() || "AJapps Studio project";
+    const proj = relaysToSuiteProject(study.relays, {
+      projectName: name, plotRefKV: refKvUse, defaultCTI: study.opt.minMarginS, buses: study.net.buses, faultA: faultsMap(), kvOf: (r) => deviceKvOf(r, study.net),
+    });
+    const blob = new Blob([JSON.stringify(proj, null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.pcw.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
   const revert = () => {
     if (!undo) return;
@@ -159,10 +188,10 @@ export default function ProtectionSettingsPage() {
     <div className="flex flex-1 flex-col">
       <NavBar />
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
-        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Arc-Flash &amp; Protection Setting Optimiser</h1>
+        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Protection &amp; Arc-Flash Studio</h1>
         <p className="mt-2 max-w-3xl text-muted">
           Set a target PPE category for each bus and let the tool propose relay settings that reach it <em>without breaking coordination</em>. It links the
-          IEC 60909 short-circuit network, the IEEE 1584-2018 arc-flash study and the IDMT grading of up to {8} relays: it lowers TMS to the grading limit,
+          IEC 60909 short-circuit network, the IEEE 1584-2018 arc-flash study and the IDMT grading of your protection devices: it lowers TMS to the grading limit,
           then pickup, then adds an instantaneous element above the downstream maximum fault, and if it still cannot reach the target it returns the best
           achievable setting with the blocking reason and what to add (ZSI, arc-flash relay, bus differential, maintenance mode).
         </p>
@@ -172,8 +201,8 @@ export default function ProtectionSettingsPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <ReportButton title="Arc-Flash & Protection Setting Optimiser" standardsLine="IEEE 1584-2018 · IEC 60909-0 · IEC 60255-151 / IEEE C37.112 · NFPA 70E reference" />
-          <FeedbackButton calculatorName="Arc-Flash & Protection Setting Optimiser" />
+          <ReportButton title="Protection & Arc-Flash Studio" standardsLine="IEEE 1584-2018 · IEC 60909-0 · IEC 60255-151 / IEEE C37.112 · NFPA 70E reference" />
+          <FeedbackButton calculatorName="Protection & Arc-Flash Studio" />
         </div>
 
         <div className="mt-6">
@@ -190,7 +219,8 @@ export default function ProtectionSettingsPage() {
               "Staged search that changes as little as possible: TMS (preferred margin) → TMS (minimum margin) → pickup → instantaneous → optional curve change; downstream relays can be speeded up within their own grading limits.",
               "Grading re-checked over the whole current range for every proposal; instantaneous kept above downstream maximum fault and inrush.",
               "Best-possible result with the limiting constraint, the clearing time still needed and hardware recommendations when a target cannot be met by settings alone.",
-              "Single-line diagram, time-current chart (before/after with arcing-current markers), grading and change tables.",
+              "Single-line diagram, time-current chart (before/after, per-device toggles, LSIG bands, asset withstand curves, arcing-current markers), grading, damage-curve and change tables.",
+              "Every device type: IDMT relays (tuned) plus LSIG and thermal-magnetic breakers, MCB, fuses, motor, definite-time and custom curves (fixed), edited here; open and save PCW-PRO project files directly.",
             ]}
             example={{
               problem: "Default network: 11 kV board (R4), 1.6 MVA transformer (R3 on the HV side, R2 LV incomer) and an MCC feeder (R1). Target: Category 2 everywhere.",
@@ -241,6 +271,32 @@ export default function ProtectionSettingsPage() {
             makeNew={makeDefaultProtStudy}
             validate={isProtStudy}
           />
+        </div>
+        <div className="no-print mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-4">
+          <input
+            value={study.projectName ?? ""}
+            onChange={(e) => setStudy((s) => ({ ...s, projectName: e.target.value }))}
+            placeholder="Project name"
+            className="w-56 rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm text-foreground focus:border-accent-2 focus:outline-none"
+          />
+          <label className="cursor-pointer rounded-md border border-border px-4 py-1.5 text-sm text-foreground hover:border-accent-2/60">
+            Open a PCW-PRO project…
+            <input
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) openProject(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <button type="button" onClick={exportProject} className="rounded-md border border-border px-4 py-1.5 text-sm text-foreground hover:border-accent-2/60">
+            Download as a PCW-PRO project
+          </button>
+          <span className="text-xs text-muted">Opens in the Protection Coordination Suite too. Devices, grading links and maximum fault levels are included.</span>
+          {fileMsg && <span className="w-full text-sm text-fail">{fileMsg}</span>}
         </div>
 
         {/* ---------------- Summary ---------------- */}
@@ -458,6 +514,7 @@ export default function ProtectionSettingsPage() {
               bus={selAfter}
               busKv={selBus?.unKv ?? refKvUse}
               targetMs={selAfter?.reqMs ?? null}
+              damage={sol.damageCurves}
             />
           </div>
         </div>
@@ -604,7 +661,7 @@ export default function ProtectionSettingsPage() {
 
         <div className="mt-10">
           <h2 className="text-lg font-semibold text-foreground">2 · Relays and coordination</h2>
-          <p className="mt-1 text-sm text-muted">Up to 8 relays. Say which bus each one feeds and which relays it grades over; the grading range follows from the fault levels.</p>
+          <p className="mt-1 text-sm text-muted">Add every protection device: IDMT relays (tuned), and LSIG or thermal-magnetic breakers, MCBs, fuses, motor, definite-time and custom curves (fixed). Say which bus each one feeds and which devices it grades over; the grading range follows from the fault levels.</p>
         </div>
         <div className="mt-4">
           <RelayEditor relays={study.relays} setRelays={setRelays} buses={study.net.buses} />

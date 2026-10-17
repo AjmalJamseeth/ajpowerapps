@@ -84,6 +84,7 @@ export interface ProtStudy {
   relays: RelayDef[];
   targets: Record<string, number>; // busId → target PPE category 0..4 (−1 = no target)
   opt: ProtOptions;
+  projectName?: string; // name used when the project is written as a workbench file
   suiteLink?: { projectName: string }; // set when the relays were imported from the Protection Coordination Workbench
   alt?: RelayDef[]; // optional second set of settings (e.g. the arc-flash consultant's proposal) to compare
 }
@@ -107,7 +108,7 @@ export const DEFAULT_PROT_OPTIONS: ProtOptions = {
   maintenanceMs: 50,
 };
 
-export const MAX_RELAYS = 8;
+export const MAX_RELAYS = 30;
 
 // ---------------------------------------------------------------------------
 // Context + basic helpers
@@ -405,36 +406,50 @@ function fitTms(u: RelayDef, relays: RelayDef[], ctx: Ctx, margin: number): { tm
 // Solver
 // ---------------------------------------------------------------------------
 
+export interface DamageCurve {
+  relayId: string;
+  name: string;
+  asset: string;
+  note: string;
+  points: Pt[]; // amps at the relay's CT-side voltage, withstand seconds
+  error?: string;
+}
+
+/** Withstand curve of the asset a relay protects, in amps at the relay's own voltage. */
+export function damageCurveFor(r: RelayDef, relays: RelayDef[], ctx: Ctx): DamageCurve | null {
+  const d = r.damage;
+  if (!d) return null;
+  try {
+    if (d.kind === "transformer") {
+      const kv = d.kvLine && d.kvLine > 0 ? d.kvLine : devKv(r, ctx);
+      const cat = transformerCategoryFromKVA(d.mva * 1000);
+      const w = transformerWithstandPointsAmps(d.mva, kv, { impedancePct: d.zPct, category: cat });
+      return {
+        relayId: r.id, name: r.name, asset: `${d.mva} MVA transformer, ${d.zPct} %Z, category ${cat}`, points: w.points,
+        note: w.truncatedForMechanicalDuty ? "Thermal part of the withstand curve only (mechanical duty not calculated)." : "",
+      };
+    }
+    const lo = Math.max(1, r.pickupA * 1.05);
+    const w = cableDamagePoints({ material: d.material, insulation: d.insulation, csaMm2: d.csaMm2, minA: lo, maxA: Math.max(lo * 2, hiAmps(r, relays, ctx)), points: 24 });
+    return { relayId: r.id, name: r.name, asset: `${d.csaMm2} mm² ${d.material} ${d.insulation.toUpperCase()} cable`, points: w.points, note: "" };
+  } catch (e) {
+    return { relayId: r.id, name: r.name, asset: "invalid asset data", points: [], note: "", error: (e as Error).message };
+  }
+}
+
 /** Compare each relay's total clearing time (incl. breaker and band) with the withstand curve of the asset it protects. */
 export function damageChecks(relays: RelayDef[], ctx: Ctx): DamageCheck[] {
   const out: DamageCheck[] = [];
   for (const r of relays) {
-    const d = r.damage;
-    if (!d) continue;
-    let pts: Pt[] = [];
-    let asset = "";
-    let note = "";
-    try {
-      if (d.kind === "transformer") {
-        const kv = d.kvLine && d.kvLine > 0 ? d.kvLine : devKv(r, ctx);
-        const cat = transformerCategoryFromKVA(d.mva * 1000);
-        const w = transformerWithstandPointsAmps(d.mva, kv, { impedancePct: d.zPct, category: cat });
-        pts = w.points;
-        asset = `${d.mva} MVA transformer, ${d.zPct} %Z, category ${cat}`;
-        note = w.truncatedForMechanicalDuty ? "Thermal part of the withstand curve only (mechanical duty not calculated)." : "";
-      } else {
-        const lo = Math.max(1, r.pickupA * 1.05);
-        const w = cableDamagePoints({ material: d.material, insulation: d.insulation, csaMm2: d.csaMm2, minA: lo, maxA: Math.max(lo * 2, hiAmps(r, relays, ctx)), points: 24 });
-        pts = w.points;
-        asset = `${d.csaMm2} mm² ${d.material} ${d.insulation.toUpperCase()} cable`;
-      }
-    } catch (e) {
-      out.push({ relayId: r.id, name: r.name, asset: "invalid asset data", pass: null, minMargin: null, atA: null, note: (e as Error).message });
+    const c = damageCurveFor(r, relays, ctx);
+    if (!c) continue;
+    if (c.error) {
+      out.push({ relayId: r.id, name: r.name, asset: c.asset, pass: null, minMargin: null, atA: null, note: c.error });
       continue;
     }
     let min = Infinity;
     let at: number | null = null;
-    for (const [I, tw] of pts) {
+    for (const [I, tw] of c.points) {
       const tr = relayTimeS(r, I) * (1 + (r.bandTol ?? 0)) + r.breakerMs / 1000;
       if (!Number.isFinite(tr) || tr <= 0) continue;
       const m = tw / tr;
@@ -444,7 +459,7 @@ export function damageChecks(relays: RelayDef[], ctx: Ctx): DamageCheck[] {
       }
     }
     const has = Number.isFinite(min);
-    out.push({ relayId: r.id, name: r.name, asset, pass: has ? min >= 1 : null, minMargin: has ? min : null, atA: at, note });
+    out.push({ relayId: r.id, name: r.name, asset: c.asset, pass: has ? min >= 1 : null, minMargin: has ? min : null, atA: at, note: c.note });
   }
   return out;
 }
@@ -466,6 +481,7 @@ export interface ProtSolution {
   gradingAfter: GradePair[];
   damageBefore: DamageCheck[];
   damageAfter: DamageCheck[];
+  damageCurves: DamageCurve[];
   changes: RelayChange[];
   cautions: string[];
   recommendations: string[];
@@ -847,6 +863,7 @@ export function solveProtection(study: ProtStudy): ProtSolution {
     gradingAfter,
     damageBefore,
     damageAfter,
+    damageCurves: cur.map((r) => damageCurveFor(r, cur, ctx)).filter((x): x is DamageCurve => !!x && !x.error),
     changes,
     cautions: [...new Set(cautions)],
     recommendations: recs,

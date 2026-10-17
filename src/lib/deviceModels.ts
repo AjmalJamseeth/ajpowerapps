@@ -152,3 +152,47 @@ export function bandTolerance(e: DeviceEngine, bandOn: boolean): number {
   if (e.type === "lsig" && bandOn) return typeof e.bandTolerance === "number" ? e.bandTolerance : 0.2;
   return 0;
 }
+
+/** Device kinds the studio can create. "idmt" is the tunable IEC/IEEE relay (no engine); every other kind carries an engine. */
+export const DEVICE_KINDS: { value: string; label: string }[] = [
+  { value: "idmt", label: "IDMT relay (IEC / IEEE) — tuned by the solver" },
+  { value: "dt", label: "Definite-time overcurrent" },
+  { value: "instantaneous", label: "Instantaneous element" },
+  { value: "lsig", label: "LSIG breaker (electronic trip unit)" },
+  { value: "thermalmag", label: "Thermal-magnetic breaker" },
+  { value: "mcb", label: "MCB (B / C / D)" },
+  { value: "fuse", label: "Fuse (gG)" },
+  { value: "motor", label: "Motor protection (thermal + locked rotor)" },
+  { value: "negseq", label: "Negative-sequence (46)" },
+  { value: "custom_equation", label: "Custom curve — equation" },
+  { value: "points", label: "Custom curve — point table" },
+];
+
+/** Typical starting values for a new device of the given kind, scaled to a pickup / rated current. */
+export function defaultEngine(kind: string, baseA = 100): DeviceEngine | undefined {
+  const b = Math.max(1, Math.round(baseA));
+  switch (kind) {
+    case "dt":
+      return { type: "dt", pickup_a: b, delayS: 0.5 };
+    case "instantaneous":
+      return { type: "instantaneous", pickup_a: b * 8, operateS: 0.02 };
+    case "lsig":
+      return { type: "lsig", lsig: { Ir: b, TL: 8, Ist: b * 5, TS: 0.2, stI2tOn: false, Iinst: b * 10, instDelay: 0.02 }, bandTolerance: 0.2 };
+    case "thermalmag":
+      return { type: "thermalmag", tm: { Ir: b, TL: 8, Iinst: b * 10, instDelay: 0.02 } };
+    case "mcb":
+      return { type: "mcb", mcbType: "C", InAmps: Math.min(63, b) };
+    case "fuse":
+      return { type: "fuse", InAmps: b };
+    case "motor":
+      return { type: "motor", motor: { tau: 600, Ith: b }, lockedRotor: { pickupA: b * 6, stallTimeS: 10 } };
+    case "negseq":
+      return { type: "negseq", negseq: { K: 10, I1rated: b, pickupPu: 0.05, minTimeS: 0.2 } };
+    case "custom_equation":
+      return { type: "custom_equation", pickup_a: b, tms: 0.2, customParams: { k: 0.14, alpha: 0.02, L: 0 } };
+    case "points":
+      return { type: "points", points: [[b * 1.5, 100], [b * 5, 5], [b * 20, 0.2]] };
+    default:
+      return undefined;
+  }
+}
