@@ -6,6 +6,7 @@ import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { CheckboxField, NumberField, SelectField, TextField, Tip } from "@/components/fields";
+import ProjectManager from "@/components/ProjectManager";
 import ShortCircuitSld from "@/components/shortcircuit/ShortCircuitSld";
 import {
   CABLE_PRESETS,
@@ -29,8 +30,16 @@ import {
   type VectorGroup,
 } from "@/lib/iec60909";
 
-let counter = 100;
-const uid = (p: string) => `${p}${++counter}`;
+// Random suffix so ids never collide with ids inside loaded/imported scenarios.
+const uid = (p: string) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+
+function isScNetwork(d: unknown): d is ScNetwork {
+  const n = d as Partial<ScNetwork> | null;
+  return (
+    !!n && typeof n === "object" && !!n.settings && Array.isArray(n.buses) && Array.isArray(n.grids) &&
+    Array.isArray(n.gens) && Array.isArray(n.motors) && Array.isArray(n.branches)
+  );
+}
 const f = (x: number | null | undefined, d = 2) => (x === null || x === undefined || !Number.isFinite(x) ? "–" : x.toFixed(d));
 
 // ---------------------------------------------------------------------------
@@ -235,6 +244,17 @@ export default function Iec60909Page() {
               result: "≈ 25.3 kA at the LV bus — the calculator reproduces this exactly and also shows ip, Ib, Ith and earth-fault values.",
             }}
             notes="Scope and simplifications: balanced and unbalanced faults at bus level (no mid-cable faults). The peak current uses method A (uniform R/X); steady-state Ik (λ factors) is not computed; the motor breaking-current decay (μ·q) is not credited, which is conservative; Ith uses n = 1 (conservative). Taps, loads and shunt capacitance are ignored, as permitted by IEC 60909-0. Enter manufacturer data wherever available — the typical values are only starting points."
+          />
+        </div>
+
+        <div className="mt-8">
+          <ProjectManager<ScNetwork>
+            storageKey="ajapps-iec60909-scenarios"
+            fileTag="iec-60909"
+            current={net}
+            onLoad={setNet}
+            makeNew={() => JSON.parse(JSON.stringify(DEFAULT_SC_NETWORK))}
+            validate={isScNetwork}
           />
         </div>
 

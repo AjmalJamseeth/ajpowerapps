@@ -1782,6 +1782,16 @@ section("IEC 60909 Short-Circuit");
   assertClose("Two 500 MVA sources on one bus -> 52.49 kA", two.buses[0].ik3, 1000 / (Math.sqrt(3) * 11), 0.05);
   assertTrue("Two sources produce two contributions", two.buses[0].contributions.length === 2);
 
+
+  // Two identical transformers in parallel halve the transformer impedance
+  const par = analyseShortCircuit(base({ branches: [
+    base().branches[0],
+    { ...(base().branches[0] as any), id: "t2", name: "T2" },
+  ] }));
+  const zqLv = 1.1 * (11 * 11) / 500 * Math.pow(0.4 / 11, 2);
+  assertClose("Parallel transformers: LV Ik'' uses ZT/2", par.buses[1].ik3, (1.05 * 0.4) / (Math.sqrt(3) * (zqLv + (kt * zt) / 2)), 0.05);
+  assertTrue("Parallel transformers raise LV fault level", par.buses[1].ik3 > lv.ik3);
+
   // Yy transformer blocks zero sequence at the LV bus
   const yy = analyseShortCircuit(base({ branches: [{ ...(base().branches[0] as any), group: "Yy" }] }));
   assertNull("Yy transformer: no earth-fault current at LV", yy.buses[1].ikLG);

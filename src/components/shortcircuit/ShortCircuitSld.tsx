@@ -11,14 +11,19 @@ const TOP = 120;
 const ELEM_GAP = 112;
 const TEXT_W = 190;
 const MIN_BAR = 130;
+const PGAP = 170; // horizontal spacing between parallel branches
+
+const linkXs = (cx: number, count: number) =>
+  Array.from({ length: count }, (_, i) => cx + (i - (count - 1) / 2) * PGAP);
 
 interface Node {
   bus: BusIn;
   res: BusResult | undefined;
   above: { kind: "Grid" | "Generator"; name: string; spec: string }[];
   below: { name: string; spec: string }[];
-  children: { branch: BranchIn; node: Node }[];
+  children: { branch: BranchIn; node: Node; extras: BranchIn[] }[];
   depth: number;
+  inParallel: number; // number of parallel branches arriving from the parent
   cx: number;
   barL: number;
   barR: number;
@@ -42,6 +47,7 @@ function buildForest(net: ScNetwork, result: ScResult): Node[] {
       below: net.motors.filter((m) => m.busId === bus.id).map((m) => ({ name: m.name, spec: `${f(m.prKw, 0)} kW` })),
       children: [],
       depth: 0,
+      inParallel: 1,
       cx: 0,
       barL: 0,
       barR: 0,
@@ -75,8 +81,14 @@ function buildForest(net: ScNetwork, result: ScResult): Node[] {
         seen.add(e.other);
         const child = nodes.get(e.other)!;
         child.depth = cur.depth + 1;
-        cur.children.push({ branch: e.branch, node: child });
+        cur.children.push({ branch: e.branch, node: child, extras: [] });
         queue.push(child);
+      }
+      // Further branches between the same two buses (e.g. transformers in parallel)
+      const used = new Set(cur.children.map((c) => c.branch.id));
+      for (const e of adj.get(cur.bus.id) ?? []) {
+        const link = cur.children.find((c) => c.node.bus.id === e.other);
+        if (link && !used.has(e.branch.id) && !link.extras.some((x) => x.id === e.branch.id)) link.extras.push(e.branch);
       }
     }
   }
@@ -84,17 +96,18 @@ function buildForest(net: ScNetwork, result: ScResult): Node[] {
 }
 
 function layout(node: Node, left: number): number {
+  for (const c of node.children) c.node.inParallel = 1 + c.extras.length;
   let cursor = left;
   for (const c of node.children) cursor += layout(c.node, cursor);
   const childSum = cursor - left;
   node.y = TOP + node.depth * LEVEL_GAP;
-  const own = Math.max(MIN_BAR, ELEM_GAP * Math.max(node.above.length, node.below.length) + 30);
+  const own = Math.max(MIN_BAR, ELEM_GAP * Math.max(node.above.length, node.below.length) + 30, PGAP * node.inParallel + 20);
   if (node.children.length) {
-    const cxs = node.children.map((c) => c.node.cx);
-    const mid = (Math.min(...cxs) + Math.max(...cxs)) / 2;
+    const xs = node.children.flatMap((c) => linkXs(c.node.cx, 1 + c.extras.length));
+    const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
     node.cx = mid;
-    node.barL = Math.max(left + 10, Math.min(Math.min(...cxs) - 24, mid - own / 2));
-    node.barR = Math.max(Math.max(...cxs) + 24, node.barL + own);
+    node.barL = Math.max(left + 10, Math.min(Math.min(...xs) - 24, mid - own / 2));
+    node.barR = Math.max(Math.max(...xs) + 24, node.barL + own);
   } else {
     node.barL = left + 10;
     node.barR = node.barL + own;
@@ -158,34 +171,38 @@ export default function ShortCircuitSld({ net, result }: { net: ScNetwork; resul
       >
         {/* Branch links first so buses draw over them */}
         {all.flatMap((p) =>
-          p.children.map(({ branch, node: c }) => {
-            const x = c.cx;
-            const y1 = p.y;
-            const y2 = c.y;
-            const mid = (y1 + y2) / 2;
-            const open = branch.kind === "tie" && !branch.closed;
-            return (
-              <g key={`${p.bus.id}-${branch.id}`}>
-                <line x1={x} y1={y1} x2={x} y2={mid - 18} className="stroke-accent-2" strokeWidth={2} strokeDasharray={open ? "4 3" : undefined} />
-                <line x1={x} y1={mid + 18} x2={x} y2={y2} className="stroke-accent-2" strokeWidth={2} strokeDasharray={open ? "4 3" : undefined} />
-                {branch.kind === "transformer" ? (
-                  <g className="fill-none stroke-accent" strokeWidth={2}>
-                    <circle cx={x} cy={mid - 8} r={12} />
-                    <circle cx={x} cy={mid + 8} r={12} />
-                  </g>
-                ) : branch.kind === "cable" ? (
-                  <rect x={x - 8} y={mid - 16} width={16} height={32} rx={2} className="fill-surface-2 stroke-accent" strokeWidth={2} />
-                ) : (
-                  <rect x={x - 9} y={mid - 9} width={18} height={18} className={open ? "fill-none stroke-fail" : "fill-accent stroke-accent"} strokeWidth={2} />
-                )}
-                <text x={x + 24} y={mid - 2} fontSize={12} className="fill-foreground">
-                  {trunc(branch.name, 26)}
-                </text>
-                <text x={x + 24} y={mid + 12} fontSize={11} className="fill-muted">
-                  {branchSpec(branch)}
-                </text>
-              </g>
-            );
+          p.children.flatMap(({ branch, node: c, extras }) => {
+            const list = [branch, ...extras];
+            const xs = linkXs(c.cx, list.length);
+            return list.map((br, bi) => {
+              const x = xs[bi];
+              const y1 = p.y;
+              const y2 = c.y;
+              const mid = (y1 + y2) / 2;
+              const open = br.kind === "tie" && !br.closed;
+              return (
+                <g key={`${p.bus.id}-${br.id}`}>
+                  <line x1={x} y1={y1} x2={x} y2={mid - 18} className="stroke-accent-2" strokeWidth={2} strokeDasharray={open ? "4 3" : undefined} />
+                  <line x1={x} y1={mid + 18} x2={x} y2={y2} className="stroke-accent-2" strokeWidth={2} strokeDasharray={open ? "4 3" : undefined} />
+                  {br.kind === "transformer" ? (
+                    <g className="fill-none stroke-accent" strokeWidth={2}>
+                      <circle cx={x} cy={mid - 8} r={12} />
+                      <circle cx={x} cy={mid + 8} r={12} />
+                    </g>
+                  ) : br.kind === "cable" ? (
+                    <rect x={x - 8} y={mid - 16} width={16} height={32} rx={2} className="fill-surface-2 stroke-accent" strokeWidth={2} />
+                  ) : (
+                    <rect x={x - 9} y={mid - 9} width={18} height={18} className={open ? "fill-none stroke-fail" : "fill-accent stroke-accent"} strokeWidth={2} />
+                  )}
+                  <text x={x + 24} y={mid - 2} fontSize={12} className="fill-foreground">
+                    {trunc(br.name, 18)}
+                  </text>
+                  <text x={x + 24} y={mid + 12} fontSize={11} className="fill-muted">
+                    {trunc(branchSpec(br), 24)}
+                  </text>
+                </g>
+              );
+            });
           })
         )}
 
