@@ -342,7 +342,7 @@
   },
   {
    "id": "REF2",
-   "label": "Cable 4411-Q304 Ampacity (230 A)",
+   "label": "Feeder Cable Ampacity (230 A)",
    "kind": "vline",
    "kv": 0.4,
    "nativeValue": 230
