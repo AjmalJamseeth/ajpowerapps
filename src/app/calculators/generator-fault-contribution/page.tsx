@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -81,6 +82,15 @@ export default function GeneratorFaultContributionPage() {
           the standard subtransient-reactance method, summed across all
           paralleled generators.
         </p>
+
+        <div className="mt-4 max-w-3xl rounded-lg border border-accent-2/30 bg-accent-2/10 px-4 py-3 text-sm text-muted">
+          <span className="font-semibold text-foreground">Quick estimate.</span> For generators together with the utility, motors,
+          transformers and cables on a full network with a single-line diagram, use the{" "}
+          <Link href="/calculators/iec-60909" className="font-semibold text-accent-2 hover:underline">
+            IEC 60909 Short-Circuit Calculator
+          </Link>
+          .
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <ReportButton title="Parallel Generator Short-Circuit Contribution" standardsLine="Subtransient reactance method" />

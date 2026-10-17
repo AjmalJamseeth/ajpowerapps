@@ -31,6 +31,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     calculators: [
       { name: "IEC 60909 Short-Circuit Calculator", description: "Build a network of buses, utility sources, generators, motors, transformers, cables and ties; get Ik\u2033, peak, breaking, thermal and earth-fault currents at every bus on an auto-generated single-line diagram, with step-by-step working.", href: "/calculators/iec-60909", status: "live" },
       { name: "Fault Current Propagation (Base kVA Method)", description: "Available fault current at successive points down a radial network using the classic Base kVA Method.", href: "/calculators/fault-propagation", status: "live" },
+      { name: "Parallel Generator Fault Contribution", description: "Per-generator and total fault current contribution at a common bus, subtransient-reactance method.", href: "/calculators/generator-fault-contribution", status: "live" },
       { name: "Switchgear Short-Circuit Rating", description: "Prospective and peak fault current from transformer kVA/%Z, with OCPD AIC and equipment SCCR adequacy check per NEC 110.9/110.10.", href: "/calculators/switchgear-short-circuit-rating", status: "live" },
     ],
   },
@@ -38,7 +39,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     id: "protection",
     title: "Protection & Relaying",
     description:
-      "IDMT relay coordination and grading, differential and earth-fault protection, arc flash, breaker/fuse sizing, and generator paralleling/fault contribution.",
+      "IDMT relay coordination and grading, differential and earth-fault protection, arc flash, breaker/fuse sizing, and generator paralleling.",
     icon: "ShieldCheck",
     calculators: [
       { name: "IDMT Relay Coordination", description: "IEC 60255 & IEEE C37.112 inverse-time curves. Add any number of relays to a chain and check full-range grading margin at every step.", href: "/calculators/idmt", status: "live" },
@@ -47,7 +48,6 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
       { name: "Arc Flash", description: "Incident energy, arc flash boundary and PPE category — IEEE 1584-2002 and Ralph Lee free, IEEE 1584-2018 as an advanced feature.", href: "/calculators/arc-flash", status: "live" },
       { name: "Circuit Breaker & Fuse Sizer", description: "General continuous/non-continuous load OCPD sizing (NEC 210.19/215.2 + 240.4, or IEC 60364-4-43) and motor starting-current withstand sizing (NEC 430.52).", href: "/calculators/breaker-fuse-sizer", status: "live" },
       { name: "Generator Sync Check", description: "Voltage, frequency and phase-angle synchronization check (ANSI device 25 style) before closing a generator paralleling breaker.", href: "/calculators/generator-sync", status: "live" },
-      { name: "Parallel Generator Fault Contribution", description: "Per-generator and total fault current contribution at a common bus, subtransient-reactance method.", href: "/calculators/generator-fault-contribution", status: "live" },
       { name: "AFCI / GFCI Protection Requirements", description: "Location-based lookup of NEC 210.12(A) AFCI and 210.8(A) GFCI dwelling-unit protection requirements, with citations.", href: "/calculators/afci-gfci-requirements", status: "live" },
       { name: "Surge Protection Device (SPD) Rating", description: "SPD Type recommendation by location, minimum MCOV from system voltage/grounding, and SCCR check against available fault current.", href: "/calculators/spd-rating", status: "live" },
     ],

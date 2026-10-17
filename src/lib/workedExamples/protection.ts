@@ -273,7 +273,7 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
 
   {
     slug: "fault-current-propagation-base-kva-method",
-    groupId: "protection",
+    groupId: "short-circuit",
     calculatorHref: "/calculators/fault-propagation",
     calculatorName: "Fault Current Propagation (Base kVA Method)",
     title: "Worked Example: Available Fault Current from Utility Source Down to a Sub-Panel",
@@ -540,7 +540,7 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
 
   {
     slug: "parallel-generator-fault-contribution",
-    groupId: "protection",
+    groupId: "short-circuit",
     calculatorHref: "/calculators/generator-fault-contribution",
     calculatorName: "Parallel Generator Fault Contribution",
     title: "Worked Example: Fault Current Contribution from Two Paralleled Generators",
