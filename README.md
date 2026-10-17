@@ -1409,3 +1409,7 @@ checked against known values before shipping, not just ported and trusted:
 - Chart: per-device toggles, LSIG time bands, asset withstand (damage) curves, arcing-current markers, before/after curves. Tables: grading, damage-curve check, changes.
 - Files: "Open a PCW-PRO project…" reads a workbench project directly (same banner as the hand-off); "Download as a PCW-PRO project" writes devices, grading links and same-voltage maximum fault levels in the workbench's format (`src/lib/studioProject.ts`). The export was loaded into the real workbench under jsdom (14 devices of all kinds, no errors, grading table built) and a round-trip test is in the regression suite.
 - The full workbench (`/calculators/protection-suite`, unchanged file) remains for the function modules not yet native: 87T/87B/87L, distance 21, 24/32, 46/49/51V, 81/27/59, CT/VT and Metrosil sizing, LV board coordination, relay-export import, settings sheets and Excel export.
+
+## Studio visibility
+
+The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.studio` in `src/lib/features.ts` is `false`: the page is not in the catalog, home page, navigation or sitemap, is marked `noindex`, and the Protection Coordination Suite page hides its hand-off buttons. The page itself, `protsettings.ts`, `curveEngine.ts`, `deviceModels.ts`, `suiteBridge.ts`, `studioProject.ts` and all their tests are kept. Set the flag to `true` to relist it.

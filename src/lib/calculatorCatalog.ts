@@ -4,6 +4,8 @@
 // the /calculators index import from here, so the two pages can never drift
 // out of sync with each other the way the old two-separate-arrays setup did.
 
+import { FEATURES } from "./features";
+
 export type CalcStatus = "live" | "soon";
 
 export interface CalcCard {
@@ -21,6 +23,9 @@ export interface CalcGroup {
   calculators: CalcCard[];
 }
 
+// Not public while FEATURES.studio is false (see features.ts).
+const STUDIO_CARD: CalcCard = { name: "Protection & Arc-Flash Studio", description: "One project for the short-circuit network, the arc-flash study and the protection devices (IDMT relays, LSIG/thermal-magnetic breakers, MCB, fuses, motor and custom curves). Set a target PPE category per bus and get TMS, pickup and instantaneous settings that reach it without breaking grading, with time-current chart, damage-curve check and cautions when a target cannot be met.", href: "/calculators/arc-flash-protection-settings", status: "live" };
+
 export const CALCULATOR_GROUPS: CalcGroup[] = [
   {
     id: "short-circuit",
@@ -31,7 +36,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     calculators: [
       { name: "IEC 60909 Short-Circuit Calculator", description: "Build a network of buses, utility sources, generators, motors, transformers, cables and ties; get Ik\u2033, peak, breaking, thermal and earth-fault currents at every bus on an auto-generated single-line diagram, with step-by-step working.", href: "/calculators/iec-60909", status: "live" },
       { name: "Arc Flash Study (IEEE 1584-2018)", description: "Network arc-flash study: incident energy, boundary and PPE category at every bus on a colour-coded single-line diagram, with boundary and energy graphs, maintenance-mode what-if and printable NFPA 70E style labels.", href: "/calculators/arc-flash-study", status: "live" },
-      { name: "Protection & Arc-Flash Studio", description: "One project for the short-circuit network, the arc-flash study and the protection devices (IDMT relays, LSIG/thermal-magnetic breakers, MCB, fuses, motor and custom curves). Set a target PPE category per bus and get TMS, pickup and instantaneous settings that reach it without breaking grading, with time-current chart, damage-curve check and cautions when a target cannot be met.", href: "/calculators/arc-flash-protection-settings", status: "live" },
+      ...(FEATURES.studio ? [STUDIO_CARD] : []),
       { name: "Arc Flash", description: "Quick single-point incident energy, arc-flash boundary and PPE category — IEEE 1584-2002, the full IEEE 1584-2018 model and Ralph Lee.", href: "/calculators/arc-flash", status: "live" },
       { name: "Fault Current Propagation (Base kVA Method)", description: "Available fault current at successive points down a radial network using the classic Base kVA Method.", href: "/calculators/fault-propagation", status: "live" },
       { name: "Parallel Generator Fault Contribution", description: "Per-generator and total fault current contribution at a common bus, subtransient-reactance method.", href: "/calculators/generator-fault-contribution", status: "live" },

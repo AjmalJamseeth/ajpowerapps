@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { FEATURES } from "@/lib/features";
 import {
   applyHandoff,
   HANDOFF_TO_OPTIMISER,
@@ -164,17 +165,21 @@ export default function ProtectionSuitePage() {
         <p className="mt-2 max-w-3xl text-muted">
           The full protection coordination workbench: time-current curves for IDMT, definite-time, LSIG breakers, MCB, fuses, motor and custom curves, grading checks,
           damage-curve overlays, suggested setting changes, transformer, busbar, line and generator protection setting tools, CT/VT sizing, LV board coordination, relay
-          import and settings sheets. Use the buttons below to link it with the arc-flash study.
+          import and settings sheets.{FEATURES.studio ? " Use the buttons below to link it with the arc-flash study." : ""}
         </p>
 
         <div className="mt-4 rounded-xl border border-border bg-surface p-4">
           <div className="flex flex-wrap items-center gap-3">
+            {FEATURES.studio && (
+              <>
             <button type="button" className={btn} disabled={!ready || busy} onClick={sendToOptimiser}>
               Check these relays for arc flash →
             </button>
             <span className="text-xs text-muted">
               Sends the IEC/IEEE IDMT relays and their grading links to the Arc-Flash &amp; Protection Setting Optimiser. Other device types stay here.
             </span>
+              </>
+            )}
             <span className="ml-auto flex items-center gap-2">
               <FeedbackButton calculatorName="Protection Coordination Suite" />
             </span>
@@ -188,7 +193,7 @@ export default function ProtectionSuitePage() {
           )}
         </div>
 
-        {pending && (
+        {FEATURES.studio && pending && (
           <div className="mt-4 rounded-xl border border-accent-2/40 bg-accent-2/10 p-4">
             <div className="text-sm font-semibold text-foreground">Proposed settings are waiting from the Arc-Flash &amp; Protection Setting Optimiser</div>
             <p className="mt-1 text-xs text-muted">
