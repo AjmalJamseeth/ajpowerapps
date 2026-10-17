@@ -23,6 +23,16 @@ export interface CalcGroup {
 
 export const CALCULATOR_GROUPS: CalcGroup[] = [
   {
+    id: "short-circuit",
+    title: "Short Circuit Calculation",
+    description:
+      "Network short-circuit studies: IEC 60909 fault currents at every bus of a radial system with auto-generated single-line diagram, plus quick fault-level estimates.",
+    icon: "CircuitBoard",
+    calculators: [
+      { name: "IEC 60909 Short-Circuit Calculator", description: "Build a network of buses, utility sources, generators, motors, transformers, cables and ties; get Ik\u2033, peak, breaking, thermal and earth-fault currents at every bus on an auto-generated single-line diagram, with step-by-step working.", href: "/calculators/iec-60909", status: "live" },
+    ],
+  },
+  {
     id: "protection",
     title: "Protection & Relaying",
     description:

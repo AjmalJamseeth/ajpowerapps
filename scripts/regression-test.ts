@@ -9,6 +9,7 @@
 // throw, must return null or a sane empty result), and — where the module
 // has a pass/fail concept — one passing and one failing boundary case.
 
+import { analyseShortCircuit, muFactor, peakFactor, thermalM, voltageFactor, typicalGenRToX, typicalMotorRToX, DEFAULT_SC_NETWORK, DEFAULT_SC_SETTINGS, type ScNetwork } from "../src/lib/iec60909";
 import { calcArcingCurrent, calcNormalizedEnergy, calcIncidentEnergy2002, calcArcFlashBoundary2002, calcLeeIncidentEnergy, calcLeeBoundary, calc2018_Full, AF_EQUIP_CLASSES } from "../src/lib/arcflash";
 import { DEFAULT_BATTERY_INPUT, calcBattery } from "../src/lib/battery";
 import { DEFAULT_BUSBAR_INPUT, calcBusbar } from "../src/lib/busbar";
@@ -1733,6 +1734,116 @@ section("Audit regression locks");
   assertTrue("K-factor is >= 1", (h?.pro?.kFactor ?? 0) >= 1, `K=${h?.pro?.kFactor}`);
   // IEEE 1584-2002 Table 4: 5kV switchgear gap 102mm, x=0.973
   assertEqual("5kV switchgear exponent x = 0.973", AF_EQUIP_CLASSES.mv5_swgr.x, 0.973);
+}
+
+
+// ==========================================================================
+// IEC 60909 short-circuit calculator
+// ==========================================================================
+section("IEC 60909 Short-Circuit");
+{
+  const base = (over: Partial<ScNetwork> = {}): ScNetwork => ({
+    settings: DEFAULT_SC_SETTINGS,
+    buses: [
+      { id: "h", name: "HV", unKv: 11, ratingKa: 0 },
+      { id: "l", name: "LV", unKv: 0.4, ratingKa: 0 },
+    ],
+    grids: [{ id: "g", name: "Grid", busId: "h", skMva: 500, rToX: 0, z0ToZ1: 1 }],
+    gens: [],
+    motors: [],
+    branches: [
+      { id: "t", kind: "transformer", name: "T", fromBus: "h", toBus: "l", srMva: 1, ukPct: 6, pkKw: 0, group: "Dyn", z0ToZ1: 1, neutralFromOhm: 0, neutralToOhm: 0, applyKt: true },
+    ],
+    ...over,
+  });
+  const r = analyseShortCircuit(base());
+  const hv = r.buses[0];
+  const lv = r.buses[1];
+  // At the HV bus c cancels: Ik" = Sk"/(sqrt3*Un)
+  assertClose("HV bus Ik'' = Sk''/(√3·Un) = 26.24 kA", hv.ik3, 500 / (Math.sqrt(3) * 11), 0.05);
+  // LV hand calc (IEC 60909-0): ZQ = c·Un²/Sk" referred to 0.4 kV, KT-corrected ZT
+  const zq = 1.1 * (11 * 11) / 500 * Math.pow(0.4 / 11, 2);
+  const kt = (0.95 * 1.05) / (1 + 0.6 * 0.06);
+  const zt = 0.06 * (0.4 * 0.4) / 1;
+  const z1 = zq + kt * zt;
+  assertClose("LV bus Ik'' three-phase (hand calc with KT)", lv.ik3, (1.05 * 0.4) / (Math.sqrt(3) * z1), 0.05);
+  assertClose("LV peak current uses κ = 1.02+0.98e^(-3R/X)", lv.ip, lv.kappa * Math.SQRT2 * lv.ik3, 0.01);
+  assertClose("LV line-to-line = (√3/2)·Ik''", lv.ik2, (Math.sqrt(3) / 2) * lv.ik3, 0.01);
+  // Dyn: Z0 seen from LV = KT·ZT only
+  assertClose("LV line-to-earth with Dyn transformer (hand calc)", lv.ikLG, (Math.sqrt(3) * 1.05 * 0.4) / (2 * z1 + kt * zt), 0.05);
+  assertTrue("Far-from-generator: Ib = Ik''", Math.abs(lv.ib - lv.ik3) < 1e-6 * lv.ik3);
+  assertClose("cmin LV case < cmax case", lv.ik3Min / lv.ik3, 0.95 / 1.05, 0.5);
+
+  // Two identical sources on the same bus double the fault level
+  const two = analyseShortCircuit(base({ grids: [
+    { id: "g", name: "Grid A", busId: "h", skMva: 500, rToX: 0, z0ToZ1: 1 },
+    { id: "g2", name: "Grid B", busId: "h", skMva: 500, rToX: 0, z0ToZ1: 1 },
+  ] }));
+  assertClose("Two 500 MVA sources on one bus -> 52.49 kA", two.buses[0].ik3, 1000 / (Math.sqrt(3) * 11), 0.05);
+  assertTrue("Two sources produce two contributions", two.buses[0].contributions.length === 2);
+
+  // Yy transformer blocks zero sequence at the LV bus
+  const yy = analyseShortCircuit(base({ branches: [{ ...(base().branches[0] as any), group: "Yy" }] }));
+  assertNull("Yy transformer: no earth-fault current at LV", yy.buses[1].ikLG);
+
+  // Open tie isolates a bus; closing it joins it
+  const tieNet = (closed: boolean) => base({
+    buses: [
+      { id: "h", name: "HV A", unKv: 11, ratingKa: 0 },
+      { id: "h2", name: "HV B", unKv: 11, ratingKa: 0 },
+    ],
+    branches: [{ id: "k", kind: "tie", name: "Tie", fromBus: "h", toBus: "h2", closed }],
+  });
+  assertEqual("Open tie leaves the far bus un-energised", analyseShortCircuit(tieNet(false)).buses[1].energised, false);
+  assertClose("Closed tie gives the same level on both buses", analyseShortCircuit(tieNet(true)).buses[1].ik3, 500 / (Math.sqrt(3) * 11), 0.05);
+
+  // Generator: KG correction, hand calc and mu factor
+  const gen = analyseShortCircuit({
+    settings: DEFAULT_SC_SETTINGS,
+    buses: [{ id: "b", name: "Gen bus", unKv: 11, ratingKa: 0 }],
+    grids: [],
+    gens: [{ id: "x", name: "G", busId: "b", srMva: 10, urKv: 11, xdPct: 14, cosPhi: 0.85, rToX: 0, x0Pct: 7, neutralOhm: 0 }],
+    motors: [],
+    branches: [],
+  }).buses[0];
+  const sinPhi = Math.sqrt(1 - 0.85 * 0.85);
+  const kg = 1.1 / (1 + 0.14 * sinPhi);
+  const ikG = (1.1 * 11) / (Math.sqrt(3) * kg * 0.14 * (11 * 11) / 10);
+  assertClose("Generator-only bus Ik'' with KG (hand calc)", gen.ik3, ikG, 0.05);
+  const irG = 10 / (Math.sqrt(3) * 11);
+  assertClose("Near-generator Ib = μ·Ik'' (tmin 0.1 s)", gen.ib, ikG * (0.62 + 0.72 * Math.exp(-0.32 * (ikG / irG))), 0.1);
+
+  // Motor adds to the maximum fault current
+  const withMotor = analyseShortCircuit(base({ motors: [{ id: "m", name: "M", busId: "l", prKw: 160, urKv: 0.4, cosPhi: 0.88, eff: 0.95, ilrRatio: 7, rToX: 0.42 }] }));
+  assertTrue("Motor contribution raises LV Ik''", withMotor.buses[1].ik3 > lv.ik3);
+  assertClose("Minimum case ignores motors", withMotor.buses[1].ik3Min, lv.ik3Min, 0.01);
+
+  // Rating check
+  const rated = analyseShortCircuit(base({ buses: [
+    { id: "h", name: "HV", unKv: 11, ratingKa: 25 },
+    { id: "l", name: "LV", unKv: 0.4, ratingKa: 50 },
+  ] }));
+  assertEqual("26.2 kA > 25 kA rating flags inadequate", rated.buses[0].ratingOk, false);
+  assertEqual("LV rating 50 kA is adequate", rated.buses[1].ratingOk, true);
+
+  // Factors
+  assertClose("κ at R/X = 0.1", peakFactor(0.1), 1.02 + 0.98 * Math.exp(-0.3), 0.01);
+  assertEqual("μ = 1 when Ik''G/IrG ≤ 2", muFactor(1.5, 0.1), 1);
+  assertClose("μ at x=6, tmin 0.1", muFactor(6, 0.1), 0.62 + 0.72 * Math.exp(-0.32 * 6), 0.01);
+  const kap = 1.8;
+  const q = 2 * 50 * 1 * Math.log(kap - 1);
+  assertClose("m factor formula", thermalM(kap, 50, 1), (Math.exp(2 * q) - 1) / q, 0.01);
+  assertEqual("cmax LV 6 %", voltageFactor(0.4, 6).cMax, 1.05);
+  assertEqual("cmax MV", voltageFactor(11, 6).cMax, 1.1);
+  assertEqual("RG/Xd'' LV gen", typicalGenRToX(0.4, 1), 0.15);
+  assertEqual("RM/XM LV motor", typicalMotorRToX(0.4, 100), 0.42);
+
+  // Default sample network: sane, energised and does not throw
+  assertNoThrow("Default network analyses without error", () => analyseShortCircuit(DEFAULT_SC_NETWORK));
+  const def = analyseShortCircuit(DEFAULT_SC_NETWORK);
+  assertTrue("Default network: all buses energised", def.buses.every((b) => b.energised));
+  assertTrue("Default network: MCC fault level below LV board", def.buses[2].ik3 < def.buses[1].ik3);
+  assertNoThrow("Empty network does not throw", () => analyseShortCircuit({ ...DEFAULT_SC_NETWORK, buses: [], grids: [], gens: [], motors: [], branches: [] }));
 }
 
 // --------------------------------------------------------------------------

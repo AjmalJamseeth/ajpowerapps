@@ -14,6 +14,7 @@ import {
   Gauge,
   Sun,
   Building2,
+  CircuitBoard,
   ChevronDown,
   GraduationCap,
   BookOpen,
@@ -34,6 +35,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   Gauge,
   Sun,
   Building2,
+  CircuitBoard,
 };
 
 export default function NavBar() {
