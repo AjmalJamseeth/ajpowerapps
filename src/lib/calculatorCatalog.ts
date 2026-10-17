@@ -24,12 +24,14 @@ export interface CalcGroup {
 export const CALCULATOR_GROUPS: CalcGroup[] = [
   {
     id: "short-circuit",
-    title: "Short Circuit Calculation",
+    title: "Short Circuit & Arc Flash",
     description:
-      "IEC 60909 fault currents at every bus of a network with an auto-generated single-line diagram, plus quick fault-level estimates and switchgear short-circuit rating checks.",
+      "IEC 60909 fault currents at every bus of a network with an auto-generated single-line diagram, IEEE 1584-2018 arc-flash studies with labels and PPE, plus quick fault-level estimates and switchgear short-circuit rating checks.",
     icon: "CircuitBoard",
     calculators: [
       { name: "IEC 60909 Short-Circuit Calculator", description: "Build a network of buses, utility sources, generators, motors, transformers, cables and ties; get Ik\u2033, peak, breaking, thermal and earth-fault currents at every bus on an auto-generated single-line diagram, with step-by-step working.", href: "/calculators/iec-60909", status: "live" },
+      { name: "Arc Flash Study (IEEE 1584-2018)", description: "Network arc-flash study: incident energy, boundary and PPE category at every bus on a colour-coded single-line diagram, with boundary and energy graphs, maintenance-mode what-if and printable NFPA 70E style labels.", href: "/calculators/arc-flash-study", status: "live" },
+      { name: "Arc Flash", description: "Quick single-point incident energy, arc-flash boundary and PPE category — IEEE 1584-2002, the full IEEE 1584-2018 model and Ralph Lee.", href: "/calculators/arc-flash", status: "live" },
       { name: "Fault Current Propagation (Base kVA Method)", description: "Available fault current at successive points down a radial network using the classic Base kVA Method.", href: "/calculators/fault-propagation", status: "live" },
       { name: "Parallel Generator Fault Contribution", description: "Per-generator and total fault current contribution at a common bus, subtransient-reactance method.", href: "/calculators/generator-fault-contribution", status: "live" },
       { name: "Switchgear Short-Circuit Rating", description: "Prospective and peak fault current from transformer kVA/%Z, with OCPD AIC and equipment SCCR adequacy check per NEC 110.9/110.10.", href: "/calculators/switchgear-short-circuit-rating", status: "live" },
@@ -39,13 +41,12 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     id: "protection",
     title: "Protection & Relaying",
     description:
-      "IDMT relay coordination and grading, differential and earth-fault protection, arc flash, breaker/fuse sizing, and generator paralleling.",
+      "IDMT relay coordination and grading, differential and earth-fault protection, breaker/fuse sizing, and generator paralleling.",
     icon: "ShieldCheck",
     calculators: [
       { name: "IDMT Relay Coordination", description: "IEC 60255 & IEEE C37.112 inverse-time curves. Add any number of relays to a chain and check full-range grading margin at every step.", href: "/calculators/idmt", status: "live" },
       { name: "IDMT Earth Fault Relay (50N/51N)", description: "Earth-fault IDMT trip time and optional instantaneous stage, reusing the verified IEC 60255-151 / IEEE C37.112 curve engine.", href: "/calculators/idmt-earth-fault", status: "live" },
       { name: "Transformer Differential Protection (87T)", description: "Percentage-bias dual-slope restraint characteristic trip/no-trip check, IEEE C37.91-consistent.", href: "/calculators/transformer-differential", status: "live" },
-      { name: "Arc Flash", description: "Incident energy, arc flash boundary and PPE category — IEEE 1584-2002 and Ralph Lee free, IEEE 1584-2018 as an advanced feature.", href: "/calculators/arc-flash", status: "live" },
       { name: "Circuit Breaker & Fuse Sizer", description: "General continuous/non-continuous load OCPD sizing (NEC 210.19/215.2 + 240.4, or IEC 60364-4-43) and motor starting-current withstand sizing (NEC 430.52).", href: "/calculators/breaker-fuse-sizer", status: "live" },
       { name: "Generator Sync Check", description: "Voltage, frequency and phase-angle synchronization check (ANSI device 25 style) before closing a generator paralleling breaker.", href: "/calculators/generator-sync", status: "live" },
       { name: "AFCI / GFCI Protection Requirements", description: "Location-based lookup of NEC 210.12(A) AFCI and 210.8(A) GFCI dwelling-unit protection requirements, with citations.", href: "/calculators/afci-gfci-requirements", status: "live" },

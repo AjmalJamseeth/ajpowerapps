@@ -83,7 +83,7 @@ export default function Home() {
             {[
               { label: "Calculators", value: String(TOTAL_LIVE_COUNT) },
               { label: "Categories", value: String(CALCULATOR_GROUPS.length) },
-              { label: "Automated checks", value: "566" },
+              { label: "Automated checks", value: "610" },
               { label: "Account needed", value: "No" },
             ].map((s) => (
               <div key={s.label} className="rounded-lg border border-border bg-surface/60 p-3">

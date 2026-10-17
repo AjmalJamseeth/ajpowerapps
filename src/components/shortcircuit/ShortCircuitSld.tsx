@@ -147,7 +147,25 @@ function branchSpec(b: BranchIn): string {
   return b.closed ? "closed" : "OPEN";
 }
 
-export default function ShortCircuitSld({ net, result }: { net: ScNetwork; result: ScResult }) {
+/** Optional per-bus overlay (e.g. arc-flash colours): replaces the default readout and bus colour. */
+export interface SldOverlay {
+  color: string; // hex colour for the bus bar and the level bar
+  lines: string[]; // up to 3 readout lines under the bus name
+  frac: number; // 0..1 length of the level bar
+  selected?: boolean;
+}
+
+export default function ShortCircuitSld({
+  net,
+  result,
+  overlay,
+  onSelectBus,
+}: {
+  net: ScNetwork;
+  result: ScResult;
+  overlay?: Record<string, SldOverlay>;
+  onSelectBus?: (busId: string) => void;
+}) {
   if (net.buses.length === 0) {
     return <div className="rounded-lg border border-border bg-surface-2 p-4 text-sm text-muted">Add a bus to start building the diagram.</div>;
   }
@@ -208,6 +226,7 @@ export default function ShortCircuitSld({ net, result }: { net: ScNetwork; resul
 
         {all.map((n) => {
           const r = n.res;
+          const ov = overlay?.[n.bus.id];
           const bad = r?.ratingOk === false;
           const frac = r && r.energised ? Math.min(1, r.ik3 / maxIk) : 0;
           const spread = (count: number) =>
@@ -248,21 +267,40 @@ export default function ShortCircuitSld({ net, result }: { net: ScNetwork; resul
               ))}
 
               {/* Bus bar */}
+              {ov?.selected && (
+                <rect x={n.barL - 6} y={n.y - 10} width={n.barR - n.barL + 12} height={20} rx={8} className="fill-none stroke-accent-2" strokeWidth={1.5} strokeDasharray="4 3" />
+              )}
               <rect
                 x={n.barL}
                 y={n.y - 4}
                 width={n.barR - n.barL}
                 height={8}
                 rx={4}
-                className={bad ? "fill-fail" : "fill-foreground"}
+                className={ov ? undefined : bad ? "fill-fail" : "fill-foreground"}
+                style={ov ? { fill: ov.color } : undefined}
                 opacity={r?.energised === false ? 0.35 : 0.95}
+                onClick={onSelectBus ? () => onSelectBus(n.bus.id) : undefined}
+                cursor={onSelectBus ? "pointer" : undefined}
               />
+              {onSelectBus && (
+                <rect x={n.barL} y={n.y - 14} width={n.barR - n.barL} height={28} fill="transparent" onClick={() => onSelectBus(n.bus.id)} cursor="pointer" />
+              )}
 
               {/* Readout */}
               <text x={n.barR + 12} y={n.y - 16} fontSize={13} fontWeight={600} className="fill-foreground">
                 {trunc(n.bus.name, 22)} · {f(n.bus.unKv, n.bus.unKv < 1 ? 2 : 1)} kV
               </text>
-              {r && r.energised ? (
+              {ov ? (
+                <g>
+                  {ov.lines.slice(0, 3).map((ln, li) => (
+                    <text key={li} x={n.barR + 12} y={n.y + li * 14} fontSize={li === 0 ? 12 : 11} fontWeight={li === 0 ? 600 : 400} className={li === 0 ? undefined : "fill-muted"} style={li === 0 ? { fill: ov.color } : undefined}>
+                      {ln}
+                    </text>
+                  ))}
+                  <rect x={n.barR + 12} y={n.y + 33} width={TEXT_W - 30} height={5} rx={2.5} className="fill-surface-2" />
+                  <rect x={n.barR + 12} y={n.y + 33} width={Math.max(3, (TEXT_W - 30) * ov.frac)} height={5} rx={2.5} style={{ fill: ov.color }} />
+                </g>
+              ) : r && r.energised ? (
                 <g>
                   <text x={n.barR + 12} y={n.y} fontSize={12} className={bad ? "fill-fail" : "fill-accent-2"} fontWeight={600}>
                     Ik″ = {f(r.ik3, 2)} kA

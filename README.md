@@ -1369,3 +1369,11 @@ checked against known values before shipping, not just ported and trusted:
   scope.
 - Deploying the site publicly (e.g. via Vercel) once you're ready for
   others to use it — running locally is just for development/preview.
+
+## IEC 60909 short circuit & IEEE 1584-2018 arc flash
+
+- `src/lib/iec60909.ts` — IEC 60909-0 solver (nodal impedance matrix on a 100 MVA base): buses, grid feeders, generators (KG), induction motors, transformers (KT, vector-group zero sequence), cables, closeable ties. Outputs Ik″, ip, Ib, Ith, line-to-line / line-to-earth / line-line-earth, minimum case and a nominal-voltage (c = 1) basis.
+- `src/lib/arcflash2018.ts` — IEEE 1584-2018 model, 208 V–15 kV. Coefficient tables were generated from the standard (Tables 1–5, 7). Verified against **both** Annex D worked examples (4.16 kV and 480 V) — see the "IEEE 1584-2018 Arc Flash (Annex D)" section of `scripts/regression-test.ts`. Note: for Voc ≤ 600 V the k3 term uses Iarc_600 and the k13 term the final Iarc (Eq. 6/10); for 600 V < Voc ≤ 2.7 kV the final values use the blended Eq. 18/21/24; the reduced-arcing-current VarCf is evaluated at the system Voc.
+- `src/lib/arcflashstudy.ts` — network study: protective-device clearing time (fixed or IDMT), maximum and minimum fault current, maintenance-mode what-if, required clearing time for Category 2.
+- Pages: `/calculators/iec-60909`, `/calculators/arc-flash-study` (shared `NetworkEditor`, `ShortCircuitSld`, `ProjectManager` scenario save/load/export).
+- NFPA 70E PPE categories and shock approach boundaries are reference values — confirm against the edition in force.

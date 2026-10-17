@@ -1,22 +1,18 @@
 "use client";
 
-import { FREE_LAUNCH } from "@/lib/launchConfig";
 import { useMemo, useState } from "react";
 import NavBar from "@/components/NavBar";
 import { NumberField, SelectField, Section } from "@/components/fields";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
 import { FeedbackButton } from "@/components/FeedbackButton";
-import PremiumSection from "@/components/PremiumSection";
 import ArcFlashResults from "@/components/arcflash/ArcFlashResults";
 import {
   ArcFlashMethod,
   Enclosure,
   Grounding,
   EquipClassKey,
-  ElectrodeConfig,
   AF_EQUIP_CLASSES,
-  ELECTRODE_CONFIGS,
   calcArcingCurrent,
   calcNormalizedEnergy,
   calcIncidentEnergy2002,
@@ -25,11 +21,12 @@ import {
   calcLeeIncidentEnergy,
   calcLeeBoundary,
 } from "@/lib/arcflash";
+import { calcAf2018, ELECTRODE_CONFIG_INFO, type ElectrodeConfig } from "@/lib/arcflash2018";
 
 const METHOD_OPTIONS: { value: ArcFlashMethod; label: string }[] = [
   { value: "ieee2002", label: "IEEE 1584-2002 (Empirical)" },
   { value: "lee", label: "Ralph Lee (Theoretical)" },
-  { value: "ieee2018", label: "IEEE 1584-2018 (Empirical) — advanced" },
+  { value: "ieee2018", label: "IEEE 1584-2018 (Empirical, full model)" },
 ];
 
 export default function ArcFlashPage() {
@@ -47,10 +44,11 @@ export default function ArcFlashPage() {
   const [exponent, setExponent] = useState<number | null>(AF_EQUIP_CLASSES.lv_mcc.x);
 
   const [config2018, setConfig2018] = useState<ElectrodeConfig>("VCB");
-  const [gap2018, setGap2018] = useState<number | null>(104);
-  const [width2018, setWidth2018] = useState<number | null>(762);
-  const [height2018, setHeight2018] = useState<number | null>(1143);
-  const [depth2018, setDepth2018] = useState<number | null>(500);
+  const [gap2018, setGap2018] = useState<number | null>(25);
+  const [width2018, setWidth2018] = useState<number | null>(304.8);
+  const [height2018, setHeight2018] = useState<number | null>(355.6);
+  const [depth2018, setDepth2018] = useState<number | null>(203.2);
+  const [timeMin2018, setTimeMin2018] = useState<number | null>(0.2);
 
   const onEquipClassChange = (cls: EquipClassKey) => {
     setEquipClass(cls);
@@ -72,8 +70,18 @@ export default function ArcFlashPage() {
     }
 
     if (method === "ieee2018") {
-      // Advanced-only — no live calculation on the free site yet.
-      return { ready: false, arcingCurrent: null, incidentEnergy: null, boundaryMm: null, ppe: null, rangeWarning: null };
+      if (!gap2018 || !width2018 || !height2018 || !depth2018) {
+        return { ready: false, arcingCurrent: null, incidentEnergy: null, boundaryMm: null, ppe: null, rangeWarning: null };
+      }
+      const r = calcAf2018({
+        ibfKa: ibf, vocKv: voltage, gapMm: gap2018, workingDistMm: distance, config: config2018,
+        widthMm: width2018, heightMm: height2018, depthMm: depth2018,
+        durationMs: time * 1000, durationMinMs: (timeMin2018 ?? time) * 1000,
+      });
+      return {
+        ready: true, arcingCurrent: r.governing.iarcKa, incidentEnergy: r.eCal, boundaryMm: r.afbMm,
+        ppe: ppeCategory(r.eCal), rangeWarning: r.warnings[0] ?? null,
+      };
     }
 
     // IEEE 1584-2002
@@ -89,7 +97,7 @@ export default function ArcFlashPage() {
     const E = calcIncidentEnergy2002(En, voltage, time, distance, exponent);
     const AFB = calcArcFlashBoundary2002(En, voltage, time, exponent);
     return { ready: true, arcingCurrent: Ia, incidentEnergy: E, boundaryMm: AFB, ppe: ppeCategory(E), rangeWarning };
-  }, [method, ibf, voltage, distance, time, gap, exponent, enclosure, grounding]);
+  }, [method, ibf, voltage, distance, time, gap, exponent, enclosure, grounding, config2018, gap2018, width2018, height2018, depth2018, timeMin2018]);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -100,8 +108,10 @@ export default function ArcFlashPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
           Incident energy, arc flash boundary and PPE category. IEEE 1584-2002
-          and the Ralph Lee theoretical method are free; IEEE 1584-2018 is a
-          advanced feature.
+          , the full IEEE 1584-2018 model (208 V – 15 kV, verified against the
+          standard&apos;s Annex D examples) and the Ralph Lee theoretical method.
+          For a whole network with a diagram, labels and PPE for every bus, use
+          the Arc Flash Study.
         </p>
 
 <div className="mt-6 flex flex-wrap gap-3">
@@ -112,7 +122,7 @@ export default function ArcFlashPage() {
         <div className="mt-6">
           <InfoPanel
           purpose={"Calculates the incident energy, arc flash boundary and required PPE category for a point in an electrical system — the core hazard analysis behind arc-flash warning labels and safe-work-distance/PPE decisions for live or potentially-live electrical work."}
-          standards={["IEEE 1584-2002 (empirical arc-flash hazard model)", "IEEE 1584-2018 (current edition, advanced feature)", "Ralph Lee theoretical model (Lee, 1982)"]}
+          standards={["IEEE 1584-2002 (empirical arc-flash hazard model)", "IEEE 1584-2018 (current edition — full model)", "Ralph Lee theoretical model (Lee, 1982)"]}
           capabilities={["IEEE 1584-2002 empirical model — arcing current, incident energy, arc flash boundary and PPE category from equipment class, enclosure, gap and grounding.", "Ralph Lee theoretical model — no equipment class or gap needed, works at any voltage, generally more conservative and used as the fallback above 15kV.", "Out-of-range warnings when inputs fall outside the IEEE 1584-2002 validated range (0.7-106kA, 0.208-15kV).", "Advanced: IEEE 1584-2018, the current edition, with electrode configuration and enclosure size correction."]}
           example={{ problem: "A 415V LV MCC with a 25kA bolted fault current, 455mm working distance and a 0.2s clearing time. Estimate the incident energy using IEEE 1584-2002.", steps: ["Look up typical gap (G) and distance exponent (x) for the LV MCC equipment class.", "Compute arcing current Ia from bolted fault current, voltage, gap and enclosure type.", "Compute normalized incident energy En from Ia, gap, enclosure and grounding.", "Scale En by voltage, time and working distance to get incident energy E, and compute the arc flash boundary from the same normalized energy."], result: "The resulting incident energy determines the PPE category (from a standard cal/cm² table) and the arc flash boundary defines the distance at which incident energy drops to the 1.2 cal/cm² onset-of-second-degree-burn threshold." }}
           notes="A bug in the source app was found and fixed here: IEEE 1584-2002 defines separate arcing-current equations for ≤1kV and 1-15kV systems, but the source app applied the ≤1kV equation at every voltage, producing nonphysical results (arcing current exceeding the bolted fault current) above 1kV. This calculator implements both equations correctly."
@@ -136,7 +146,7 @@ export default function ArcFlashPage() {
                 {method === "lee" &&
                   "Theoretical model — no equipment class, enclosure or gap needed, just voltage, fault current, time and distance. Use above 15 kV or wherever the empirical model doesn't apply. Generally more conservative."}
                 {method === "ieee2018" &&
-                  "Advanced feature — see the locked section below. Switch to 2002 or Ralph Lee above for a computed result today."}
+                  "Current edition. Uses the electrode configuration, enclosure size and gap, covers 208 V – 15 kV, and checks the reduced arcing current as the standard requires. The higher of the two incident energies is shown."}
               </div>
             </Section>
 
@@ -184,31 +194,28 @@ export default function ArcFlashPage() {
               </Section>
             )}
 
-            <PremiumSection
-              title="IEEE 1584-2018 (600 V < Voc ≤ 15 kV)"
-              description="Configuration-specific empirical model with enclosure size correction and arcing-current variation check — the current edition of the standard."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2">
-                <SelectField<ElectrodeConfig>
-                  label="Electrode configuration"
-                  value={config2018}
-                  onChange={setConfig2018}
-                  options={ELECTRODE_CONFIGS}
-                  disabled
-                />
-              </div>
-              <NumberField label="Conductor gap G" unit="mm" value={gap2018} onChange={setGap2018} disabled />
-              <NumberField label="Enclosure width" hint="ignored for VOA/HOA" unit="mm" value={width2018} onChange={setWidth2018} disabled />
-              <NumberField label="Enclosure height" unit="mm" value={height2018} onChange={setHeight2018} disabled />
-              <NumberField label="Enclosure depth" hint="shallow LV enclosures only" unit="mm" value={depth2018} onChange={setDepth2018} disabled />
-              <div className="col-span-2 rounded-lg border border-border bg-surface-2 p-3 text-xs text-muted">
-                Note: even once unlocked, this implementation covers 600 V &lt; Voc ≤ 15 kV only — for
-                systems at or below 600 V, 2002 or Ralph Lee remain the methods to use. The enclosure
-                size correction factor is partially verified against IEEE&apos;s own Annex D example — treat
-                CF-dependent results as indicative pending full resolution.
-              </div>
-            </PremiumSection>
+            {method === "ieee2018" && (
+              <Section title="Equipment & enclosure (IEEE 1584-2018)">
+                <div className="col-span-2">
+                  <SelectField<ElectrodeConfig>
+                    label="Electrode configuration"
+                    tip="How the conductors are arranged: VCB (vertical in a box) is the usual conservative choice for switchgear and MCCs; VCBB vertical with an insulating barrier; HCB horizontal in a box; VOA/HOA open air."
+                    value={config2018}
+                    onChange={setConfig2018}
+                    options={ELECTRODE_CONFIG_INFO.map((c) => ({ value: c.value, label: c.label }))}
+                  />
+                </div>
+                <NumberField label="Conductor gap G" unit="mm" tip="Gap between conductors. Typical: 25 mm LV MCC/panelboard, 32 mm LV switchgear, 104 mm 5 kV, 152 mm 15 kV (Table 8)." value={gap2018} onChange={setGap2018} />
+                <NumberField label="Arc duration at reduced arcing current" unit="s" tip="The standard asks for a second calculation with a reduced arcing current, because a lower current can make the protection slower. Enter the clearing time at that lower current (use the same value if it does not change)." value={timeMin2018} onChange={setTimeMin2018} />
+                <NumberField label="Enclosure height" hint="ignored for VOA/HOA" unit="mm" tip="Enclosure height; sizes above 1244.6 mm are treated as 1244.6 mm." value={height2018} onChange={setHeight2018} />
+                <NumberField label="Enclosure width" hint="ignored for VOA/HOA" unit="mm" tip="Enclosure width; should be more than four times the gap." value={width2018} onChange={setWidth2018} />
+                <NumberField label="Enclosure depth" hint="shallow LV enclosures only" unit="mm" tip="Depth only matters below 600 V when height and width are under 508 mm: depth of 203.2 mm or less makes the enclosure ‘shallow’." value={depth2018} onChange={setDepth2018} />
+                <div className="col-span-2 rounded-lg border border-border bg-surface-2 p-3 text-xs text-muted">
+                  The IEEE 1584-2018 result is the higher of the average-arcing-current and reduced-arcing-current cases. For
+                  every bus of a network with protection data, labels and graphs, use the Arc Flash Study calculator.
+                </div>
+              </Section>
+            )}
           </div>
 
           <div className="lg:col-span-2">

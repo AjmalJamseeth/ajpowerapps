@@ -52,11 +52,40 @@ const NOT_ENERGISED = 1e4; // |Zkk| above this (pu) means no source / no earth p
 
 export type VectorGroup = "Dyn" | "YNd" | "YNyn" | "Yy";
 
+/** Protective device that clears an arcing fault at a bus (used by the arc-flash study). */
+export interface ProtectionIn {
+  mode: "fixed" | "idmt";
+  fixedMs: number; // total clearing time when mode = "fixed"
+  deviceKv: number; // voltage level where the device sits (0 = same as the bus)
+  curveFamily: "IEC" | "IEEE";
+  curveType: string; // SI | VI | EI | LTI (IEC) or MI | VI | EI (IEEE)
+  pickupA: number; // relay pickup, primary amps at the device voltage
+  tms: number; // time multiplier / time dial
+  instPickupA: number; // instantaneous pickup (0 = off), primary amps at the device voltage
+  instMs: number; // instantaneous relay operating time
+  breakerMs: number; // breaker opening time added to the relay time
+}
+
+/** Arc-flash data for one bus (IEEE 1584-2018 inputs). */
+export interface BusArcFlashIn {
+  equipClass: string; // EquipClassId from arcflash2018
+  config: "VCB" | "VCBB" | "HCB" | "VOA" | "HOA";
+  gapMm: number;
+  workingMm: number;
+  heightMm: number;
+  widthMm: number;
+  depthMm: number;
+  protection: ProtectionIn;
+  maintenanceOn: boolean; // energy-reducing maintenance switch / arc-flash relay mode
+  maintenanceMs: number; // total clearing time with the mitigation active
+}
+
 export interface BusIn {
   id: string;
   name: string;
   unKv: number;
   ratingKa: number; // switchgear short-circuit rating; 0 = do not check
+  af?: BusArcFlashIn; // arc-flash inputs (optional; defaulted from the voltage when missing)
 }
 export interface GridIn {
   id: string;
@@ -126,6 +155,8 @@ export interface ScSettings {
   frequencyHz: 50 | 60;
   tminS: number; // minimum time delay before breaking
   tkS: number; // short-circuit duration for Ith
+  afNominalC?: boolean; // arc-flash study: use c = 1 (nominal voltage) fault current (default true)
+  afMaxArcMs?: number; // arc-flash study: longest arc duration considered (default 2000 ms)
 }
 
 export interface ScNetwork {
@@ -341,6 +372,8 @@ export interface BusResult {
   ik3Min: number;
   ik2Min: number;
   ikLGMin: number | null;
+  ik3Nom: number; // c = 1, motors on — nominal-voltage basis used for arc flash
+  ik3NomMin: number; // c = 1, motors off, cables at 80 °C
   contributions: Contribution[];
   ratingKa: number;
   ratingOk: boolean | null;
@@ -429,13 +462,18 @@ interface Built {
   warnings: string[];
 }
 
-function build(net: ScNetwork, mode: "max" | "min"): Built {
+type BuildMode = "max" | "min" | "nomMax" | "nomMin";
+
+/** nom* modes use c = 1 everywhere (nominal voltage) — the basis conventionally used for arc-flash studies. */
+function build(net: ScNetwork, mode: BuildMode): Built {
+  const nominal = mode === "nomMax" || mode === "nomMin";
+  const isMin = mode === "min" || mode === "nomMin";
   const { buses, settings } = net;
   const n = buses.length;
   const idx = new Map(buses.map((b, i) => [b.id, i]));
   const tol = settings.lvTolerancePct;
-  const cMaxOf = (kv: number) => voltageFactor(kv, tol).cMax;
-  const cCaseOf = (kv: number) => (mode === "max" ? voltageFactor(kv, tol).cMax : voltageFactor(kv, tol).cMin);
+  const cMaxOf = (kv: number) => (nominal ? 1 : voltageFactor(kv, tol).cMax);
+  const cCaseOf = (kv: number) => (nominal ? 1 : isMin ? voltageFactor(kv, tol).cMin : voltageFactor(kv, tol).cMax);
   const S = S_BASE_MVA;
   const lines: string[] = [];
   const warnings: string[] = [];
@@ -501,7 +539,7 @@ function build(net: ScNetwork, mode: "max" | "min"): Built {
   }
 
   // Motors (maximum case only; IEC 60909 neglects motors for minimum currents)
-  if (mode === "max") {
+  if (!isMin) {
     for (const m of net.motors) {
       const i = idx.get(m.busId);
       if (i === undefined || m.prKw <= 0 || m.urKv <= 0 || m.ilrRatio <= 0) continue;
@@ -536,7 +574,7 @@ function build(net: ScNetwork, mode: "max" | "min"): Built {
       const unF = buses[i].unKv;
       if (Math.abs(unF - buses[j].unKv) > 1e-6) warnings.push(`${b.name}: cable ends have different nominal voltages — use a transformer to change voltage.`);
       const par = Math.max(1, b.parallel);
-      const rk = mode === "min" ? 1.24 : 1; // 20 °C -> 80 °C for Cu (IEC 60909 minimum case)
+      const rk = isMin ? 1.24 : 1; // 20 °C -> 80 °C for Cu (IEC 60909 minimum case)
       const base = (un: number) => (S / (un * un)) * (b.lengthKm / par);
       const z1 = cx(b.rOhmKm * rk * base(unF), b.xOhmKm * base(unF));
       const z0c = cx(b.r0OhmKm * rk * base(unF), b.x0OhmKm * base(unF));
@@ -596,6 +634,8 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
   if (buses.length === 0) return { buses: [], elementLines: [], warnings: [] };
   const mx = build(net, "max");
   const mn = build(net, "min");
+  const nx = build(net, "nomMax");
+  const nn = build(net, "nomMin");
   const S = S_BASE_MVA;
   const out: BusResult[] = [];
   const sqrt3 = Math.sqrt(3);
@@ -612,7 +652,7 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
     const empty: BusResult = {
       busId: bus.id, name: bus.name, unKv: bus.unKv, energised: false, cMax, cMin, z1Pu: null, z1Ohm: null,
       rToX: 0, kappa: 0, ip: 0, ib: 0, ith: 0, m: 0, ik3: 0, ik2: 0, ikLG: null, ikLLG: null, ieLLG: null,
-      ik3Min: 0, ik2Min: 0, ikLGMin: null, contributions: [], ratingKa: bus.ratingKa, ratingOk: null, maxIk: 0,
+      ik3Min: 0, ik2Min: 0, ikLGMin: null, ik3Nom: 0, ik3NomMin: 0, contributions: [], ratingKa: bus.ratingKa, ratingOk: null, maxIk: 0,
       steps: [`${bus.name}: no source is connected to this bus (check open ties and branch connections), so there is no fault current.`],
     };
     if (!energised) {
@@ -677,6 +717,8 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
     const ik2Min = ((cMin * sqrt3) / (2 * abs(z1n))) * iBase;
     const ikLGMin = abs(z0n) < NOT_ENERGISED ? ((3 * cMin) / abs(add(scale(z1n, 2), z0n))) * iBase : null;
 
+    const ik3Nom = (1 / abs(nx.Z1[k][k])) * iBase;
+    const ik3NomMin = (1 / abs(nn.Z1[k][k])) * iBase;
     const maxIk = Math.max(ik3, ikLG ?? 0);
     const ratingOk = bus.ratingKa > 0 ? bus.ratingKa >= maxIk : null;
 
@@ -721,7 +763,7 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
 
     out.push({
       busId: bus.id, name: bus.name, unKv: bus.unKv, energised: true, cMax, cMin, z1Pu: z1, z1Ohm: zOhm, rToX: rx, kappa,
-      ik3, ip, ib, ith, m, ik2, ikLG, ikLLG, ieLLG, ik3Min, ik2Min, ikLGMin, contributions,
+      ik3, ip, ib, ith, m, ik2, ikLG, ikLLG, ieLLG, ik3Min, ik2Min, ikLGMin, ik3Nom, ik3NomMin, contributions,
       ratingKa: bus.ratingKa, ratingOk, maxIk, steps,
     });
   });

@@ -335,7 +335,7 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
 
   {
     slug: "arc-flash-incident-energy-lv-mcc",
-    groupId: "protection",
+    groupId: "short-circuit",
     calculatorHref: "/calculators/arc-flash",
     calculatorName: "Arc Flash",
     title: "Worked Example: Arc Flash Incident Energy and PPE Category for a 415 V MCC",

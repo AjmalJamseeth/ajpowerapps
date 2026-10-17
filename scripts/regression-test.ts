@@ -9,8 +9,10 @@
 // throw, must return null or a sane empty result), and — where the module
 // has a pass/fail concept — one passing and one failing boundary case.
 
+import { calcAf2018, enclosureCorrection, ppeForEnergy, shockBoundaries, interpolateVoltage, iarcLowVoltage } from "../src/lib/arcflash2018";
+import { analyseArcFlash, clearingTimeFn, defaultProtection } from "../src/lib/arcflashstudy";
 import { analyseShortCircuit, muFactor, peakFactor, thermalM, voltageFactor, typicalGenRToX, typicalMotorRToX, DEFAULT_SC_NETWORK, DEFAULT_SC_SETTINGS, type ScNetwork } from "../src/lib/iec60909";
-import { calcArcingCurrent, calcNormalizedEnergy, calcIncidentEnergy2002, calcArcFlashBoundary2002, calcLeeIncidentEnergy, calcLeeBoundary, calc2018_Full, AF_EQUIP_CLASSES } from "../src/lib/arcflash";
+import { calcArcingCurrent, calcNormalizedEnergy, calcIncidentEnergy2002, calcArcFlashBoundary2002, calcLeeIncidentEnergy, calcLeeBoundary, AF_EQUIP_CLASSES } from "../src/lib/arcflash";
 import { DEFAULT_BATTERY_INPUT, calcBattery } from "../src/lib/battery";
 import { DEFAULT_BUSBAR_INPUT, calcBusbar } from "../src/lib/busbar";
 import { DEFAULT_CABLE_INPUT, sizeCable } from "../src/lib/cable";
@@ -229,11 +231,7 @@ section("Arc Flash");
   // Ralph Lee — no upper voltage bound, should never throw at MV/HV.
   assertNoThrow("Ralph Lee handles 15kV without throwing", () => calcLeeIncidentEnergy(15, 25, 0.2, 455));
 
-  // IEEE 1584-2018 Annex D worked example: 4.16kV, VCB, 15kA, G=104mm,
-  // 762x1143x500mm box — README documents arcing current matched to
-  // 12.979kA at 3 decimal places against the published Annex D figure.
-  const r2018 = calc2018_Full(15, 104, 200, 914, 4.16, "VCB", 762, 1143, 500);
-  assertClose("IEEE 1584-2018 Annex D arcing current ≈12.979kA", r2018.normal.Iarc, 12.979, 1.0);
+  // IEEE 1584-2018 Annex D: see the dedicated "IEEE 1584-2018 Arc Flash (Annex D)" section below.
 }
 
 // ==========================================================================
@@ -1828,6 +1826,10 @@ section("IEC 60909 Short-Circuit");
   assertTrue("Motor contribution raises LV Ik''", withMotor.buses[1].ik3 > lv.ik3);
   assertClose("Minimum case ignores motors", withMotor.buses[1].ik3Min, lv.ik3Min, 0.01);
 
+  // Nominal-voltage (c = 1) basis used by the arc-flash study
+  assertClose("c = 1 fault current at the HV bus of a grid-only network = Sk''/(√3·Un)", hv.ik3Nom, 500 / (Math.sqrt(3) * 11), 0.05);
+  assertTrue("c = 1 minimum case never exceeds the c = 1 maximum case", withMotor.buses.every((b) => b.ik3NomMin <= b.ik3Nom + 1e-9));
+
   // Rating check
   const rated = analyseShortCircuit(base({ buses: [
     { id: "h", name: "HV", unKv: 11, ratingKa: 25 },
@@ -1854,6 +1856,88 @@ section("IEC 60909 Short-Circuit");
   assertTrue("Default network: all buses energised", def.buses.every((b) => b.energised));
   assertTrue("Default network: MCC fault level below LV board", def.buses[2].ik3 < def.buses[1].ik3);
   assertNoThrow("Empty network does not throw", () => analyseShortCircuit({ ...DEFAULT_SC_NETWORK, buses: [], grids: [], gens: [], motors: [], branches: [] }));
+}
+
+
+// ==========================================================================
+// IEEE 1584-2018 arc-flash model — verified against the standard's Annex D
+// ==========================================================================
+section("IEEE 1584-2018 Arc Flash (Annex D)");
+{
+  // D.1: 4.16 kV, VCB, 15 kA, G = 104 mm, D = 914.4 mm, 762 x 1143 mm; T = 197 ms (avg) / 223 ms (reduced)
+  const d1 = calcAf2018({
+    ibfKa: 15, vocKv: 4.16, gapMm: 104, workingDistMm: 914.4, config: "VCB", widthMm: 762, heightMm: 1143, depthMm: 762,
+    durationMs: 197, durationMinMs: 223,
+  });
+  assertClose("D.1 enclosure CF = 1.284", d1.cf.cf, 1.284, 0.1);
+  assertClose("D.1 VarCf = 0.047", d1.varCf, 0.047, 1);
+  assertClose("D.1 arcing current = 12.979 kA", d1.normal.iarcKa, 12.979, 0.05);
+  assertClose("D.1 incident energy = 12.152 J/cm²", d1.normal.eJcm2, 12.152, 0.05);
+  assertClose("D.1 arc-flash boundary = 1606 mm", d1.normal.afbMm, 1606, 0.1);
+  assertClose("D.1 reduced arcing current = 12.675 kA", d1.reduced.iarcKa, 12.675, 0.05);
+  assertClose("D.1 reduced incident energy = 13.343 J/cm²", d1.reduced.eJcm2, 13.343, 0.05);
+  assertClose("D.1 reduced boundary = 1704 mm", d1.reduced.afbMm, 1704, 0.1);
+  assertEqual("D.1 governing case is the reduced current", d1.governing.label, "Reduced arcing current");
+
+  // D.2: 480 V, VCB, 45 kA, G = 32 mm, D = 609.6 mm, 610x610x254 mm; T = 61.3 ms / 319 ms
+  const d2 = calcAf2018({
+    ibfKa: 45, vocKv: 0.48, gapMm: 32, workingDistMm: 609.6, config: "VCB", widthMm: 610, heightMm: 610, depthMm: 254,
+    durationMs: 61.3, durationMinMs: 319,
+  });
+  assertClose("D.2 enclosure CF = 1.085", d2.cf.cf, 1.085, 0.1);
+  assertClose("D.2 Iarc_600 + Eq 25 arcing current = 28.793 kA", d2.normal.iarcKa, 28.793, 0.05);
+  assertClose("D.2 incident energy = 11.585 J/cm²", d2.normal.eJcm2, 11.585, 0.05);
+  assertClose("D.2 boundary = 1029 mm", d2.normal.afbMm, 1029, 0.1);
+  assertClose("D.2 reduced arcing current = 25.244 kA", d2.reduced.iarcKa, 25.244, 0.05);
+  assertClose("D.2 reduced incident energy = 53.156 J/cm²", d2.reduced.eJcm2, 53.156, 0.05);
+  assertClose("D.2 reduced boundary = 2669 mm", d2.reduced.afbMm, 2669, 0.1);
+
+  // Model continuity across 600 V (Eq. 25 and the interpolation meet at 0.6 kV)
+  const at = (v: number) => calcAf2018({ ibfKa: 20, vocKv: v, gapMm: 32, workingDistMm: 610, config: "VCB", widthMm: 508, heightMm: 508, depthMm: 508, durationMs: 100 }).normal;
+  assertClose("Iarc continuous at 600 V", at(0.6001).iarcKa, at(0.6).iarcKa, 0.2);
+  assertClose("Energy continuous at 600 V", at(0.6001).eJcm2, at(0.6).eJcm2, 0.5);
+  // 0.6 < Voc <= 2.7 uses the blended Eq (18)/(21) result, not the extrapolation
+  assertClose("Interpolation at 2.7 kV equals the 2700 V value", interpolateVoltage(10, 20, 30, 2.7), 20, 0.001);
+  assertClose("Interpolation at 0.6 kV equals the 600 V value", interpolateVoltage(10, 20, 30, 0.6), 10, 0.001);
+  assertClose("Eq 25 returns Iarc_600 at 600 V", iarcLowVoltage(0.6, 20, 12), 12, 0.001);
+  // Enclosure rules
+  assertClose("Typical 20 in box has CF = 1 at its own size", enclosureCorrection("VCB", 0.6, 508, 508, 508).cf, -0.000302 * 400 + 0.03441 * 20 + 0.4325, 0.1);
+  assertEqual("Open-air configurations use CF = 1", enclosureCorrection("HOA", 4.16, 800, 800, 800).cf, 1);
+  assertEqual("Shallow enclosure detection", enclosureCorrection("VCB", 0.48, 400, 400, 150).shallow, true);
+  assertEqual("Deep enclosure is typical", enclosureCorrection("VCB", 0.48, 400, 400, 250).shallow, false);
+  // Energy scales linearly with arc duration
+  const t1 = at(0.48).eJcm2;
+  const t2 = calcAf2018({ ibfKa: 20, vocKv: 0.48, gapMm: 32, workingDistMm: 610, config: "VCB", widthMm: 508, heightMm: 508, depthMm: 508, durationMs: 200 }).normal.eJcm2;
+  assertClose("Doubling duration doubles energy", t2 / t1, 2, 0.01);
+  // PPE and shock boundaries
+  assertEqual("1 cal/cm² is below the threshold", ppeForEnergy(1).cat, 0);
+  assertEqual("4 cal/cm² is Category 1", ppeForEnergy(4).cat, 1);
+  assertEqual("8 cal/cm² is Category 2", ppeForEnergy(8).cat, 2);
+  assertEqual("25 cal/cm² is Category 3", ppeForEnergy(25).cat, 3);
+  assertEqual("40 cal/cm² is Category 4", ppeForEnergy(40).cat, 4);
+  assertEqual("41 cal/cm² exceeds Category 4", ppeForEnergy(41).cat, 5);
+  assertEqual("Limited approach (fixed) at 11 kV", shockBoundaries(11).limitedFixedM, 1.5);
+
+  // Network study on the default network: every bus gets a result
+  const def = analyseShortCircuit(DEFAULT_SC_NETWORK);
+  const study = analyseArcFlash(DEFAULT_SC_NETWORK, def);
+  assertTrue("Study returns one result per bus", study.length === DEFAULT_SC_NETWORK.buses.length);
+  assertTrue("All default buses use the IEEE 1584-2018 model", study.every((s) => s.model === "ieee2018"));
+  assertTrue("Incident energy is positive at every bus", study.every((s) => s.eCal > 0));
+  // Slower clearing raises the energy; maintenance mode lowers it
+  const slow = JSON.parse(JSON.stringify(DEFAULT_SC_NETWORK));
+  slow.buses[1].af = { ...(study.length ? {} : {}), equipClass: "lvsg", config: "VCB", gapMm: 32, workingMm: 609.6, heightMm: 508, widthMm: 508, depthMm: 508, protection: { ...defaultProtection(), fixedMs: 400 }, maintenanceOn: true, maintenanceMs: 40 };
+  const fast = JSON.parse(JSON.stringify(slow));
+  fast.buses[1].af.protection.fixedMs = 100;
+  const sSlow = analyseArcFlash(slow, def)[1];
+  const sFast = analyseArcFlash(fast, def)[1];
+  assertTrue("Longer clearing time gives higher energy", sSlow.eCal > sFast.eCal);
+  assertTrue("Maintenance mode reduces energy", !!sSlow.mitigated && sSlow.mitigated.eCal < sSlow.eCal);
+  assertTrue("Required clearing time reported when energy exceeds 8 cal/cm²", sSlow.eCal <= 8 || (sSlow.reqMsForCat2 ?? 0) > 0);
+  // IDMT clearing time falls as current rises
+  const idmt = clearingTimeFn({ ...defaultProtection(), mode: "idmt", pickupA: 500, tms: 0.2, breakerMs: 50 }, 0.4, 2000);
+  assertTrue("IDMT clearing time decreases with current", idmt(20) < idmt(2));
+  assertEqual("Below pickup the arc lasts the maximum duration", clearingTimeFn({ ...defaultProtection(), mode: "idmt", pickupA: 5000 }, 0.4, 2000)(1), 2000);
 }
 
 // --------------------------------------------------------------------------

@@ -235,3 +235,25 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .hero-orb, .hero-wave path { animation: none; }
 }
+
+/* Print only the arc-flash labels when "Print labels" is used. */
+@media print {
+  html.printing-labels body * {
+    visibility: hidden !important;
+  }
+  html.printing-labels .af-print-area,
+  html.printing-labels .af-print-area * {
+    visibility: visible !important;
+  }
+  html.printing-labels .af-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+}
