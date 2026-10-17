@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
-import { FeedbackButton } from "@/components/FeedbackButton";
 import { FEATURES } from "@/lib/features";
 import {
   applyHandoff,
@@ -168,30 +167,25 @@ export default function ProtectionSuitePage() {
           import and settings sheets.{FEATURES.studio ? " Use the buttons below to link it with the arc-flash study." : ""}
         </p>
 
-        <div className="mt-4 rounded-xl border border-border bg-surface p-4">
-          <div className="flex flex-wrap items-center gap-3">
-            {FEATURES.studio && (
-              <>
-            <button type="button" className={btn} disabled={!ready || busy} onClick={sendToOptimiser}>
-              Check these relays for arc flash →
-            </button>
-            <span className="text-xs text-muted">
-              Sends the IEC/IEEE IDMT relays and their grading links to the Arc-Flash &amp; Protection Setting Optimiser. Other device types stay here.
-            </span>
-              </>
+        {FEATURES.studio && (
+          <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <button type="button" className={btn} disabled={!ready || busy} onClick={sendToOptimiser}>
+                Check these relays for arc flash →
+              </button>
+              <span className="text-xs text-muted">
+                Sends the IEC/IEEE IDMT relays and their grading links to the Arc-Flash &amp; Protection Setting Optimiser. Other device types stay here.
+              </span>
+            </div>
+            {!ready && <p className="mt-2 text-xs text-muted">Loading the workbench…</p>}
+            {msg && <p className={`mt-3 text-sm ${msg.ok ? "text-pass" : "text-fail"}`}>{msg.text}</p>}
+            {previous && (
+              <button type="button" className={`${btn} mt-3`} disabled={busy} onClick={undo}>
+                Undo the applied settings
+              </button>
             )}
-            <span className="ml-auto flex items-center gap-2">
-              <FeedbackButton calculatorName="Protection Coordination Suite" />
-            </span>
           </div>
-          {!ready && <p className="mt-2 text-xs text-muted">Loading the workbench…</p>}
-          {msg && <p className={`mt-3 text-sm ${msg.ok ? "text-pass" : "text-fail"}`}>{msg.text}</p>}
-          {previous && (
-            <button type="button" className={`${btn} mt-3`} disabled={busy} onClick={undo}>
-              Undo the applied settings
-            </button>
-          )}
-        </div>
+        )}
 
         {FEATURES.studio && pending && (
           <div className="mt-4 rounded-xl border border-accent-2/40 bg-accent-2/10 p-4">
