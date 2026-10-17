@@ -89,7 +89,12 @@ export default function CompareSection({
             </tr>
           </thead>
           <tbody>
-            {altRelays.map((r) => (
+            {altRelays.map((r) => r.engine ? (
+              <tr key={r.id} className="border-b border-border/60 last:border-0">
+                <td className="px-3 py-1.5 text-left font-medium text-foreground">{r.name}</td>
+                <td colSpan={5} className="px-3 py-1.5 text-left text-xs text-muted">Fixed device — same in every set</td>
+              </tr>
+            ) : (
               <tr key={r.id} className="border-b border-border/60 last:border-0">
                 <td className="px-3 py-1.5 text-left font-medium text-foreground">{r.name}</td>
                 <td className="px-2 py-1.5">

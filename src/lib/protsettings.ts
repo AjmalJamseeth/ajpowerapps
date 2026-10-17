@@ -17,7 +17,9 @@
 // best achievable setting is returned together with the blocking constraint
 // and hardware recommendations (ZSI, arc-flash relay, bus differential...).
 
-import { tripTime, IEC_CURVES, IEEE_CURVES, type CurveType, type RelaySettings } from "./idmt";
+import { IEC_CURVES, IEEE_CURVES } from "./idmt";
+import { cableDamagePoints, iecTime, ieeeTime, transformerCategoryFromKVA, transformerWithstandPointsAmps, type Pt } from "./curveEngine";
+import { DEVICE_TYPE_LABEL, deviceTimeS, type DeviceEngine } from "./deviceModels";
 import { analyseShortCircuit, DEFAULT_SC_NETWORK, type BusIn, type ScNetwork, type ScResult } from "./iec60909";
 import { afOf, defaultBusAf, DEFAULT_MAX_ARC_MS, runScenario } from "./arcflashstudy";
 import { leeBoundaryMm, leeEnergyCal, ppeForEnergy, type PpeCategory } from "./arcflash2018";
@@ -42,6 +44,23 @@ export interface RelayDef {
   instMs: number;
   breakerMs: number;
   locked: boolean; // never changed by the solver
+  engine?: DeviceEngine; // fixed non-IDMT device (LSIG, thermal-magnetic, MCB, fuse, motor, DT, ...) evaluated by the shared curve engine
+  damage?: DamageAsset; // asset this relay must protect: its operating time must stay below the asset's withstand curve
+  bandTol?: number; // ± tolerance on the operating time used for the arc-flash clearing time (e.g. 0.2 for an LSIG band)
+}
+
+export type DamageAsset =
+  | { kind: "transformer"; mva: number; zPct: number; kvLine?: number }
+  | { kind: "cable"; material: "copper" | "aluminum"; insulation: "pvc" | "xlpe"; csaMm2: number };
+
+export interface DamageCheck {
+  relayId: string;
+  name: string;
+  asset: string;
+  pass: boolean | null; // null = no overlap with the relay's operating range
+  minMargin: number | null; // smallest withstand-time / total-clearing-time ratio (≥ 1 passes)
+  atA: number | null;
+  note: string;
 }
 
 export interface ProtOptions {
@@ -118,20 +137,32 @@ export function devKv(r: RelayDef, ctx: Ctx): number {
   return ctx.busById.get(r.busId)?.unKv ?? 1;
 }
 
-function asRelay(r: RelayDef, tms = r.tms): RelaySettings {
-  return {
-    label: r.name,
-    curveFamily: r.curveFamily,
-    curveType: r.curveType as CurveType,
-    pickupCurrent: Math.max(1e-6, r.pickupA),
-    ctRatio: 1,
-    timeDial: tms,
-  };
+/** Optimiser curve code → curve-engine key (and back). */
+export const CURVE_KEY: Record<"IEC" | "IEEE", Record<string, string>> = {
+  IEC: { SI: "standard_inverse", VI: "very_inverse", EI: "extremely_inverse", LTI: "long_time_inverse" },
+  IEEE: { MI: "moderately_inverse", VI: "very_inverse", EI: "extremely_inverse" },
+};
+
+/** IDMT operating time from the shared curve engine (Infinity at or just above pickup, like the original relay model). */
+function idmtTimeS(r: RelayDef, amps: number, tms = r.tms): number {
+  const ratio = amps / Math.max(1e-6, r.pickupA);
+  if (!isFinite(ratio) || ratio <= 1.0001) return Infinity;
+  const key = CURVE_KEY[r.curveFamily]?.[r.curveType];
+  if (!key) return Infinity;
+  try {
+    return r.curveFamily === "IEC" ? iecTime(key, tms, ratio) : ieeeTime(key, tms, ratio);
+  } catch {
+    return Infinity;
+  }
 }
 
-/** Relay operating time in seconds (curve + instantaneous), excluding the breaker. Infinity = does not operate. */
+/** Fixed devices (locked, or any non-IDMT device described by an engine) are never changed by the solver. */
+export const isFixed = (r: RelayDef): boolean => r.locked || !!r.engine;
+
+/** Relay / device operating time in seconds (curve + instantaneous), excluding the breaker. Infinity = does not operate. */
 export function relayTimeS(r: RelayDef, amps: number): number {
-  const t = tripTime(asRelay(r), amps);
+  if (r.engine) return deviceTimeS(r.engine, amps);
+  const t = idmtTimeS(r, amps);
   let out = Number.isFinite(t) ? t : Infinity;
   if (r.instPickupA > 0 && amps >= r.instPickupA) out = Math.min(out, r.instMs / 1000);
   return out;
@@ -168,7 +199,7 @@ function clearingFor(bus: BusIn, relays: RelayDef[], ctx: Ctx): ((iarcKa: number
     let t = Infinity;
     for (const r of serve) {
       const amps = (iarcKa * 1000 * bus.unKv) / devKv(r, ctx);
-      t = Math.min(t, relayTimeS(r, amps) * 1000 + r.breakerMs);
+      t = Math.min(t, relayTimeS(r, amps) * (1 + (r.bandTol ?? 0)) * 1000 + r.breakerMs);
     }
     return Number.isFinite(t) ? Math.min(ctx.maxMs, t) : ctx.maxMs;
   };
@@ -337,7 +368,6 @@ function fitTms(u: RelayDef, relays: RelayDef[], ctx: Ctx, margin: number): { tm
   let need = opt.tmsMin;
   let infeasible = false;
   let binding = "";
-  const unit = asRelay(u, 1);
   for (const did of u.downstream) {
     const d = relays.find((x) => x.id === did);
     if (!d) continue;
@@ -357,7 +387,7 @@ function fitTms(u: RelayDef, relays: RelayDef[], ctx: Ctx, margin: number): { tm
         }
         continue;
       }
-      const f = tripTime(unit, au);
+      const f = idmtTimeS(u, au, 1);
       if (!Number.isFinite(f)) continue;
       const n = (tD + margin) / f;
       if (n > need) {
@@ -375,6 +405,50 @@ function fitTms(u: RelayDef, relays: RelayDef[], ctx: Ctx, margin: number): { tm
 // Solver
 // ---------------------------------------------------------------------------
 
+/** Compare each relay's total clearing time (incl. breaker and band) with the withstand curve of the asset it protects. */
+export function damageChecks(relays: RelayDef[], ctx: Ctx): DamageCheck[] {
+  const out: DamageCheck[] = [];
+  for (const r of relays) {
+    const d = r.damage;
+    if (!d) continue;
+    let pts: Pt[] = [];
+    let asset = "";
+    let note = "";
+    try {
+      if (d.kind === "transformer") {
+        const kv = d.kvLine && d.kvLine > 0 ? d.kvLine : devKv(r, ctx);
+        const cat = transformerCategoryFromKVA(d.mva * 1000);
+        const w = transformerWithstandPointsAmps(d.mva, kv, { impedancePct: d.zPct, category: cat });
+        pts = w.points;
+        asset = `${d.mva} MVA transformer, ${d.zPct} %Z, category ${cat}`;
+        note = w.truncatedForMechanicalDuty ? "Thermal part of the withstand curve only (mechanical duty not calculated)." : "";
+      } else {
+        const lo = Math.max(1, r.pickupA * 1.05);
+        const w = cableDamagePoints({ material: d.material, insulation: d.insulation, csaMm2: d.csaMm2, minA: lo, maxA: Math.max(lo * 2, hiAmps(r, relays, ctx)), points: 24 });
+        pts = w.points;
+        asset = `${d.csaMm2} mm² ${d.material} ${d.insulation.toUpperCase()} cable`;
+      }
+    } catch (e) {
+      out.push({ relayId: r.id, name: r.name, asset: "invalid asset data", pass: null, minMargin: null, atA: null, note: (e as Error).message });
+      continue;
+    }
+    let min = Infinity;
+    let at: number | null = null;
+    for (const [I, tw] of pts) {
+      const tr = relayTimeS(r, I) * (1 + (r.bandTol ?? 0)) + r.breakerMs / 1000;
+      if (!Number.isFinite(tr) || tr <= 0) continue;
+      const m = tw / tr;
+      if (m < min) {
+        min = m;
+        at = I;
+      }
+    }
+    const has = Number.isFinite(min);
+    out.push({ relayId: r.id, name: r.name, asset, pass: has ? min >= 1 : null, minMargin: has ? min : null, atA: at, note });
+  }
+  return out;
+}
+
 export interface RelayChange {
   id: string;
   name: string;
@@ -390,6 +464,8 @@ export interface ProtSolution {
   after: BusOutcome[];
   gradingBefore: GradePair[];
   gradingAfter: GradePair[];
+  damageBefore: DamageCheck[];
+  damageAfter: DamageCheck[];
   changes: RelayChange[];
   cautions: string[];
   recommendations: string[];
@@ -444,6 +520,7 @@ export function solveProtection(study: ProtStudy): ProtSolution {
 
   const before = evaluateBuses(study, original, ctx);
   const gradingBefore = gradePairs(original, ctx);
+  const damageBefore = damageChecks(original, ctx);
 
   const stages: Stage[] = [
     { name: "TMS lowered to the grading limit (preferred margin)", margin: "pref", pickup: false, inst: false, curve: false },
@@ -563,7 +640,7 @@ export function solveProtection(study: ProtStudy): ProtSolution {
     if (depth > 6) return;
     for (const did of u.downstream) {
       const d = cur.find((x) => x.id === did);
-      if (!d || d.locked) continue;
+      if (!d || isFixed(d)) continue;
       tighten(d, depth + 1);
       const o = { tms: d.tms, inst: d.instPickupA, ms: d.instMs };
       const bus = ctx.busById.get(d.busId);
@@ -600,7 +677,7 @@ export function solveProtection(study: ProtStudy): ProtSolution {
     const orig = original.find((x) => x.id === u.id)!;
 
     // keep coordination with the (possibly faster) downstream relays
-    if (!u.locked) {
+    if (!isFixed(u)) {
       const fit = fitTms(u, cur, ctx, opt.minMarginS);
       if (!fit.infeasible && u.tms < fit.tms - 1e-9) {
         addNote(u.id, `TMS raised from ${f1(u.tms, 3)} to ${f1(fit.tms, 3)} to keep ${opt.minMarginS.toFixed(2)} s grading over ${fit.binding}.`);
@@ -612,8 +689,8 @@ export function solveProtection(study: ProtStudy): ProtSolution {
     }
     if (!unmet(u, cur)) continue;
     const bus = ctx.busById.get(u.busId)!;
-    if (u.locked) {
-      addBlock(u.busId, `${u.name} is locked and cannot be changed`);
+    if (isFixed(u)) {
+      addBlock(u.busId, u.engine ? `${u.name} is a fixed ${DEVICE_TYPE_LABEL[u.engine.type] ?? "device"} and is not tuned here` : `${u.name} is locked and cannot be changed`);
       continue;
     }
 
@@ -704,6 +781,7 @@ export function solveProtection(study: ProtStudy): ProtSolution {
 
   const after = evaluateBuses(study, cur, ctx);
   const gradingAfter = gradePairs(cur, ctx);
+  const damageAfter = damageChecks(cur, ctx);
 
   // ----- status counts -----
   let alreadyMet = 0, achieved = 0, maintenanceOnly = 0, partial = 0, total = 0;
@@ -739,15 +817,18 @@ export function solveProtection(study: ProtStudy): ProtSolution {
   for (const g of gradingAfter) {
     if (g.pass === false) cautions.push(`Grading ${g.downName} → ${g.upName} is below the minimum margin (${f1(g.minMarginS ?? 0, 2)} s < ${opt.minMarginS.toFixed(2)} s).`);
   }
+  for (const dmg of damageAfter) {
+    if (dmg.pass === false) cautions.push(`${dmg.name}: operates too slowly for ${dmg.asset} — ${f1(dmg.minMargin ?? 0, 2)}× the withstand time at ${f0(dmg.atA ?? 0)} A (needs ≥ 1).`);
+  }
   for (const g of gradingAfter) {
     if (g.pass && g.preferred === false) cautions.push(`Grading ${g.downName} → ${g.upName} uses a reduced margin of ${f1(g.minMarginS ?? 0, 2)} s (preferred ${opt.prefMarginS.toFixed(2)} s). Confirm with the relay and breaker operating times and CT errors.`);
   }
   if (changes.some((c) => c.after.instPickupA > 0 && c.before.instPickupA !== c.after.instPickupA)) {
     cautions.push("A new or lowered instantaneous element was proposed: confirm CT saturation, breaker making capacity and that the setting stays above the transformer inrush and motor starting current.");
   }
-  cautions.push("Grading is checked for three-phase faults at the maximum fault level, with currents referred through transformers by the voltage ratio (no phase-shift or L-L correction). Earth-fault grading and transformer / cable damage curves are not verified here.");
+  cautions.push("Grading is checked for three-phase faults at the maximum fault level, with currents referred through transformers by the voltage ratio (no phase-shift or L-L correction). Earth-fault grading is not verified, and transformer / cable damage curves are checked only for relays that have a protected asset entered.");
   for (const r of cur) {
-    if (!r.locked && !(r.loadA > 0) && opt.allowPickup) cautions.push(`${r.name}: no maximum load current entered, so its pickup was left unchanged. Enter the load current to let the solver lower the pickup safely.`);
+    if (!isFixed(r) && !(r.loadA > 0) && opt.allowPickup) cautions.push(`${r.name}: no maximum load current entered, so its pickup was left unchanged. Enter the load current to let the solver lower the pickup safely.`);
   }
   cautions.push("This is a proposal: a protection engineer must review it against the manufacturer's time-current curves, CT data and the site's operating modes before it is applied.");
 
@@ -764,6 +845,8 @@ export function solveProtection(study: ProtStudy): ProtSolution {
     after,
     gradingBefore,
     gradingAfter,
+    damageBefore,
+    damageAfter,
     changes,
     cautions: [...new Set(cautions)],
     recommendations: recs,

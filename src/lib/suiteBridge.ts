@@ -7,16 +7,20 @@
 // edits of the project. Everything here is a pure function so it can be tested.
 //
 // Scope and limits (stated so nobody over-trusts the link):
-//  - only devices whose curve is an IEC or IEEE IDMT relay are converted; every
-//    other device type (LSIG, MCB, fuse, differential, motor...) stays in the
-//    workbench untouched and is reported as skipped;
+//  - IEC/IEEE IDMT relays are imported as tunable relays; every other device
+//    with a time-current characteristic (LSIG, thermal-magnetic, MCB, fuse,
+//    motor, definite-time, custom curves) is imported as a FIXED device
+//    evaluated by the shared curve engine, so it takes part in grading and
+//    arc-flash clearing but is never changed; differential (unit) protection
+//    has no time-current curve and is reported as skipped;
 //  - the workbench draws the IDMT curve only: an instantaneous element on an
 //    IDMT relay exists there as text ("5000 A @ 0.05 s"), which is parsed on the
 //    way in and written back as text;
 //  - the workbench does not store the maximum load current, so it is left at 0
 //    and the optimiser then keeps the pickup unchanged until it is entered.
 
-import type { RelayDef } from "./protsettings";
+import { CURVE_KEY, type RelayDef } from "./protsettings";
+import { baseCurrentA, bandTolerance, isTimeDevice, type DeviceEngine } from "./deviceModels";
 
 export const HANDOFF_TO_OPTIMISER = "ajapps-handoff-to-optimiser";
 export const HANDOFF_TO_SUITE = "ajapps-handoff-to-suite";
@@ -33,6 +37,9 @@ export interface SuiteDevice {
   inst?: string;
   curveType?: string;
   engine?: { type: string; key?: string; tms?: number; pickup_a?: number; [k: string]: unknown };
+  diffParams?: unknown;
+  band?: boolean;
+  nativePts?: [number, number][];
   elements?: { el: string; amps: string; dial: string; [k: string]: unknown }[];
   [k: string]: unknown;
 }
@@ -53,10 +60,11 @@ export interface SuiteProject {
   [k: string]: unknown;
 }
 
-const IEC_KEY_TO_TYPE: Record<string, string> = { standard_inverse: "SI", very_inverse: "VI", extremely_inverse: "EI", long_time_inverse: "LTI" };
-const IEEE_KEY_TO_TYPE: Record<string, string> = { moderately_inverse: "MI", very_inverse: "VI", extremely_inverse: "EI" };
-const IEC_TYPE_TO_KEY = Object.fromEntries(Object.entries(IEC_KEY_TO_TYPE).map(([k, v]) => [v, k]));
-const IEEE_TYPE_TO_KEY = Object.fromEntries(Object.entries(IEEE_KEY_TO_TYPE).map(([k, v]) => [v, k]));
+const invert = (m: Record<string, string>): Record<string, string> => Object.fromEntries(Object.entries(m).map(([k, v]) => [v, k]));
+const IEC_TYPE_TO_KEY = CURVE_KEY.IEC;
+const IEEE_TYPE_TO_KEY = CURVE_KEY.IEEE;
+const IEC_KEY_TO_TYPE = invert(CURVE_KEY.IEC);
+const IEEE_KEY_TO_TYPE = invert(CURVE_KEY.IEEE);
 
 /** Curve labels the workbench uses (same strings as its own import table). */
 const CURVE_LABELS: Record<string, Record<string, string>> = {
@@ -96,13 +104,32 @@ export interface SuiteImport {
 /** Convert the IDMT devices of a workbench project into optimiser relays (grading links preserved, skipped devices bridged over). */
 export function suiteToRelays(project: SuiteProject): SuiteImport {
   const devices = project.curves;
-  const conv = new Map<string, NonNullable<ReturnType<typeof idmtType>>>();
+  const idmt = new Map<string, NonNullable<ReturnType<typeof idmtType>>>();
+  const fixed = new Map<string, DeviceEngine>();
   const skipped: SuiteImport["skipped"] = [];
   for (const c of devices) {
     const t = idmtType(c);
-    if (t) conv.set(c.id, t);
-    else skipped.push({ name: c.name, circuit: c.circuit, reason: c.engine ? `${c.engine.type} device — not an IEC/IEEE IDMT relay` : "no curve model" });
+    if (t) {
+      idmt.set(c.id, t);
+      continue;
+    }
+    if (c.diffParams) {
+      skipped.push({ name: c.name, circuit: c.circuit, reason: "differential (unit) protection — no time-current curve" });
+      continue;
+    }
+    const e = c.engine as DeviceEngine | undefined;
+    if (e && isTimeDevice(e)) {
+      fixed.set(c.id, e);
+      continue;
+    }
+    const pts = (c as { nativePts?: [number, number][] }).nativePts;
+    if (!e && Array.isArray(pts) && pts.length >= 2) {
+      fixed.set(c.id, { type: "points", points: pts });
+      continue;
+    }
+    skipped.push({ name: c.name, circuit: c.circuit, reason: e ? `${e.type} device could not be evaluated` : "no curve model" });
   }
+  const has = (id: string) => idmt.has(id) || fixed.has(id);
 
   // parent (upstream) of each device: explicit grading pairs first, then the upstream label "circuit.name"
   const parent = new Map<string, string>();
@@ -115,44 +142,56 @@ export function suiteToRelays(project: SuiteProject): SuiteImport {
 
   const children = new Map<string, string[]>();
   for (const [child, p] of parent) children.set(p, [...(children.get(p) ?? []), child]);
-  const convertibleBelow = (id: string, depth = 0): string[] => {
+  const below = (id: string, depth = 0): string[] => {
     if (depth > 12) return [];
     const out: string[] = [];
     for (const ch of children.get(id) ?? []) {
-      if (conv.has(ch)) out.push(ch);
-      else out.push(...convertibleBelow(ch, depth + 1));
+      if (has(ch)) out.push(ch);
+      else out.push(...below(ch, depth + 1));
     }
     return out;
   };
 
   const relays: RelayDef[] = [];
   for (const c of devices) {
-    const t = conv.get(c.id);
-    if (!t || !c.engine) continue;
-    const inst = parseInstText(c.inst);
+    if (!has(c.id)) continue;
+    const kv = Number(c.kv) > 0 ? Number(c.kv) : 0;
+    const common = { id: c.id, name: c.name, busId: "", deviceKv: kv, downstream: [...new Set(below(c.id))], loadA: 0, inrushA: 0, breakerMs: 50, locked: false };
+    const t = idmt.get(c.id);
+    if (t && c.engine) {
+      const inst = parseInstText(c.inst);
+      relays.push({
+        ...common,
+        curveFamily: t.family,
+        curveType: t.type,
+        pickupA: Number(c.engine.pickup_a),
+        tms: Number(c.engine.tms),
+        instPickupA: inst ? inst.pickupA : 0,
+        instMs: inst ? inst.ms : 50,
+      });
+      continue;
+    }
+    const e = fixed.get(c.id) as DeviceEngine;
+    const bandOn = !!(c as { band?: boolean }).band;
     relays.push({
-      id: c.id,
-      name: c.name,
-      busId: "",
-      deviceKv: Number(c.kv) > 0 ? Number(c.kv) : 0,
-      downstream: [...new Set(convertibleBelow(c.id))],
-      loadA: 0,
-      inrushA: 0,
-      curveFamily: t.family,
-      curveType: t.type,
-      pickupA: Number(c.engine.pickup_a),
-      tms: Number(c.engine.tms),
-      instPickupA: inst ? inst.pickupA : 0,
-      instMs: inst ? inst.ms : 50,
-      breakerMs: 50,
-      locked: false,
+      ...common,
+      curveFamily: "IEC",
+      curveType: "SI",
+      pickupA: baseCurrentA(e) || 1,
+      tms: 0,
+      instPickupA: 0,
+      instMs: 50,
+      engine: e,
+      bandTol: bandTolerance(e, bandOn),
     });
   }
 
   const notes: string[] = [];
-  if (relays.length === 0) notes.push("The project has no IEC/IEEE IDMT relay devices to import.");
-  if (skipped.length > 0) notes.push(`${skipped.length} device(s) are not IDMT relays and stay in the workbench; grading links through them are bridged.`);
-  notes.push("Assign each relay to the bus it feeds and enter its maximum load current; the workbench does not store either. Until the load current is entered the pickup is left unchanged.");
+  if (relays.length === 0) notes.push("The project has no device with a time-current curve to import.");
+  const nFixed = relays.filter((r) => r.engine).length;
+  if (nFixed > 0) notes.push(`${nFixed} device(s) that are not IDMT relays (breakers, fuses, motor protection, definite-time...) are imported as fixed devices: they take part in grading and in the arc-flash clearing time but are not changed.`);
+  if (skipped.length > 0) notes.push(`${skipped.length} device(s) stay in the workbench only; grading links through them are bridged.`);
+  notes.push("Assign each relay to the bus it feeds and enter the maximum load current of the IDMT relays; the workbench does not store either. Until the load current is entered the pickup is left unchanged.");
   return { relays, skipped, notes };
 }
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { CheckboxField, NumberField, SelectField } from "@/components/fields";
+import { CheckboxField, NumberField, SelectField, Tip } from "@/components/fields";
 import { IDMT_CURVE_OPTIONS_EXPORT } from "@/components/arcflash/curveOptions";
 import { MAX_RELAYS, type RelayDef } from "@/lib/protsettings";
+import { DEVICE_TYPE_LABEL } from "@/lib/deviceModels";
 import type { BusIn } from "@/lib/iec60909";
 
 const uid = () => "r" + Math.random().toString(36).slice(2, 8);
@@ -47,12 +48,12 @@ export default function RelayEditor({
               className="w-64 rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold text-foreground focus:border-accent-2 focus:outline-none"
             />
             <div className="flex items-center gap-3">
-              <CheckboxField
+              {!r.engine && <CheckboxField
                 label="Lock (do not change)"
                 tip="A locked relay keeps its settings. The solver works around it and tells you if that blocks a target."
                 checked={r.locked}
                 onChange={(v) => patch(r.id, { locked: v })}
-              />
+              />}
               <button
                 type="button"
                 onClick={() => remove(r.id)}
@@ -72,6 +73,8 @@ export default function RelayEditor({
               options={[{ value: "", label: "— none —" }, ...buses.map((b) => ({ value: b.id, label: `${b.name} (${b.unKv} kV)` }))]}
             />
             <NumberField label="CT-side voltage" unit="kV" min={0} value={r.deviceKv} onChange={(v) => patch(r.id, { deviceKv: v })} tip="Voltage level where the relay is connected. 0 = the voltage of the bus it feeds. A relay on the HV side of a transformer sees fault current scaled by the voltage ratio." />
+            {!r.engine && (
+              <>
             <NumberField label="Max load current" unit="A" min={0} value={r.loadA} onChange={(v) => patch(r.id, { loadA: v })} tip="Highest continuous current through the relay (full-load current of the transformer, feeder or motor group). The pickup is never set below the overload factor × this value." />
             <NumberField label="Inrush / starting current" unit="A" min={0} value={r.inrushA} onChange={(v) => patch(r.id, { inrushA: v })} tip="Transformer magnetising inrush (typically 8–12 × rated current) or motor starting current. Any instantaneous element is kept above this. Enter 0 to ignore." />
             <SelectField label="Curve family" value={r.curveFamily} onChange={(v) => patch(r.id, { curveFamily: v, curveType: v === "IEC" ? "SI" : "MI" })} options={[{ value: "IEC", label: "IEC 60255-151" }, { value: "IEEE", label: "IEEE C37.112" }]} />
@@ -81,6 +84,59 @@ export default function RelayEditor({
             <NumberField label="Instantaneous pickup" unit="A" min={0} value={r.instPickupA} onChange={(v) => patch(r.id, { instPickupA: v })} tip="Instantaneous (50) pickup in primary amps; 0 = off." />
             <NumberField label="Instantaneous time" unit="ms" min={0} value={r.instMs} onChange={(v) => patch(r.id, { instMs: v })} tip="Operating time of the instantaneous element (typically 20–50 ms)." />
             <NumberField label="Breaker opening time" unit="ms" min={0} value={r.breakerMs} onChange={(v) => patch(r.id, { breakerMs: v })} tip="Breaker opening time added to the relay time for the arc-flash clearing time (typically 50 ms)." />
+              </>
+            )}
+          </div>
+
+          {r.engine && (
+            <p className="mt-3 rounded-md border border-border bg-surface-2/60 px-3 py-2 text-xs text-muted">
+              Fixed device: {DEVICE_TYPE_LABEL[r.engine.type] ?? r.engine.type}, based on {r.pickupA.toFixed(0)} A
+              {r.bandTol ? `, ±${Math.round(r.bandTol * 100)} % time band applied to the arc-flash clearing time` : ""}. Imported from the Protection Suite and evaluated with the same curve engine; it takes part in grading and arc-flash
+              clearing but the solver never changes it. Edit its settings in the Protection Suite.
+            </p>
+          )}
+
+
+          <div className="mt-4">
+            <div className="flex items-center text-xs font-medium text-muted">
+              Protected asset (damage-curve check)
+              <Tip text="Optional. Enter the transformer or cable this relay protects: the relay's total clearing time must stay below the asset's through-fault / adiabatic withstand curve (IEEE C57.109 thermal part, IEC 60364-5-54). Checked before and after the proposal." />
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <SelectField
+                label="Asset"
+                value={r.damage ? r.damage.kind : "none"}
+                onChange={(v) =>
+                  patch(r.id, {
+                    damage:
+                      v === "transformer"
+                        ? { kind: "transformer", mva: 1.6, zPct: 6 }
+                        : v === "cable"
+                          ? { kind: "cable", material: "copper", insulation: "xlpe", csaMm2: 185 }
+                          : undefined,
+                  })
+                }
+                options={[
+                  { value: "none", label: "None" },
+                  { value: "transformer", label: "Transformer" },
+                  { value: "cable", label: "Cable" },
+                ]}
+              />
+              {r.damage?.kind === "transformer" && (
+                <>
+                  <NumberField label="Rating" unit="MVA" min={0} value={r.damage.mva} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "transformer"; mva: number; zPct: number; kvLine?: number }), mva: v } })} />
+                  <NumberField label="Impedance" unit="%" min={0} value={r.damage.zPct} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "transformer"; mva: number; zPct: number; kvLine?: number }), zPct: v } })} />
+                  <NumberField label="Voltage on the relay side" unit="kV" min={0} value={r.damage.kvLine ?? 0} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "transformer"; mva: number; zPct: number; kvLine?: number }), kvLine: v } })} tip="0 = the relay's CT-side voltage." />
+                </>
+              )}
+              {r.damage?.kind === "cable" && (
+                <>
+                  <SelectField label="Conductor" value={r.damage.material} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "cable"; material: "copper" | "aluminum"; insulation: "pvc" | "xlpe"; csaMm2: number }), material: v as "copper" | "aluminum" } })} options={[{ value: "copper", label: "Copper" }, { value: "aluminum", label: "Aluminium" }]} />
+                  <SelectField label="Insulation" value={r.damage.insulation} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "cable"; material: "copper" | "aluminum"; insulation: "pvc" | "xlpe"; csaMm2: number }), insulation: v as "pvc" | "xlpe" } })} options={[{ value: "pvc", label: "PVC" }, { value: "xlpe", label: "XLPE" }]} />
+                  <NumberField label="Cross-section" unit="mm²" min={0} value={r.damage.csaMm2} onChange={(v) => patch(r.id, { damage: { ...(r.damage as { kind: "cable"; material: "copper" | "aluminum"; insulation: "pvc" | "xlpe"; csaMm2: number }), csaMm2: v } })} />
+                </>
+              )}
+            </div>
           </div>
 
           <div className="mt-4">

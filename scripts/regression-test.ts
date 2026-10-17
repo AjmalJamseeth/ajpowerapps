@@ -10,6 +10,9 @@
 // has a pass/fail concept — one passing and one failing boundary case.
 
 import { readFileSync } from "fs";
+import * as CE from "../src/lib/curveEngine";
+import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
+import { tripTime as idmtTripTime } from "../src/lib/idmt";
 import { suiteToRelays, applyHandoff, buildHandoff, parseInstText, isSuiteProject } from "../src/lib/suiteBridge";
 import { makeDefaultProtStudy, solveProtection, relayTimeS, evaluateSet, mergeAlt } from "../src/lib/protsettings";
 import { calcAf2018, enclosureCorrection, ppeForEnergy, shockBoundaries, interpolateVoltage, iarcLowVoltage } from "../src/lib/arcflash2018";
@@ -1989,8 +1992,12 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
   const proj = JSON.parse(readFileSync("scripts/fixtures/pcw-demo-project.json", "utf8"));
   assertTrue("Fixture is recognised as a workbench project", isSuiteProject(proj));
   const imp = suiteToRelays(proj);
-  assertEqual("Only the three IEC/IEEE IDMT devices are imported", imp.relays.length, 3);
-  assertEqual("The other four devices are reported as skipped", imp.skipped.length, 4);
+  assertEqual("Six devices with a curve are imported (three IDMT, three fixed)", imp.relays.length, 6);
+  assertEqual("Only the differential device is skipped", imp.skipped.length, 1);
+  assertEqual("Three imported devices are fixed (motor curve, LSIG breaker, MCB)", imp.relays.filter((r) => r.engine).length, 3);
+  assertEqual("LSIG breaker keeps its ±20 % band", imp.relays.find((r) => r.id === "F")!.bandTol, 0.2);
+  assertTrue("REL-05 grades over the breaker and the motor relay", ["E", "F"].every((id) => imp.relays.find((r) => r.id === "D")!.downstream.includes(id)));
+  assertTrue("REL-01 grading is bridged over the skipped differential device", imp.relays.find((r) => r.id === "A")!.downstream.includes("C"));
   const rl = (id: string) => imp.relays.find((r) => r.id === id)!;
   assertEqual("REL-04 imports as IEC SI", `${rl("C").curveFamily} ${rl("C").curveType}`, "IEC SI");
   assertEqual("REL-01 imports as IEEE EI", `${rl("A").curveFamily} ${rl("A").curveType}`, "IEEE EI");
@@ -2016,10 +2023,143 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
   const cross = out.project.gradingPairs!.find((g: { up: string; down: string }) => g.up === "A" && g.down === "C")!;
   assertTrue("Cross-voltage pair gets no fault current", cross.maxFaultA === undefined);
   assertEqual("Original project object is not modified", proj.curves.find((c: { id: string }) => c.id === "C").engine.tms, 0.25);
+  // fixed (non-IDMT) device inside the optimiser: used for clearing time and grading, never changed
+  const st2 = makeDefaultProtStudy();
+  const lsigRelay = { ...st2.relays[1], tms: 0, engine: { type: "lsig", lsig: { Ir: 2500, TL: 8, Ist: 12000, TS: 0.2, stI2tOn: false, Iinst: 30000, instDelay: 0.03 }, bandTolerance: 0.2 }, bandTol: 0.2 };
+  st2.relays = [st2.relays[0], lsigRelay, st2.relays[2], st2.relays[3]];
+  const s2 = solveProtection(st2);
+  assertTrue("A fixed LSIG device is never changed by the solver", !s2.changes.some((c) => c.id === lsigRelay.id));
+  const noBand = solveProtection({ ...st2, relays: st2.relays.map((r) => (r.id === lsigRelay.id ? { ...r, bandTol: 0 } : r)) });
+  const eB = s2.after.find((b) => b.busId === "b2")!.eCal;
+  const eN = noBand.after.find((b) => b.busId === "b2")!.eCal;
+  assertTrue("The ±20 % band lengthens the clearing time and raises the incident energy", eB > eN);
+  assertTrue("The blocking reason names the fixed device", s2.cautions.some((c) => c.includes("fixed LSIG breaker")));
+  // damage-curve check against the shared engine's transformer withstand curve
+  const dmg = makeDefaultProtStudy();
+  dmg.relays = dmg.relays.map((r) => (r.id === "r2" ? { ...r, damage: { kind: "transformer" as const, mva: 1.6, zPct: 6 } } : r));
+  const dsol = solveProtection(dmg);
+  assertEqual("One damage check is produced", dsol.damageAfter.length, 1);
+  assertTrue("Default LV incomer clears well inside the transformer withstand curve", dsol.damageAfter[0].pass === true && (dsol.damageAfter[0].minMargin ?? 0) > 1);
+  const slowDmg = { ...dmg, relays: dmg.relays.map((r) => (r.id === "r2" ? { ...r, tms: 5 } : r)) };
+  const slowSol = solveProtection(slowDmg);
+  assertTrue("A very slow relay is flagged against the transformer withstand curve", slowSol.damageBefore[0].pass === false);
+  const cable = makeDefaultProtStudy();
+  cable.relays = cable.relays.map((r) => (r.id === "r1" ? { ...r, damage: { kind: "cable" as const, material: "copper" as const, insulation: "xlpe" as const, csaMm2: 25 } } : r));
+  assertTrue("Cable adiabatic check runs", solveProtection(cable).damageAfter.length === 1);
   // imported relays run through the optimiser without error
   const base = makeDefaultProtStudy();
   const solImp = solveProtection({ ...base, relays: imp.relays });
   assertTrue("Imported relays (no bus assigned) solve without changes", solImp.changes.length === 0);
+}
+
+// --------------------------------------------------------------------------
+// Shared curve engine: parity with the workbench's own JavaScript engine
+// --------------------------------------------------------------------------
+{
+  section("Curve engine parity (TypeScript port vs the workbench's own engine)");
+  const html = readFileSync("public/protection-suite/index.html", "utf8");
+  const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const src = scripts.find((s) => s.includes("PCW_CurveEngine") && s.includes("function iecTime"))!;
+  const holder: { exports: Record<string, unknown> } = { exports: {} };
+  new Function("module", "window", src)(holder, undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const O = holder.exports as any;
+  let seed = 12345;
+  const rnd = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let x = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+  const between = (a: number, b: number) => a + (b - a) * rnd();
+  const logBetween = (a: number, b: number) => Math.pow(10, between(Math.log10(a), Math.log10(b)));
+  const same = (a: unknown, b: unknown): boolean => {
+    if (typeof a === "number" && typeof b === "number") return a === b || (Number.isNaN(a) && Number.isNaN(b)) || Math.abs(a - b) <= 1e-12 * Math.max(1, Math.abs(a), Math.abs(b));
+    if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((x, i) => same(x, b[i]));
+    if (a && b && typeof a === "object" && typeof b === "object") {
+      const ka = Object.keys(a as object), kb = Object.keys(b as object);
+      return ka.length === kb.length && ka.every((k) => same((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]));
+    }
+    return a === b;
+  };
+  let bad = 0;
+  const check = (label: string, f: () => [unknown, unknown]) => {
+    try {
+      const [a, b] = f();
+      if (!same(a, b)) {
+        bad++;
+        if (bad <= 5) console.log("   parity mismatch:", label, a, b);
+      }
+    } catch (e) {
+      bad++;
+      if (bad <= 5) console.log("   parity exception:", label, (e as Error).message);
+    }
+  };
+  const N = 400;
+  for (const k of Object.keys(O.IEC_CURVES)) for (let i = 0; i < N; i++) { const tms = between(0.025, 1.5), m = logBetween(0.5, 80); check("iec " + k, () => [CE.iecTime(k, tms, m), O.iecTime(k, tms, m)]); }
+  for (const k of Object.keys(O.IEEE_CURVES)) for (let i = 0; i < N; i++) { const tms = between(0.5, 15), m = logBetween(0.5, 80); check("ieee " + k, () => [CE.ieeeTime(k, tms, m), O.ieeeTime(k, tms, m)]); }
+  for (let i = 0; i < N; i++) {
+    const pk = logBetween(10, 5000), I = logBetween(5, 90000), d = between(0.02, 2);
+    check("dt", () => [CE.definiteTime(pk, d, I), O.definiteTime(pk, d, I)]);
+    check("inst", () => [CE.instantaneousTime(pk, I, d), O.instantaneousTime(pk, I, d)]);
+    check("inst default", () => [CE.instantaneousTime(pk, I), O.instantaneousTime(pk, I)]);
+    const ls = { Ir: pk, TL: between(1, 30), Ist: pk * between(2, 8), TS: between(0.05, 0.5), stI2tOn: rnd() > 0.5, Iinst: rnd() > 0.3 ? pk * between(8, 20) : 0, instDelay: rnd() > 0.5 ? 0.03 : undefined };
+    check("lsig", () => [CE.lsigTime(ls, I), O.lsigTime(ls, I)]);
+    check("lsig band", () => [CE.lsigBand(ls, 0.2, [I, I * 2]), O.lsigBand(ls, 0.2, [I, I * 2])]);
+    const tm = { Ir: pk, TL: between(1, 30), Iinst: rnd() > 0.3 ? pk * between(5, 15) : 0 };
+    check("thermalmag", () => [CE.thermalMagneticTime(tm, I), O.thermalMagneticTime(tm, I)]);
+    const pts: [number, number][] = [[pk, between(1, 100)], [pk * 3, between(0.3, 1)], [pk * 10, between(0.02, 0.2)]];
+    check("pointTable", () => [CE.pointTableTime(pts, I), O.pointTableTime(pts, I)]);
+    const ce = rnd() > 0.5 ? { k: between(0.05, 100), alpha: between(0.02, 2), L: between(0, 0.1) } : { A: between(0.05, 30), p: between(0.02, 2), B: between(0, 0.5) };
+    const mm = logBetween(0.5, 60), tt = between(0.05, 1.5);
+    check("custom eq", () => [CE.customEquationTime(ce, tt, mm), O.customEquationTime(ce, tt, mm)]);
+    const mt = { tau: between(100, 3000), Ith: pk, Ip: rnd() > 0.5 ? pk * between(0, 0.9) : undefined };
+    check("motor thermal", () => [CE.motorThermalTime(mt, I), O.motorThermalTime(mt, I)]);
+    const ns = { K: between(2, 40), I1rated: pk, pickupPu: rnd() > 0.5 ? 0.05 : undefined, minTimeS: rnd() > 0.5 ? 0.2 : undefined };
+    check("negseq", () => [CE.negSeqTime(ns, I / 10), O.negSeqTime(ns, I / 10)]);
+    const In = logBetween(2, 800);
+    for (const ty of ["B", "C", "D"]) check("mcb " + ty, () => [CE.mcbCurvePoints(ty, In), O.mcbCurvePoints(ty, In)]);
+    check("fuse points", () => [[CE.fuseCurvePoints(In), CE.fuseMinMeltPoints(In), CE.fuseTotalClearPoints(In), CE.fuseGateForRating(In)], [O.fuseCurvePoints(In), O.fuseMinMeltPoints(In), O.fuseTotalClearPoints(In), O.fuseGateForRating(In)]]);
+    const d2 = { pickup: between(0.1, 0.4), slope1: between(0.1, 0.4), breakpoint1: between(1, 3), slope2: between(0.4, 0.9) };
+    const d3 = { idMin: between(0.1, 0.4), endSection1: 1.25, endSection2: 3, slopeSection2: 0.4, slopeSection3: 0.8, idUnre: rnd() > 0.5 ? between(5, 20) : undefined };
+    const ir = between(0, 10), io = between(0, 12);
+    check("diff", () => [[CE.diffOperateThreshold(d2, ir), CE.diffTrips(d2, ir, io), CE.diffOperateThreshold3Seg(d3, ir), CE.diffTrips3Seg(d3, ir, io)], [O.diffOperateThreshold(d2, ir), O.diffTrips(d2, ir, io), O.diffOperateThreshold3Seg(d3, ir), O.diffTrips3Seg(d3, ir, io)]]);
+    const z = between(3, 14);
+    for (const cat of ["I", "II", "III", "IV"]) check("withstand " + cat, () => [CE.transformerWithstandPoints({ impedancePct: z, category: cat }), O.transformerWithstandPoints({ impedancePct: z, category: cat })]);
+    const csa = logBetween(1.5, 630);
+    check("cable damage", () => [CE.cableDamagePoints({ material: "copper", insulation: "xlpe", csaMm2: csa }), O.cableDamagePoints({ material: "copper", insulation: "xlpe", csaMm2: csa })]);
+    const mva = between(0.1, 60), kvl = logBetween(0.4, 132);
+    check("inrush", () => [CE.transformerInrushPoint({ mvaRating: mva, kvLine: kvl }), O.transformerInrushPoint({ mvaRating: mva, kvLine: kvl })]);
+    check("transformer category", () => [CE.transformerCategoryFromKVA(mva * 1000 + 20), O.transformerCategoryFromKVA(mva * 1000 + 20)]);
+    const hp = between(1, 800), vv = logBetween(230, 11000);
+    check("nema code", () => [CE.motorStartingCurrentByNemaCode(hp, vv, "G"), O.motorStartingCurrentByNemaCode(hp, vv, "G")]);
+    const pairs = [{ currentTime: between(0.1, 3), requiredTime: between(0.1, 4) }, { currentTime: Infinity, requiredTime: 1 }];
+    check("suggest TMS", () => [CE.suggestTmsScaleFactor(pairs), O.suggestTmsScaleFactor(pairs)]);
+  }
+  check("logSpace", () => [CE.logSpace(1.05, 40, 14), O.logSpace(1.05, 40, 14)]);
+  check("error: unknown IEC curve", () => { let a = "", b = ""; try { CE.iecTime("x", 1, 2); } catch (e) { a = (e as Error).message; } try { O.iecTime("x", 1, 2); } catch (e) { b = (e as Error).message; } return [a, b]; });
+  assertEqual("Engine port agrees with the workbench's engine on every sampled input", bad, 0);
+
+  // the older IDMT model used by the grading pages must agree with the engine too
+  const keyOf: Record<string, Record<string, string>> = { IEC: { SI: "standard_inverse", VI: "very_inverse", EI: "extremely_inverse", LTI: "long_time_inverse" }, IEEE: { MI: "moderately_inverse", VI: "very_inverse", EI: "extremely_inverse" } };
+  let idmtBad = 0;
+  for (const fam of ["IEC", "IEEE"] as const) for (const ty of Object.keys(keyOf[fam])) for (let i = 0; i < 200; i++) {
+    const tms = between(0.05, 2), pk = logBetween(20, 3000), amps = pk * logBetween(1.05, 60);
+    const old = idmtTripTime({ label: "r", curveFamily: fam, curveType: ty as never, pickupCurrent: pk, ctRatio: 1, timeDial: tms }, amps);
+    const eng = fam === "IEC" ? CE.iecTime(keyOf[fam][ty], tms, amps / pk) : CE.ieeeTime(keyOf[fam][ty], tms, amps / pk);
+    if (!same(old, eng)) idmtBad++;
+  }
+  assertEqual("idmt.ts trip times agree with the shared engine", idmtBad, 0);
+
+  // device descriptors
+  const lsigE = { type: "lsig", lsig: { Ir: 320, TL: 8, Ist: 1600, TS: 0.2, stI2tOn: false, Iinst: 3200, instDelay: 0.02 } };
+  assertEqual("LSIG descriptor: instantaneous region", deviceTimeS(lsigE, 5000), 0.02);
+  assertEqual("LSIG descriptor: short-time region", deviceTimeS(lsigE, 2000), 0.2);
+  assertEqual("LSIG descriptor: long-time anchored at 2·Ir", deviceTimeS(lsigE, 640), 8);
+  assertEqual("LSIG descriptor: below Ir does not operate", deviceTimeS(lsigE, 300), Infinity);
+  assertTrue("Fuse descriptor operates slower at lower current", deviceTimeS({ type: "fuse", InAmps: 100 }, 300) > deviceTimeS({ type: "fuse", InAmps: 100 }, 900));
+  assertTrue("Descriptor without enough data is not evaluable", !isTimeDevice({ type: "lsig" }));
+  assertEqual("Unknown descriptor type never throws", deviceTimeS({ type: "nonsense" }, 1000), Infinity);
 }
 
 // --------------------------------------------------------------------------

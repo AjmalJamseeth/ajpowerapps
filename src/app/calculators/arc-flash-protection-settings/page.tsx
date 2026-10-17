@@ -15,6 +15,7 @@ import RelayEditor from "@/components/protection/RelayEditor";
 import TccChart from "@/components/protection/TccChart";
 import CompareSection from "@/components/protection/CompareSection";
 import { analyseShortCircuit, type ScNetwork } from "@/lib/iec60909";
+import { DEVICE_TYPE_LABEL } from "@/lib/deviceModels";
 import { buildHandoff, HANDOFF_TO_OPTIMISER, HANDOFF_TO_SUITE, putHandoff, takeHandoff } from "@/lib/suiteBridge";
 import {
   deviceKvOf,
@@ -47,7 +48,7 @@ function statusOf(before: BusOutcome, after: BusOutcome): Status {
 }
 
 const relayText = (r: RelayDef) =>
-  `${r.curveType} · ${f(r.pickupA, 0)} A · TMS ${f(r.tms, 3)} · ${r.instPickupA > 0 ? `inst ${f(r.instPickupA, 0)} A / ${f(r.instMs, 0)} ms` : "no inst"}`;
+  r.engine ? `${DEVICE_TYPE_LABEL[r.engine.type] ?? r.engine.type} · fixed device` : `${r.curveType} · ${f(r.pickupA, 0)} A · TMS ${f(r.tms, 3)} · ${r.instPickupA > 0 ? `inst ${f(r.instPickupA, 0)} A / ${f(r.instMs, 0)} ms` : "no inst"}`;
 
 export default function ProtectionSettingsPage() {
   const [study, setStudy] = useState<ProtStudy>(() => makeDefaultProtStudy());
@@ -503,6 +504,44 @@ export default function ProtectionSettingsPage() {
             Checked at {48} log-spaced currents between 1.05 × the downstream pickup and the maximum fault at the bus the downstream relay feeds. Required: minimum {deferred.opt.minMarginS.toFixed(2)} s, preferred {deferred.opt.prefMarginS.toFixed(2)} s.
           </p>
         </div>
+
+        {sol.damageAfter.length > 0 && (
+          <div className="mt-6 rounded-xl border border-border bg-surface p-6">
+            <h2 className="flex items-center text-lg font-semibold text-foreground">
+              Damage-curve check
+              <Tip text="Total clearing time of the relay (including breaker and any tolerance band) divided by the withstand time of the protected asset, at the worst current. 1.0 or more passes." />
+            </h2>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className={thl}>Relay</th>
+                    <th className={thl}>Protected asset</th>
+                    <th className={th}>Margin before</th>
+                    <th className={th}>Margin proposed</th>
+                    <th className={th}>Worst at (A)</th>
+                    <th className={thl}>Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sol.damageAfter.map((d) => {
+                    const b = sol.damageBefore.find((x) => x.relayId === d.relayId);
+                    return (
+                      <tr key={d.relayId} className="border-b border-border/60 last:border-0">
+                        <td className="px-3 py-2 text-left font-medium text-foreground">{d.name}</td>
+                        <td className="px-3 py-2 text-left text-muted">{d.asset}{d.note ? <div className="text-[11px]">{d.note}</div> : null}</td>
+                        <td className={td}>{f(b?.minMargin, 2)}</td>
+                        <td className={`${td} font-semibold`}>{f(d.minMargin, 2)}</td>
+                        <td className={td}>{d.atA !== null ? f(d.atA, 0) : "–"}</td>
+                        <td className="px-3 py-2 text-left">{d.pass === null ? <span className="text-muted">no overlap</span> : d.pass ? <span className="text-pass">OK</span> : <span className="text-fail">too slow</span>}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <CompareSection study={study} sol={sol} setAlt={setAlt} />

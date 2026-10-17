@@ -1384,7 +1384,7 @@ checked against known values before shipping, not just ported and trusted:
 - Links the IEC 60909 network, the IEEE 1584-2018 study and IDMT grading of up to 8 relays. The user sets a target PPE category per bus; `solveProtection` processes relays from the load end to the source end and tries, in order: TMS to the grading limit at the preferred margin, TMS at the minimum margin, pickup toward `overloadFactor × load`, an instantaneous element at `instMarginX ×` the downstream maximum fault (and above inrush, below 80 % of the lowest arcing current), optionally a more inverse curve, optionally speeding up downstream relays. The slowest TMS that still meets the target is kept, so coordination is left as relaxed as possible.
 - Grading is re-checked numerically (48 log-spaced currents) for every proposal. If a target cannot be met, the best coordinated setting is returned with the blocking constraint, the clearing time still needed, the maintenance-mode result and hardware recommendations (ZSI, arc-flash relay, bus differential).
 - Not verified: earth-fault grading, transformer/cable damage curves, CT saturation, manufacturer-specific curves, phase-shift/L-L correction across transformers.
-- Tests: section "Arc-Flash & Protection Setting Optimiser" in `scripts/regression-test.ts` (646 checks in total).
+- Tests: section "Arc-Flash & Protection Setting Optimiser" in `scripts/regression-test.ts` (666 checks in total).
 - Comparison: an optional second set of settings (`ProtStudy.alt`, e.g. the arc-flash consultant's proposal) is evaluated — not optimised — and shown beside the existing settings and the tool's proposal (targets met, incident energy, grading margins).
 
 ## Protection Coordination Suite (PCW-PRO) — Phase 1
@@ -1394,3 +1394,11 @@ checked against known values before shipping, not just ported and trusted:
 - Flow: suite → "Check these relays for arc flash" → optimiser banner "Load these relays" → assign buses → solve → "Send to the Protection Suite" → preview → apply (with undo). Hand-offs travel through `localStorage` keys `ajapps-handoff-to-optimiser` / `ajapps-handoff-to-suite` and are only applied after the user confirms.
 - Tests: "Protection Suite link" section in `scripts/regression-test.ts` (fixture `scripts/fixtures/pcw-demo-project.json`, taken from the workbench's own demo project). The real workbench was also run under jsdom to check that the modified project loads through `loadProjectFromData`.
 - Later phases: share one TypeScript curve engine, then native screens.
+
+## Protection Coordination Suite — Phase 2 (shared curve engine)
+
+- `src/lib/curveEngine.ts` is a TypeScript port of the workbench's own curve engine (IEC/IEEE IDMT, DT, instantaneous, custom equation/table, LSIG, thermal-magnetic, MCB, gG fuse, motor thermal, negative sequence, differential, transformer/cable damage curves, inrush, motor starting). `src/lib/deviceModels.ts` evaluates any workbench device descriptor (`engine`) with it.
+- Parity is tested against the original: `scripts/regression-test.ts` extracts the engine from `public/protection-suite/index.html` and compares the port over ~20,000 sampled inputs, including error messages. If the workbench's engine is changed later, the test shows the drift. `idmt.ts` trip times are also checked against the engine.
+- The optimiser now handles every device type: IDMT relays are tuned; LSIG, thermal-magnetic, MCB, fuse, motor, definite-time and custom-curve devices are imported as **fixed** devices (`RelayDef.engine`) that take part in grading and in the arc-flash clearing time (LSIG ± band applied as `bandTol`) but are never changed. Differential (unit) protection has no time-current curve and is skipped.
+- New: damage-curve check (`RelayDef.damage`): total clearing time vs the transformer through-fault withstand (IEEE C57.109 thermal part) or the cable adiabatic limit (IEC 60364-5-54), shown before and after the proposal.
+- Not yet: importing the workbench's own damage-curve reference curves, plotting LSIG bands on the optimiser chart, and earth-fault grading.

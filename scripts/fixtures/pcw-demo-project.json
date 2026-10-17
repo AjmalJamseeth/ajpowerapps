@@ -34,7 +34,7 @@
    "bus": "400 kV",
    "kv": 400,
    "upstream": "Grid",
-   "downstream": "\u2014",
+   "downstream": "—",
    "band": false,
    "engine": {
     "type": "ieee",
@@ -52,9 +52,9 @@
    "curveType": "Biased (percentage) differential, dual-slope, 2nd/5th harmonic restraint",
    "bracket": "",
    "pickup": "0.3 pu (min pickup)",
-   "tms": "\u2014",
-   "inst": "\u2014",
-   "ct": "2000/1 (HV) \u00b7 1200/1 (LV)",
+   "tms": "—",
+   "inst": "—",
+   "ct": "2000/1 (HV) · 1200/1 (LV)",
    "bus": "132 kV",
    "kv": 132,
    "upstream": "400 kV Grid Intertie Line.REL-01",
@@ -65,7 +65,29 @@
     "slope1": 0.25,
     "breakpoint1": 2,
     "slope2": 0.6
-   }
+   },
+   "nativePts": [
+    [
+     400,
+     15
+    ],
+    [
+     800,
+     5.5
+    ],
+    [
+     1600,
+     2
+    ],
+    [
+     4000,
+     0.7
+    ],
+    [
+     8000,
+     0.3
+    ]
+   ]
   },
   {
    "id": "C",
@@ -121,31 +143,53 @@
    "circuit": "6.6 kV Motor M-102 (450 kW)",
    "device": "Motor protection relay",
    "ansi": "49 / 48 / 51LR",
-   "curveType": "Thermal replica (I\u00b2t), locked-rotor withstand",
+   "curveType": "Thermal replica (I²t), locked-rotor withstand",
    "bracket": "",
    "pickup": "FLC 62 A",
-   "tms": "\u03c4 = 18 min",
-   "inst": "Locked rotor 8\u00d7FLC @ 12 s",
+   "tms": "τ = 18 min",
+   "inst": "Locked rotor 8×FLC @ 12 s",
    "ct": "75/1",
    "bus": "6.6 kV",
    "kv": 6.6,
    "upstream": "33 kV Feeder 3.REL-05",
-   "downstream": "\u2014",
+   "downstream": "—",
    "band": false,
-   "deviceTypeValue": "motor"
+   "deviceTypeValue": "motor",
+   "nativePts": [
+    [
+     120,
+     60
+    ],
+    [
+     200,
+     22
+    ],
+    [
+     350,
+     7.5
+    ],
+    [
+     700,
+     2.4
+    ],
+    [
+     1400,
+     0.9
+    ]
+   ]
   },
   {
    "id": "F",
    "name": "MCCB-12",
    "circuit": "400 V DB-3 Incomer",
-   "device": "MCCB \u2014 electronic trip unit",
+   "device": "MCCB — electronic trip unit",
    "ansi": "LSIG",
    "curveType": "Long-time / Short-time / Instantaneous / Ground",
    "bracket": "",
    "pickup": "L: 320 A, S: 1600 A @ 0.2 s",
-   "tms": "\u2014",
+   "tms": "—",
    "inst": "I: 3200 A @ 0.02 s",
-   "ct": "\u2014",
+   "ct": "—",
    "bus": "400 V",
    "kv": 0.4,
    "upstream": "33 kV Feeder 3.REL-05",
@@ -173,7 +217,7 @@
     "settingDate": "",
     "revisionDate": "",
     "application": "DB-3, 400V Feeder to MCC-4",
-    "relayType": "GE FG Frame / LSIG \u2014 MCCB",
+    "relayType": "GE FG Frame / LSIG — MCCB",
     "devNo": "MCCB-12",
     "preparedBy": "",
     "approvedBy": ""
@@ -181,19 +225,19 @@
    "elements": [
     {
      "el": "LT (Ir)",
-     "range": "0.625\u20131.0 x In",
+     "range": "0.625–1.0 x In",
      "amps": "320",
      "vt": "",
      "ct": "",
      "sensor": "400",
      "tap": "0.80 x In",
      "dial": "10",
-     "curve": "I\u00b2t Band",
+     "curve": "I²t Band",
      "remarks": ""
     },
     {
      "el": "ST (Ist)",
-     "range": "1.5\u201310 x Ir",
+     "range": "1.5–10 x Ir",
      "amps": "1600",
      "vt": "",
      "ct": "",
@@ -201,11 +245,11 @@
      "tap": "5 x Ir",
      "dial": "0.20 s",
      "curve": "DT",
-     "remarks": "I\u00b2t OUT"
+     "remarks": "I²t OUT"
     },
     {
      "el": "Inst (Ict)",
-     "range": "\u2014",
+     "range": "—",
      "amps": "3200",
      "vt": "",
      "ct": "",
@@ -217,7 +261,7 @@
     },
     {
      "el": "G (Ig)",
-     "range": "0.2\u20131.0 x Ir",
+     "range": "0.2–1.0 x Ir",
      "amps": "128",
      "vt": "",
      "ct": "",
@@ -225,7 +269,7 @@
      "tap": "0.4 x Ir",
      "dial": "0.30 s",
      "curve": "DT",
-     "remarks": "I\u00b2t OUT"
+     "remarks": "I²t OUT"
     }
    ]
   },
@@ -234,19 +278,41 @@
    "name": "MCB-45",
    "circuit": "400 V DB-3 Way 12 (Lighting)",
    "device": "Miniature circuit breaker",
-   "ansi": "\u2014",
+   "ansi": "—",
    "curveType": "Type C thermal-magnetic",
    "bracket": "",
    "pickup": "32 A rated",
-   "tms": "\u2014",
-   "inst": "5\u201310\u00d7 In",
-   "ct": "\u2014",
+   "tms": "—",
+   "inst": "5–10× In",
+   "ct": "—",
    "bus": "400 V",
    "kv": 0.4,
    "upstream": "400 V DB-3 Incomer.MCCB-12",
-   "downstream": "\u2014",
+   "downstream": "—",
    "band": false,
-   "deviceTypeValue": "mcb"
+   "deviceTypeValue": "mcb",
+   "nativePts": [
+    [
+     16,
+     3600
+    ],
+    [
+     40,
+     120
+    ],
+    [
+     80,
+     12
+    ],
+    [
+     200,
+     0.6
+    ],
+    [
+     500,
+     0.01
+    ]
+   ]
   }
  ],
  "referenceCurves": [
@@ -254,7 +320,25 @@
    "id": "REF1",
    "label": "Tx1 Through-Fault Withstand (ANSI C57.109 Cat II)",
    "kind": "curve",
-   "kv": 33
+   "kv": 33,
+   "nativePts": [
+    [
+     600,
+     300
+    ],
+    [
+     1500,
+     50
+    ],
+    [
+     4000,
+     8
+    ],
+    [
+     8000,
+     2
+    ]
+   ]
   },
   {
    "id": "REF2",
