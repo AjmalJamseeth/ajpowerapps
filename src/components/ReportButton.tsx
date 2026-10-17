@@ -42,6 +42,8 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
     const label = todayLabel();
     setGeneratedLabel(label);
     const html = document.documentElement;
+    let overlay: HTMLDivElement | null = null;
+    const savedScroll = window.scrollY;
     try {
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         // html2canvas-pro (not the plain html2canvas package) — Tailwind
@@ -62,12 +64,41 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
       // "About this tool" panel open so the report includes as much
       // information as possible — purpose, standards, capabilities, and
       // the worked example, not just the raw input/result fields.
+      // Cover the screen while the page is temporarily restyled, so the
+      // user never sees the dark -> light flash. The overlay sits outside
+      // the captured container, so it doesn't appear in the PDF.
+      overlay =document.createElement("div");
+      const bg = getComputedStyle(document.body).backgroundColor;
+      overlay.style.cssText =
+        "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;" +
+        "flex-direction:column;gap:14px;font:500 15px system-ui,sans-serif;color:#cbd5e1;background:" +
+        (bg && bg !== "rgba(0, 0, 0, 0)" ? bg : "#0b1020");
+      overlay.innerHTML =
+        '<div style="width:34px;height:34px;border:3px solid #475569;border-top-color:#22d3ee;border-radius:50%;animation:ajspin 0.8s linear infinite"></div>' +
+        "<div>Generating report…</div>" +
+        "<style>@keyframes ajspin{to{transform:rotate(360deg)}}</style>";
+      document.body.appendChild(overlay);
+
       html.classList.add("report-mode");
       window.dispatchEvent(new CustomEvent(REPORT_MODE_EVENT, { detail: { on: true } }));
       // Let React re-render (panels opening, grid collapsing to one
       // column) and the browser reflow before we screenshot it.
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      await new Promise((r) => setTimeout(r, 150));
+      await new Promise((r) => setTimeout(r, 250));
+
+      // Positions of blocks that should not be sliced through by a page
+      // break (cards, tables rows, charts, labels, paragraphs...).
+      const cRect = container.getBoundingClientRect();
+      const blockRects: { top: number; bottom: number }[] = [];
+      container
+        .querySelectorAll<HTMLElement>(
+          "section, table, tr, svg, figure, img, canvas, p, li, h1, h2, h3, h4, label, [data-pdf-avoid], " +
+            "[class*='rounded'], [class*='border']"
+        )
+        .forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.height > 4) blockRects.push({ top: r.top - cRect.top, bottom: r.bottom - cRect.top });
+        });
 
       const canvas = await html2canvas(container, {
         backgroundColor: "#ffffff",
@@ -75,46 +106,82 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
         useCORS: true,
         windowWidth: container.scrollWidth,
       });
+      const ratio = canvas.height / cRect.height; // canvas px per CSS px
 
       const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 28;
-      const footerHeight = 26;
+      const frame = 16; // outer border inset
+      const padX = 18; // space between border and content
+      const padTop = 20;
+      const footerHeight = 30;
+      const margin = frame + padX;
       const contentWidthPt = pageWidth - margin * 2;
-      const contentHeightPt = pageHeight - margin * 2 - footerHeight;
+      const contentHeightPt = pageHeight - frame - padTop - frame - footerHeight;
 
       // px -> pt scale, and how many source pixels fit on one PDF page
       const pxToPt = contentWidthPt / canvas.width;
       const pagePxHeight = Math.floor(contentHeightPt / pxToPt);
 
-      const drawFooter = (pageNum: number, pageCount: number) => {
+      // Choose page breaks that don't cut through a block. A block taller
+      // than ~90% of a page is ignored (it has to be split somewhere).
+      const rects = blockRects
+        .map((b) => ({ top: Math.round(b.top * ratio), bottom: Math.round(b.bottom * ratio) }))
+        .filter((b) => b.bottom - b.top < pagePxHeight * 0.9);
+      const breaks: number[] = [0];
+      for (let y = 0; y < canvas.height; ) {
+        let cut = y + pagePxHeight;
+        if (cut >= canvas.height) {
+          breaks.push(canvas.height);
+          break;
+        }
+        for (let guard = 0; guard < 60; guard++) {
+          let newCut = cut;
+          for (const b of rects) {
+            if (b.top < newCut && b.bottom > newCut && b.top > y + pagePxHeight * 0.3) newCut = b.top;
+          }
+          if (newCut === cut) break;
+          cut = newCut;
+        }
+        breaks.push(cut);
+        y = cut;
+      }
+      const totalPages = breaks.length - 1;
+
+      const drawFrame = (pageNum: number) => {
+        pdf.setDrawColor(148, 163, 184);
+        pdf.setLineWidth(1);
+        pdf.roundedRect(frame, frame, pageWidth - frame * 2, pageHeight - frame * 2, 6, 6, "S");
+        // footer rule
+        pdf.setDrawColor(203, 213, 225);
+        pdf.setLineWidth(0.5);
+        pdf.line(frame + 10, pageHeight - frame - footerHeight + 6, pageWidth - frame - 10, pageHeight - frame - footerHeight + 6);
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(8);
-        pdf.setTextColor(120, 120, 120);
-        pdf.text(FOOTER_URL, margin, pageHeight - 12);
-        pdf.text(String(pageNum) + " / " + String(pageCount), pageWidth - margin - 24, pageHeight - 12);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(FOOTER_URL, frame + 14, pageHeight - frame - 10);
+        const pn = String(pageNum) + " / " + String(totalPages);
+        pdf.text(pn, pageWidth - frame - 14 - pdf.getTextWidth(pn), pageHeight - frame - 10);
       };
-
-      const totalPages = Math.max(1, Math.ceil(canvas.height / pagePxHeight));
 
       const sliceCanvas = document.createElement("canvas");
       const sliceCtx = sliceCanvas.getContext("2d");
       if (!sliceCtx) throw new Error("2D context unavailable");
 
       for (let page = 0; page < totalPages; page++) {
-        const sy = page * pagePxHeight;
-        const sHeight = Math.min(pagePxHeight, canvas.height - sy);
+        const sy = breaks[page];
+        const sHeight = Math.max(1, breaks[page + 1] - sy);
         sliceCanvas.width = canvas.width;
         sliceCanvas.height = sHeight;
-        sliceCtx.clearRect(0, 0, canvas.width, sHeight);
+        sliceCtx.fillStyle = "#ffffff";
+        sliceCtx.fillRect(0, 0, canvas.width, sHeight);
         sliceCtx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, canvas.width, sHeight);
         const sliceData = sliceCanvas.toDataURL("image/png");
         const sliceHeightPt = sHeight * pxToPt;
 
         if (page > 0) pdf.addPage();
-        pdf.addImage(sliceData, "PNG", margin, margin, contentWidthPt, sliceHeightPt, undefined, "FAST");
-        drawFooter(page + 1, totalPages);
+        pdf.addImage(sliceData, "PNG", margin, frame + padTop, contentWidthPt, sliceHeightPt, undefined, "FAST");
+        drawFrame(page + 1);
       }
 
       pdf.save(`AJapps-${slugify(title)}-report-${slugify(label)}.pdf`);
@@ -126,6 +193,10 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
     } finally {
       html.classList.remove("report-mode");
       window.dispatchEvent(new CustomEvent(REPORT_MODE_EVENT, { detail: { on: false } }));
+      // Wait for the dark theme to be back before removing the cover.
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      window.scrollTo(0, savedScroll);
+      overlay?.remove();
     }
   };
 
