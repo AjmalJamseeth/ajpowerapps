@@ -1,0 +1,325 @@
+{
+ "formatVersion": 1,
+ "savedAt": "2026-10-17T13:24:08.932Z",
+ "projectName": "Demo Project",
+ "plotRefKV": 0.4,
+ "defaultCTI": 0.3,
+ "currentStyle": "dark",
+ "autoCurveCounter": 1,
+ "advDamageEnabled": false,
+ "titleBlock": {
+  "Project": "",
+  "Location": "",
+  "Contract / Client": "",
+  "Engineer": "",
+  "Date": "",
+  "Doc / S/N": "",
+  "Rev": "",
+  "Fault type": "",
+  "Filename": ""
+ },
+ "curves": [
+  {
+   "id": "A",
+   "name": "REL-01",
+   "circuit": "400 kV Grid Intertie Line",
+   "device": "Numerical distance/OC relay",
+   "ansi": "50 / 51 / 67",
+   "curveType": "IEEE Extremely Inverse",
+   "bracket": "",
+   "pickup": "900 A",
+   "tms": "0.15",
+   "inst": "6000 A @ 0.02 s",
+   "ct": "2000/1",
+   "bus": "400 kV",
+   "kv": 400,
+   "upstream": "Grid",
+   "downstream": "\u2014",
+   "band": false,
+   "engine": {
+    "type": "ieee",
+    "key": "extremely_inverse",
+    "tms": 0.15,
+    "pickup_a": 900
+   }
+  },
+  {
+   "id": "B",
+   "name": "REL-02",
+   "circuit": "Tx1 (400/132 kV, 250 MVA)",
+   "device": "Transformer differential",
+   "ansi": "87T",
+   "curveType": "Biased (percentage) differential, dual-slope, 2nd/5th harmonic restraint",
+   "bracket": "",
+   "pickup": "0.3 pu (min pickup)",
+   "tms": "\u2014",
+   "inst": "\u2014",
+   "ct": "2000/1 (HV) \u00b7 1200/1 (LV)",
+   "bus": "132 kV",
+   "kv": 132,
+   "upstream": "400 kV Grid Intertie Line.REL-01",
+   "downstream": "33 kV Switchboard Incomer.REL-04",
+   "band": false,
+   "diffParams": {
+    "pickup": 0.3,
+    "slope1": 0.25,
+    "breakpoint1": 2,
+    "slope2": 0.6
+   }
+  },
+  {
+   "id": "C",
+   "name": "REL-04",
+   "circuit": "33 kV Switchboard Incomer",
+   "device": "Numerical OC relay",
+   "ansi": "50 / 51",
+   "curveType": "IEC Standard Inverse",
+   "bracket": "IEC Curve A",
+   "pickup": "625 A",
+   "tms": "0.25",
+   "inst": "5000 A @ 0.05 s",
+   "ct": "800/1",
+   "bus": "33 kV",
+   "kv": 33,
+   "upstream": "Tx1 (400/132 kV, 250 MVA).REL-02",
+   "downstream": "33 kV Feeder 3.REL-05",
+   "band": false,
+   "engine": {
+    "type": "iec",
+    "key": "standard_inverse",
+    "tms": 0.25,
+    "pickup_a": 625
+   }
+  },
+  {
+   "id": "D",
+   "name": "REL-05",
+   "circuit": "33 kV Feeder 3",
+   "device": "Numerical OC relay",
+   "ansi": "50 / 51",
+   "curveType": "IEC Very Inverse",
+   "bracket": "IEC Curve B",
+   "pickup": "420 A",
+   "tms": "0.30",
+   "inst": "3200 A @ 0.05 s",
+   "ct": "400/1",
+   "bus": "33 kV",
+   "kv": 33,
+   "upstream": "33 kV Switchboard Incomer.REL-04",
+   "downstream": "400 V DB-3 Incomer.MCCB-12",
+   "band": false,
+   "engine": {
+    "type": "iec",
+    "key": "very_inverse",
+    "tms": 0.3,
+    "pickup_a": 420
+   }
+  },
+  {
+   "id": "E",
+   "name": "REL-06",
+   "circuit": "6.6 kV Motor M-102 (450 kW)",
+   "device": "Motor protection relay",
+   "ansi": "49 / 48 / 51LR",
+   "curveType": "Thermal replica (I\u00b2t), locked-rotor withstand",
+   "bracket": "",
+   "pickup": "FLC 62 A",
+   "tms": "\u03c4 = 18 min",
+   "inst": "Locked rotor 8\u00d7FLC @ 12 s",
+   "ct": "75/1",
+   "bus": "6.6 kV",
+   "kv": 6.6,
+   "upstream": "33 kV Feeder 3.REL-05",
+   "downstream": "\u2014",
+   "band": false,
+   "deviceTypeValue": "motor"
+  },
+  {
+   "id": "F",
+   "name": "MCCB-12",
+   "circuit": "400 V DB-3 Incomer",
+   "device": "MCCB \u2014 electronic trip unit",
+   "ansi": "LSIG",
+   "curveType": "Long-time / Short-time / Instantaneous / Ground",
+   "bracket": "",
+   "pickup": "L: 320 A, S: 1600 A @ 0.2 s",
+   "tms": "\u2014",
+   "inst": "I: 3200 A @ 0.02 s",
+   "ct": "\u2014",
+   "bus": "400 V",
+   "kv": 0.4,
+   "upstream": "33 kV Feeder 3.REL-05",
+   "downstream": "400 V DB-3 Way 12 (Lighting).MCB-45",
+   "band": true,
+   "engine": {
+    "type": "lsig",
+    "bandTolerance": 0.2,
+    "lsig": {
+     "Ir": 320,
+     "TL": 8,
+     "Ist": 1600,
+     "TS": 0.2,
+     "stI2tOn": false,
+     "Iinst": 3200,
+     "instDelay": 0.02
+    }
+   },
+   "sheetInfo": {
+    "location": "400V DB-3 Room, LV Switchroom",
+    "serial": "",
+    "panelNo": "DB-3",
+    "sheetNo": "0.4-DB3-Q12",
+    "page": "1 of 1",
+    "settingDate": "",
+    "revisionDate": "",
+    "application": "DB-3, 400V Feeder to MCC-4",
+    "relayType": "GE FG Frame / LSIG \u2014 MCCB",
+    "devNo": "MCCB-12",
+    "preparedBy": "",
+    "approvedBy": ""
+   },
+   "elements": [
+    {
+     "el": "LT (Ir)",
+     "range": "0.625\u20131.0 x In",
+     "amps": "320",
+     "vt": "",
+     "ct": "",
+     "sensor": "400",
+     "tap": "0.80 x In",
+     "dial": "10",
+     "curve": "I\u00b2t Band",
+     "remarks": ""
+    },
+    {
+     "el": "ST (Ist)",
+     "range": "1.5\u201310 x Ir",
+     "amps": "1600",
+     "vt": "",
+     "ct": "",
+     "sensor": "320",
+     "tap": "5 x Ir",
+     "dial": "0.20 s",
+     "curve": "DT",
+     "remarks": "I\u00b2t OUT"
+    },
+    {
+     "el": "Inst (Ict)",
+     "range": "\u2014",
+     "amps": "3200",
+     "vt": "",
+     "ct": "",
+     "sensor": "",
+     "tap": "",
+     "dial": "0.02 s",
+     "curve": "DT",
+     "remarks": ""
+    },
+    {
+     "el": "G (Ig)",
+     "range": "0.2\u20131.0 x Ir",
+     "amps": "128",
+     "vt": "",
+     "ct": "",
+     "sensor": "320",
+     "tap": "0.4 x Ir",
+     "dial": "0.30 s",
+     "curve": "DT",
+     "remarks": "I\u00b2t OUT"
+    }
+   ]
+  },
+  {
+   "id": "G",
+   "name": "MCB-45",
+   "circuit": "400 V DB-3 Way 12 (Lighting)",
+   "device": "Miniature circuit breaker",
+   "ansi": "\u2014",
+   "curveType": "Type C thermal-magnetic",
+   "bracket": "",
+   "pickup": "32 A rated",
+   "tms": "\u2014",
+   "inst": "5\u201310\u00d7 In",
+   "ct": "\u2014",
+   "bus": "400 V",
+   "kv": 0.4,
+   "upstream": "400 V DB-3 Incomer.MCCB-12",
+   "downstream": "\u2014",
+   "band": false,
+   "deviceTypeValue": "mcb"
+  }
+ ],
+ "referenceCurves": [
+  {
+   "id": "REF1",
+   "label": "Tx1 Through-Fault Withstand (ANSI C57.109 Cat II)",
+   "kind": "curve",
+   "kv": 33
+  },
+  {
+   "id": "REF2",
+   "label": "Cable 4411-Q304 Ampacity (230 A)",
+   "kind": "vline",
+   "kv": 0.4,
+   "nativeValue": 230
+  }
+ ],
+ "gradingPairs": [
+  {
+   "up": "F",
+   "down": "G",
+   "base": 60
+  },
+  {
+   "up": "D",
+   "down": "F",
+   "base": 250
+  },
+  {
+   "up": "C",
+   "down": "D",
+   "base": 400
+  },
+  {
+   "up": "A",
+   "down": "C",
+   "base": 600,
+   "cti": 0.4
+  }
+ ],
+ "enabled": {
+  "A": true,
+  "B": true,
+  "C": true,
+  "D": true,
+  "E": true,
+  "F": true,
+  "G": true,
+  "REF1": true,
+  "REF2": true
+ },
+ "customColors": {
+  "dark": {
+   "A": "#B79CF0",
+   "B": "#3FD6C4",
+   "C": "#5C9CE6",
+   "D": "#6FE07A",
+   "E": "#EA6BB8",
+   "F": "#F0685C",
+   "G": "#F0C24B",
+   "REF1": "#F0A868",
+   "REF2": "#FFFFFF"
+  },
+  "report": {
+   "A": "#5B2FA6",
+   "B": "#0F6B60",
+   "C": "#173F7A",
+   "D": "#1E5E22",
+   "E": "#7A1E51",
+   "F": "#8A241A",
+   "G": "#6B5106",
+   "REF1": "#6B4423",
+   "REF2": "#4A3B6B"
+  }
+ }
+}

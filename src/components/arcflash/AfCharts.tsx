@@ -22,10 +22,10 @@ export function BoundaryDiagram({ r }: { r: ArcFlashBusResult }) {
   const limitedMm = (r.shock.limitedFixedM ?? 0) * 1000;
   const restrictedMm = (r.shock.restrictedM ?? 0) * 1000;
   const maxMm = Math.max(afb, limitedMm, r.workingMm, 1);
-  const R = 150;
+  const R = 120;
   const s = (mm: number) => (mm / maxMm) * R;
   const cx = 200;
-  const cy = 175;
+  const cy = 140;
   const rings = [
     { mm: limitedMm, label: `Limited approach ${fmt(limitedMm / 1000, 2)} m`, color: "#22d3ee", dash: "6 4" },
     { mm: afb, label: `Arc-flash boundary ${fmt(afb / 1000, 2)} m`, color: "#f87171", dash: "" },
@@ -57,7 +57,7 @@ export function BoundaryDiagram({ r }: { r: ArcFlashBusResult }) {
       {/* legend */}
       <g fontSize={11}>
         {[...rings, { mm: r.workingMm, label: `Working distance ${fmt(r.workingMm / 1000, 2)} m`, color: "#fbbf24", dash: "2 4" }].map((g, i) => (
-          <g key={g.label} transform={`translate(12, ${300 + i * 16 - (rings.length > 2 ? 18 : 0)})`}>
+          <g key={g.label} transform={`translate(12, ${288 + i * 16})`}>
             <line x1={0} y1={-3} x2={22} y2={-3} stroke={g.color} strokeWidth={2.5} strokeDasharray={g.dash || undefined} />
             <text x={28} y={0} className="fill-foreground">
               {g.label}

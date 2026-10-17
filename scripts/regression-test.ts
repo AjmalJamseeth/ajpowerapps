@@ -9,6 +9,9 @@
 // throw, must return null or a sane empty result), and — where the module
 // has a pass/fail concept — one passing and one failing boundary case.
 
+import { readFileSync } from "fs";
+import { suiteToRelays, applyHandoff, buildHandoff, parseInstText, isSuiteProject } from "../src/lib/suiteBridge";
+import { makeDefaultProtStudy, solveProtection, relayTimeS, evaluateSet, mergeAlt } from "../src/lib/protsettings";
 import { calcAf2018, enclosureCorrection, ppeForEnergy, shockBoundaries, interpolateVoltage, iarcLowVoltage } from "../src/lib/arcflash2018";
 import { analyseArcFlash, clearingTimeFn, defaultProtection } from "../src/lib/arcflashstudy";
 import { analyseShortCircuit, muFactor, peakFactor, thermalM, voltageFactor, typicalGenRToX, typicalMotorRToX, DEFAULT_SC_NETWORK, DEFAULT_SC_SETTINGS, type ScNetwork } from "../src/lib/iec60909";
@@ -1938,6 +1941,85 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
   const idmt = clearingTimeFn({ ...defaultProtection(), mode: "idmt", pickupA: 500, tms: 0.2, breakerMs: 50 }, 0.4, 2000);
   assertTrue("IDMT clearing time decreases with current", idmt(20) < idmt(2));
   assertEqual("Below pickup the arc lasts the maximum duration", clearingTimeFn({ ...defaultProtection(), mode: "idmt", pickupA: 5000 }, 0.4, 2000)(1), 2000);
+}
+
+// --------------------------------------------------------------------------
+// Arc-flash aware protection setting optimiser
+// --------------------------------------------------------------------------
+{
+  section("Arc-Flash & Protection Setting Optimiser");
+  const st = makeDefaultProtStudy();
+  const sol = solveProtection(st);
+  const bus = (arr: typeof sol.after, id: string) => arr.find((b) => b.busId === id)!;
+  assertTrue("11 kV board starts above its Category 2 target", bus(sol.before, "b1").eCal > 8);
+  assertTrue("11 kV board reaches the target after the proposal", bus(sol.after, "b1").met === true);
+  assertTrue("Proposal never raises incident energy", sol.after.every((a) => a.eCal <= bus(sol.before, a.busId).eCal * 1.001));
+  assertTrue("Grading margins respect the minimum after the proposal", sol.gradingAfter.every((g) => g.pass !== false));
+  assertTrue("Unreachable LV-board target is reported as not met with a caution", bus(sol.after, "b2").met === false && sol.cautions.some((c) => c.includes("not met by settings")));
+  assertTrue("Maintenance-mode energy is reported for the unmet bus", (bus(sol.after, "b2").maintE ?? 99) <= 8);
+  assertTrue("Hardware recommendations are given when settings are not enough", sol.recommendations.length > 0);
+  // a locked relay is never changed
+  const lockedStudy = JSON.parse(JSON.stringify(st));
+  lockedStudy.relays.forEach((r: { locked: boolean }) => (r.locked = true));
+  const lockedSol = solveProtection(lockedStudy);
+  assertEqual("Locked relays produce no changes", lockedSol.changes.length, 0);
+  // relaxed target -> nothing to do
+  const easy = JSON.parse(JSON.stringify(st));
+  easy.targets = { b1: 4, b2: 4, b3: 4 };
+  const easySol = solveProtection(easy);
+  assertTrue("A Category 4 target is met by the original settings", easySol.after.every((a) => a.met === true));
+  assertTrue("…and only repairs an existing grading shortfall (R2→R3 started at 0.22 s)", easySol.changes.every((c) => c.stage === "coordination repaired"));
+  // relay time is monotonic with TMS and operates the instantaneous element
+  const r = st.relays[1];
+  assertTrue("Relay time scales with TMS", relayTimeS({ ...r, tms: 0.4 }, 10000) > relayTimeS({ ...r, tms: 0.2 }, 10000));
+  assertEqual("Instantaneous element operates in its own time", relayTimeS({ ...r, instPickupA: 5000, instMs: 40 }, 10000), 0.04);
+  // comparison of an externally proposed set (arc-flash consultant): fast TMS on R2 meets energy but breaks grading
+  const consultant = st.relays.map((x) => ({ ...x, tms: x.id === "r2" ? 0.05 : x.tms }));
+  const ev = evaluateSet(st, mergeAlt(st.relays, consultant));
+  assertTrue("A very fast R2 lowers LV-board energy", ev.buses.find((b) => b.busId === "b2")!.eCal < bus(sol.before, "b2").eCal);
+  assertTrue("…but is flagged as breaking grading over R1", ev.grading.some((g) => g.upId === "r2" && g.pass === false));
+  assertTrue("Tool proposal keeps grading where that proposal does not", sol.gradingAfter.every((g) => g.pass !== false));
+}
+
+// --------------------------------------------------------------------------
+// Protection Coordination Workbench <-> optimiser link
+// --------------------------------------------------------------------------
+{
+  section("Protection Suite link (PCW-PRO project <-> optimiser)");
+  const proj = JSON.parse(readFileSync("scripts/fixtures/pcw-demo-project.json", "utf8"));
+  assertTrue("Fixture is recognised as a workbench project", isSuiteProject(proj));
+  const imp = suiteToRelays(proj);
+  assertEqual("Only the three IEC/IEEE IDMT devices are imported", imp.relays.length, 3);
+  assertEqual("The other four devices are reported as skipped", imp.skipped.length, 4);
+  const rl = (id: string) => imp.relays.find((r) => r.id === id)!;
+  assertEqual("REL-04 imports as IEC SI", `${rl("C").curveFamily} ${rl("C").curveType}`, "IEC SI");
+  assertEqual("REL-01 imports as IEEE EI", `${rl("A").curveFamily} ${rl("A").curveType}`, "IEEE EI");
+  assertEqual("Pickup and TMS are taken from the engine", `${rl("C").pickupA} ${rl("C").tms}`, "625 0.25");
+  assertTrue("Grading link REL-01 -> REL-04 is kept", rl("A").downstream.includes("C"));
+  assertTrue("Grading link REL-04 -> REL-05 is kept", rl("C").downstream.includes("D"));
+  assertEqual("Instantaneous text is parsed", `${rl("C").instPickupA} ${rl("C").instMs}`, "5000 50");
+  assertEqual("kA / ms instantaneous text is parsed", JSON.stringify(parseInstText("6 kA @ 50 ms")), JSON.stringify({ pickupA: 6000, ms: 50 }));
+  assertEqual("Unparsable instantaneous text gives null", parseInstText("—"), null);
+  assertEqual("Maximum load current is not guessed", rl("C").loadA, 0);
+
+  const prop = imp.relays.map((r) => (r.id === "C" ? { ...r, tms: 0.12, instPickupA: 4500, instMs: 40 } : r));
+  const h = buildHandoff(imp.relays, prop, { D: 4200, C: 9000 });
+  assertEqual("Only changed relays are sent back", h.updates.length, 1);
+  const out = applyHandoff(proj, h);
+  const c2 = out.project.curves.find((c: { id: string }) => c.id === "C")!;
+  assertEqual("TMS is written to the engine", c2.engine!.tms, 0.12);
+  assertEqual("TMS text is written", c2.tms, "0.12");
+  assertEqual("Instantaneous text is written", c2.inst, "4500 A @ 0.04 s");
+  assertEqual("Pickup is untouched when it did not change", c2.engine!.pickup_a, 625);
+  const pair = out.project.gradingPairs!.find((g: { up: string; down: string }) => g.up === "C" && g.down === "D")!;
+  assertEqual("Maximum fault current is written to the same-voltage grading pair", pair.maxFaultA, 4200);
+  const cross = out.project.gradingPairs!.find((g: { up: string; down: string }) => g.up === "A" && g.down === "C")!;
+  assertTrue("Cross-voltage pair gets no fault current", cross.maxFaultA === undefined);
+  assertEqual("Original project object is not modified", proj.curves.find((c: { id: string }) => c.id === "C").engine.tms, 0.25);
+  // imported relays run through the optimiser without error
+  const base = makeDefaultProtStudy();
+  const solImp = solveProtection({ ...base, relays: imp.relays });
+  assertTrue("Imported relays (no bus assigned) solve without changes", solImp.changes.length === 0);
 }
 
 // --------------------------------------------------------------------------

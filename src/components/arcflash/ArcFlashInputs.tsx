@@ -10,9 +10,12 @@ import type { BusArcFlashIn, ProtectionIn, ScNetwork } from "@/lib/iec60909";
 export default function ArcFlashInputs({
   net,
   setNet,
+  hideProtection = false,
 }: {
   net: ScNetwork;
   setNet: React.Dispatch<React.SetStateAction<ScNetwork>>;
+  /** Hide the per-bus protective device and mitigation inputs (used where relays are defined separately). */
+  hideProtection?: boolean;
 }) {
   const setAf = (busId: string, patch: Partial<BusArcFlashIn>) =>
     setNet((n) => ({ ...n, buses: n.buses.map((b) => (b.id === busId ? { ...b, af: { ...afOf(b), ...patch } } : b)) }));
@@ -90,6 +93,8 @@ export default function ArcFlashInputs({
               <NumberField label="Enclosure depth" unit="mm" min={0} value={af.depthMm} onChange={(v) => setAf(b.id, { depthMm: v })} tip="Enclosure depth. Only matters for LV equipment below 600 V with both height and width under 508 mm: depth ≤ 203.2 mm makes it a ‘shallow’ enclosure." />
             </div>
 
+            {!hideProtection && (
+              <>
             <h4 className="mt-5 text-sm font-semibold text-foreground">Protective device that clears an arc at this bus</h4>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <SelectField
@@ -130,6 +135,8 @@ export default function ArcFlashInputs({
               </div>
               <NumberField label="Clearing time in maintenance mode" unit="ms" min={1} disabled={!af.maintenanceOn} value={af.maintenanceMs} onChange={(v) => setAf(b.id, { maintenanceMs: v })} tip="Total clearing time (relay + breaker) with the mitigation active. Typical: 40–80 ms for instantaneous or optical arc-flash relays." />
             </div>
+              </>
+            )}
           </div>
         );
       })}

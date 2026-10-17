@@ -119,7 +119,7 @@ export interface ArcFlashBusResult {
   energyFn: ((o: { dMm?: number; tMs?: number }) => number) | null;
 }
 
-function runScenario(
+export function runScenario(
   bus: BusIn,
   af: BusArcFlashIn,
   ibfKa: number,

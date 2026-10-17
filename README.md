@@ -1377,3 +1377,20 @@ checked against known values before shipping, not just ported and trusted:
 - `src/lib/arcflashstudy.ts` — network study: protective-device clearing time (fixed or IDMT), maximum and minimum fault current, maintenance-mode what-if, required clearing time for Category 2.
 - Pages: `/calculators/iec-60909`, `/calculators/arc-flash-study` (shared `NetworkEditor`, `ShortCircuitSld`, `ProjectManager` scenario save/load/export).
 - NFPA 70E PPE categories and shock approach boundaries are reference values — confirm against the edition in force.
+
+## Arc-Flash & Protection Setting Optimiser
+
+- Page: `/calculators/arc-flash-protection-settings` (library `src/lib/protsettings.ts`, components in `src/components/protection/`).
+- Links the IEC 60909 network, the IEEE 1584-2018 study and IDMT grading of up to 8 relays. The user sets a target PPE category per bus; `solveProtection` processes relays from the load end to the source end and tries, in order: TMS to the grading limit at the preferred margin, TMS at the minimum margin, pickup toward `overloadFactor × load`, an instantaneous element at `instMarginX ×` the downstream maximum fault (and above inrush, below 80 % of the lowest arcing current), optionally a more inverse curve, optionally speeding up downstream relays. The slowest TMS that still meets the target is kept, so coordination is left as relaxed as possible.
+- Grading is re-checked numerically (48 log-spaced currents) for every proposal. If a target cannot be met, the best coordinated setting is returned with the blocking constraint, the clearing time still needed, the maintenance-mode result and hardware recommendations (ZSI, arc-flash relay, bus differential).
+- Not verified: earth-fault grading, transformer/cable damage curves, CT saturation, manufacturer-specific curves, phase-shift/L-L correction across transformers.
+- Tests: section "Arc-Flash & Protection Setting Optimiser" in `scripts/regression-test.ts` (646 checks in total).
+- Comparison: an optional second set of settings (`ProtStudy.alt`, e.g. the arc-flash consultant's proposal) is evaluated — not optimised — and shown beside the existing settings and the tool's proposal (targets met, incident energy, grading margins).
+
+## Protection Coordination Suite (PCW-PRO) — Phase 1
+
+- The workbench is hosted unchanged as `public/protection-suite/index.html` and embedded in `/calculators/protection-suite` (iframe). The only addition to the file is a small `postMessage` bridge at the end (same-origin only; inactive when the file is opened on its own): `getProject`, `loadProject`, `ping`.
+- `src/lib/suiteBridge.ts` converts a workbench project (formatVersion 1) to optimiser relays and applies an optimiser proposal back. Only IEC/IEEE IDMT devices are converted (other device types are reported as skipped); instantaneous text ("5000 A @ 0.05 s") is parsed/written; maximum load current is not stored by the workbench and is left at 0 (the optimiser then keeps the pickup unchanged until it is entered).
+- Flow: suite → "Check these relays for arc flash" → optimiser banner "Load these relays" → assign buses → solve → "Send to the Protection Suite" → preview → apply (with undo). Hand-offs travel through `localStorage` keys `ajapps-handoff-to-optimiser` / `ajapps-handoff-to-suite` and are only applied after the user confirms.
+- Tests: "Protection Suite link" section in `scripts/regression-test.ts` (fixture `scripts/fixtures/pcw-demo-project.json`, taken from the workbench's own demo project). The real workbench was also run under jsdom to check that the modified project loads through `loadProjectFromData`.
+- Later phases: share one TypeScript curve engine, then native screens.
