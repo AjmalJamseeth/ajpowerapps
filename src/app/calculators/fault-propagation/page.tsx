@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -83,6 +84,15 @@ export default function FaultPropagationPage() {
           chain (source → transformer → cable → sub-panel) to estimate
           available fault current at each point.
         </p>
+
+        <div className="mt-4 max-w-3xl rounded-lg border border-accent-2/30 bg-accent-2/10 px-4 py-3 text-sm text-muted">
+          <span className="font-semibold text-foreground">Quick estimate.</span> For a full study with several sources, motors,
+          different voltage levels, earth faults and peak/breaking currents, use the{" "}
+          <Link href="/calculators/iec-60909" className="font-semibold text-accent-2 hover:underline">
+            IEC 60909 Short-Circuit Calculator
+          </Link>
+          .
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <ReportButton title="Fault Current Propagation (Base kVA Method)" standardsLine="Base kVA Method — scalar %Z approximation, see caveat below" />
