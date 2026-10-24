@@ -4,6 +4,9 @@ import { BookOpen, GraduationCap } from "lucide-react";
 import { TOTAL_GUIDES } from "@/lib/guides";
 import { TOTAL_EXAMPLES } from "@/lib/workedExamples";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/resources", "Electrical Engineering Resources: Guides and Worked Examples", "Guides and worked examples that go with the AJapps calculators, organised by topic.");
 
 export default function ResourcesHubPage() {
   return (

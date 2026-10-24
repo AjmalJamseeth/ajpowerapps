@@ -34,9 +34,6 @@ export const metadata: Metadata = {
     description:
       "81 standards-based electrical engineering calculators. Free, no signup required.",
   },
-  alternates: {
-    canonical: "/",
-  },
 };
 
 // Runs before paint so the correct theme class is on <html> before any

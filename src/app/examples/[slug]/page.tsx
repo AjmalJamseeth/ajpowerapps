@@ -11,8 +11,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const example = getExampleBySlug(slug);
   if (!example) return {};
   return {
-    title: `${example.title} | AJapps`,
+    title: example.title,
     description: example.dek,
+    alternates: { canonical: `/examples/${slug}` },
   };
 }
 

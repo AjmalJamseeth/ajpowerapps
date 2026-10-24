@@ -15,6 +15,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = { ...pageMeta("/", "AJapps — Free Electrical Engineering Calculators", "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJapps — Free Electrical Engineering Calculators" } };
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
