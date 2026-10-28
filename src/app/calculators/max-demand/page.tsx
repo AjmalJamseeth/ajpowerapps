@@ -24,7 +24,10 @@ export default function MaxDemandPage() {
   const [supplyVoltage, setSupplyVoltage] = useState(DEFAULT_MAXDEMAND_INPUT.supplyVoltage);
   const [phase, setPhase] = useState<Phase>(DEFAULT_MAXDEMAND_INPUT.phase);
   const [powerFactor, setPowerFactor] = useState(DEFAULT_MAXDEMAND_INPUT.powerFactor);
-  const [categories, setCategories] = useState<CategoryInput[]>(DEFAULT_MAXDEMAND_INPUT.categories);
+  // Start with the worked example's loads so the page opens with a real result.
+  const [categories, setCategories] = useState<CategoryInput[]>(() =>
+    DEFAULT_MAXDEMAND_INPUT.categories.map((c) => ({ ...c, loadKw: ({ lighting: 100, sockets: 80, hvac: 150, motors: 200 } as Record<string, number>)[c.key] ?? 0 }))
+  );
 
   const [numBoards, setNumBoards] = useState(DEFAULT_MAXDEMAND_INPUT.numBoards);
   const [siteDiversityPct, setSiteDiversityPct] = useState(DEFAULT_MAXDEMAND_INPUT.siteDiversityPct);

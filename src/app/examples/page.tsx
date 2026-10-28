@@ -4,7 +4,7 @@ import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { WORKED_EXAMPLES, TOTAL_EXAMPLES } from "@/lib/workedExamples";
 import { pageMeta } from "@/lib/seo";
 
-export const metadata = pageMeta("/examples", "Worked Examples: Electrical Engineering Calculations with Answers", "Step-by-step worked electrical engineering examples with inputs, formulas and results: relay grading, arc flash, cable sizing, earthing, motors and more.");
+export const metadata = pageMeta("/examples", "Electrical Engineering Worked Examples", "Step-by-step worked electrical engineering examples with inputs, formulas and results: relay grading, arc flash, cable sizing, earthing, motors and more.");
 
 export default function ExamplesIndexPage() {
   const groupsWithExamples = CALCULATOR_GROUPS.map((g) => ({

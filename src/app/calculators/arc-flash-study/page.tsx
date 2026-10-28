@@ -404,7 +404,7 @@ export default function ArcFlashStudyPage() {
           </ul>
           <h3 className="mt-5 text-sm font-semibold text-foreground">PPE categories (NFPA 70E reference)</h3>
           <ul className="mt-2 space-y-1 text-xs text-muted">
-            <li><span className="font-medium text-foreground">Category 1 — up to 4 cal/cm²:</span> arc-rated shirt and pants, face shield with balaclava, hard hat, gloves, leather shoes.</li>
+            <li><span className="font-medium text-foreground">Category 1 — up to 4 cal/cm²:</span> arc-rated shirt and pants, arc-rated face shield or hood, hard hat, leather gloves, leather footwear as needed.</li>
             <li><span className="font-medium text-foreground">Category 2 — up to 8 cal/cm²:</span> as Category 1 at the higher rating, arc-rated balaclava and face shield or hood.</li>
             <li><span className="font-medium text-foreground">Category 3 — up to 25 cal/cm²:</span> arc flash suit with hood, arc-rated gloves.</li>
             <li><span className="font-medium text-foreground">Category 4 — up to 40 cal/cm²:</span> multi-layer arc flash suit with hood and gloves.</li>

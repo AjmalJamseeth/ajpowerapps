@@ -1,5 +1,6 @@
 import { calcJsonLd, calcMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
+import { CalcPageExtras } from "@/components/CalcPageExtras";
 
 export const metadata = calcMetadata("/calculators/emergency-lighting-duration");
 
@@ -8,6 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <JsonLd data={calcJsonLd("/calculators/emergency-lighting-duration")} />
       {children}
+      <CalcPageExtras href="/calculators/emergency-lighting-duration" />
     </>
   );
 }

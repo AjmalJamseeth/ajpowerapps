@@ -11,7 +11,9 @@ export function generateStaticParams() {
 // "Worked Example: X" -> "X (Worked Example)" so the topic words lead the search result title.
 function seoTitle(title: string): string {
   const t = title.replace(/^Worked Example:\s*/i, "");
-  return t === title ? title : `${t} (Worked Example)`;
+  if (t === title) return title;
+  // add the label only while the full result title (with " | AJapps") stays near Google's ~60-character display limit
+  return t.length <= 40 ? `${t} (Worked Example)` : t;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

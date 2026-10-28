@@ -173,7 +173,7 @@ export default function CableSizingPage() {
             >
               <NumberField label="Ambient / ground temperature" unit="°C" tip={"The reference temperature the cable actually operates in \u2014 air temperature for above-ground methods, or surrounding soil temperature if buried. Running hotter reduces safe current."} value={input.ambientC} onChange={(v) => update({ ambientC: v })} />
               <NumberField label="Grouping" hint="circuits touching/grouped" unit="ckts" tip={"How many current-carrying circuits are grouped together (touching, in the same conduit/tray/duct, close enough to affect each other's cooling). Each cable partly heats its neighbours, so a grouped cable carries less than the same cable running alone."} value={input.grouping} onChange={(v) => update({ grouping: v })} />
-              <NumberField label="Number of layers" tip={"If cables are grouped AND stacked in more than one row/tier, the extra layers trap more heat than horizontal grouping alone accounts for. Leave at 1 if everything sits in a single row."} value={input.layers} onChange={(v) => update({ layers: v })} />
+              <NumberField label="Number of layers" tip={"Optional extra factor for cables stacked in more than one layer (0.8 for 2 layers, 0.7 for 3, 0.65 for 4\u20135, 0.6 for 6+). It is an engineering-judgement factor, not an IEC table, and it multiplies on top of the grouping factor, so it is conservative. For cables on multiple trays, IEC 60364-5-52 Tables B.52.20/B.52.21 are the reference. Leave at 1 if everything sits in a single row."} value={input.layers} onChange={(v) => update({ layers: v })} />
               <SelectField<SpacingType>
                 label="Cable spacing"
                 hint="methods E/F only"

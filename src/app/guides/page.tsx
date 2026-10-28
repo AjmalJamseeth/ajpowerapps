@@ -4,7 +4,7 @@ import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { GUIDES, TOTAL_GUIDES } from "@/lib/guides";
 import { pageMeta } from "@/lib/seo";
 
-export const metadata = pageMeta("/guides", "Electrical Engineering Guides: Protection, Cables, Earthing, Motors", "Plain-language electrical engineering guides explaining the methods and standards behind each calculator.");
+export const metadata = pageMeta("/guides", "Electrical Engineering Guides by Topic", "Plain-language electrical engineering guides explaining the methods and standards behind each calculator.");
 
 export default function GuidesIndexPage() {
   const guidesWithGroup = GUIDES.map((guide) => ({

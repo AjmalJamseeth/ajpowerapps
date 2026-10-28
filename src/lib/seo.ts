@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
+import { CALC_ARTICLES } from "@/lib/calcArticles";
 
 export const SITE_URL = "https://www.ajpowerapps.com";
 const BASE = SITE_URL;
@@ -137,7 +138,16 @@ export function calcJsonLd(href: string): object[] {
     if (!c) continue;
     const o = CALC_SEO[href];
     const name = o?.title ?? (/calculator|study|suite|selector/i.test(c.name) ? c.name : `${c.name} Calculator`);
+    const article = CALC_ARTICLES[href];
+    const faq = article && article.faqs.length > 0
+      ? [{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: article.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+        }]
+      : [];
     return [
+      ...faq,
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",

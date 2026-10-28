@@ -213,7 +213,7 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
           </span>
           <span className="ml-2 text-sm text-muted">Engineering Calculation Report</span>
         </div>
-        <h2 className="mt-3 text-xl font-semibold text-foreground">{title}</h2>
+        <p className="mt-3 text-xl font-semibold text-foreground">{title}</p>
         {standardsLine && <p className="mt-1 text-xs text-muted">{standardsLine}</p>}
         <p className="mt-1 text-xs text-muted">Generated {generatedLabel}</p>
         <p className="mt-2 text-xs italic text-muted">
