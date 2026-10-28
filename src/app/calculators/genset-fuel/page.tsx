@@ -46,7 +46,7 @@ export default function GensetFuelPage() {
                 "Runtime = 500/45 ≈ 11.11 hours.",
                 "Cost per hour = 45 × 1.20 = $54/hr.",
               ],
-              result: "≈11.1 hours runtime, $54/hr fuel cost — hand-checked and matched the live code exactly.",
+              result: "≈11.1 hours runtime, $54/hr fuel cost.",
             }}
             notes="The consumption rate must come from your genset's actual manufacturer datasheet at the load level you'll operate at (consumption isn't linear with load for most gensets — a genset at 50% load doesn't consume exactly half of its 100%-load rate) — no consumption figure is hard-coded here."
           />

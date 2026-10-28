@@ -60,7 +60,8 @@ const SQRT3 = Math.sqrt(3);
 
 export const VT_STANDARD_VA = [10, 15, 25, 30, 50, 75, 100, 150, 200, 300, 400, 500];
 
-// IEC 61869-3 Table of standard rated voltage factors. Simplified to the
+// IEC 61869-3 Table 302 standard rated voltage factors (every VT is also rated
+// 1.2 × continuously; the factor returned is the short-time one). Simplified to the
 // most common cases; always confirm against project earthing philosophy
 // and the manufacturer's rating plate.
 export function getVoltageFactor(connection: VtConnection, earthing: VtEarthing) {
@@ -69,9 +70,9 @@ export function getVoltageFactor(connection: VtConnection, earthing: VtEarthing)
   }
   switch (earthing) {
     case "directEarthed":
-      return { vf: 1.2, timeLabel: "Continuous", basis: "Phase-to-earth, effectively (solidly) earthed neutral system" };
+      return { vf: 1.5, timeLabel: "30 s", basis: "Phase-to-earth, effectively (solidly) earthed neutral system: 1.2 continuous and 1.5 for 30 s" };
     case "resistanceAutoClear":
-      return { vf: 1.5, timeLabel: "30 s", basis: "Phase-to-earth, non-effectively earthed neutral, with automatic earth-fault clearance" };
+      return { vf: 1.9, timeLabel: "30 s", basis: "Phase-to-earth, non-effectively earthed neutral, with automatic earth-fault clearance: 1.2 continuous and 1.9 for 30 s" };
     case "noAutoClear":
       return { vf: 1.9, timeLabel: "8 h", basis: "Phase-to-earth, earthed (resistance/isolated) neutral, without automatic earth-fault clearance" };
     case "petersenNoAutoClear":
@@ -166,7 +167,8 @@ export function calcVt(input: VtInput, premiumEnabled: boolean): VtResult | null
     }
 
     if (input.openDeltaEnabled) {
-      const vsPhaseEarth = secondaryV / SQRT3;
+      // residual (open-delta) windings: Us/√3 each on effectively earthed systems, Us/3 each on non-effectively earthed systems (IEC 61869-3)
+      const vsPhaseEarth = earthing === "directEarthed" ? secondaryV / SQRT3 : secondaryV / 3;
       openDelta = {
         vsPhaseEarth,
         residualFaultV: 3 * vsPhaseEarth,

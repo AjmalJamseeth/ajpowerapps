@@ -97,8 +97,8 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
     steps: [
       {
         title: "Find the voltage factor for this earthing arrangement",
-        body: "A directly (solidly) earthed neutral system permits continuous operation at the standard 1.2x voltage factor — no fault-condition overvoltage margin beyond that is needed.",
-        result: "Vf = 1.2, continuous rating",
+        body: "Every VT is rated 1.2 × continuously. For a phase-to-earth VT on an effectively (solidly) earthed system, IEC 61869-3 Table 302 adds a short-time factor of 1.5 for 30 s to cover the voltage rise on the healthy phases until the earth fault is cleared.",
+        result: "Vf = 1.2 continuous and 1.5 for 30 s",
       },
       {
         title: "Compute the rated primary and secondary voltages the VT actually sees",
@@ -139,7 +139,7 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "What changes for an ungrounded or resistance-earthed system instead of solidly earthed?",
-        a: "The voltage factor increases substantially — from 1.2x continuous for a directly earthed system up to 1.9x for 8 hours on a resistance- or Petersen-coil-earthed system without automatic fault clearance, because the VT has to survive a sustained earth fault where the healthy phases rise toward full line-to-line voltage rather than being cleared quickly. This changes the VT's required insulation and thermal rating, not just its burden calculation.",
+        a: "The short-time voltage factor increases — from 1.5 for 30 s on an effectively earthed system to 1.9 for 30 s on a non-effectively earthed system with automatic earth-fault clearance, and 1.9 for 8 hours on an isolated or resonant-earthed (Petersen coil) system without automatic clearance, because the VT has to survive a sustained earth fault where the healthy phases rise toward full line-to-line voltage rather than being cleared quickly. This changes the VT's required insulation and thermal rating, not just its burden calculation.",
       },
     ],
   },
@@ -416,33 +416,35 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
     readTime: "9 min read",
     scenario: [
       { label: "Motor rated voltage", value: "6.6 kV" },
-      { label: "1-minute IR reading", value: "15 MΩ" },
-      { label: "10-minute IR reading", value: "33 MΩ" },
+      { label: "Winding type", value: "Form-wound stator, built after 1970" },
+      { label: "1-minute IR reading", value: "150 MΩ" },
+      { label: "10-minute IR reading", value: "330 MΩ" },
       { label: "Test temperature", value: "40°C (reference temperature — no correction needed)" },
       { label: "Insulation class", value: "B/F/H" },
     ],
     steps: [
       {
-        title: "Compute the minimum required insulation resistance (kV+1 rule)",
-        equation: "minRequired(MΩ) = kV(rated) + 1",
-        substitution: "6.6 + 1",
-        result: "minRequired = 7.6 MΩ",
+        title: "Look up the minimum insulation resistance for this winding type (IEEE 43 Table 3)",
+        body: "IEEE 43-2013 sets the minimum 1-minute IR at 40°C by winding type: 100 MΩ for most ac windings built after about 1970 (form-wound coils), 5 MΩ for random-wound and sub-1 kV form-wound coils, and kV + 1 MΩ only for windings made before about 1970 and field windings.",
+        equation: "minRequired = 100 MΩ (form-wound, post-1970)",
+        substitution: "the older kV + 1 rule would give only 6.6 + 1 = 7.6 MΩ, which is far too lenient for this motor",
+        result: "minRequired = 100 MΩ",
       },
       {
         title: "Correct the measured IR to the 40°C reference (not needed here)",
         body: "The widely used rule of thumb is that IR roughly halves for every 10°C above 40°C, or doubles for every 10°C below — since this test was already run at exactly 40°C, no correction is applied.",
-        result: "Corrected IR = 15 MΩ (unchanged)",
+        result: "Corrected IR = 150 MΩ (unchanged)",
       },
       {
         title: "Check the corrected IR against the minimum",
         equation: "correctedIR ≥ minRequired?",
-        substitution: "15 MΩ ≥ 7.6 MΩ",
-        result: "Passes, with about 2x margin",
+        substitution: "150 MΩ ≥ 100 MΩ",
+        result: "Passes, with a 1.5x margin",
       },
       {
         title: "Compute the polarization index from the two timed readings",
         equation: "PI = IR(10 min) / IR(1 min)",
-        substitution: "33 / 15",
+        substitution: "330 / 150",
         result: "PI = 2.20",
       },
       {
@@ -453,10 +455,10 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       },
     ],
     resultSummary: [
-      { check: "1-minute IR (corrected to 40°C) vs. kV+1 rule", requirement: "≥ 7.6 MΩ", actual: "15 MΩ", pass: true },
+      { check: "1-minute IR (corrected to 40°C) vs. IEEE 43 Table 3", requirement: "≥ 100 MΩ", actual: "150 MΩ", pass: true },
       { check: "Polarization Index vs. Class B/F/H minimum", requirement: "≥ 2.0", actual: "2.20", pass: true },
     ],
-    finalAnswer: "This winding passes both checks — a comfortable 2x margin on the basic IR test, but only a 10% margin on polarization index, which the IEEE 43 'Good' band (2.0-4.0) confirms is an acceptable but not exceptional result. The PI check is the tighter of the two constraints here.",
+    finalAnswer: "This winding passes both checks — a 1.5x margin on the basic IR test, but only a 10% margin on polarization index, which the IEEE 43 'Good' band (2.0-4.0) confirms is an acceptable but not exceptional result. The PI check is the tighter of the two constraints here.",
     keyInsight: "IR and PI test two different things and can disagree — a winding can pass a healthy absolute IR reading while its PI trend (how much IR rises over the 10-minute test as the insulation polarizes) is comparatively weak, or vice versa. PI specifically screens for moisture or contamination, which affects how the reading develops over time rather than its absolute level at any one instant, which is why both checks are run together rather than relying on either alone.",
     faqs: [
       {
@@ -491,7 +493,7 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       {
         title: "Compute Winding 1's polarization index",
         equation: "PI = IR(10 min) / IR(1 min)",
-        substitution: "33 / 15",
+        substitution: "330 / 150",
         result: "PI = 2.20 → 'Good' band (2.0–4.0)",
       },
       {

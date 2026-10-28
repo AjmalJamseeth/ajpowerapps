@@ -49,7 +49,7 @@ export default function VfdSavingsPage() {
                 "Baseline (throttled) power = 75 × 100% = 75kW.",
                 "Power savings = 75 − 25.73 = 49.28kW → annual energy = 49.28 × 6,000 = 295,650kWh → cost savings = 295,650 × $0.12 = $35,478.",
               ],
-              result: "≈$35,478/year in estimated savings — hand-checked and matched the live code exactly. Feed this into the Life-Cycle Cost calculator as the 'annual operating cost' difference for a full VFD payback analysis.",
+              result: "≈$35,478/year in estimated savings. Feed this into the Life-Cycle Cost calculator as the 'annual operating cost' difference for a full VFD payback analysis.",
             }}
             notes="The 100% throttled-baseline assumption is deliberately conservative/illustrative — a real valve/damper-throttled system's power at reduced flow depends on the specific pump/fan curve and system curve shape, and is often somewhat lower than 100% of rated power. If you have actual trended power data or a pump/fan curve for the throttled condition, override the baseline percentage for a more accurate estimate. This tool assumes a quadratic (friction-dominated) system curve, typical of most pump/fan applications but not universal (e.g. systems with a large static head component behave differently)."
           />

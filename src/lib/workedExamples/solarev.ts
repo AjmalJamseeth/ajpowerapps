@@ -55,8 +55,8 @@ export const SOLAREV_EXAMPLES: WorkedExample[] = [
         table: {
           headers: ["Cable", "Design current", "Selected size", "Derated ampacity", "Voltage drop"],
           rows: [
-            ["DC string cable", "17.375 A", "4 mm²", "36.4 A", "1.38% (≤2% limit) — PASS"],
-            ["AC output cable", "18.04 A (10kW/√3/400V x 1.25)", "2.5 mm²", "30 A", "2.06% (≤3% limit) — PASS"],
+            ["DC string cable", "17.375 A", "1.5 mm²", "20.0 A", "1.94% (≤2% limit) — PASS"],
+            ["AC output cable", "18.04 A (10kW/√3/400V x 1.25)", "1.5 mm²", "22 A", "1.81% (≤3% limit) — PASS"],
           ],
         },
       },
@@ -83,8 +83,8 @@ export const SOLAREV_EXAMPLES: WorkedExample[] = [
       { check: "Max string voltage (cold)", requirement: "≤ 1000 V", actual: "1047.42 V (Ns=20)", pass: false },
       { check: "MPPT window (cold ceiling)", requirement: "≤ 850 V", actual: "878.14 V (Ns=20)", pass: false },
       { check: "Per-MPPT design current", requirement: "≤ 16 A", actual: "17.375 A", pass: false },
-      { check: "DC cable voltage drop", requirement: "≤ 2%", actual: "1.38%", pass: true },
-      { check: "AC cable voltage drop", requirement: "≤ 3%", actual: "2.06%", pass: true },
+      { check: "DC cable voltage drop", requirement: "≤ 2%", actual: "1.94%", pass: true },
+      { check: "AC cable voltage drop", requirement: "≤ 3%", actual: "1.81%", pass: true },
     ],
     finalAnswer: "This module and inverter combination fails on three independent grounds at the default 20-module string length: string voltage, MPPT window, and per-MPPT current. Shortening the string to 19 modules resolves the voltage and MPPT-window failures, but the current failure is completely unrelated to string length — this module's Isc simply exceeds what this inverter's MPPT channel is rated to accept, and can only be resolved with a lower-Isc module or an inverter with a higher per-MPPT current rating.",
     keyInsight: "String voltage/MPPT-window checks and per-MPPT current checks are governed by entirely different design levers — series module count controls the first, module short-circuit current controls the second — so a design that 'fixes' one by changing string length can still fail the other outright. Both need to be checked independently rather than assuming that resolving one automatically resolves the array.",
@@ -122,12 +122,12 @@ export const SOLAREV_EXAMPLES: WorkedExample[] = [
       {
         title: "Size the single charge point's circuit cable and breaker",
         equation: "Ib = ratedCurrentA = 32 A",
-        result: "Selected cable: 4 mm², derated ampacity 40 A, voltage drop 3.81% (≤5% limit — PASS). Breaker: 32 A (next standard size ≥ Ib)",
+        result: "Selected cable: 4 mm², derated ampacity 40 A, voltage drop 2.03% (≤5% limit — PASS). Breaker: 32 A (next standard size ≥ Ib)",
       },
       {
         title: "Check the earthing system for a TN-C-S (PME) conflict",
         body: "A TN-C-S supply carries a combined protective-and-neutral (PEN) conductor upstream of the property — IEC 60364-7-722 prohibits extending a PEN conductor into the final circuit feeding an EV charge point, because a lost PEN connection could otherwise put dangerous voltage onto the vehicle's exposed metalwork.",
-        result: "TN-C-S triggers a warning: convert this circuit to TN-S locally, and fit an open-PEN detection device or a local TT-style earth electrode — regardless of which RCD type is fitted",
+        result: "TN-C-S triggers a warning: the final circuit must not contain a PEN conductor, so run it as TN-S; some national rules (e.g. BS 7671 in the UK) also require open-PEN protection or a local TT earth electrode",
       },
       {
         title: "Confirm the RCD choice is compliant",
@@ -138,17 +138,17 @@ export const SOLAREV_EXAMPLES: WorkedExample[] = [
         body: "IEC 60364-7-722.311 requires a diversity factor of 1 (no reduction at all) when there is no LMS — every point must be assumed capable of drawing full rated current simultaneously.",
         equation: "rawA = numPoints x perPointA          diversifiedA = rawA x diversityFactor",
         substitution: "10 x 32 = 320 A          320 x 1 (no LMS)",
-        result: "diversifiedA = 320 A → feeder sized to 120 mm², derated ampacity 322 A, voltage drop 2.00% (≤5% — PASS)",
+        result: "diversifiedA = 320 A → feeder sized to 120 mm², derated ampacity 322 A, voltage drop 1.06% (≤5% — PASS)",
       },
       {
         title: "Re-size the same 10-point site with a Load Management System declared",
         equation: "diversifiedA = rawA x diversityFactor",
         substitution: "320 x 0.6 (LMS-declared factor)",
-        result: "diversifiedA = 192 A → feeder drops to 70 mm², derated ampacity 229 A, voltage drop 2.10% (≤5% — PASS)",
+        result: "diversifiedA = 192 A → feeder drops to 70 mm², derated ampacity 229 A, voltage drop 1.12% (≤5% — PASS)",
       },
     ],
     resultSummary: [
-      { check: "Single charge point voltage drop", requirement: "≤ 5%", actual: "3.81%", pass: true },
+      { check: "Single charge point voltage drop", requirement: "≤ 5%", actual: "2.03%", pass: true },
       { check: "Earthing check (TN-C-S)", requirement: "No PEN in final circuit", actual: "Warning triggered — conversion required", pass: false },
       { check: "10-point feeder, no LMS", requirement: "Support 320 A", actual: "120 mm², 322 A capacity", pass: true },
       { check: "10-point feeder, with LMS (0.6)", requirement: "Support 192 A", actual: "70 mm², 229 A capacity", pass: true },

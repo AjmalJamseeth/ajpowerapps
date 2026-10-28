@@ -61,8 +61,10 @@ export function InfoPanel({ purpose, standards, capabilities, example, notes }: 
           ▾
         </span>
       </button>
-      {open && (
-        <div className="space-y-5 border-t border-border px-6 py-5 text-sm leading-relaxed text-muted">
+      {/* Always rendered (just hidden when collapsed) so the explanation, standards,
+          worked example and example links are in the page HTML for search engines. */}
+      {(
+        <div className={`space-y-5 border-t border-border px-6 py-5 text-sm leading-relaxed text-muted${open ? "" : " hidden"}`}>
           <p>{purpose}</p>
 
           <div>

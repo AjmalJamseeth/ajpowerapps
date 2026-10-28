@@ -229,7 +229,9 @@ export function calcMotor(input: MotorInput): MotorResult {
     if (nec) {
       const cat = largest.wound ? T430_52.wound : T430_52.other;
       const pct = { ntd: cat.ntd, td: cat.td, itb: cat.itb }[input.feedDeviceType];
-      ocpdA = roundUpStd((pct / 100) * largest.flc) + sumOthers;
+      // NEC 430.62(A): largest branch device rating + sum of the other FLCs, and where that
+      // is not a standard size the next LOWER standard size must be used (no rounding up).
+      ocpdA = roundDownStd(roundUpStd((pct / 100) * largest.flc) + sumOthers);
     } else {
       iecFeedA = sumAll * (input.feedIecMargin || 1);
     }

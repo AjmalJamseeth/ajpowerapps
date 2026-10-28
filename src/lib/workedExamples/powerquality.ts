@@ -43,9 +43,10 @@ export const POWERQUALITY_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "Size the delta-connected capacitance per phase",
-        equation: "C = (Qc x 10⁶ / 3) / (2π·f·Vcap²)",
-        substitution: "Using f = 50 Hz, Vcap = 440 V",
-        result: "C = 1.516 µF per phase, capacitor current Ic = 384.8 A",
+        body: "The capacitance must deliver Qc at the voltage the bank actually sees (415 V). Because the capacitors are rated 440 V, their nameplate rating must be higher: Qc × (440/415)².",
+        equation: "C = (Qc / 3) / (2π·f·V²)          nameplate kVAr = Qc × (Vcap / V)²",
+        substitution: "C = (276,600 / 3) / (2π × 50 × 415²);   276.6 × (440/415)²",
+        result: "C ≈ 1,704 µF per phase (delta), capacitor current Ic = 384.8 A, order ≈ 311 kVAr rated at 440 V",
       },
       {
         title: "Compute line current reduction and apparent-power saving",
@@ -55,10 +56,10 @@ export const POWERQUALITY_EXAMPLES: WorkedExample[] = [
       },
     ],
     resultSummary: [
-      { check: "Required capacitor bank rating", requirement: "n/a (this is the sizing result)", actual: "276.6 kVAr", pass: true },
+      { check: "Required compensation at 415 V", requirement: "n/a (this is the sizing result)", actual: "276.6 kVAr (≈311 kVAr nameplate at 440 V)", pass: true },
       { check: "Line current after correction", requirement: "n/a (informational)", actual: "732.2 A, down from 927.5 A", pass: true },
     ],
-    finalAnswer: "A 276.6 kVAr delta-connected capacitor bank raises this load's power factor from 0.75 to 0.95, cutting line current by 21.1% (927.5 A -> 732.2 A) and freeing up 140.4 kVA of apparent-power headroom on the same supply.",
+    finalAnswer: "A delta-connected capacitor bank delivering 276.6 kVAr at 415 V (about 311 kVAr nameplate at 440 V) raises this load's power factor from 0.75 to 0.95, cutting line current by 21.1% (927.5 A -> 732.2 A) and freeing up 140.4 kVA of apparent-power headroom on the same supply.",
     keyInsight: "Power factor correction reduces current and apparent power without changing the actual real power (kW) the load consumes — the load still does the same 500 kW of work, but the supply, transformer and cables no longer have to carry the extra reactive current that was previously going back and forth to support that load's magnetizing/reactive needs.",
     faqs: [
       {
@@ -206,7 +207,7 @@ export const POWERQUALITY_EXAMPLES: WorkedExample[] = [
     faqs: [
       {
         q: "Where do the default demand factors for each category come from?",
-        a: "These reflect commonly used general engineering practice (broadly consistent with IEC 60439-style guidance) for how simultaneously different load categories typically operate at their full connected rating — they are starting points, not fixed universal constants, and a real design should always be checked against the specific project's applicable code, utility requirements, or measured load data where available.",
+        a: "These reflect commonly used general engineering practice (typical design values — always confirm against local code or utility rules) for how simultaneously different load categories typically operate at their full connected rating — they are starting points, not fixed universal constants, and a real design should always be checked against the specific project's applicable code, utility requirements, or measured load data where available.",
       },
       {
         q: "How would adding a second board with site-wide diversity change this?",

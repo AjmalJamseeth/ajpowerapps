@@ -48,7 +48,7 @@ export default function PolarizationIndexPage() {
                 "Band: 2.0–4.0 → Good.",
                 "Minimum recommended for Class B/F/H = 2.0 → 2.2 ≥ 2.0, meets minimum.",
               ],
-              result: "PI 2.2 — Good, meets IEEE 43's minimum recommendation — hand-checked and matched the live code exactly.",
+              result: "PI 2.2 — Good, meets IEEE 43's minimum recommendation.",
             }}
             notes="PI is most meaningful when the winding is dry and clean; a low PI can also result from surface contamination rather than genuine insulation degradation."
           />

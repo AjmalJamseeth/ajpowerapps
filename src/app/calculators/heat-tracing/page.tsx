@@ -49,7 +49,7 @@ export default function HeatTracingPage() {
                 "Required with design factor = 7.98 × 1.3 = 10.38 W/m — the 20W/m cable comfortably covers this.",
                 "Circuit power = 20 × 80 = 1,600W; current = 1,600/230 = 6.96A — well within the 16A breaker.",
               ],
-              result: "7.98W/m heat loss, 10.38W/m required, the selected 20W/m cable is adequate, and the 80m circuit draws 6.96A — hand-checked and matched the live code exactly.",
+              result: "7.98W/m heat loss, 10.38W/m required, the selected 20W/m cable is adequate, and the 80m circuit draws 6.96A.",
             }}
             notes="This sizes the heater and circuit from first-principles heat loss — it doesn't replace a manufacturer's heat-tracing design software, which accounts for pipe supports, valves/flanges, startup heat-up time, and cable de-rating for the specific installation. For constant-wattage cable types, enter the cable's resistance per meter to see the voltage-drop check; self-regulating cables have a non-linear resistance and aren't modeled here — check the manufacturer's maximum circuit length tables instead. Hazardous-area installations require GFEP (typically 30mA) per IEC 60079-30 — not modeled here as a pass/fail, just a reminder."
           />

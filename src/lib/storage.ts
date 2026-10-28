@@ -62,7 +62,7 @@ function sizeCableAC(ibDesign: number | null, material: ConductorMaterial, metho
     if (!base) continue;
     const derated = base * cf;
     if (derated >= ibDesign) {
-      const vdResult = voltDropPct(material, sz, ibDesign, length, volt, phase === "3ph" ? "3ph" : "1ph", 1.0);
+      const vdResult = voltDropPct(material, sz, ibDesign, length, volt, phase === "3ph" ? "3ph" : "1ph", 1.0, "XLPE90");
       if (vdResult && vdResult.vd_pct <= 3) return { size: sz, amp: derated, vd: vdResult.vd_pct };
     }
   }

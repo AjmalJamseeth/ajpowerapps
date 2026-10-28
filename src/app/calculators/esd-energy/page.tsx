@@ -48,7 +48,7 @@ export default function EsdEnergyPage() {
                 "E = 0.5 × 100×10⁻¹² F × (10,000V)² = 0.5 × 100×10⁻¹² × 10⁸ = 0.005 J = 5mJ.",
                 "5mJ is 20× higher than the 0.25mJ MIE — this discharge energy exceeds the ignition threshold.",
               ],
-              result: "5mJ spark energy vs. 0.25mJ MIE — FAILS (ignition risk) — hand-checked and matched the live code exactly. (100pF/10kV is a deliberately high example to illustrate a failing case; well-bonded plant equipment normally has much lower stray capacitance and is kept below charging voltages that could produce this.)",
+              result: "5mJ spark energy vs. 0.25mJ MIE — FAILS (ignition risk). (100pF/10kV is a deliberately high example to illustrate a failing case; well-bonded plant equipment normally has much lower stray capacitance and is kept below charging voltages that could produce this.)",
             }}
             notes="MIE is a substance-specific property with no single universal value — always use the specific gas/vapor/dust's own tested MIE data (e.g. from IEC 60079-20-1 or the material safety data), not a generic assumption. This is a screening calculation for isolated-conductor discharges — it doesn't cover brush discharges, propagating brush discharges, or bulking-powder discharges, which have their own (often lower) effective ignition energy thresholds and require specialist assessment."
           />

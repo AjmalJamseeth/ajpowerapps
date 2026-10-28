@@ -15,14 +15,15 @@
 //   - Generator          ZG = KG*(RG + jXd"), KG = Un/UrG * cmax/(1+xd"*sin(phi))  (cl. 3.6.1)
 //   - Asynchronous motor ZM = 1/(ILR/IrM) * UrM^2/SrM            (cl. 3.8)
 //   - Ik" three-phase, line-to-line, line-to-earth, line-line-earth (cl. 4)
-//   - Peak current ip = kappa*sqrt(2)*Ik", kappa = 1.02+0.98*exp(-3R/X)  (method A, cl. 4.3)
+//   - Peak current ip = kappa*sqrt(2)*Ik", kappa = 1.02+0.98*exp(-3R/X) from the Thevenin R/X,
+//     with the method B factor 1.15 when more than one source feeds the fault (cl. 4.3.1.2)
 //   - Breaking current Ib = sum(mu_i * Ik"_i)                    (cl. 4.5)
 //   - Thermal equivalent Ith = Ik" * sqrt(m+n)                   (cl. 4.8, n = 1 conservative)
 //
 // Simplifications (all disclosed in the UI): no steady-state Ik (lambda
-// factors), motor breaking decay (mu*q) taken as 1 (conservative), uniform
-// R/X ratio method A for ip (may differ from method B/C for branches with
-// very different X/R), transformer tap changers and loads ignored.
+// factors), motor breaking decay (mu*q) taken as 1 (conservative), ip by
+// method B (not the more exact method C), transformer tap changers and
+// loads ignored.
 
 export interface C {
   re: number;
@@ -664,10 +665,6 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
     const i3pu = cMax / abs(z1);
     const ik3 = i3pu * iBase;
     const rx = z1.im > 1e-12 ? z1.re / z1.im : 10;
-    const kappa = peakFactor(rx);
-    const ip = kappa * Math.SQRT2 * ik3;
-    const m = thermalM(kappa, settings.frequencyHz, settings.tkS);
-    const ith = ik3 * Math.sqrt(m + 1);
 
     // Contributions: bus-voltage change at each source from a fault current injected at k
     const ifc = div(cx(cMax), z1);
@@ -691,6 +688,16 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
       ibPhasor = add(ibPhasor, scale(ii, mu));
     }
     const ib = abs(ibPhasor) * iBase;
+
+    // Peak factor from R/X of the Thevenin impedance at the fault (IEC 60909-0 4.3.1.2 method B).
+    // With more than one source feeding the fault the network is treated as meshed and
+    // κ(b) = 1.15·κ, limited to 1.8 (LV) / 2.0 (HV), per the standard.
+    const kappa0 = peakFactor(rx);
+    const meshed = contributions.filter((c2) => c2.ikKa > 1e-6).length > 1;
+    const kappa = meshed ? Math.min(1.15 * kappa0, un <= 1 ? 1.8 : 2.0) : kappa0;
+    const ip = kappa * Math.SQRT2 * ik3;
+    const m = thermalM(kappa0, settings.frequencyHz, settings.tkS);
+    const ith = ik3 * Math.sqrt(m + 1);
 
     // Unbalanced faults (Z2 = Z1)
     const ik2 = ((cMax * sqrt3) / (2 * abs(z1))) * iBase;
@@ -728,7 +735,7 @@ export function analyseShortCircuit(net: ScNetwork): ScResult {
       `1. Voltage factor: Un = ${f2(un, 3)} kV → cmax = ${f2(cMax, 2)}, cmin = ${f2(cMin, 2)} (IEC 60909-0 Table 1).`,
       `2. Thevenin positive-sequence impedance at the bus (all sources, transformers and cables combined by network reduction): Z1 = ${zStr(z1, 5)} pu = ${zStr(zOhm, 5)} Ω (|Z1| = ${f2(abs(zOhm), 5)} Ω), R/X = ${f2(rx, 3)}.`,
       `3. Initial symmetrical current: Ik″ = c·Un/(√3·|Z1|) = ${f2(cMax, 2)}×${f2(un, 3)}/(1.7321×${f2(abs(zOhm), 5)}) = ${f2(ik3, 2)} kA.`,
-      `4. Peak factor: κ = 1.02 + 0.98·e^(−3R/X) = 1.02 + 0.98·e^(−3×${f2(rx, 3)}) = ${f2(kappa, 3)}; ip = κ·√2·Ik″ = ${f2(kappa, 3)}×1.4142×${f2(ik3, 2)} = ${f2(ip, 2)} kA.`,
+      `4. Peak factor: κ = 1.02 + 0.98·e^(−3R/X) = 1.02 + 0.98·e^(−3×${f2(rx, 3)}) = ${f2(kappa0, 3)}${meshed ? `; several sources feed the fault, so method B applies: κ(b) = 1.15·κ = ${f2(kappa, 3)} (limit ${un <= 1 ? "1.8" : "2.0"})` : ""}; ip = κ·√2·Ik″ = ${f2(kappa, 3)}×1.4142×${f2(ik3, 2)} = ${f2(ip, 2)} kA.`,
     ];
     if (contributions.length > 1 || contributions.some((c2) => c2.kind === "Generator")) {
       steps.push(

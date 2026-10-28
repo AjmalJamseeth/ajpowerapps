@@ -115,7 +115,7 @@ export default function FaultPropagationPage() {
                 "After transformer: cumulative %Z = 0.4+6 = 6.4% → fault MVA = 100/6.4 = 15.6 MVA.",
                 "After cable: cumulative %Z = 6.4+1.5 = 7.9% → fault MVA = 100/7.9 = 12.66 MVA → ≈17.6kA at 415V.",
               ],
-              result: "≈17.6kA available fault current at the sub-panel — hand-checked and matched the live code exactly.",
+              result: "≈17.6kA available fault current at the sub-panel.",
             }}
             notes="IMPORTANT SIMPLIFICATION: this combines %Z magnitudes arithmetically rather than resolving each element into R and X and summing vectorially. Arithmetic summation slightly OVERSTATES total impedance and therefore UNDERSTATES fault current relative to a full R+jX study. Use this for quick estimates only — never finalize protective device interrupting-rating selections from this figure alone; use a full R+X or dedicated short-circuit study for that."
           />

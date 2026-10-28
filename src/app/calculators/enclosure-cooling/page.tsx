@@ -50,7 +50,7 @@ export default function EnclosureCoolingPage() {
                 "Natural convection capacity = 5.5 × 6.08 × 10 = 334.4W — less than the 600W of losses, so natural convection alone is inadequate.",
                 "Required fan airflow = 3.1 × 600 / 10 = 186 m³/h.",
               ],
-              result: "Natural convection can only shed 334.4W against 600W of losses — inadequate — requiring 186 m³/h of forced airflow — hand-checked and matched the live code exactly.",
+              result: "Natural convection can only shed 334.4W against 600W of losses — inadequate — requiring 186 m³/h of forced airflow.",
             }}
             notes="This is a simplified, first-pass heat-rise method — it doesn't account for solar loading, altitude derating of the fan, filter/vent pressure drop, or non-uniform internal air circulation. For safety-critical or high-density enclosures, verify against the enclosure/cooling manufacturer's own sizing tool."
           />

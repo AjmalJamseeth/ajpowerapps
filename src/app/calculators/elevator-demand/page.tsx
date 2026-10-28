@@ -51,7 +51,7 @@ export default function ElevatorDemandPage() {
                 "NEC Table 620.14 demand factor for 4 elevators = 0.85.",
                 "Demand load = 42.04 × 0.85 = 35.74kW.",
               ],
-              result: "10.51kW per unit, 42.04kW connected, 35.74kW after the NEC demand factor — hand-checked and matched the live code exactly.",
+              result: "10.51kW per unit, 42.04kW connected, 35.74kW after the NEC demand factor.",
             }}
             notes="The motor power formula is a standard elevator-engineering estimate for preliminary electrical sizing — final sizing should use the actual elevator manufacturer's motor nameplate data. The demand factor table assumes all elevators on the feeder are of similar size; for mixed-size banks, engineering judgment is required. Escalators aren't covered here — they run continuously regardless of passenger load and are typically sized directly from the manufacturer's motor nameplate (see the Motor Calculator for branch-circuit/OCPD sizing from a known FLC)."
           />

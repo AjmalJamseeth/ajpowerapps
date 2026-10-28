@@ -70,7 +70,7 @@ export default function ThermocoupleRtdPage() {
                 "NIST inverse polynomial: 9.13mV → hot-junction temperature ≈ 222°C.",
                 "Pt100: R(100°C) = 100×(1 + 3.9083e-3×100 − 5.775e-7×100²) = 138.51Ω exactly — matches the reading, so RTD temperature = 100°C.",
               ],
-              result: "Type K compensated temperature ≈ 222°C; Pt100 reads exactly 100°C — both hand-checked against the official NIST/IEC reference values and matched the live code to well within their stated tolerances (±0.05°C class for the polynomials).",
+              result: "Type K compensated temperature ≈ 222°C; Pt100 reads exactly 100°C — both hand-checked against the official NIST/IEC reference values, agreeing to well within their stated tolerances (±0.05°C class for the polynomials).",
             }}
             notes="Rare-metal/high-temperature thermocouple types (N, R, S, B) are not yet implemented in this calculator — types K, J, T, E cover the large majority of general industrial instrumentation. Cold-junction-equivalent mV is obtained by numerically inverting the same trusted NIST inverse polynomial (bisection), rather than a separately-fitted forward polynomial. 3-wire RTD lead compensation assumes matched lead resistances on all three conductors."
           />

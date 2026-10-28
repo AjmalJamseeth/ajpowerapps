@@ -33,8 +33,8 @@ export default function MvCablePage() {
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
           IEC 60287-1-1 · IEC 60287-2-1 · IEC 60287-3-1 — first-principles
-          thermal-circuit current rating for single-core MV/HV cables,
-          cross-checked against CIGRE Technical Brochure 880. v1 scope:
+          thermal-circuit current rating for three single-core MV/HV cables
+          in touching trefoil, with a CIGRE TB880-based example. v1 scope:
           single-core, unarmoured, XLPE-insulated, buried (duct or direct)
           cables. Free-air installation and armoured cables are not yet
           supported. This calculator is fully
@@ -48,9 +48,9 @@ export default function MvCablePage() {
         <div className="mt-6">
           <InfoPanel
           purpose="A first-principles IEC 60287 thermal-circuit solver for single-core MV/HV cable current rating \u2014 rather than looking up a rating from a manufacturer's table, it builds the actual thermal circuit (conductor\u2192sheath, sheath\u2192serving, serving\u2192ambient soil) from cable geometry and iterates to find the current that brings the conductor to its rated maximum temperature."
-          standards={["IEC 60287-1-1 (current rating equations, loss factors)", "IEC 60287-2-1 (thermal resistance calculation)", "IEC 60287-3-1 (operating conditions \u2014 reference soil temperatures/resistivities)", "cross-checked against CIGRE Technical Brochure 880"]}
+          standards={["IEC 60287-1-1 (current rating equations, loss factors)", "IEC 60287-2-1 (thermal resistance calculation)", "IEC 60287-3-1 (operating conditions \u2014 reference soil temperatures/resistivities)", "example geometry from CIGRE Technical Brochure 880 (results not independently matched to the brochure)"]}
           capabilities={["Full thermal-circuit build-up: conductor AC resistance (temperature, skin and proximity effect corrected), dielectric loss, sheath circulating-current loss factor, and the T1/T3/T4 thermal resistances.", "Iterative solve for continuous current rating, converging the conductor temperature exactly to your specified maximum.", "Solid vs. single-point sheath bonding, with a warning on the standing-voltage implication of single-point bonding.", "Buried-in-duct or direct-buried installation methods."]}
-          example={{ problem: "This calculator's default scenario reproduces CIGRE Technical Brochure 880's Case #0-1: a 132kV copper-conductor, XLPE-insulated, aluminium-sheathed cable, buried in duct.", steps: ["Build cable geometry from conductor diameter and each layer's thickness (insulation, screens, sheath, oversheath).", "Compute capacitance and reactance from the geometry, then dielectric loss from system voltage and frequency.", "Compute the T1 (conductor-to-sheath), T3 (sheath-to-serving) and T4 (serving-to-ambient soil) thermal resistances.", "Iterate the current-rating equation, adjusting current until the resulting conductor temperature converges to the 90\u00b0C limit."], result: "Converges in 5 iterations to an 821.8A rating, with conductor temperature landing exactly at the 90\u00b0C limit (guaranteed by the solving method) and a physically sane 78.7\u00b0C sheath temperature \u2014 confirming the thermal-circuit solver is arithmetically faithful to its IEC 60287-1-1 definitions." }}
+          example={{ problem: "This calculator's default scenario uses the geometry of CIGRE Technical Brochure 880's Case #0-1: a 132kV copper-conductor, XLPE-insulated, aluminium-sheathed cable, buried in duct.", steps: ["Build cable geometry from conductor diameter and each layer's thickness (insulation, screens, sheath, oversheath).", "Compute capacitance and reactance from the geometry, then dielectric loss from system voltage and frequency.", "Compute the T1 (conductor-to-sheath), T3 (sheath-to-serving) and T4 (serving-to-ambient soil) thermal resistances.", "Iterate the current-rating equation, adjusting current until the resulting conductor temperature converges to the 90\u00b0C limit."], result: "Converges in 5 iterations to about 751A, with the conductor temperature landing exactly at the 90\u00b0C limit (guaranteed by the solving method) and an 80.6\u00b0C sheath temperature. T4 uses the IEC 60287-2-1 trefoil formula plus the air gap inside a plastic duct; the duct wall is neglected, so the result is a close estimate, not the brochure\u2019s published figure." }}
           notes="v1 scope: single-core, unarmoured, XLPE-insulated cable, buried in duct or direct only \u2014 free-air installation and armoured cables (with their eddy-current losses) are not yet supported."
           />
         </div>
@@ -82,7 +82,7 @@ export default function MvCablePage() {
             </Section>
 
             <Section title="Insulation & sheath build">
-              <div className="col-span-2 text-xs text-muted">v1 supports XLPE insulation only (ε=2.5, tanδ=0.001, ρ=3.5 K·m/W — CIGRE-verified).</div>
+              <div className="col-span-2 text-xs text-muted">v1 supports XLPE insulation only (ε=2.5, tanδ=0.001, ρ=3.5 K·m/W — IEC 60287 typical values).</div>
               <NumberField label="Conductor screen thickness" unit="mm" tip={"Thickness of the semi-conducting layer extruded directly over the conductor \u2014 thin, but still a real layer in the T1 conductor-to-sheath thermal path."} value={input.condScreenTMm} onChange={(v) => update({ condScreenTMm: v })} min={0} />
               <NumberField label="Insulation thickness" unit="mm" tip={"Radial thickness of the XLPE insulation \u2014 the dominant contributor to T1, the thermal resistance between conductor and sheath."} value={input.insulTMm} onChange={(v) => update({ insulTMm: v })} min={1} />
               <NumberField label="Insulation screen thickness" unit="mm" tip={"Thickness of the semi-conducting layer extruded over the insulation, beneath the metallic sheath \u2014 the third and final layer counted in T1."} value={input.insulScreenTMm} onChange={(v) => update({ insulScreenTMm: v })} min={0} />

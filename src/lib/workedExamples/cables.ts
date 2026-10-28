@@ -50,23 +50,23 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "Verify voltage drop at 25 mm²",
-        equation: "vd% = (mV/A·m x Ib x L) / (1000 x V) x 100",
-        substitution: "Using the app's mV/A/m table for 25 mm² Cu at PF 0.85, L = 50 m",
-        result: "vd = 10.98 V = 2.64%",
-        note: "2.64% is comfortably under the 5% limit, so voltage drop does not override the ampacity-driven selection here.",
+        equation: "vd = √3 x Ib x L x (r·cosφ + x·sinφ) / 1000          vd% = vd / V x 100",
+        substitution: "25 mm² Cu at 70°C: r = 0.875 mΩ/m, x = 0.058 mΩ/m per conductor; √3 x 81.8 x 50 x (0.875 x 0.85 + 0.058 x 0.527) / 1000",
+        result: "vd = 5.49 V = 1.32%",
+        note: "1.32% is comfortably under the 5% limit, so voltage drop does not override the ampacity-driven selection here. (Published single-phase mV/A/m tables give the drop for the go-and-return pair, so they are halved per conductor before applying the √3 three-phase factor.)",
       },
     ],
     resultSummary: [
       { check: "16 mm² ampacity", requirement: "≥ 81.8 A", actual: "76 A", pass: false },
       { check: "25 mm² ampacity", requirement: "≥ 81.8 A", actual: "96 A", pass: true },
-      { check: "25 mm² voltage drop", requirement: "≤ 5%", actual: "2.64%", pass: true },
+      { check: "25 mm² voltage drop", requirement: "≤ 5%", actual: "1.32%", pass: true },
     ],
     finalAnswer: "25 mm² Cu/PVC70 is the smallest cable that satisfies both checks — ampacity is the governing constraint for this relatively short 50 m run, not voltage drop.",
     keyInsight: "Ampacity and voltage drop are independent checks and either one can govern, depending on run length. Short, heavily loaded runs like this one are usually ampacity-limited; long, lightly loaded runs are usually voltage-drop-limited. Always check both rather than assuming one.",
     faqs: [
       {
         q: "At what length would voltage drop start to govern instead?",
-        a: "Voltage drop scales linearly with length while ampacity doesn't change with length at all, so there's always some length beyond which voltage drop overtakes ampacity as the limiting factor. For this 25 mm² cable at 2.64% for 50 m, voltage drop would reach the 5% limit at roughly 95 m — beyond that, a longer run at the same load would need a larger cable purely to control voltage drop, even though 25 mm² would still pass on ampacity alone.",
+        a: "Voltage drop scales linearly with length while ampacity doesn't change with length at all, so there's always some length beyond which voltage drop overtakes ampacity as the limiting factor. For this 25 mm² cable at 1.32% for 50 m, voltage drop would reach the 5% limit at roughly 190 m — beyond that, a longer run at the same load would need a larger cable purely to control voltage drop, even though 25 mm² would still pass on ampacity alone.",
       },
       {
         q: "Why does this calculator's ampacity table matter so much?",
@@ -102,14 +102,14 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
           rows: [
             ["T1 — conductor to sheath", "0.420 K·m/W"],
             ["T3 — sheath to surface (duct-corrected)", "0.087 K·m/W"],
-            ["T4 — surface to ambient (soil)", "1.595 K·m/W"],
+            ["T4 — surface to ambient (air gap in duct + soil, trefoil)", "1.988 K·m/W"],
           ],
         },
       },
       {
         title: "Account for sheath circulating-current loss (solid bonding)",
         body: "With both sheath ends solidly bonded, circulating currents flow in the sheath and add loss on top of the conductor's own I²R loss — captured by the sheath loss factor lambda1.",
-        result: "lambda1 = 0.294 (sheath losses add about 29% on top of conductor loss)",
+        result: "lambda1 = 0.292 (sheath losses add about 29% on top of conductor loss)",
       },
       {
         title: "Solve the rating equation iteratively",
@@ -122,22 +122,22 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
           headers: ["Quantity", "Result"],
           rows: [
             ["Conductor temperature", "90.0°C (at the stated maximum)"],
-            ["Sheath temperature", "78.7°C"],
-            ["Continuous current rating", "821.8 A"],
+            ["Sheath temperature", "80.6°C"],
+            ["Continuous current rating", "750.9 A"],
           ],
         },
       },
     ],
     resultSummary: [
       { check: "Conductor temperature at rated current", requirement: "= 90°C (design maximum)", actual: "90.0°C", pass: true },
-      { check: "Continuous current rating", requirement: "n/a (this is the computed result)", actual: "821.8 A", pass: true },
+      { check: "Continuous current rating", requirement: "n/a (this is the computed result)", actual: "750.9 A", pass: true },
     ],
-    finalAnswer: "This 132 kV single-core cable, buried in duct under the stated soil conditions, has a continuous current rating of 821.8 A — found by solving the full IEC 60287 thermal circuit rather than reading a generic table, and matching CIGRE TB880's own published verification case for this exact configuration.",
+    finalAnswer: "This 132 kV single-core cable, buried in duct under the stated soil conditions, has a continuous current rating of about 751 A — found by solving the IEC 60287 thermal circuit rather than reading a generic table. The geometry follows CIGRE TB880 Case #0-1, but the duct model here is simplified (duct wall neglected), so treat the figure as a close estimate rather than the brochure's published value.",
     keyInsight: "Unlike LV/MV cable tables (which pre-compute ratings for a fixed set of standard configurations), MV/HV single-core cable ratings are genuinely project-specific — burial depth, soil resistivity, bonding method and sheath material all change the answer meaningfully, which is why IEC 60287 solves the thermal circuit from first principles rather than publishing one universal table the way IEC 60364-5-52 does for LV cables.",
     faqs: [
       {
         q: "Why does solid bonding matter so much?",
-        a: "Solid bonding (both sheath ends earthed) allows circulating current to flow in the sheath whenever the conductor carries current, adding real I²R loss (captured here as lambda1 = 0.294, roughly 29% extra heat on top of the conductor's own loss). Single-point bonding eliminates this circulating current at the cost of needing sheath voltage limiters and different fault-current withstand considerations — the choice is a real engineering trade-off, not just a wiring preference.",
+        a: "Solid bonding (both sheath ends earthed) allows circulating current to flow in the sheath whenever the conductor carries current, adding real I²R loss (captured here as lambda1 = 0.292, roughly 29% extra heat on top of the conductor's own loss). Single-point bonding eliminates this circulating current at the cost of needing sheath voltage limiters and different fault-current withstand considerations — the choice is a real engineering trade-off, not just a wiring preference.",
       },
       {
         q: "Why does the rating change so much with burial depth and soil resistivity?",
@@ -193,7 +193,7 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
     faqs: [
       {
         q: "Why does the maximum fill percentage change with conductor count?",
-        a: "NEC Table 1 sets the allowable fill lower as conductor count increases — 53% for a single conductor, 31% for exactly two, 40% for three or more. This reflects how much free space is actually needed to physically pull conductors through a conduit without excessive friction or jamming, which changes as more conductors compete for the same round cross-section.",
+        a: "NEC Chapter 9 Table 1 allows 53% for a single conductor, 31% for exactly two and 40% for three or more — so the limit is not simply lower as the count rises. Two conductors get the lowest figure because two round cables lying side by side are the most likely to wedge across the conduit diameter in a bend; with three or more they nest together more easily. The limits reflect the free space needed to pull conductors in without excessive friction or jamming.",
       },
       {
         q: "Does this account for conductor jamming, not just area?",

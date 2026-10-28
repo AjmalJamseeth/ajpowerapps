@@ -55,7 +55,7 @@ export const TRANSFORMERS_GUIDE: GuideDoc = {
     {
       heading: "Insulation resistance and polarization index: absolute value vs. trend",
       body: [
-        "Once transformers, motors, and other rotating or wound equipment are in service, periodic insulation testing is one of the standard ways to catch developing insulation problems before they cause a failure. Insulation Resistance (IR) is a single absolute reading — commonly checked against IEEE 43's kV+1 rule of thumb (minimum acceptable megohms roughly equal to rated kV plus 1) — while Polarization Index (PI) is a ratio of two readings taken 1 and 10 minutes into the same test, capturing how much the resistance trends upward as the insulation polarizes. A winding can have an adequate absolute IR reading while still showing a weak PI trend (often a sign of surface contamination or moisture), which is exactly why both are run together rather than relying on either alone — see the Protection & Relaying guide's discussion of grading margins for the broader theme of why single-number checks often need a companion check to be trustworthy.",
+        "Once transformers, motors, and other rotating or wound equipment are in service, periodic insulation testing is one of the standard ways to catch developing insulation problems before they cause a failure. Insulation Resistance (IR) is a single absolute reading — checked against the IEEE 43 minimum for the winding type (100 MΩ for modern form-wound windings, 5 MΩ for random-wound or sub-1 kV windings, and the older kV + 1 MΩ only for pre-1970 and field windings) — while Polarization Index (PI) is a ratio of two readings taken 1 and 10 minutes into the same test, capturing how much the resistance trends upward as the insulation polarizes. A winding can have an adequate absolute IR reading while still showing a weak PI trend (often a sign of surface contamination or moisture), which is exactly why both are run together rather than relying on either alone — see the Protection & Relaying guide's discussion of grading margins for the broader theme of why single-number checks often need a companion check to be trustworthy.",
       ],
     },
   ],
@@ -67,7 +67,7 @@ export const TRANSFORMERS_GUIDE: GuideDoc = {
     { standard: "IEEE C57.96", scope: "Dry-type transformer loading guidance, cross-referenced for the ambient derating rule of thumb used in preliminary sizing." },
     { standard: "IEC 60865-1", scope: "Electrodynamic force calculation method for busbars carrying high fault current, used in the Busbar & Switchgear Rating calculator." },
     { standard: "IEC 60890", scope: "Formal type-test verification of enclosure/busbar temperature rise — the authoritative reference this calculator's heat-balance approximation is explicitly not a substitute for." },
-    { standard: "IEEE 43-2013", scope: "Insulation resistance (kV+1 rule) and polarization index acceptance criteria for rotating machinery and wound equipment." },
+    { standard: "IEEE 43-2013", scope: "Minimum insulation resistance by winding type and polarization index acceptance criteria for rotating machinery and wound equipment." },
     { standard: "IEEE 142", scope: "Neutral earthing resistor (NGR/NET) sizing — R = V(line-neutral)/rated fault current — an advanced feature of the Generator & Transformer Analysis calculator." },
   ],
   workflow: [
@@ -103,7 +103,7 @@ export const TRANSFORMERS_GUIDE: GuideDoc = {
     },
     {
       title: "Periodically verify winding insulation condition",
-      body: "Check the absolute insulation resistance reading against the kV+1 minimum, corrected for test temperature.",
+      body: "Check the absolute insulation resistance reading against the IEEE 43 minimum for the winding type, corrected for test temperature.",
       calculatorHref: "/calculators/insulation-resistance",
       calculatorName: "Insulation Resistance Checker",
     },

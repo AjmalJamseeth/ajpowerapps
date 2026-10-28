@@ -49,7 +49,7 @@ export default function GeneratorSyncPage() {
                 "Frequency difference = |50.05−50.00| = 0.05Hz — within the 0.2Hz threshold; beat period = 1/0.05 = 20s.",
                 "Phase angle difference = 3° — within the 10° threshold.",
               ],
-              result: "All three checks pass — safe to close, with the phase angle drifting through zero roughly every 20 seconds — hand-checked and matched the live code exactly.",
+              result: "All three checks pass — safe to close, with the phase angle drifting through zero roughly every 20 seconds.",
             }}
             notes="The default thresholds shown are commonly-cited illustrative starting points, not a fixed standard — actual acceptance windows depend on generator size, prime mover type, and your protection engineer's or utility interconnection agreement's specific requirements. Always use your sync-check relay's actual configured settings, or your utility's interconnection requirements, for a real paralleling decision — this tool doesn't replace the relay."
           />

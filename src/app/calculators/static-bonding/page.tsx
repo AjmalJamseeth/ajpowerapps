@@ -46,7 +46,7 @@ export default function StaticBondingPage() {
                 "25,000Ω is well below the 1,000,000Ω (1 megohm) NFPA 77 threshold for static dissipation.",
                 "It's also well above the ≤10Ω expected of a tight all-metal path, suggesting some resistance in the connection (e.g. a clamp with light corrosion) — still functionally adequate for static dissipation, but worth a look.",
               ],
-              result: "Passes the static-dissipation threshold, flagged as 'acceptable' rather than 'tight metallic bond' — hand-checked and matched the live code exactly.",
+              result: "Passes the static-dissipation threshold, flagged as 'acceptable' rather than 'tight metallic bond'.",
             }}
             notes="1 megohm is the commonly-cited NFPA 77 threshold specifically for static-charge dissipation — it is NOT an equipment-grounding (fault-current) requirement, which needs a much lower, low-impedance path. Don't use this threshold for equipotential bonding required for electrical safety/fault-clearing purposes — those systems are properly all-metal, low-resistance connections (typically well under 10Ω)."
           />

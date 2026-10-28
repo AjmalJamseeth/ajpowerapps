@@ -61,7 +61,7 @@ export const AMPACITY_CU: Record<AwgSize, Record<InsulationTemp, number>> = {
   "1250": { 60: 495, 75: 590, 90: 665 },
   "1500": { 60: 520, 75: 625, 90: 705 },
   "1750": { 60: 545, 75: 650, 90: 735 },
-  "2000": { 60: 560, 75: 665, 90: 750 },
+  "2000": { 60: 555, 75: 665, 90: 750 },
 };
 
 export const AMPACITY_AL: Record<AwgSize, Record<InsulationTemp, number>> = {
@@ -97,6 +97,9 @@ export const AMPACITY_AL: Record<AwgSize, Record<InsulationTemp, number>> = {
 
 // NEC Table 310.15(B)(1) — ambient temperature correction factors, 5°C bands, by insulation temp column.
 const AMBIENT_BANDS: { maxC: number; factors: Record<InsulationTemp, number> }[] = [
+  { maxC: 10, factors: { 60: 1.29, 75: 1.20, 90: 1.15 } },
+  { maxC: 15, factors: { 60: 1.22, 75: 1.15, 90: 1.12 } },
+  { maxC: 20, factors: { 60: 1.15, 75: 1.11, 90: 1.08 } },
   { maxC: 25, factors: { 60: 1.08, 75: 1.05, 90: 1.04 } },
   { maxC: 30, factors: { 60: 1.00, 75: 1.00, 90: 1.00 } },
   { maxC: 35, factors: { 60: 0.91, 75: 0.94, 90: 0.96 } },
@@ -155,8 +158,17 @@ export interface WireSizeCandidate {
   baseAmpacity: number;
   adjustedAmpacity: number;
   terminationCapAmpacity: number;
+  smallConductorCapA: number | null; // NEC 240.4(D) maximum overcurrent protection for 14–10 AWG
   effectiveAmpacity: number;
 }
+
+// NEC 240.4(D) small-conductor rule: unless a specific article permits otherwise
+// (motor circuits, 240.4(E)/(G) etc.), the overcurrent device — and hence the
+// usable load — for these sizes is limited regardless of the table ampacity.
+const SMALL_CONDUCTOR_MAX: Record<WireMaterial, Partial<Record<AwgSize, number>>> = {
+  Cu: { "14": 15, "12": 20, "10": 30 },
+  Al: { "12": 15, "10": 25 },
+};
 
 export interface WireAmpacityResult {
   ambientFactor: number;
@@ -174,8 +186,9 @@ function evaluateSize(size: AwgSize, input: WireAmpacityInput, ambientFactor: nu
   const baseAmpacity = t[size][input.insulationTemp];
   const adjustedAmpacity = baseAmpacity * ambientFactor * bundlingFactor;
   const terminationCapAmpacity = t[size][input.terminationTemp];
-  const effectiveAmpacity = Math.min(adjustedAmpacity, terminationCapAmpacity);
-  return { size, baseAmpacity, adjustedAmpacity, terminationCapAmpacity, effectiveAmpacity };
+  const smallConductorCapA = SMALL_CONDUCTOR_MAX[input.material][size] ?? null;
+  const effectiveAmpacity = Math.min(adjustedAmpacity, terminationCapAmpacity, smallConductorCapA ?? Infinity);
+  return { size, baseAmpacity, adjustedAmpacity, terminationCapAmpacity, smallConductorCapA, effectiveAmpacity };
 }
 
 export function calcWireAmpacity(input: WireAmpacityInput): WireAmpacityResult {

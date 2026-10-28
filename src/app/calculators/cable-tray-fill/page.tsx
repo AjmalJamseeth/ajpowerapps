@@ -41,18 +41,18 @@ export default function CableTrayFillPage() {
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Cable Tray Fill Calculator</h1>
         <p className="mt-2 max-w-2xl text-muted">
           NEC §392.22 (US) width/area rules by tray type &amp; cable category,
-          or IEC 61537-style area-fill (International).
+          or the common international area-fill practice (40–50%).
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <ReportButton title="Cable Tray Fill Calculator" standardsLine="NEC \u00a7392.22, IEC 61537" />
+          <ReportButton title="Cable Tray Fill Calculator" standardsLine="NEC \u00a7392.22, IEC/BS area-fill practice" />
           <FeedbackButton calculatorName="Cable Tray Fill Calculator" />
         </div>
 
         <div className="mt-6">
           <InfoPanel
-          purpose="Checks whether a group of cables fits within a cable tray without exceeding the tray's allowable fill limit \u2014 NEC \u00a7392.22's category-specific width/area rules, or the simpler IEC 61537-style flat area-fill percentage."
-          standards={["NEC (NFPA 70) \u00a7392.22(A)/(B)", "IEC 61537 / BS 7671 practice"]}
-          capabilities={["NEC path: ladder/ventilated-trough/solid-bottom tray types, with separate rules for power/mixed (hybrid sum-of-diameters + area rule for 4/0 AWG+ vs. smaller cables), control/signal-only (area rule), and single-conductor (sum-of-diameters) categories.", "Correctly applies NEC \u00a7392.22's quirk that allowable fill area is capped at a 3-inch depth basis for power/mixed cables regardless of actual tray depth.", "IEC 61537-style path: flat 50% (ladder/perforated) or 40% (solid-bottom) area-fill percentage.", "Entirely an advanced feature in the source app \u2014 free to use on this site for launch."]}
+          purpose="Checks whether a group of cables fits within a cable tray without exceeding the tray's allowable fill limit \u2014 NEC \u00a7392.22's category-specific width/area rules, or the simpler flat area-fill percentage used in IEC/BS practice (IEC 61537 itself is a tray product standard and sets no fill limit)."
+          standards={["NEC (NFPA 70) \u00a7392.22(A)/(B)", "Common IEC/BS practice (40–50% fill); IEC 61537 covers tray construction and load testing, not fill"]}
+          capabilities={["NEC path: ladder/ventilated-trough/solid-bottom tray types, with separate rules for power/mixed (hybrid sum-of-diameters + area rule for 4/0 AWG+ vs. smaller cables), control/signal-only (area rule), and single-conductor (sum-of-diameters) categories.", "Correctly applies NEC \u00a7392.22's quirk that allowable fill area is capped at a 3-inch depth basis for power/mixed cables regardless of actual tray depth.", "International path: flat 50% (ladder/perforated) or 40% (solid-bottom) area-fill percentage (common practice, not an IEC 61537 requirement)."]}
           example={{ problem: "Six 0.6-inch-diameter power/mixed cables (all smaller than 4/0 AWG) are laid in a 12-inch-wide, 4-inch-deep ladder tray.", steps: ["No cables are 4/0 AWG or larger, so the area-only rule applies (no sum-of-diameters component).", "Sum of cable cross-sectional areas: 6 \u00d7 \u03c0\u00d7(0.6/2)\u00b2 = 1.696 in\u00b2.", "Allowable area = 40% of (tray width \u00d7 depth), with depth capped at 3 inches per \u00a7392.22(A)(1)(a): 40% \u00d7 (12 \u00d7 3) = 14.4 in\u00b2... the calculator's exact governing value is 14.004 in\u00b2.", "Fill % = 1.696 / 14.004 = 38.9% of the depth-capped allowable area."], result: "38.9% fill \u2014 passes the applicable NEC \u00a7392.22 area rule for this power/mixed tray." }}
           notes="This calculator is free to use in full."
           />
@@ -63,11 +63,11 @@ export default function CableTrayFillPage() {
             <Section title="Standard basis">
               <SelectField<CableTrayInput["standard"]>
                 label="Standard Basis"
-                tip={"NEC (NFPA 70) \u00a7392.22 distinguishes power/mixed multiconductor cables, control/signal-only cables, and single-conductor cables, each with their own fill rule. IEC 61537/BS 7671 practice applies a simpler flat percentage (50% ladder/perforated, 40% solid-bottom) regardless of cable category."} value={input.standard}
+                tip={"NEC (NFPA 70) \u00a7392.22 distinguishes power/mixed multiconductor cables, control/signal-only cables, and single-conductor cables, each with their own fill rule. Common IEC/BS practice applies a simpler flat percentage (50% ladder/perforated, 40% solid-bottom) regardless of cable category."} value={input.standard}
                 onChange={(v) => update({ standard: v })}
                 options={[
                   { value: "nec", label: "NEC §392.22 (US)" },
-                  { value: "iec", label: "IEC 61537-style area-fill (International)" },
+                  { value: "iec", label: "International area-fill practice (40–50%)" },
                 ]}
               />
             </Section>
@@ -117,13 +117,13 @@ export default function CableTrayFillPage() {
             ) : (
               <>
                 <Section title="Tray">
-                  <SelectField<TrayType> label="Tray Type" tip={"IEC 61537/common UK practice: perforated/ladder trays (better ventilation) allow up to 50% fill; solid-bottom trays are limited to 40%, reflecting reduced heat dissipation."} value={input.iecType} onChange={(v) => update({ iecType: v })} options={[
+                  <SelectField<TrayType> label="Tray Type" tip={"Common practice: perforated/ladder trays (better ventilation) allow up to 50% fill; solid-bottom trays are limited to 40%, reflecting reduced heat dissipation."} value={input.iecType} onChange={(v) => update({ iecType: v })} options={[
                     { value: "ladder", label: "Ladder (50%)" },
                     { value: "solid", label: "Solid-Bottom (40%)" },
                   ]} />
                   <div />
                   <NumberField label="Tray Width" unit="mm" tip={"Internal usable width of the tray, from the manufacturer's datasheet."} value={input.iecWidthMm} onChange={(v) => update({ iecWidthMm: v })} min={0} />
-                  <NumberField label="Tray Depth" unit="mm" tip={"Internal usable depth (side-rail height) of the tray. Unlike NEC, IEC 61537's simple percentage rule uses the actual tray depth directly, with no capping convention."} value={input.iecDepthMm} onChange={(v) => update({ iecDepthMm: v })} min={0} />
+                  <NumberField label="Tray Depth" unit="mm" tip={"Internal usable depth (side-rail height) of the tray. Unlike NEC, the simple percentage rule uses the actual tray depth directly, with no capping convention."} value={input.iecDepthMm} onChange={(v) => update({ iecDepthMm: v })} min={0} />
                 </Section>
                 <div className="rounded-xl border border-border bg-surface p-6">
                   <h3 className="text-base font-semibold text-foreground">Cables</h3>
@@ -152,7 +152,7 @@ export default function CableTrayFillPage() {
               ) : !iecResult ? (
                 <EmptyResult message="Enter tray dimensions and add at least one cable with quantity > 0." />
               ) : (
-                <ResultCard title="IEC 61537-style fill result">
+                <ResultCard title="Area-fill result (common practice)">
                   <ResultRow label="Tray Area" value={`${iecResult.trayAreaMm2.toFixed(1)} mm²`} />
                   <ResultRow label="Max Fill %" value={`${(iecResult.maxPct * 100).toFixed(0)}%`} />
                   <ResultRow label="Max Allowable Area" value={`${iecResult.maxAreaMm2.toFixed(1)} mm²`} />

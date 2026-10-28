@@ -47,7 +47,7 @@ export default function PanelBalancePage() {
                 "Average = (45+38+52)/3 = 45A.",
                 "In = √(45²+38²+52²−45×38−38×52−45×52) = √(2025+1444+2704−1710−1976−2340) = √147 ≈ 12.12A.",
               ],
-              result: "≈12.1A neutral current — hand-checked and matched the live code exactly.",
+              result: "≈12.1A neutral current.",
             }}
             notes="This assumes balanced 120° phase spacing and linear loads — significant harmonic content (especially triplen harmonics from non-linear loads) can cause neutral current to exceed what this formula predicts; see the Harmonic Analysis calculator for that case."
           />

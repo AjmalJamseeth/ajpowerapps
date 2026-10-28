@@ -99,7 +99,7 @@ function sizeCable(
     if (!base) continue;
     const derated = base * cf;
     if (derated >= ib) {
-      const vdResult = voltDropPct(material, sz, ib, length, volt, phase, pf);
+      const vdResult = voltDropPct(material, sz, ib, length, volt, phase, pf, insulation);
       if (vdResult && vdResult.vd_pct <= 5) {
         return { size: sz, amp: derated, vd: vdResult.vd_pct };
       }
@@ -126,7 +126,7 @@ export function getModeNote(mode: EvMode): string {
 
 export function getEarthingWarning(earthing: EvEarthing): string | null {
   if (earthing === "tncs") {
-    return "⚠ TN-C-S (PME): per IEC 60364-7-722, the final circuit to a charge point must not include a PEN conductor — convert this circuit to TN-S, and fit an open-PEN detection device or a local earth electrode (TT-style) regardless of which RCD type is used.";
+    return "⚠ TN-C-S (PME): per IEC 60364-7-722 the final circuit to a charge point must not include a PEN conductor, so run it as TN-S. Some national rules go further — e.g. BS 7671 722.411.4.1 in the UK requires open-PEN protection or a local earth electrode (TT) for outdoor charge points regardless of the RCD type.";
   }
   return null;
 }

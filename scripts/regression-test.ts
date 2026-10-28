@@ -24,12 +24,12 @@ import { analyseShortCircuit, muFactor, peakFactor, thermalM, voltageFactor, typ
 import { calcArcingCurrent, calcNormalizedEnergy, calcIncidentEnergy2002, calcArcFlashBoundary2002, calcLeeIncidentEnergy, calcLeeBoundary, AF_EQUIP_CLASSES } from "../src/lib/arcflash";
 import { DEFAULT_BATTERY_INPUT, calcBattery } from "../src/lib/battery";
 import { DEFAULT_BUSBAR_INPUT, calcBusbar } from "../src/lib/busbar";
-import { DEFAULT_CABLE_INPUT, sizeCable } from "../src/lib/cable";
+import { DEFAULT_CABLE_INPUT, sizeCable, voltDropPct, conductorRX } from "../src/lib/cable";
 import { DEFAULT_CABLEPULLING_INPUT, calcCablePulling } from "../src/lib/cablepulling";
 import { DEFAULT_CABLETRAY_INPUT, calcCableTrayNec, calcCableTrayIec } from "../src/lib/cabletray";
 import { DEFAULT_CONDUITFILL_INPUT, calcConduitFillNec, calcConduitFillIec } from "../src/lib/conduitfill";
 import { DEFAULT_CT_INPUT, calcCt } from "../src/lib/ct";
-import { DEFAULT_EARTHING_INPUT, calcEarthing } from "../src/lib/earthing";
+import { DEFAULT_EARTHING_INPUT, calcEarthing, calcKm, calcNGeom, calcPlateR } from "../src/lib/earthing";
 import { DEFAULT_EMERGENCYPOWER_INPUT, calcEmergencyPower } from "../src/lib/emergencypower";
 import { DEFAULT_EV_INPUT, calcEv } from "../src/lib/ev";
 import { DEFAULT_GEN_INPUT, DEFAULT_XFMR_INPUT, DEFAULT_NGR_INPUT, calcGen, calcXfmr, calcNgr } from "../src/lib/genxfmr";
@@ -211,9 +211,9 @@ section("IDMT Relay Coordination");
 // ==========================================================================
 section("Cable Sizing & Voltage Drop");
 {
-  const r = sizeCable(DEFAULT_CABLE_INPUT); // 50kW/415V/3ph/Cu/PVC70/Method C/50m — README: 25mm² @ 2.64% VD
+  const r = sizeCable(DEFAULT_CABLE_INPUT); // 50kW/415V/3ph/Cu/PVC70/Method C/50m — 25mm² @ 1.32% VD (per-conductor r = half the loop mV/A/m)
   assertEqual("Default scenario selects 25mm²", r.selected?.size, 25);
-  assertClose("Default scenario VD%", r.selected?.vd?.vd_pct, 2.64, 1.0);
+  assertClose("Default scenario VD%", r.selected?.vd?.vd_pct, 1.32, 1.0);
 
   const rBig = sizeCable({ ...DEFAULT_CABLE_INPUT, kw: 500, length: 500, maxVD: 1 });
   assertTrue("Very demanding VD limit does not throw and returns a structured result", rBig !== undefined && Array.isArray(rBig.rows), "no throw");
@@ -390,10 +390,10 @@ section("Generator & Transformer Analysis");
 section("Solar PV Sizing");
 {
   const r = calcPv(DEFAULT_PV_INPUT, false);
-  // README: cold factor 1.058 → Vmax 1047.42V; DC cable → 4mm² @ 1.382% VD
+  // cold factor 1.058 → Vmax 1047.42V; DC cable (17.4 A, 30 m, 2% limit) → 1.5mm² @ 1.94% VD
   assertClose("String Vmax (cold) ≈1047.42V", r?.vMax, 1047.42, 0.5);
-  assertEqual("DC cable sizes to 4mm²", r?.dc.size, 4);
-  assertClose("DC cable VD ≈1.382%", r?.dc.vd, 1.382, 2);
+  assertEqual("DC cable sizes to 1.5mm²", r?.dc.size, 1.5);
+  assertClose("DC cable VD ≈1.94%", r?.dc.vd, 1.94, 2);
   assertEqual("Default scenario fails Vmax check (as documented)", r?.vMaxPass, false);
 }
 
@@ -405,7 +405,7 @@ section("EV Charging");
   const r = calcEv(DEFAULT_EV_INPUT, true);
   // README: 32A Mode 3 → 4mm² @ 3.811% VD, 32A breaker; site 320A raw/diversified
   assertEqual("Charge-point cable sizes to 4mm²", r.cable.size, 4);
-  assertClose("Charge-point cable VD ≈3.811%", r.cable.vd, 3.811, 2);
+  assertClose("Charge-point cable VD ≈2.03%", r.cable.vd, 2.03, 2);
   assertEqual("Recommended breaker = 32A", r.breakerA, 32);
   assertTrue("Multi-point site current computed", (r.multiSite?.rawA ?? 0) > 0, `multiSite=${JSON.stringify(r.multiSite)}`);
 }
@@ -500,6 +500,10 @@ section("Cable Tray Fill");
   const iec = calcCableTrayIec(DEFAULT_CABLETRAY_INPUT);
   assertTrue("IEC tray fill computed", iec !== null, "should not be null");
 
+  // NEC Table 392.22(A) Column 2: allowable area = 7/6·W − 1.2·Sd. With W = 12 in, Sd = 2 in, small-cable area = 11.6 in² is exactly at the limit.
+  const smallDia = 2 * Math.sqrt(11.6 / Math.PI);
+  const mixed = calcCableTrayNec({ ...DEFAULT_CABLETRAY_INPUT, necLargeRows: [{ diaMm: 2, qty: 1 }], necSmallRows: [{ diaMm: smallDia, qty: 1 }] });
+  assertClose("Mixed ladder tray at the Column 2 limit needs exactly 12 in", parseFloat(mixed?.widthNote ?? "0"), 12, 0.1);
   const solidSingleConductor = calcCableTrayNec({ ...DEFAULT_CABLETRAY_INPUT, necType: "solid", necCategory: "singleConductor" });
   assertEqual("Single-conductor cable in solid-bottom tray correctly not permitted", solidSingleConductor?.notPermitted, true);
 }
@@ -544,7 +548,8 @@ section("HVAC Electrical Sizing");
 {
   const r = calcHvac(DEFAULT_HVAC_INPUT, true);
   assertClose("Single motor MCA = 22.5A", r.single.mcaA, 22.5, 0.5);
-  assertClose("Single motor MOCP = 35A", r.single.mocpA, 35, 0.5);
+  assertClose("Single motor MOCP = 175%×18 = 31.5A rounded down to 30A", r.single.mocpA, 30, 0.5);
+  assertClose("MOCP ceiling = 225%×18 = 40.5A rounded down to 40A", r.single.mocpMaxA, 40, 0.5);
   assertClose("Combo MCA (compressor+fan) = 26.5A", r.combo?.mcaA, 26.5, 0.5);
   assertClose("VFD input-side MCA = 31.25A", r.vfd?.inMcaA, 31.25, 0.5);
 
@@ -588,7 +593,7 @@ section("Motor Calculator");
   assertClose("Calculated voltage dip ≈2.788%", r.dipPct, 2.788, 1);
   assertEqual("Voltage dip check passes (< 15% limit)", r.dipPass, true);
   assertEqual("Feeder ampacity (28A+14A) = 49A", r.feed?.ampacityA, 49);
-  assertEqual("Feeder OCPD = 64A", r.feed?.ocpdA, 64);
+  assertEqual("Feeder OCPD = 50+14 = 64A rounded DOWN to 60A (NEC 430.62)", r.feed?.ocpdA, 60);
 
   const iec = calcMotor({ ...DEFAULT_MOTOR_INPUT, standard: "iec", nameplateFlc: 42, iecMargin: 1.1 });
   assertClose("IEC design current = 46.2A (42 × 1.1 margin)", iec.iecDesignA, 46.2, 0.5);
@@ -1113,10 +1118,14 @@ section("Fault Current Propagation (Base kVA Method)");
 // ==========================================================================
 section("Insulation Resistance (IR) Test Value Checker");
 {
-  const r = calcInsulationResistance(DEFAULT_INSULATION_RESISTANCE_INPUT);
-  assertClose("Minimum required = 6.6+1 = 7.6MΩ", r.minimumRequiredMegohm, 7.6, 0.5);
+  const r = calcInsulationResistance({ ...DEFAULT_INSULATION_RESISTANCE_INPUT, windingType: "pre1970OrField", measuredIrMegohm: 12 });
+  assertClose("Pre-1970/field winding minimum = 6.6+1 = 7.6MΩ", r.minimumRequiredMegohm, 7.6, 0.5);
   assertClose("Corrected IR at 40°C = 12MΩ (no correction needed)", r.correctedIrMegohm, 12, 0.5);
   assertTrue("Passes (12 >= 7.6)", r.pass === true);
+  const modern = calcInsulationResistance({ ...DEFAULT_INSULATION_RESISTANCE_INPUT, measuredIrMegohm: 12 });
+  assertEqual("Modern form-wound minimum = 100MΩ (IEEE 43 Table 3)", modern.minimumRequiredMegohm, 100);
+  assertTrue("12MΩ fails a modern form-wound winding", modern.pass === false);
+  assertEqual("Random-wound minimum = 5MΩ", calcInsulationResistance({ ...DEFAULT_INSULATION_RESISTANCE_INPUT, windingType: "randomWoundOrBelow1kV" }).minimumRequiredMegohm, 5);
 
   const fail = calcInsulationResistance({ ...DEFAULT_INSULATION_RESISTANCE_INPUT, measuredIrMegohm: 2 });
   assertTrue("Fails when measured IR is below minimum", fail.pass === false);
@@ -2184,6 +2193,66 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
   assertTrue("Fuse descriptor operates slower at lower current", deviceTimeS({ type: "fuse", InAmps: 100 }, 300) > deviceTimeS({ type: "fuse", InAmps: 100 }, 900));
   assertTrue("Descriptor without enough data is not evaluable", !isTimeDevice({ type: "lsig" }));
   assertEqual("Unknown descriptor type never throws", deviceTimeS({ type: "nonsense" }, 1000), Infinity);
+}
+
+
+// --------------------------------------------------------------------------
+// Audit corrections (October 2026) — each check pins a fix against a hand value
+// --------------------------------------------------------------------------
+section("Audit corrections (October 2026)");
+{
+  // Voltage drop: per-conductor r/x = half the single-phase loop mV/A/m value.
+  assertClose("25 mm² Cu per-conductor r = 0.875 mΩ/m", conductorRX("Cu", 25)?.r, 0.875, 0.01);
+  assertClose("3-phase VD 81.84 A, 50 m, 25 mm², PF 0.85 = 5.49 V", voltDropPct("Cu", 25, 81.84, 50, 415, "3ph", 0.85)?.vd_volts, 5.49, 0.5);
+  assertClose("1-phase VD = 2·I·L·r: 2.5 mm² (r = 8.8 mΩ/m), 20 A, 30 m, PF 1 = 10.56 V", voltDropPct("Cu", 2.5, 20, 30, 230, "1ph", 1)?.vd_volts, 10.56, 0.5);
+  assertClose("DC ignores reactance", voltDropPct("Cu", 240, 100, 100, 600, "dc", 0.5)?.vd_volts, 2 * 100 * 100 * 0.09 / 1000, 0.5);
+  assertClose("XLPE evaluated at 90 °C (×1.066)", conductorRX("Cu", 25, "XLPE90")?.r, 0.875 * 1.0656, 0.1);
+
+  // Earthing: IEEE 80 n = na·nb and Km without the extra 1/(2n) factor.
+  assertClose("n for 30×20 m, Lc = 170 m: na·nb = 3.435", calcNGeom(170, 30, 20), 3.435, 0.2);
+  const Kii = Math.pow(2 * 3.435, -2 / 3.435);
+  const KmHand = (1 / (2 * Math.PI)) * (Math.log(100 / (16 * 0.6 * 0.01) + Math.pow(11.2, 2) / (8 * 10 * 0.01) - 0.6 / 0.04) + (Kii / Math.sqrt(1.6)) * Math.log(8 / (Math.PI * (2 * 3.435 - 1))));
+  assertClose("Km (no rods) matches IEEE 80 Eq. 85 by hand", calcKm(10, 0.6, 0.01, 3.435, false), KmHand, 0.1);
+  assertClose("BS 7430 plate 1 m² in 100 Ω·m = (ρ/4)·√(π/A) = 44.3 Ω", calcPlateR(100, 1, 1), 44.31, 0.2);
+
+  // VT voltage factor (IEC 61869-3 Table 302).
+  assertEqual("Solidly earthed phase-earth VT: Vf 1.5 for 30 s", calcVt({ ...DEFAULT_VT_INPUT, earthing: "directEarthed" }, false)?.vf, 1.5);
+  assertEqual("Non-effectively earthed with auto clearance: Vf 1.9", calcVt({ ...DEFAULT_VT_INPUT, earthing: "resistanceAutoClear" }, false)?.vf, 1.9);
+  assertClose("Open delta on non-effectively earthed system: 3 × 110/3 = 110 V", calcVt({ ...DEFAULT_VT_INPUT, earthing: "noAutoClear", openDeltaEnabled: true }, true)?.openDelta?.residualFaultV, 110, 0.1);
+
+  // PFC capacitance in µF at the system voltage, plus nameplate kVAr at the capacitor voltage.
+  const pfc = calcPfc(DEFAULT_PFC_INPUT);
+  assertClose("Delta capacitance = (Qc/3)/(2π·50·415²) ≈ 1,704 µF", pfc?.C_uF, 1704, 0.5);
+  assertClose("Nameplate at 440 V = Qc·(440/415)² ≈ 310.9 kVAr", pfc?.ratedKvarAtCapV, 310.9, 0.5);
+
+  // NEC 240.4(D) small-conductor rule.
+  const w = calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, loadAmps: 18 });
+  assertEqual("18 A load needs #12 Cu (14 AWG limited to 15 A by 240.4(D))", w.candidate?.size, "12");
+  assertEqual("Low-ambient band: 10 °C, 90 °C column = 1.15", ambientCorrectionFactor(10, 90), 1.15);
+
+  // IEC 60909 method B: several sources feeding a fault apply 1.15·κ.
+  const sc = analyseShortCircuit(DEFAULT_SC_NETWORK);
+  const b3 = sc.buses.find((b) => b.busId === "b3");
+  const kappa0 = b3 ? peakFactor(b3.rToX) : 0;
+  assertClose("MCC bus (grid + generator + motor) uses κ(b) = 1.15·κ", b3?.kappa, Math.min(1.15 * kappa0, 1.8), 0.1);
+
+  // MV cable: direct burial includes the other two trefoil cables, and the duct case adds the air gap inside the duct.
+  const mvDuct = calcMvCable(DEFAULT_MVCABLE_INPUT);
+  const mvDirect = calcMvCable({ ...DEFAULT_MVCABLE_INPUT, installMethod: "direct" });
+  assertTrue("Duct rating below direct-buried rating for the same trefoil", (mvDuct?.ratingA ?? 0) < (mvDirect?.ratingA ?? 0), `${mvDuct?.ratingA} vs ${mvDirect?.ratingA}`);
+  assertClose("Direct-buried trefoil uses T4 = 1.5/π·ρ·(ln 2u − 0.63)", mvDirect?.t4, mvDuct ? (1.5 / Math.PI) * 1.0 * (Math.log(2 * (2 * 1000) / 75.5) - 0.63) : 0, 1.0);
+
+  // Conduit: trunking 45 %, conduit about 40 %.
+  assertEqual("IEC trunking space factor 45%", calcConduitFillIec({ ...DEFAULT_CONDUITFILL_INPUT, iecShape: "trunking", iecWidthMm: 50, iecHeightMm: 50 })?.maxPct, 0.45);
+  assertEqual("IEC conduit space factor 40%", calcConduitFillIec(DEFAULT_CONDUITFILL_INPUT)?.maxPct, 0.4);
+
+  // NEC 220.57 EVSE load.
+  const ev = calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, hasEvCharger: true, evChargerContinuousVa: 7680 });
+  assertEqual("EVSE load = max(7200, nameplate) with no 125% factor", ev.evDemandVa, 7680);
+
+  // CT dynamic rating default at 60 Hz.
+  const ct60 = calcCt({ ...DEFAULT_CT_INPUT, freqHz: 60, idyn: 0 }, true);
+  assertClose("Idyn default = 2.6 × Ith at 60 Hz", ct60?.thermal?.idynKa, 2.6 * DEFAULT_CT_INPUT.ith, 0.1);
 }
 
 // --------------------------------------------------------------------------

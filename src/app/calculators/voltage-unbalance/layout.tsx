@@ -1,7 +1,13 @@
-import { calcMetadata } from "@/lib/seo";
+import { calcJsonLd, calcMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata = calcMetadata("/calculators/voltage-unbalance");
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <JsonLd data={calcJsonLd("/calculators/voltage-unbalance")} />
+      {children}
+    </>
+  );
 }

@@ -69,7 +69,7 @@ export const POWERQUALITY_GUIDE: GuideDoc = {
     { standard: "IEEE 519-2014", scope: "Harmonic distortion limits — Table 1 (voltage, at the point of common coupling) and Table 2 (current, TDD-referenced to the customer's own max demand current)." },
     { standard: "IEC 61000-4-7", scope: "Harmonic measurement methodology, referenced for the power factor correction capacitor bank's resonance-risk guidance." },
     { standard: "NEMA MG1 / ANSI C84.1", scope: "Voltage unbalance definition and the published motor derating curve used by the Voltage Unbalance & Motor Derating calculator." },
-    { standard: "General demand-factor practice (IEC 60439-style guidance)", scope: "Load-category demand factors for diversified maximum demand — general engineering practice refined by site-specific metering, not a single mandatory numbered standard." },
+    { standard: "General demand-factor practice", scope: "Load-category demand factors for diversified maximum demand — general engineering practice refined by site-specific metering, not a single mandatory numbered standard." },
   ],
   workflow: [
     {

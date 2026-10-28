@@ -52,8 +52,8 @@ export default function NecResidentialLoadPage() {
             ]}
             capabilities={[
               "Standard Method: full Table 220.42 tiered demand factor, 220.53 fixed-appliance rule, simplified Table 220.55 range demand, 220.54 dryer minimum.",
-              "Optional Method: single 10kVA/40% demand step per 220.82(B), with a user-selectable HVAC demand factor per 220.82(C) (100% A/C or heat pump; 65% electric heat, ≤4 units; 40% electric heat, 5+ units).",
-              "EV charger load included as a continuous load with the 125% factor applied automatically.",
+              "Optional Method: single 10kVA/40% demand step per 220.82(B), with a user-selectable HVAC demand factor per 220.82(C) (100% A/C or heat pump; 65% electric heat, fewer than 4 units; 40% electric heat, 4 or more units).",
+              "EV charger load included per NEC 220.57 at 7200 VA or the nameplate rating, whichever is larger.",
               "Recommended minimum standard service size from the computed demand amps.",
             ]}
             example={{
@@ -117,8 +117,8 @@ export default function NecResidentialLoadPage() {
                   onChange={(v) => update({ hvacOptionalDemandFactorPct: v })}
                   options={[
                     { value: 100, label: "100% — A/C or heat pump" },
-                    { value: 65, label: "65% — electric heat, ≤4 separately controlled units" },
-                    { value: 40, label: "40% — electric heat, 5+ separately controlled units" },
+                    { value: 65, label: "65% — electric heat, fewer than 4 separately controlled units" },
+                    { value: 40, label: "40% — electric heat, 4 or more separately controlled units" },
                   ]}
                 />
               )}

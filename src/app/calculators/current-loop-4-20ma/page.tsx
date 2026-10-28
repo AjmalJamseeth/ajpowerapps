@@ -57,9 +57,9 @@ export default function CurrentLoop420Page() {
                 "Voltage at transmitter at 20mA = 24 − 0.02 × 266.14 = 24 − 5.32 = 18.68V.",
                 "Headroom = 18.68 − 10 = 8.68V ≥ 0 → pass.",
               ],
-              result: "18.68V available at the transmitter, 8.68V of headroom — comfortably passes, hand-checked and matched the live code exactly.",
+              result: "18.68V available at the transmitter, 8.68V of headroom — comfortably passes.",
             }}
-            notes="Wire resistance table is standard annealed-copper AWG data at 20°C (published wire tables). Designed from scratch — no equivalent module in the source app."
+            notes="Wire resistance table is standard annealed-copper AWG data at 20°C (published wire tables)."
           />
         </div>
 

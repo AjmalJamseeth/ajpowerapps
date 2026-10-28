@@ -51,7 +51,7 @@ export default function IntrinsicSafetyPage() {
                 "Li/Lo = 0/4.2mH = 0% < 1%, so the 1% rule applies → use the full Co = 0.083µF (83nF), not halved.",
                 "Capacitance check: 103.5nF > 83nF → FAILS — the cable run is too long / too capacitive for this barrier at this length.",
               ],
-              result: "Voltage, current and power all pass; capacitance fails at 500m with these defaults — a shorter run or a barrier with higher Co would be needed. Hand-checked and matched the live code exactly, including a genuine failure condition.",
+              result: "Voltage, current and power all pass; capacitance fails at 500m with these defaults — a shorter run or a barrier with higher Co would be needed (the default deliberately includes a failing condition).",
             }}
             notes="Cable capacitance/inductance defaults (60pF/ft, 0.2µH/ft) match common 'unknown cable' assumptions used industry-wide (e.g. manufacturer control drawings) — always use the actual cable's datasheet values when known. The absolute practical ceiling some guidance places on reduced (halved) capacitance (~1µF for IIB, ~600nF for IIC) is not hard-coded here; enter your barrier's own certified Co/Lo values directly. This is an entity-concept screening check, not a substitute for a full IS system/loop certification or a hazardous-area classification study."
           />

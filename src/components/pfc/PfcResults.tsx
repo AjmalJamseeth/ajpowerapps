@@ -31,7 +31,7 @@ export default function PfcResults({ input, result }: { input: PfcInput; result:
           <div className="rounded-lg border border-border bg-surface-2 p-4">
             <div className="text-xs text-muted">Capacitance C</div>
             <div className="mt-1 text-xl font-semibold text-foreground">{fmt(result.C_uF, 2)} µF</div>
-            <div className="mt-0.5 text-xs text-muted">Per phase · IEC 60831</div>
+            <div className="mt-0.5 text-xs text-muted">Per phase at the system voltage · order {fmt(result.ratedKvarAtCapV)} kVAr rated at the capacitor voltage</div>
           </div>
           <div className="rounded-lg border border-pass/30 bg-pass/10 p-4">
             <div className="text-xs text-muted">Current reduction</div>

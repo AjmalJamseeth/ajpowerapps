@@ -15,7 +15,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
-import { pageMeta } from "@/lib/seo";
+import { SITE_URL, pageMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata = { ...pageMeta("/", "AJapps — Free Electrical Engineering Calculators", "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJapps — Free Electrical Engineering Calculators" } };
 
@@ -33,9 +34,45 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   CircuitBoard,
 };
 
+const POPULAR: [string, string][] = [
+  ["/calculators/idmt", "IDMT relay coordination calculator"],
+  ["/calculators/protection-suite", "Protection coordination suite (TCC curves)"],
+  ["/calculators/arc-flash", "Arc flash calculator (IEEE 1584)"],
+  ["/calculators/iec-60909", "IEC 60909 short-circuit calculator"],
+  ["/calculators/cable-sizing", "Cable sizing & voltage drop calculator"],
+  ["/calculators/max-demand", "Maximum demand calculator"],
+  ["/calculators/earthing", "Earthing grid design calculator (IEEE 80)"],
+  ["/calculators/power-factor-correction", "Power factor correction calculator"],
+  ["/calculators/cable-tray-fill", "Cable tray fill calculator (NEC 392)"],
+  ["/calculators/conduit-fill", "Conduit fill calculator (NEC Chapter 9)"],
+  ["/calculators/motor-torque", "Motor torque calculator"],
+  ["/calculators/vfd-sizing", "VFD sizing calculator"],
+  ["/calculators/rolling-sphere", "Rolling sphere method calculator"],
+  ["/calculators/transformer-sizer", "Transformer sizing calculator"],
+  ["/calculators/ct-sizing", "CT sizing & saturation calculator"],
+];
+
+const HOME_JSON_LD = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "AJapps",
+    alternateName: "AJ Power Apps",
+    url: SITE_URL,
+    description: "Free standards-based electrical engineering calculators.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "AJapps",
+    url: SITE_URL,
+  },
+];
+
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
+      <JsonLd data={HOME_JSON_LD} />
       <NavBar />
 
       {/* Hero */}
@@ -64,8 +101,8 @@ export default function Home() {
             covers protection, cable &amp; conductor sizing, earthing,
             power quality, backup power, instrumentation, renewables and
             facilities engineering — built on cited IEC, IEEE, NEC and
-            NFPA references, hand-verified, free to use, no signup
-            required.
+            NFPA references, checked by an automated test suite and worked
+            examples, free to use, no signup required.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
@@ -86,7 +123,7 @@ export default function Home() {
             {[
               { label: "Calculators", value: String(TOTAL_LIVE_COUNT) },
               { label: "Categories", value: String(CALCULATOR_GROUPS.length) },
-              { label: "Automated checks", value: "675" },
+              { label: "Automated checks", value: "702" },
               { label: "Account needed", value: "No" },
             ].map((s) => (
               <div key={s.label} className="rounded-lg border border-border bg-surface/60 p-3">
@@ -106,7 +143,7 @@ export default function Home() {
             Most online electrical calculators handle one job — a single voltage-drop
             formula, a single motor FLC lookup — in isolation, with no citation for
             where the numbers come from. AJapps takes the opposite approach: every
-            module is built around a named clause or table in a recognized standard
+            module is built around a recognized standard
             (IEC, IEEE, NEC, NFPA, BS, or a manufacturer/industry loading guide where
             no single standard applies), every result that depends on a rule-of-thumb
             correction factor says so explicitly instead of presenting it with false
@@ -135,7 +172,7 @@ export default function Home() {
                 Why choose AJapps
               </h3>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
-                <li>Every module cites the specific standard clause or table it implements, not just a standard&apos;s name.</li>
+                <li>Each module names the standard it follows, and the clause or table wherever one applies.</li>
                 <li>Rule-of-thumb figures (e.g. altitude/ambient derating rates without a full thermal model) are labeled as such, not dressed up as normative values.</li>
                 <li>Core results are free with no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked as advanced.</li>
                 <li>Hover tooltips and a worked example on every calculator, so the tool teaches the standard as you use it.</li>
@@ -171,6 +208,20 @@ export default function Home() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* Popular calculators — direct links help visitors and search engines reach the main tools */}
+      <section className="mx-auto w-full max-w-6xl px-6 pt-20">
+        <h2 className="text-2xl font-semibold text-foreground">Popular calculators</h2>
+        <ul className="mt-6 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          {POPULAR.map(([href, label]) => (
+            <li key={href}>
+              <Link href={href} className="text-accent-2 hover:underline">
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Browse by category */}
@@ -214,9 +265,9 @@ export default function Home() {
           <div>
             <div className="text-accent text-2xl font-bold">Cited, not guessed</div>
             <p className="mt-2 text-sm text-muted">
-              Every formula traces to a named standard clause or table — IEC,
-              IEEE, NEC, NFPA or BS — documented on the calculator itself, not
-              buried in a help file.
+              Formulas trace to a named standard — IEC, IEEE, NEC, NFPA or BS,
+              with the clause or table where one applies — documented on the
+              calculator itself, not buried in a help file.
             </p>
           </div>
           <div>

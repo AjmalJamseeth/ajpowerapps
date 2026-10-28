@@ -49,7 +49,7 @@ export default function TransformerDifferentialPage() {
                 "Threshold = 0.3 + 0.25×1.015 = 0.554pu.",
                 "0.07pu < 0.554pu → no trip (normal load/inrush condition, correctly restrained).",
               ],
-              result: "No trip — hand-checked and matched the live code exactly.",
+              result: "No trip.",
             }}
             notes="Currents must already be referred to a common base (CT ratio and vector-group/phase-shift compensated) before entering them here — this tool checks the restraint characteristic itself, not the CT/vector-group compensation."
           />

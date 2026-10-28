@@ -1,5 +1,5 @@
 // Conduit Fill — NEC Chapter 9 Table 1/4/5 (US) and IEC/BS 7671 space-factor
-// method (conduit 45% / trunking 40%). Ported and verified from the AJ Apps
+// method (conduit ≈40% / trunking 45%). Ported and verified from the AJ Apps
 // Suite's `ConduitFill` module. in the
 // source app.
 
@@ -138,7 +138,9 @@ export function calcConduitFillIec(input: ConduitFillInput): IecFillResult | nul
     sumArea += Math.PI * Math.pow(row.diaMm / 2, 2) * row.qty;
   }
   if (racewayArea == null || !any) return null;
-  const maxPct = input.iecShape === "conduit" ? 0.45 : 0.4;
+  // IET On-Site Guide practice: 45% space factor for trunking; ~40% for conduit (the OSG
+  // cable-factor tables for straight conduit runs correspond to roughly this fill).
+  const maxPct = input.iecShape === "conduit" ? 0.4 : 0.45;
   const maxArea = racewayArea * maxPct;
   const fillPct = (sumArea / racewayArea) * 100;
   return { racewayAreaMm2: racewayArea, maxPct, maxAreaMm2: maxArea, sumAreaMm2: sumArea, fillPct, pass: sumArea <= maxArea };

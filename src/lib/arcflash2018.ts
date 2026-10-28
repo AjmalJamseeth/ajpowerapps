@@ -380,6 +380,12 @@ export function defaultEquipClassFor(vocKv: number): EquipClassId {
 
 // ----------------------------------------------------------------------------
 // PPE categories and shock boundaries (NFPA 70E — reference values)
+// NOTE: NFPA 70E uses PPE categories with its table method (130.7(C)(15)). When an
+// incident-energy analysis is done, arc-rated PPE is chosen with an arc rating at
+// least equal to the calculated incident energy, and a label shows either the
+// incident energy or the PPE category, not both (130.5(H)). The category returned
+// here is an indicative mapping of the calculated energy to the 4/8/25/40 cal/cm²
+// clothing levels, for convenience only.
 // ----------------------------------------------------------------------------
 
 export interface PpeCategory {
@@ -394,7 +400,7 @@ export function ppeForEnergy(eCal: number): PpeCategory {
   if (eCal < AFB_THRESHOLD_CAL)
     return { cat: 0, name: "Below 1.2 cal/cm²", minArcRating: null, summary: "Below the arc-flash threshold at this distance; follow normal electrical safe work practices.", color: "#34d399" };
   if (eCal <= 4)
-    return { cat: 1, name: "PPE Category 1", minArcRating: 4, summary: "Arc-rated long-sleeve shirt and pants (or coverall), arc-rated face shield with balaclava or arc flash suit hood, hard hat, safety glasses, hearing protection, heavy-duty leather gloves, leather footwear.", color: "#a3e635" };
+    return { cat: 1, name: "PPE Category 1", minArcRating: 4, summary: "Arc-rated long-sleeve shirt and pants (or coverall), arc-rated face shield or arc flash suit hood, hard hat, safety glasses, hearing protection, heavy-duty leather gloves (or rubber insulating gloves with leather protectors), leather footwear as needed.", color: "#a3e635" };
   if (eCal <= 8)
     return { cat: 2, name: "PPE Category 2", minArcRating: 8, summary: "Category 1 clothing at the higher rating, with arc-rated balaclava and face shield or arc flash suit hood.", color: "#fbbf24" };
   if (eCal <= 25)

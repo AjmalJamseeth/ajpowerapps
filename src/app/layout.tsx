@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s | AJapps",
   },
   description:
-    "81 standards-based electrical engineering calculators covering protection relay coordination, cable sizing, earthing, transformers, power quality, backup power, instrumentation, renewables and facilities engineering. Built on cited IEC, IEEE, NEC and NFPA references. Free, no signup required.",
+    "Free standards-based electrical engineering calculators: protection relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, power quality, backup power, instrumentation, renewables and facilities engineering. Built on cited IEC, IEEE, NEC and NFPA references. No signup required.",
   keywords: [
     "electrical engineering calculator",
     "IDMT relay coordination",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AJapps — Electrical Engineering Calculators",
     description:
-      "81 standards-based electrical engineering calculators — protection relay coordination, cable sizing, earthing, transformers, power quality, backup power, renewables and more. Free, no signup required.",
+      "Free standards-based electrical engineering calculators — protection relay coordination, arc flash, cable sizing, earthing, transformers, power quality, backup power, renewables and more. No signup required.",
     url: "https://www.ajpowerapps.com",
     siteName: "AJapps",
     type: "website",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "AJapps — Electrical Engineering Calculators",
     description:
-      "81 standards-based electrical engineering calculators. Free, no signup required.",
+      "Free standards-based electrical engineering calculators. No signup required.",
   },
 };
 

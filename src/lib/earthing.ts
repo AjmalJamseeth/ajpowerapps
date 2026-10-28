@@ -36,7 +36,7 @@ export function calcRg(rho: number, Lt: number, A: number, h: number): number | 
   if (Lt <= 0 || A <= 0) return null;
   return rho * (1 / Lt + (1 / Math.sqrt(20 * A)) * (1 + 1 / (1 + h * Math.sqrt(20 / A))));
 }
-/** Mesh spacing factor Km, IEEE 80 Eq. 80, with the Eq. 81 Kii corner correction. */
+/** Mesh spacing factor Km, IEEE 80-2013 Eq. 85, with the Eq. 86/87 Kii correction. */
 export function calcKm(D: number, h: number, d: number, n: number, hasRods: boolean): number {
   if (D <= 0 || d <= 0 || h <= 0) return 1;
   const Kii = hasRods ? 1.0 : Math.pow(2 * n, -2 / n);
@@ -44,14 +44,28 @@ export function calcKm(D: number, h: number, d: number, n: number, hasRods: bool
   const t1 = Math.log(
     (D * D) / (16 * h * d) + Math.pow(D + 2 * h, 2) / (8 * D * d) - h / (4 * d)
   );
-  const t2 = (1 / (2 * n)) * Math.log(8 / (Math.PI * (2 * n - 1)));
+  const t2 = Math.log(8 / (Math.PI * (2 * n - 1)));
   return (1 / (2 * Math.PI)) * (t1 + (Kii / Kh) * t2);
 }
 export function calcKi(n: number): number {
   return 0.644 + 0.148 * n;
 }
-export function calcLm(Lc: number, nr: number, lr: number): number {
-  return Lc + 1.55 * nr * lr;
+/** Effective buried length for mesh voltage, IEEE 80 Eq. 91 (rods at the perimeter/corners). */
+export function calcLm(Lc: number, nr: number, lr: number, Lx = 0, Ly = 0): number {
+  if (nr <= 0 || lr <= 0) return Lc;
+  const diag = Math.sqrt(Lx * Lx + Ly * Ly);
+  const k = diag > 0 ? 1.55 + 1.22 * (lr / diag) : 1.55;
+  return Lc + k * nr * lr;
+}
+
+/** Effective number of parallel conductors n = na·nb for a rectangular grid, IEEE 80 Eq. 84–86. */
+export function calcNGeom(Lc: number, Lx: number, Ly: number): number {
+  const Lp = 2 * (Lx + Ly);
+  const A = Lx * Ly;
+  if (Lp <= 0 || A <= 0) return 1;
+  const na = (2 * Lc) / Lp;
+  const nb = Math.sqrt(Lp / (4 * Math.sqrt(A)));
+  return na * nb;
 }
 export function calcEm(rho: number, IG: number, Km: number, Ki: number, Lm: number): number {
   return (rho * IG * Km * Ki) / Lm;
@@ -90,8 +104,9 @@ export function calcRodR(rho: number, L: number, a: number): number | null {
   if (L <= 0 || a <= 0) return null;
   return (rho / (2 * Math.PI * L)) * (Math.log((4 * L) / a) - 1);
 }
+/** BS 7430 plate electrode: R = (ρ/4)·√(π/A). */
 export function calcPlateR(rho: number, a: number, b: number): number {
-  return rho / (8 * Math.sqrt((a * b) / Math.PI));
+  return (rho / 4) * Math.sqrt(Math.PI / (a * b));
 }
 export function calcStripR(rho: number, L: number, w: number, d: number): number | null {
   if (L <= 0 || w <= 0 || d <= 0) return null;
@@ -182,14 +197,14 @@ export function calcEarthing(input: EarthingInput): EarthingResult {
 
   let mesh: EarthingResult["mesh"] = null;
   if (input.premiumEnabled && Rg !== null && input.nx > 1 && input.ny > 1) {
-    const n_geom = Math.sqrt(input.nx * input.ny);
+    const n_geom = calcNGeom(Lc, input.Lx, input.Ly);
     const Dx = input.Lx / (input.nx - 1);
     const Dy = input.Ly / (input.ny - 1);
     const D_avg = (Dx + Dy) / 2;
     const hasRods = input.nr > 0;
     const Km = calcKm(D_avg, input.h, input.diam, n_geom, hasRods);
     const Ki = calcKi(n_geom);
-    const Lm = calcLm(Lc, input.nr, input.lr);
+    const Lm = calcLm(Lc, input.nr, input.lr, input.Lx, input.Ly);
     const Em = calcEm(input.rho, IG, Km, Ki, Lm);
     const Ks = calcKs(D_avg, input.h, n_geom);
     const Ls = calcLs(Lc, input.nr, input.lr);

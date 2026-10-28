@@ -61,7 +61,7 @@ export default function LifeCycleCostPage() {
                 "Present worth of Option B's operating cost ≈ $123,773 → Option B LCC = 68,000 + 123,773 = $191,773.",
                 "Simple payback = (68,000 − 50,000) / (12,000 − 8,500) = 18,000 / 3,500 ≈ 5.14 years.",
               ],
-              result: "Option B (premium) has the lower life-cycle cost by about $32,965 over 20 years, paying back its extra first cost in about 5.14 years — hand-checked and matched the live code exactly.",
+              result: "Option B (premium) has the lower life-cycle cost by about $32,965 over 20 years, paying back its extra first cost in about 5.14 years.",
             }}
             notes="Discount rate should be consistent with how the operating costs are expressed (nominal discount rate with nominal/escalating costs, or real discount rate with today's-dollar/non-escalating costs) — don't mix the two conventions. Salvage value and periodic (non-annual) maintenance overhauls aren't modeled as separate line items here; roll major overhauls into the annual operating cost as an equivalent annualized figure if needed."
           />

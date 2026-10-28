@@ -903,6 +903,36 @@ added for this.
 No real accounts/payments are wired up yet on any calculator — the
 subscriber sections are UI gates ready for when subscriptions launch.
 
+## Audit corrections (October 2026)
+
+A full accuracy, wording and SEO audit changed several results. Figures quoted
+in the older verification notes below are superseded where they conflict.
+
+- **Voltage drop (cable, EV, PV, BESS):** the mV/A/m table holds single-phase
+  loop values; they are now halved per conductor before the 2 or √3 factor (the
+  drop was overstated about 2×). XLPE is evaluated at 90 °C; DC ignores reactance.
+  Cable default now 25 mm² at 1.32 % (was 2.64 %).
+- **Earthing (IEEE 80):** Km corner term no longer divided by 2n; n = na·nb;
+  Lm includes the 1.22·Lr/√(Lx²+Ly²) term; BS 7430 plate R = (ρ/4)√(π/A).
+- **PFC:** capacitance was shown in "µF" but was mF; capacitance now at the
+  system voltage and the nameplate kVAr at the capacitor voltage is reported.
+- **VT:** IEC 61869-3 voltage factors (1.5/30 s effectively earthed; 1.9/30 s
+  non-effectively earthed with clearance); open-delta winding Us/3.
+- **IEC 60909:** peak current uses method B (1.15·κ) when several sources feed
+  the fault.
+- **MV cable:** trefoil T4 for direct burial (mutual heating), air gap added
+  for ducts; default now ≈751 A (was 821.8 A).
+- **NEC:** 430.62 feeder OCPD rounds down; 440.22 MOCP 175 % rounds down (225 %
+  ceiling shown); 240.4(D) small-conductor limit; 2000 kcmil 60 °C = 555 A;
+  220.57 EVSE load; 210.8(A)(10) laundry; 392.22 mixed-cable tray rule.
+- **IEEE 43:** minimum IR by winding type (100 MΩ / 5 MΩ / kV+1).
+- **Wording:** removed developer notes from pages, corrected IEC 60439 / IEC
+  61537 references, conduit/trunking space factors, NFPA 70E PPE-category note.
+- **SEO:** InfoPanel always in the HTML, search-focused titles, JSON-LD, social
+  image, popular-calculator links on the home page.
+
+The new "Audit corrections (October 2026)" test section pins each fix.
+
 ## Verification notes
 
 These are safety/engineering-adjacent calculations, so each math library was

@@ -49,7 +49,7 @@ export default function VoltageUnbalancePage() {
                 "Unbalance% = 6.33/414.33 × 100 ≈ 1.53%.",
                 "Interpolating between 1%→0.98pu and 2%→0.95pu at 1.53%: derating ≈ 0.964pu.",
               ],
-              result: "≈1.53% unbalance, ≈0.964pu derating — hand-checked and matched the live code exactly.",
+              result: "≈1.53% unbalance, ≈0.964pu derating.",
             }}
             notes="The curve is published only up to 5% unbalance — NEMA MG1 states motors should not be operated above 5% unbalance without consulting the manufacturer, so this tool does not extrapolate a derating factor beyond that point."
           />

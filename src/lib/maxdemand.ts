@@ -1,5 +1,7 @@
 // Maximum Demand calculator — load-category demand-factor method.
-// General practice per IEC 60439-style guidance: each load category has its
+// General design practice (the default factors are typical values, not taken
+// from any one standard — IEC 61439's rated diversity factor is a switchgear
+// assembly rating, not a load demand factor): each load category has its
 // own demand factor (not every fitting/appliance/motor in a category runs
 // at full rated power simultaneously), summed to a diversified maximum
 // demand, then converted to a design current and matched to standard

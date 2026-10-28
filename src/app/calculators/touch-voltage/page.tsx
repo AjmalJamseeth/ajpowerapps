@@ -50,7 +50,7 @@ export default function TouchVoltagePage() {
                 "Touch voltage = 30 × 1.0 = 30V.",
                 "Dry limit = 50V → 30V ≤ 50V, pass.",
               ],
-              result: "Pass, with an estimated body current of ≈30mA for context — hand-checked and matched the live code exactly.",
+              result: "Pass, with an estimated body current of ≈30mA for context.",
             }}
             notes="The touch-voltage factor is genuinely site/geometry dependent (soil resistivity, bonding, distance from the grounding point) — 1.0 is the conservative worst case; a real assessment should use a proper ground-potential-rise study or measurement for the specific location."
           />

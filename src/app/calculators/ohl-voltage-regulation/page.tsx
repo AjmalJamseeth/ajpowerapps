@@ -46,7 +46,7 @@ export default function OhlVoltageRegulationPage() {
                 "Vdrop = √3 × 100 × (2×0.85 + 1.75×0.527) = 173.2 × 2.622 ≈ 454.1V.",
                 "%Reg = 454.1/11000 × 100 ≈ 4.13%.",
               ],
-              result: "≈454V drop, ≈4.13% regulation — hand-checked and matched the live code exactly.",
+              result: "≈454V drop, ≈4.13% regulation.",
             }}
             notes="Deliberately does NOT embed an ACSR/AAAC/AAC conductor lookup table (to avoid transcription risk) — enter R and X per km for your specific conductor and spacing from its datasheet or a verified conductor-data reference. This short-line approximation omits shunt capacitance; for very long or high-voltage lines, a full line model may be needed."
           />

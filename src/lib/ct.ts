@@ -215,7 +215,7 @@ export function calcCt(input: CtInput, premiumEnabled: boolean): CtResult | null
     if (ithA > 0 && ifKa > 0) {
       const ithScaledKa = ithA * Math.sqrt(ithT / tfActual);
       const thermPass = ifKa <= ithScaledKa;
-      const idynKa = input.idyn > 0 ? input.idyn : 2.5 * ithA;
+      const idynKa = input.idyn > 0 ? input.idyn : ((input.freqHz || 50) >= 55 ? 2.6 : 2.5) * ithA; // IEC 61869-1: 2.5×Ith at 50 Hz, 2.6×Ith at 60 Hz
       const kappa = 1.02 + 0.98 * Math.exp(-3 / (input.xr || 10));
       const ipeakActualKa = kappa * Math.sqrt(2) * ifKa;
       const dynPass = ipeakActualKa <= idynKa;

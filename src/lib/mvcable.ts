@@ -141,12 +141,22 @@ export function calcMvCable(input: MvCableInput): MvCableResult | null {
   if (input.installMethod === "duct") T3 *= 1.6; // IEC 60287-2-1 §4.2.4.3.2 metallic-sheathed duct correction
 
   // T4 — cable surface to ambient (external thermal resistance)
+  // Three equally loaded single-core cables in touching trefoil (IEC 60287-2-1 §4.2.3.3):
+  // T4 = 1.5/π·ρ·[ln(2u) − 0.630], u = 2L/De. This includes the mutual heating of the other
+  // two cables; the isolated-cable formula ρ/2π·ln(u+√(u²−1)) would overstate the rating.
   const u = (2 * input.burialDepthMm) / dia[5];
+  const T4ext = (1.5 / Math.PI) * input.soilRhoKmW * (Math.log(2 * u) - 0.63);
   let T4: number;
   if (input.installMethod === "duct") {
-    T4 = (1.5 / Math.PI) * input.soilRhoKmW * (Math.log(2 * u) - 0.63);
+    // Plus the air space between cable and duct (IEC 60287-2-1 §4.2.7.2, plastic duct:
+    // U = 1.87, V = 0.312, Y = 0.0037, mean air temperature taken as 50 °C), one cable per
+    // duct. The duct wall itself (≈0.03–0.05 K·m/W for PE) is neglected and the external
+    // term uses the cable diameter, so the duct case is still slightly optimistic.
+    const De = dia[5];
+    const T4air = 1.87 / (1 + 0.1 * (0.312 + 0.0037 * 50) * De);
+    T4 = T4ext + T4air;
   } else {
-    T4 = (1 / (2 * Math.PI)) * input.soilRhoKmW * Math.log(u + Math.sqrt(u * u - 1));
+    T4 = T4ext;
   }
 
   // Dielectric loss

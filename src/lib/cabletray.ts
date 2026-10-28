@@ -1,4 +1,5 @@
-// Cable Tray Fill — NEC §392.22 (US) and IEC 61537-style area-fill (International).
+// Cable Tray Fill — NEC §392.22 (US) and the common 40–50% area-fill practice
+// (International; IEC 61537 is a tray product standard and sets no fill limit).
 // Ported and verified from the AJ Apps Suite's `CableTray` module. Entirely a
 // advanced feature in the source app — no core at all.
 
@@ -82,7 +83,7 @@ export function calcCableTrayNec(input: CableTrayInput): NecTrayResult | null {
     const r = sumRows(input.necSingleRows);
     if (!r.any) return null;
     return {
-      rule: "§392.22(B)(1) — sum of diameters ≤ tray width, single layer",
+      rule: "§392.22(B)(1)(a)/(d) — sum of diameters ≤ tray width, single layer (1/0–4/0 AWG and 1000 kcmil+; 250–900 kcmil cables use the area rule of (B)(1)(b) instead)",
       sd: `${r.sd.toFixed(3)} in`,
       area: "n/a (width-based rule)",
       maxArea: "n/a",
@@ -128,9 +129,13 @@ export function calcCableTrayNec(input: CableTrayInput): NecTrayResult | null {
     };
   }
 
-  const sdMult = type === "solid" ? 1.111 : 1.0;
-  const areaMult = type === "solid" ? 6 / 5.5 : 6 / 7;
-  const reqWidth = rLarge.sd * sdMult + rSmall.area * areaMult;
+  // Table 392.22(A): ladder/ventilated trough Column 2 = (7/6)·W − 1.2·Sd;
+  // solid bottom Column 4 = (5.5/6)·W − 1·Sd. Rearranged for the width required.
+  // With no smaller cables, (A)(1)(a)/(3)(a) apply: ΣD ≤ W (ladder) or ΣD ≤ 0.9·W (solid).
+  let reqWidth: number;
+  if (!rSmall.any) reqWidth = type === "solid" ? rLarge.sd / 0.9 : rLarge.sd;
+  else if (type === "solid") reqWidth = (6 / 5.5) * (rSmall.area + rLarge.sd);
+  else reqWidth = (6 / 7) * (rSmall.area + 1.2 * rLarge.sd);
   return {
     rule: "§392.22(A)(1)(c)/(3)(c) — 4/0+ cables (single layer) mixed with smaller cables",
     sd: `${rLarge.sd.toFixed(3)} in`,

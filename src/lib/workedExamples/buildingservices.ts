@@ -31,10 +31,10 @@ export const BUILDINGSERVICES_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "Size the maximum overcurrent protection (MOCP) — NEC 440.22(A)",
-        body: "MOCP starts at 175% of RLA, rounds up to the next standard breaker/fuse size, but is capped so it never exceeds 225% of RLA.",
-        equation: "base = 1.75 x RLA (round up to standard size)          cap = 2.25 x RLA",
-        substitution: "1.75 x 18 = 31.5 → next standard size 35 A          2.25 x 18 = 40.5 A cap",
-        result: "MOCP = 35 A (35 ≤ 40.5 cap, so no reduction needed)",
+        body: "NEC 440.22(A) sets a maximum of 175% of RLA. Because it is a maximum, a non-standard result rounds DOWN. Only if that device will not carry the starting current may it be increased, and then never above 225% of RLA (again rounded down).",
+        equation: "MOCP = 1.75 x RLA (round down to standard size)          absolute max = 2.25 x RLA (round down)",
+        substitution: "1.75 x 18 = 31.5 → 30 A          2.25 x 18 = 40.5 → 40 A",
+        result: "MOCP = 30 A (up to 40 A only if 30 A will not start the compressor)",
       },
       {
         title: "Size the disconnect switch rating",
@@ -51,23 +51,23 @@ export const BUILDINGSERVICES_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "Size the combination MOCP and disconnect",
-        equation: "comboMOCP = MOCP(largest) + sum(otherRLAs)          comboDisc = 1.15 x sum(allRLAs)",
-        substitution: "35 + 4          1.15 x 22",
-        result: "comboMOCP = 39 A, comboDisc = 25.3 A",
+        equation: "comboMOCP = 1.75 x RLA(largest) + sum(otherRLAs), rounded down          comboDisc = 1.15 x sum(allRLAs)",
+        substitution: "31.5 + 4 = 35.5 → 35 A          1.15 x 22",
+        result: "comboMOCP = 35 A, comboDisc = 25.3 A",
       },
     ],
     resultSummary: [
       { check: "Single compressor MCA", requirement: "n/a (sizing basis)", actual: "22.5 A", pass: true },
-      { check: "Single compressor MOCP", requirement: "≤ 40.5 A cap", actual: "35 A", pass: true },
+      { check: "Single compressor MOCP", requirement: "≤ 175% RLA (31.5 A)", actual: "30 A", pass: true },
       { check: "Combination-load MCA (compressor + fan)", requirement: "n/a (sizing basis)", actual: "26.5 A", pass: true },
-      { check: "Combination-load MOCP", requirement: "n/a (sizing basis)", actual: "39 A", pass: true },
+      { check: "Combination-load MOCP", requirement: "≤ 35.5 A", actual: "35 A", pass: true },
     ],
-    finalAnswer: "The standalone compressor needs a 22.5 A MCA feeding a 35 A MOCP and a 20.7 A disconnect. Once the condenser fan shares the same feeder, the correct combination-load MCA is 26.5 A — only the largest motor (the compressor) gets the 125% margin, while the fan's 4 A is added at its own full rated current, not at 125%.",
+    finalAnswer: "The standalone compressor needs a 22.5 A MCA, a 30 A maximum overcurrent device (40 A only if needed to start) and a 20.7 A disconnect. Once the condenser fan shares the same feeder, the correct combination-load MCA is 26.5 A — only the largest motor (the compressor) gets the 125% margin, while the fan's 4 A is added at its own full rated current, not at 125%.",
     keyInsight: "A frequent sizing mistake is adding each device's own already-125%-margined MCA together for a shared feeder — that double-counts the safety margin on every motor except the largest, producing an oversized (and non-compliant with the Article 440 method) result. NEC combination-load sizing applies the 125% factor exactly once, to the single largest motor, and full RLA to everything else on that feeder.",
     faqs: [
       {
         q: "Why does only the largest motor get the 125% margin in a combination load?",
-        a: "The 125% factor exists to keep the branch-circuit conductor comfortably above one motor's starting and running behavior — once that largest motor's margin is included, the other loads on the same feeder are already running loads (not the one setting the peak starting/thermal condition), so NEC 440.22(A) only requires them to be counted at their full rated current rather than re-applying the margin to each one individually.",
+        a: "The 125% factor exists to keep the branch-circuit conductor comfortably above one motor's starting and running behavior — once that largest motor's margin is included, the other loads on the same feeder are already running loads (not the one setting the peak starting/thermal condition), so NEC 440.33 only requires them to be counted at their full rated current rather than re-applying the margin to each one individually.",
       },
       {
         q: "Does the same logic apply to a VFD-fed motor input and output circuit?",

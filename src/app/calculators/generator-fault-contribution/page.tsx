@@ -112,7 +112,7 @@ export default function GeneratorFaultContributionPage() {
                 "Fault contribution per generator = 695.6/0.12 ≈ 5,797A ≈ 5.80kA.",
                 "Total at bus = 5.80 × 2 ≈ 11.59kA.",
               ],
-              result: "≈11.59kA total fault contribution — hand-checked and matched the live code exactly.",
+              result: "≈11.59kA total fault contribution.",
             }}
             notes="This ignores network/inter-machine impedance between the generators and the common bus, and doesn't account for fault current decay over time (subtransient vs transient vs steady-state) — it's a first-approximation screening tool, not a substitute for a full short-circuit study when sizing switchgear."
           />

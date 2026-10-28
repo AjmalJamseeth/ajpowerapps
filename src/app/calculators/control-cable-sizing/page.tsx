@@ -55,7 +55,7 @@ export default function ControlCableSizingPage() {
                 "120nF ≤ 200nF → within the host's capacitance budget, pass.",
                 "Maximum length for this cable/host combination = 200,000nF-equivalent pF ÷ 150 pF/m = 1,333m.",
               ],
-              result: "120nF at 800m, well within the 200nF host limit, with headroom to roughly 1,333m before hitting the capacitance ceiling — hand-checked and matched the live code exactly.",
+              result: "120nF at 800m, well within the 200nF host limit, with headroom to roughly 1,333m before hitting the capacitance ceiling.",
             }}
             notes="HART maximum system capacitance is genuinely host/multiplexer-specific — there is no single universal IEC number, so it must be entered from the host's own datasheet, not assumed. The EMI separation distances shown are commonly-cited general practice figures, not a verified official IEEE 518 numeric matrix — always confirm against your project's actual IEEE 518 edition or site EMI standard for design-critical spacing. Minimum conductor size guidance is general industry practice, not a single hard standard requirement."
           />

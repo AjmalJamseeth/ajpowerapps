@@ -139,6 +139,9 @@ export default function WireAmpacityNecPage() {
                   <ResultRow label="Base ampacity (Table 310.16)" value={`${result.candidate.baseAmpacity} A`} />
                   <ResultRow label="Adjusted ampacity" value={`${result.candidate.adjustedAmpacity.toFixed(1)} A`} />
                   <ResultRow label="Termination cap" value={`${result.candidate.terminationCapAmpacity} A`} />
+                  {result.candidate.smallConductorCapA != null && (
+                    <ResultRow label="Small-conductor limit (NEC 240.4(D))" value={`${result.candidate.smallConductorCapA} A`} />
+                  )}
                   <ResultRow label="Effective ampacity" value={`${result.candidate.effectiveAmpacity.toFixed(1)} A`} />
                   <ResultRow label="Result" value={result.passes ? "Meets load ✓" : "Does not meet load ✗"} />
                 </ResultCard>

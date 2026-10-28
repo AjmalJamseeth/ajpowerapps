@@ -52,7 +52,7 @@ export const DWELLING_LOCATIONS: Record<DwellingLocation, LocationRequirement> =
     label: "Laundry area",
     afciRequired: true, gfciRequired: true,
     afciCitation: "NEC 210.12(A) — laundry areas",
-    gfciCitation: "NEC 210.8(A)(11) — laundry areas (2020 NEC addition)",
+    gfciCitation: "NEC 210.8(A)(10) — laundry areas",
   },
   garage: {
     label: "Garage / accessory building",

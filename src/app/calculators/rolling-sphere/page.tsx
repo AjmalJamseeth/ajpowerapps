@@ -45,7 +45,7 @@ export default function RollingSpherePage() {
               steps: [
                 "rp = √(2×45×10 − 10²) = √(900 − 100) = √800 ≈ 28.28m.",
               ],
-              result: "≈28.28m protection radius — hand-checked and matched the live code exactly.",
+              result: "≈28.28m protection radius.",
             }}
             notes="This is the single-mast geometry only — for multiple air terminals, a mesh, or a structure taller than the class's sphere radius, a full multi-point rolling-sphere or mesh-method study is required (not covered by this simple formula)."
           />

@@ -51,7 +51,7 @@ export default function PuePage() {
                 "Overhead energy = 1,500,000 − 1,000,000 = 500,000 kWh, or 33.3% of the total.",
                 "Overhead cost = 500,000 kWh × $0.12/kWh = $60,000 for the period.",
               ],
-              result: "PUE = 1.50, DCiE = 66.67%, $60,000 of overhead energy cost for the period — classified as 'Moderate' on the Green Grid scale — hand-checked and matched the live code exactly.",
+              result: "PUE = 1.50, DCiE = 66.67%, $60,000 of overhead energy cost for the period — classified as 'Moderate' on the Green Grid scale.",
             }}
             notes="The efficiency bands (world-class <1.2 through very inefficient ≥3.0) are the commonly-cited informal Green Grid scale from its original 2007 guidance, not a formal ISO/IEC-mandated classification — ISO/IEC 30134-2 standardizes the PUE metric and measurement methodology itself, not efficiency bands. Enter total facility and IT equipment energy over the same measurement period and metering boundary for a meaningful result."
           />

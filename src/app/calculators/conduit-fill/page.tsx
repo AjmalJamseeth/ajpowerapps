@@ -69,8 +69,8 @@ export default function ConduitFillPage() {
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Conduit Fill Calculator</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          NEC Chapter 9 Table 1/4/5 (US) or IEC/BS 7671 45% space-factor
-          method (conduit) / 40% (trunking).
+          NEC Chapter 9 Table 1/4/5 (US) or IEC/BS 7671 space-factor method: about
+          40% (conduit) / 45% (trunking).
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -81,8 +81,8 @@ export default function ConduitFillPage() {
         <div className="mt-6">
           <InfoPanel
           purpose="Checks whether a set of conductors or cables fits within a conduit, tubing, or trunking raceway without exceeding the maximum allowable fill percentage \u2014 the rule that keeps conductors coolable and pullable without insulation damage."
-          standards={["NEC Chapter 9 Table 1 (fill percentages)", "NEC Chapter 9 Table 4 (conduit internal area)", "NEC Chapter 9 Table 5 (conductor area)", "IEC / BS 7671 45%/40% space-factor practice"]}
-          capabilities={["NEC path: select conduit type & trade size, add any number of conductor rows (insulation + AWG size + quantity), and get the fill percentage against the correct 1/2/3+ conductor fill tier.", "Suggests the minimum standard trade size that keeps the fill percentage compliant.", "IEC/BS 7671 path: circular conduit (45%) or rectangular trunking (40%) space-factor check from actual cable outer diameters.", "Fully free \u2014 no advanced gate, matching the source app's own tiering."]}
+          standards={["NEC Chapter 9 Table 1 (fill percentages)", "NEC Chapter 9 Table 4 (conduit internal area)", "NEC Chapter 9 Table 5 (conductor area)", "IEC / BS 7671 (IET On-Site Guide) 40%/45% space-factor practice"]}
+          capabilities={["NEC path: select conduit type & trade size, add any number of conductor rows (insulation + AWG size + quantity), and get the fill percentage against the correct 1/2/3+ conductor fill tier.", "Suggests the minimum standard trade size that keeps the fill percentage compliant.", "IEC/BS 7671 path: circular conduit (about 40%) or rectangular trunking (45%) space-factor check from actual cable outer diameters."]}
           example={{ problem: "Six 12 AWG THHN conductors are pulled into a 3/4\" EMT conduit. Check the fill percentage.", steps: ["Look up each conductor's individual area from NEC Chapter 9 Table 5 (12 AWG THHN) and sum: total conductor area = 0.0798 in\u00b2.", "With 3+ conductors, the applicable fill tier is 40% of the conduit's internal area.", "3/4\" EMT internal area (Table 4) = 0.533 in\u00b2 \u2192 40% allowable = 0.2132 in\u00b2.", "Fill % = 0.0798 / 0.533 = 14.97%."], result: "14.97% fill, well within the 40% limit \u2014 pass, with 1/2\" EMT suggested as the minimum size that would still work." }}
           />
         </div>
@@ -137,11 +137,11 @@ export default function ConduitFillPage() {
                 <Section title="Raceway">
                   <SelectField<IecShape>
                     label="Shape"
-                    tip={"Circular conduit uses a 45% maximum space factor; rectangular trunking uses 40%, per common IEC/BS 7671 practice."} value={input.iecShape}
+                    tip={"Rectangular trunking uses the 45% space factor from the IET On-Site Guide; circular conduit is checked at about 40% (the OSG cable-factor tables for straight runs correspond to roughly this fill \u2014 bends and long runs need less)."} value={input.iecShape}
                     onChange={(v) => update({ iecShape: v })}
                     options={[
-                      { value: "conduit", label: "Conduit (circular, 45%)" },
-                      { value: "trunking", label: "Trunking (rectangular, 40%)" },
+                      { value: "conduit", label: "Conduit (circular, ~40%)" },
+                      { value: "trunking", label: "Trunking (rectangular, 45%)" },
                     ]}
                   />
                   <div />

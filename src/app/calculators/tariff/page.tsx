@@ -106,7 +106,7 @@ export default function TariffPage() {
                 "PF shortfall = (0.90 − 0.88) × 100 = 2 points → penalty = 2 × 0.5% = 1% of the demand charge = $42.",
                 "Total = 6,660 + 4,200 + 42 + 100 = $11,002.",
               ],
-              result: "$11,002 total estimated bill, blended rate ≈$0.478/kWh — hand-checked and matched the live code exactly.",
+              result: "$11,002 total estimated bill, blended rate ≈$0.478/kWh.",
             }}
             notes="Every rate, TOU period, and the PF penalty formula/threshold must be entered from your own utility's published tariff schedule — none of these are built-in constants, since they vary significantly by utility and region. The PF penalty formula shown (a surcharge per percentage-point shortfall on the demand charge) is a common pattern, not a universal one — confirm your utility's actual formula before relying on this for a real bill estimate."
           />

@@ -49,7 +49,7 @@ export default function LineLossesPage() {
                 "Peak current ≈ 24.3A → peak I²R loss ≈ 0.89kW.",
                 "Annual loss = 0.89 × 0.432 × 8760 ≈ 3,352 kWh → cost ≈ $402/yr.",
               ],
-              result: "≈3,350 kWh/year technical loss — hand-checked and matched the live code exactly.",
+              result: "≈3,350 kWh/year technical loss.",
             }}
             notes="The loss-factor approximation is a well-known empirical shortcut, not an exact relationship — for a rigorous study, use actual interval (15/30-min) load data to compute loss factor directly rather than this approximation."
           />

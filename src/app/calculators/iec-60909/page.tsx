@@ -87,7 +87,7 @@ export default function Iec60909Page() {
               ],
               result: "≈ 25.3 kA at the LV bus — the calculator reproduces this exactly and also shows ip, Ib, Ith and earth-fault values.",
             }}
-            notes="Scope and simplifications: balanced and unbalanced faults at bus level (no mid-cable faults). The peak current uses method A (uniform R/X); steady-state Ik (λ factors) is not computed; the motor breaking-current decay (μ·q) is not credited, which is conservative; Ith uses n = 1 (conservative). Taps, loads and shunt capacitance are ignored, as permitted by IEC 60909-0. Enter manufacturer data wherever available — the typical values are only starting points."
+            notes="Scope and simplifications: balanced and unbalanced faults at bus level (no mid-cable faults). The peak current uses method B (R/X at the fault location, with the 1.15 factor when more than one source feeds the fault); steady-state Ik (λ factors) is not computed; the motor breaking-current decay (μ·q) is not credited, which is conservative; Ith uses n = 1 (conservative). Taps, loads and shunt capacitance are ignored, as permitted by IEC 60909-0. Enter manufacturer data wherever available — the typical values are only starting points."
           />
         </div>
 

@@ -5,8 +5,8 @@ import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
 import { FeedbackButton } from "@/components/FeedbackButton";
-import { NumberField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } from "@/components/fields";
-import { DEFAULT_INSULATION_RESISTANCE_INPUT, InsulationResistanceInput, calcInsulationResistance } from "@/lib/insulationresistance";
+import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } from "@/components/fields";
+import { DEFAULT_INSULATION_RESISTANCE_INPUT, InsulationResistanceInput, WindingType, WINDING_TYPE_LABEL, calcInsulationResistance } from "@/lib/insulationresistance";
 
 export default function InsulationResistancePage() {
   const [input, setInput] = useState<InsulationResistanceInput>(DEFAULT_INSULATION_RESISTANCE_INPUT);
@@ -23,40 +23,41 @@ export default function InsulationResistancePage() {
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
           Checks a 1-minute insulation resistance reading against the IEEE
-          43 minimum-IR rule of thumb (kV rated + 1 megohm), with an
-          optional temperature correction to the 40°C reference.
+          43-2013 recommended minimum IR for the winding type (100 MΩ, 5 MΩ
+          or kV + 1 MΩ), with a temperature correction to the 40°C reference.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <ReportButton title="Insulation Resistance (IR) Test Value Checker" standardsLine="IEEE 43-2013 (traditional kV+1 minimum-IR formula)" />
+          <ReportButton title="Insulation Resistance (IR) Test Value Checker" standardsLine="IEEE 43-2013 Table 3 (recommended minimum IR at 40°C)" />
           <FeedbackButton calculatorName="Insulation Resistance (IR) Test Value Checker" />
         </div>
 
         <div className="mt-6">
           <InfoPanel
             purpose="Checks a measured 1-minute insulation resistance reading against IEEE 43's traditional minimum-IR rule of thumb for rotating machinery: IR(1min, 40°C) ≥ kV_rated + 1 megohms — still a widely used quick field-acceptance check."
-            standards={["IEEE 43-2013 (recommended practice for testing insulation resistance of rotating machinery) — traditional kV+1 formula"]}
+            standards={["IEEE 43-2013 (recommended practice for testing insulation resistance of rotating machinery) — Table 3 minimum IR by winding type"]}
             capabilities={[
-              "Minimum required IR from rated voltage.",
+              "Minimum required IR from the winding type (and rated voltage for pre-1970/field windings).",
               "Temperature correction of the measured reading back to the 40°C reference, using the common field rule of thumb that IR approximately halves for every 10°C rise (doubles for every 10°C fall).",
               "Pass/fail verdict.",
             ]}
             example={{
-              problem: "6.6kV motor, measured 12 megohms at 40°C.",
+              problem: "6.6kV form-wound motor built after 1970, measured 250 megohms at 40°C.",
               steps: [
-                "Minimum required = 6.6 + 1 = 7.6 megohms.",
-                "Measured at the 40°C reference already, so no correction needed: 12 megohms.",
-                "12 ≥ 7.6 → pass.",
+                "Minimum required for a post-1970 form-wound winding = 100 megohms (IEEE 43 Table 3).",
+                "Measured at the 40°C reference already, so no correction needed: 250 megohms.",
+                "250 ≥ 100 → pass. (The older kV + 1 = 7.6 megohm figure applies only to pre-1970 and field windings.)",
               ],
-              result: "Pass — hand-checked and matched the live code exactly.",
+              result: "Pass.",
             }}
-            notes="IEEE 43 also offers a newer, winding-specific minimum-IR formula for more rigorous assessment — this tool implements only the traditional kV+1 quick-check formula. The temperature-correction rule of thumb (halving/doubling per 10°C) is a common field approximation, not a precise physical law — for critical decisions, take readings at or near 40°C directly rather than relying on the correction."
+            notes="The kV + 1 MΩ value applies only to windings made before about 1970 and to field windings; modern form-wound windings need at least 100 MΩ and random-wound or sub-1 kV windings at least 5 MΩ. The temperature-correction rule of thumb (halving/doubling per 10°C) is a common field approximation, not a precise physical law — for critical decisions, take readings at or near 40°C directly rather than relying on the correction."
           />
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-5">
           <div className="space-y-6 lg:col-span-3">
             <Section title="Machine & test reading">
+              <SelectField<WindingType> label="Winding type (IEEE 43 Table 3)" value={input.windingType} onChange={(v) => update({ windingType: v })} options={(Object.keys(WINDING_TYPE_LABEL) as WindingType[]).map((k) => ({ value: k, label: WINDING_TYPE_LABEL[k] }))} />
               <NumberField label="Rated voltage" unit="kV" value={input.ratedVoltageKv} onChange={(v) => update({ ratedVoltageKv: v })} min={0} step={0.1} />
               <NumberField label="Measured IR (1 minute)" unit="MΩ" value={input.measuredIrMegohm} onChange={(v) => update({ measuredIrMegohm: v })} min={0} />
               <NumberField label="Temperature at test" unit="°C" value={input.measuredTempC} onChange={(v) => update({ measuredTempC: v })} step={1} />

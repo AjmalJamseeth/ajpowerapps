@@ -8,17 +8,16 @@ export type HvacStandard = "nec" | "iec";
 // NEC 240.6(A) standard fuse/breaker ampere ratings
 export const STD_SIZES = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1200, 1600, 2000, 2500, 3000, 4000, 5000, 6000];
 
-// NEC 440.22(A): OCPD = 175% RLA rounded up to next standard size, capped at 225% RLA
-function ocpdForRLA(rla: number): number {
-  const base = 1.75 * rla,
-    cap = 2.25 * rla;
-  let chosen = STD_SIZES.find((s) => s >= base);
-  if (chosen === undefined) chosen = STD_SIZES[STD_SIZES.length - 1];
-  if (chosen > cap) {
-    const lower = STD_SIZES.filter((s) => s <= cap);
-    if (lower.length) chosen = lower[lower.length - 1];
-  }
-  return chosen;
+// NEC 440.22(A): the device rating shall NOT EXCEED 175% of RLA; if that is not enough to
+// start the compressor it may be increased, but shall not exceed 225% of RLA. Both are
+// maximums, so a non-standard result rounds DOWN (there is no next-size-up allowance in
+// 440.22), and the device need not be smaller than 15 A (440.22(A) exception).
+function roundDownStd(val: number): number {
+  const lower = STD_SIZES.filter((s) => s <= val);
+  return lower.length ? lower[lower.length - 1] : STD_SIZES[0];
+}
+function ocpdForAmps(base175: number, base225: number): { mocp: number; mocpMax: number } {
+  return { mocp: Math.max(15, roundDownStd(base175)), mocpMax: Math.max(15, roundDownStd(base225)) };
 }
 
 export interface ComboRow {
@@ -55,7 +54,8 @@ export const DEFAULT_HVAC_INPUT: HvacInput = {
 
 export interface HvacSingleResult {
   mcaA: number | null;
-  mocpA: number | null;
+  mocpA: number | null; // 175 % basis, rounded down
+  mocpMaxA: number | null; // 225 % ceiling if 175 % will not start the compressor, rounded down
   discA: number | null;
   iecDesignA: number | null;
 }
@@ -64,6 +64,7 @@ export interface HvacComboResult {
   largestRla: number | null;
   mcaA: number | null;
   mocpA: number | null;
+  mocpMaxA: number | null;
   discA: number | null;
   iecDesignA: number | null;
 }
@@ -83,12 +84,13 @@ export function calcHvac(input: HvacInput, premiumEnabled: boolean): HvacResult 
   const nec = input.standard === "nec";
   const rla = input.rlaA;
 
-  let single: HvacSingleResult = { mcaA: null, mocpA: null, discA: null, iecDesignA: null };
+  let single: HvacSingleResult = { mcaA: null, mocpA: null, mocpMaxA: null, discA: null, iecDesignA: null };
   if (rla != null && rla > 0) {
     if (nec) {
-      single = { mcaA: 1.25 * rla, mocpA: ocpdForRLA(rla), discA: 1.15 * rla, iecDesignA: null };
+      const o = ocpdForAmps(1.75 * rla, 2.25 * rla);
+      single = { mcaA: 1.25 * rla, mocpA: o.mocp, mocpMaxA: o.mocpMax, discA: 1.15 * rla, iecDesignA: null };
     } else {
-      single = { mcaA: null, mocpA: null, discA: null, iecDesignA: rla * (input.iecMargin || 1) };
+      single = { mcaA: null, mocpA: null, mocpMaxA: null, discA: null, iecDesignA: rla * (input.iecMargin || 1) };
     }
   }
 
@@ -107,12 +109,15 @@ export function calcHvac(input: HvacInput, premiumEnabled: boolean): HvacResult 
           largestDesc: largest.desc,
           largestRla: largest.rla,
           mcaA: 1.25 * largest.rla + sumOthers,
-          mocpA: ocpdForRLA(largest.rla) + sumOthers,
+          ...(() => {
+            const o = ocpdForAmps(1.75 * largest.rla + sumOthers, 2.25 * largest.rla + sumOthers);
+            return { mocpA: o.mocp, mocpMaxA: o.mocpMax };
+          })(),
           discA: 1.15 * sumAll,
           iecDesignA: null,
         };
       } else {
-        combo = { largestDesc: largest.desc, largestRla: largest.rla, mcaA: null, mocpA: null, discA: null, iecDesignA: sumAll * (input.comboIecMargin || 1) };
+        combo = { largestDesc: largest.desc, largestRla: largest.rla, mcaA: null, mocpA: null, mocpMaxA: null, discA: null, iecDesignA: sumAll * (input.comboIecMargin || 1) };
       }
     }
   }

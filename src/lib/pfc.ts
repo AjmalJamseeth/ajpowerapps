@@ -35,7 +35,8 @@ export interface PfcResult {
   S2: number; // kVA improved
   I1: number; // A existing
   I2: number; // A improved
-  C_uF: number; // capacitance per phase
+  C_uF: number; // capacitance per phase, giving Qc at the operating (system) voltage
+  ratedKvarAtCapV: number; // nameplate kVAr to order at the capacitor's rated voltage: Qc·(Vcap/V)²
   Ic: number; // capacitor current, A
   currentReductionPct: number;
   kvaSaving: number;
@@ -60,17 +61,22 @@ export function calcPfc(input: PfcInput): PfcResult | null {
   const I1 = system === "3ph" ? (S1 * 1000) / (sqr3 * V) : (S1 * 1000) / V;
   const I2 = system === "3ph" ? (S2 * 1000) / (sqr3 * V) : (S2 * 1000) / V;
 
+  // The capacitor delivers Qc at the voltage it actually sees (the system voltage V).
+  // A capacitor rated at a higher voltage Vcap must therefore carry a larger nameplate
+  // rating, Qc·(Vcap/V)², to deliver Qc in service.
   const Vcap = input.capVoltage || V;
+  const ratedKvarAtCapV = Qc * Math.pow(Vcap / V, 2);
+  // Qc is in kVAr: ×1e3 to var and ×1e6 to express C in µF.
   let C_uF: number;
   let Ic: number;
   if (system === "3ph") {
     C_uF =
       input.connection === "delta"
-        ? (Qc * 1e6) / 3 / (2 * Math.PI * f * Vcap * Vcap)
-        : (Qc * 1e6) / 3 / (2 * Math.PI * f * Math.pow(Vcap / sqr3, 2));
+        ? (Qc * 1e9) / 3 / (2 * Math.PI * f * V * V)
+        : (Qc * 1e9) / 3 / (2 * Math.PI * f * Math.pow(V / sqr3, 2));
     Ic = (Qc * 1000) / (sqr3 * V);
   } else {
-    C_uF = (Qc * 1e6) / (2 * Math.PI * f * Vcap * Vcap);
+    C_uF = (Qc * 1e9) / (2 * Math.PI * f * V * V);
     Ic = (Qc * 1000) / V;
   }
 
@@ -106,7 +112,7 @@ export function calcPfc(input: PfcInput): PfcResult | null {
     savings = { lossKw, energyKwhPerYr, demandSavingKva, annualCost };
   }
 
-  return { phi1, phi2, Q1, Q2, Qc, S1, S2, I1, I2, C_uF, Ic, currentReductionPct, kvaSaving, resonance, reactor, savings };
+  return { phi1, phi2, Q1, Q2, Qc, S1, S2, I1, I2, C_uF, ratedKvarAtCapV, Ic, currentReductionPct, kvaSaving, resonance, reactor, savings };
 }
 
 export const DEFAULT_PFC_INPUT: PfcInput = {

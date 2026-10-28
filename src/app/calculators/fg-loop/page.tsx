@@ -49,7 +49,7 @@ export default function FgLoopPage() {
                 "Alarm current = (1×30mA + 9×0.5mA) + 2.4mA = 34.5mA + 2.4mA = 36.9mA.",
                 "Alarm voltage at device = 24 − 0.0369×20 = 23.26V — passes.",
               ],
-              result: "Both standby (23.85V) and alarm (23.26V) states comfortably clear the 16V minimum — hand-checked and matched the live code exactly.",
+              result: "Both standby (23.85V) and alarm (23.26V) states comfortably clear the 16V minimum.",
             }}
             notes="This is a generic loop-budget model, not a substitute for your specific fire/gas panel's own loop-loading tables — some panels bypass the EOL resistor during alarm, or apply different supervision logic; confirm against your panel's installation manual for a real design. Addressable loops (which communicate digitally rather than relying on an analog voltage/current budget) aren't modeled here."
           />

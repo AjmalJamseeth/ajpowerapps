@@ -116,6 +116,12 @@ export const AMPACITY: Record<
 };
 
 // mV/A/m tables (resistive r, reactive x) used for voltage-drop calculation.
+// These are SINGLE-PHASE LOOP values at 70 °C conductor temperature, i.e.
+// the drop per amp per metre of route for the go-and-return pair (e.g.
+// 2.5 mm² Cu = 17.6 ≈ 2 × 7.41 Ω/km × 1.19). voltDropPct() therefore halves
+// them to a per-conductor value before applying the 2 (single-phase/DC) or
+// √3 (three-phase) multiplier. Using the loop value with those multipliers
+// directly would double-count and overstate the drop by a factor of two.
 export const MVAM: Record<ConductorMaterial, Record<number, { r: number; x: number }>> = {
   Cu: {
     1.5: { r: 29.0, x: 0.168 }, 2.5: { r: 17.6, x: 0.156 }, 4: { r: 11.0, x: 0.143 },
@@ -233,6 +239,14 @@ export interface VoltDropResult {
   vd_volts: number;
   vd_pct: number;
 }
+/** Per-conductor resistance and reactance in mΩ/m (= mV/A/m per conductor). XLPE is evaluated at 90 °C. */
+export function conductorRX(material: ConductorMaterial, sizeMm2: number, insulation: InsulationType = "PVC70"): { r: number; x: number } | null {
+  const d = MVAM[material][sizeMm2];
+  if (!d) return null;
+  const tempFactor = insulation === "XLPE90" ? (234.5 + 90) / (234.5 + 70) : 1;
+  return { r: (d.r / 2) * tempFactor, x: d.x / 2 };
+}
+
 export function voltDropPct(
   material: ConductorMaterial,
   sizeMm2: number,
@@ -240,12 +254,14 @@ export function voltDropPct(
   lengthM: number,
   volt: number,
   system: SystemType,
-  pf: number
+  pf: number,
+  insulation: InsulationType = "PVC70"
 ): VoltDropResult | null {
-  const d = MVAM[material][sizeMm2];
+  const d = conductorRX(material, sizeMm2, insulation);
   if (!d) return null;
-  const sinPhi = Math.sqrt(Math.max(0, 1 - pf * pf));
-  const mvPerAm = d.r * pf + d.x * sinPhi;
+  const pfEff = system === "dc" ? 1 : pf;
+  const sinPhi = Math.sqrt(Math.max(0, 1 - pfEff * pfEff));
+  const mvPerAm = d.r * pfEff + d.x * sinPhi;
   let vd: number;
   if (system === "1ph" || system === "dc") {
     vd = (2 * mvPerAm * Ib * lengthM) / 1000;
@@ -303,7 +319,7 @@ export function lifecycleCost(
   lifeYears: number
 ): LifecycleCostResult {
   const capitalCost = costPerMm2PerM * sizeMm2 * lengthM * nPar;
-  const RpermOhm = (MVAM[material]?.[sizeMm2]?.r || 0) / 1000;
+  const RpermOhm = (conductorRX(material, sizeMm2)?.r || 0) / 1000;
   const powerLossW = nPar * numLiveConductors * IbPerRun * IbPerRun * RpermOhm * lengthM;
   const annualEnergyKwh = (powerLossW * opHoursPerYear) / 1000;
   const annualEnergyCost = annualEnergyKwh * energyCostPerKwh;
@@ -465,7 +481,7 @@ export function sizeCable(input: CableSizingInput): CableSizingResult {
     const baseAmp = lookupAmpacity(material, insulation, method, idx);
     const deratedAmp = baseAmp * Cf;
     const ampOK = deratedAmp >= sizingCurrent && baseAmp > 0;
-    const vd = voltDropPct(material, sz, IbPerRun, length, volt, system, pf);
+    const vd = voltDropPct(material, sz, IbPerRun, length, volt, system, pf, insulation);
     const vdOK = !!vd && vd.vd_pct <= maxVD;
     const scOK = !pro || !faultKAPerRun || sz >= scMin;
     return { size: sz, baseAmp, deratedAmp, ampOK, vd, vdOK, scOK, allOK: ampOK && vdOK && scOK };
@@ -504,7 +520,7 @@ export function sizeCable(input: CableSizingInput): CableSizingResult {
 
   let motorVd: MotorVdResult | null = null;
   if (pro && selected && input.motorFeed && input.startingCurrent) {
-    const vdStart = voltDropPct(material, selected.size, input.startingCurrent / nPar, length, volt, system, pf);
+    const vdStart = voltDropPct(material, selected.size, input.startingCurrent / nPar, length, volt, system, pf, insulation);
     if (vdStart) {
       motorVd = {
         Istart: input.startingCurrent,

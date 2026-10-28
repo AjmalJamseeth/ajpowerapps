@@ -44,7 +44,7 @@ export default function HvacElectricalSizingPage() {
           purpose="Sizes the branch-circuit conductors, overcurrent protection and disconnect for HVAC motor-compressor equipment \u2014 the NEC Article 440 hermetic-compressor-specific method (which differs from a standard motor's NEC Article 430 sizing) or the IEC general method \u2014 with advanced support for multi-motor combination equipment and VFD-fed motors."
           standards={["NEC Article 440 (air-conditioning and refrigerating equipment)", "IEC 60364-5-52 / IEC 60947-4-1 general method"]}
           capabilities={["Single motor-compressor Minimum Circuit Ampacity (MCA), Maximum Overcurrent Protection (MOCP) and disconnect sizing from RLA (and optional LRA).", "IEC general-method design current from a configurable margin factor.", "Advanced: multi-motor combination-load equipment sizing (largest-motor-at-125% + sum-of-others method).", "Advanced: VFD-fed motor input-side and output-side minimum circuit ampacity, sized separately."]}
-          example={{ problem: "A hermetic compressor has a nameplate RLA of 18A (no LRA given). Size its NEC Article 440 branch circuit.", steps: ["Minimum Circuit Ampacity (MCA) = 125% \u00d7 RLA = 1.25 \u00d7 18 = 22.5A.", "Maximum Overcurrent Protection (MOCP), per NEC 440.22, rounds 175% \u00d7 RLA = 31.5A up to the next standard size.", "Disconnect minimum ampacity = 115% \u00d7 RLA = 20.7A."], result: "MCA 22.5A, MOCP 35A (next standard size above 31.5A), disconnect 20.7A minimum \u2014 matches the calculator's default scenario exactly." }}
+          example={{ problem: "A hermetic compressor has a nameplate RLA of 18A (no LRA given). Size its NEC Article 440 branch circuit.", steps: ["Minimum Circuit Ampacity (MCA) = 125% \u00d7 RLA = 1.25 \u00d7 18 = 22.5A.", "Maximum Overcurrent Protection (MOCP), per NEC 440.22(A): 175% \u00d7 RLA = 31.5A is a maximum, so it rounds down to 30A; if 30A will not start the compressor it may be increased up to 225% \u00d7 RLA = 40.5A, i.e. 40A.", "Disconnect minimum ampacity = 115% \u00d7 RLA = 20.7A."], result: "MCA 22.5A, MOCP 30A (up to 40A if needed to start), disconnect 20.7A minimum." }}
           />
         </div>
 
@@ -95,7 +95,7 @@ export default function HvacElectricalSizingPage() {
               ) : (
                 <ResultCard title="Single motor-compressor result">
                   <ResultRow label="Minimum Circuit Ampacity (MCA)" value={result.single.mcaA !== null ? `${result.single.mcaA.toFixed(1)} A` : "—"} />
-                  <ResultRow label="Max Overcurrent Protection (MOCP)" value={result.single.mocpA !== null ? `${result.single.mocpA} A (standard size)` : "—"} />
+                  <ResultRow label="Max Overcurrent Protection (MOCP)" value={result.single.mocpA !== null ? `${result.single.mocpA} A (175% basis)${result.single.mocpMaxA !== null && result.single.mocpMaxA > result.single.mocpA ? ` · up to ${result.single.mocpMaxA} A if needed to start (225%)` : ""}` : "—"} />
                   <ResultRow label="Disconnect Min. Ampacity" value={result.single.discA !== null ? `${result.single.discA.toFixed(1)} A minimum` : "—"} />
                   <ResultRow label="IEC Design Current" value={result.single.iecDesignA !== null ? `${result.single.iecDesignA.toFixed(1)} A` : "—"} />
                 </ResultCard>
@@ -107,7 +107,7 @@ export default function HvacElectricalSizingPage() {
                   <>
                     <ResultRow label="Largest Motor" value={`${result.combo.largestDesc} (${result.combo.largestRla} A)`} />
                     <ResultRow label="Combination MCA" value={result.combo.mcaA != null ? `${result.combo.mcaA.toFixed(1)} A` : "—"} />
-                    <ResultRow label="Combination MOCP" value={result.combo.mocpA != null ? `${result.combo.mocpA} A` : result.combo.iecDesignA != null ? `${result.combo.iecDesignA.toFixed(1)} A (IEC design)` : "—"} />
+                    <ResultRow label="Combination MOCP" value={result.combo.mocpA != null ? `${result.combo.mocpA} A${result.combo.mocpMaxA != null && result.combo.mocpMaxA > result.combo.mocpA ? ` (up to ${result.combo.mocpMaxA} A)` : ""}` : result.combo.iecDesignA != null ? `${result.combo.iecDesignA.toFixed(1)} A (IEC design)` : "—"} />
                   </>
                 )}
               </ResultCard>

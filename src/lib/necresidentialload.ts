@@ -32,7 +32,7 @@ export interface NecResidentialLoadInput {
 
   coolingVa: number; // 0 if none
   heatingVa: number; // 0 if none
-  hvacOptionalDemandFactorPct: number; // used only in Optional method — 100 (A/C or heat pump), 65 (electric heat, <=4 units), or 40 (electric heat, 5+ units)
+  hvacOptionalDemandFactorPct: number; // used only in Optional method — 100 (A/C or heat pump), 65 (electric heat, fewer than 4 units), or 40 (electric heat, 4 or more units)
 
   hasEvCharger: boolean;
   evChargerContinuousVa: number; // nameplate, continuous — 125% factor applied automatically
@@ -80,8 +80,9 @@ export interface NecResidentialLoadResult {
 function rangeDemandVaStandard(rangeKw: number): number {
   if (rangeKw <= 0) return 0;
   if (rangeKw <= 12) return 8000;
-  // NEC Table 220.55 Note 1: increase the 8kW column-C value by 5% per kW (or major fraction) over 12kW.
-  const extraKw = rangeKw - 12;
+  // NEC Table 220.55 Note 1: increase the 8kW column-C value by 5% for each kW, or major
+  // fraction of a kW, over 12kW (a minor fraction is ignored).
+  const extraKw = Math.ceil(rangeKw - 12 - 0.5);
   return 8000 * (1 + 0.05 * extraKw);
 }
 
@@ -93,7 +94,9 @@ export function calcNecResidentialLoad(input: NecResidentialLoadInput): NecResid
 
   const rangeVaNameplate = input.hasRange ? rangeDemandVaStandard(input.rangeKw) : 0; // used as-is for Standard method's Table 220.55 demand
   const dryerVaNameplate = input.hasDryer ? Math.max(5000, input.dryerNameplateVa) : 0;
-  const evVa = input.hasEvCharger ? input.evChargerContinuousVa * 1.25 : 0;
+  // NEC 220.57: EVSE load = 7200 W or the nameplate rating, whichever is larger. (The 125%
+  // continuous-load factor of 625.42 applies to the EVSE branch circuit, not this service calculation.)
+  const evVa = input.hasEvCharger ? Math.max(7200, input.evChargerContinuousVa) : 0;
 
   if (input.method === "standard") {
     let generalLoadsDemandVa: number;
