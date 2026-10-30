@@ -12,6 +12,7 @@ import {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
   type LucideIcon,
 } from "lucide-react";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
@@ -32,11 +33,13 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
 };
 
 const POPULAR: [string, string][] = [
   ["/calculators/idmt", "IDMT relay coordination calculator"],
   ["/calculators/protection-suite", "Protection coordination suite (TCC curves)"],
+  ["/calculators/iec-61850-scl-editor", "IEC 61850 SCL editor (SCD, ICD, CID)"],
   ["/calculators/arc-flash", "Arc flash calculator (IEEE 1584)"],
   ["/calculators/iec-60909", "IEC 60909 short-circuit calculator"],
   ["/calculators/cable-sizing", "Cable sizing & voltage drop calculator"],
@@ -98,7 +101,7 @@ export default function Home() {
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
             From protection relay coordination to solar PV sizing, AJapps
-            covers protection, cable &amp; conductor sizing, earthing,
+            covers protection, IEC 61850 substation automation, cable &amp; conductor sizing, earthing,
             power quality, backup power, instrumentation, renewables and
             facilities engineering — built on cited IEC, IEEE, NEC and
             NFPA references, checked by an automated test suite and worked
@@ -187,7 +190,7 @@ export default function Home() {
             </h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {[
-                "IEC 60255", "IEEE C37.112", "IEEE C37.91", "IEEE 1584", "IEC 60364-5-52", "IEEE 80",
+                "IEC 60255", "IEEE C37.112", "IEC 61850-6", "IEEE C37.91", "IEEE 1584", "IEC 60364-5-52", "IEEE 80",
                 "BS 7430", "IEC 60831", "IEC 61869-2/3", "IEEE 43", "IEEE 485", "IEEE 1188",
                 "IEC 60287", "IEEE 1547", "IEC 62933", "IEEE 519-2014", "IEC 62305-1/2",
                 "NEC Ch. 9", "NEC §392.22", "IEEE 1185", "EN 12464-1", "EN 1838",

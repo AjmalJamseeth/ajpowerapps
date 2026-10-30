@@ -12,6 +12,7 @@ import {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
   type LucideIcon,
 } from "lucide-react";
 import { CALCULATOR_GROUPS, ROADMAP_ITEMS, TOTAL_LIVE_COUNT, type CalcCard } from "@/lib/calculatorCatalog";
@@ -31,6 +32,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
 };
 
 function CalcTile({ c }: { c: CalcCard }) {

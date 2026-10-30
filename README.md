@@ -1443,3 +1443,16 @@ checked against known values before shipping, not just ported and trusted:
 ## Studio visibility
 
 The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.studio` in `src/lib/features.ts` is `false`: the page is not in the catalog, home page, navigation or sitemap, is marked `noindex`, and the Protection Coordination Suite page hides its hand-off buttons. The page itself, `protsettings.ts`, `curveEngine.ts`, `deviceModels.ts`, `suiteBridge.ts`, `studioProject.ts` and all their tests are kept. Set the flag to `true` to relist it.
+
+## IEC 61850 & Substation Automation (SCL Studio)
+
+- New catalog group `iec-61850` with one tool: **IEC 61850 SCL Editor (SCL Studio)** at
+  `/calculators/iec-61850-scl-editor`. The page carries the description, feature list and
+  written guide; the editor itself is `public/iec-61850/scl-studio.html` (self-contained,
+  marked noindex, canonical pointing to the tool page) shown in an iframe, with an
+  "Open full screen" link.
+- Files are read with the browser FileReader and saved with a Blob download — nothing is uploaded.
+  The editor follows the site theme (`ajapps-theme` in localStorage) and keeps its own toggle.
+- Category guide: `src/lib/guides/iec61850.ts` (`/guides/iec-61850-substation-automation`).
+- To update the editor, replace `public/iec-61850/scl-studio.html`, keeping the wrapper added at the
+  top (doctype, robots noindex, canonical, theme script).

@@ -4,6 +4,7 @@
 
 import type { GuideDoc } from "./types";
 import { PROTECTION_GUIDE } from "./protection";
+import { IEC61850_GUIDE } from "./iec61850";
 import { CABLES_GUIDE } from "./cables";
 import { EARTHING_GUIDE } from "./earthing";
 import { TRANSFORMERS_GUIDE } from "./transformers";
@@ -16,6 +17,7 @@ import { BUILDINGSERVICES_GUIDE } from "./buildingservices";
 
 export const GUIDES: GuideDoc[] = [
   PROTECTION_GUIDE,
+  IEC61850_GUIDE,
   CABLES_GUIDE,
   EARTHING_GUIDE,
   TRANSFORMERS_GUIDE,

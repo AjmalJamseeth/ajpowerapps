@@ -15,6 +15,7 @@ import {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
   ChevronDown,
   GraduationCap,
   BookOpen,
@@ -36,6 +37,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   Sun,
   Building2,
   CircuitBoard,
+  Network,
 };
 
 export default function NavBar() {

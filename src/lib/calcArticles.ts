@@ -13,6 +13,34 @@ export interface CalcArticle {
 }
 
 export const CALC_ARTICLES: Record<string, CalcArticle> = {
+  "/calculators/iec-61850-scl-editor": {
+    heading: "IEC 61850 SCL files explained",
+    paragraphs: [
+      "IEC 61850 describes a whole substation automation system in XML files written in SCL, the System Configuration description Language defined in IEC 61850-6. The same language describes what an IED can do, how the substation is built, which IEDs exchange which signals, and the network addresses they use. Different file extensions mark different stages of the engineering process.",
+      "In a typical project the system integrator imports each manufacturer's ICD file into a system configuration tool, adds the substation structure and the communication settings, and links the GOOSE, sampled-value and report data flows. The result is the SCD file for the whole substation. Each manufacturer's IED configuration tool then takes the SCD and produces the CID file that is loaded into its own IED.",
+      "SCL Studio lets you open any of these files to review or correct them without the vendor tools: check that every subscribed signal has a publisher, that GOOSE and sampled-value APPIDs and MAC addresses are unique, and that IP addresses sit in the right subnet, then export the corrected file.",
+    ],
+    table: {
+      caption: "SCL file types (IEC 61850-6)",
+      headers: ["Extension", "Name", "What it contains", "Produced by"],
+      rows: [
+        ["SSD", "System Specification Description", "Single-line structure and the functions (logical nodes) required, before IEDs are chosen", "System specification tool"],
+        ["ICD", "IED Capability Description", "What one IED type can do: its data model, services and a default configuration", "IED manufacturer's tool"],
+        ["IID", "Instantiated IED Description (Ed. 2)", "One configured IED instance, returned to the system tool for integration", "IED configuration tool"],
+        ["SCD", "Substation Configuration Description", "The complete system: substation, all IEDs, communication, data sets, GOOSE, SV and reports", "System configuration tool"],
+        ["CID", "Configured IED Description", "The configuration for one IED, extracted from the SCD and loaded into the device", "IED configuration tool"],
+        ["SED", "System Exchange Description (Ed. 2)", "Data exchanged between two projects, for example signals between two substations", "System configuration tool"],
+      ],
+      note: "All of them use the same SCL schema; the extension tells you which parts are expected to be present.",
+    },
+    faqs: [
+      { q: "How do I open an SCD file?", a: "Open this page, choose Open file and select the .scd file. It is read in your browser and never uploaded. The overview shows the IEDs, logical devices and data flows, and the validation panel lists any errors and warnings." },
+      { q: "What is the difference between ICD, CID and SCD files?", a: "An ICD describes what an IED type can do. The SCD describes the whole substation with all IEDs configured and linked. A CID is the part of the SCD for one IED, in the form that IED loads." },
+      { q: "Can I edit a CID file and load it straight into the relay?", a: "SCL Studio can edit and export a CID, but always import it into the manufacturer's configuration tool before sending it to the IED. That tool checks device-specific limits, and the GOOSE and sampled-value links should be tested on site." },
+      { q: "Which IEC 61850 editions are supported?", a: "Edition 1, Edition 2 and Edition 2.1 SCL files. Some older IEDs that only accept Edition 1 may reject a CID that contains Edition 2 attributes." },
+    ],
+  },
+
   "/calculators/max-demand": {
     heading: "How to calculate maximum demand",
     paragraphs: [

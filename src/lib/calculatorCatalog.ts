@@ -61,6 +61,16 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     ],
   },
   {
+    id: "iec-61850",
+    title: "IEC 61850 & Substation Automation",
+    description:
+      "View, check and edit IEC 61850 SCL files (SCD, ICD, CID, IID, SSD) in the browser: IEDs, data model, GOOSE, sampled values, reports and network addressing.",
+    icon: "Network",
+    calculators: [
+      { name: "IEC 61850 SCL Editor (SCL Studio)", description: "Open, view, validate and edit SCD, ICD, CID, IID and SSD files: substation single-line structure, IED data model, GOOSE and sampled-value publishers and subscribers, report control blocks, communication addressing, file compare and CID export. Files stay on your computer.", href: "/calculators/iec-61850-scl-editor", status: "live" },
+    ],
+  },
+  {
     id: "cables",
     title: "Cables & Line Engineering",
     description:
