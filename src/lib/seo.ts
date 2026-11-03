@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { categoryHref } from "@/lib/categories";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { CALC_ARTICLES } from "@/lib/calcArticles";
 
@@ -120,6 +121,80 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
   },
 };
 
+
+// Search-focused titles for the remaining calculators (description comes from the catalog card).
+const CALC_TITLES: Record<string, string> = {
+  "/calculators/fault-propagation": "Fault Current Calculator – Base kVA Method",
+  "/calculators/generator-fault-contribution": "Generator Fault Current Contribution Calculator",
+  "/calculators/switchgear-short-circuit-rating": "Switchgear SCCR & AIC Check – Transformer Fault",
+  "/calculators/idmt-earth-fault": "Earth Fault Relay Calculator (50N/51N IDMT)",
+  "/calculators/transformer-differential": "Transformer Differential (87T) Slope Calculator",
+  "/calculators/breaker-fuse-sizer": "Breaker & Fuse Size Calculator (NEC / IEC)",
+  "/calculators/generator-sync": "Generator Synchronizing Check (ANSI 25)",
+  "/calculators/afci-gfci-requirements": "AFCI & GFCI Requirements by Room (NEC 210)",
+  "/calculators/spd-rating": "SPD Rating Calculator – Type, MCOV & SCCR",
+  "/calculators/mv-cable": "MV Cable Current Rating Calculator (IEC 60287)",
+  "/calculators/cable-pulling-tension": "Cable Pulling Tension & Sidewall Pressure",
+  "/calculators/control-cable-sizing": "Instrument Cable Capacitance & Length (HART)",
+  "/calculators/ohl-voltage-regulation": "Overhead Line Voltage Drop & Regulation",
+  "/calculators/line-losses": "Distribution Line Losses Calculator (kWh/yr)",
+  "/calculators/feeder-tap-rule": "NEC 240.21(B) Tap Rule Calculator (10/25 ft)",
+  "/calculators/duct-bank-heat-rise": "Duct Bank Heat Rise Calculator",
+  "/calculators/cable-tray-ventilation": "Cable Tray Ventilation Ratio Calculator",
+  "/calculators/lightning-protection": "Lightning Risk Assessment (IEC 62305-2)",
+  "/calculators/touch-voltage": "Touch Voltage Calculator (IEC 60364-4-41)",
+  "/calculators/static-bonding": "Static Bonding Resistance Check (NFPA 77)",
+  "/calculators/esd-energy": "ESD Spark Energy vs MIE Calculator",
+  "/calculators/ground-resistance": "Ground Rod Resistance Calculator",
+  "/calculators/ground-ring-resistance": "Ground Ring Electrode Resistance Calculator",
+  "/calculators/ct-sizing": "CT Sizing & Knee-Point Voltage (IEC 61869-2)",
+  "/calculators/vt-sizing": "VT Sizing – Burden & Voltage Factor (IEC 61869-3)",
+  "/calculators/transformer-sizer": "Transformer Sizing Calculator (kVA)",
+  "/calculators/gen-xfmr": "Generator Sizing & Transformer Efficiency",
+  "/calculators/busbar-rating": "Busbar Current Rating & Short-Circuit Check",
+  "/calculators/insulation-resistance": "Insulation Resistance Test Checker (IEEE 43)",
+  "/calculators/polarization-index": "Polarization Index (PI) Calculator – IEEE 43",
+  "/calculators/harmonic-analysis": "Harmonics Calculator – IEEE 519 THD & TDD",
+  "/calculators/voltage-unbalance": "Voltage Unbalance & Motor Derating (NEMA)",
+  "/calculators/panel-balance": "Panel Load Balancing & Neutral Current",
+  "/calculators/power-converter": "kW to kVA to Amps Converter (1 & 3 Phase)",
+  "/calculators/tariff": "Electricity Bill Calculator – TOU & Demand",
+  "/calculators/diversity-factor": "Diversity Factor Calculator",
+  "/calculators/nec-residential-load": "NEC 220 Residential Load Calculation",
+  "/calculators/motor-protection-sizer": "Motor Overload & Contactor Sizing",
+  "/calculators/vfd-savings": "VFD Energy Savings Calculator (Pumps & Fans)",
+  "/calculators/motor-acceleration-time": "Motor Acceleration Time Calculator",
+  "/calculators/soft-starter-sizing": "Soft Starter Sizing Calculator",
+  "/calculators/vfd-parameter-selection": "VFD Selection Check – Motor vs Drive",
+  "/calculators/battery-sizing": "Battery Sizing Calculator (IEEE 485)",
+  "/calculators/ups-sizing": "UPS Sizing Calculator – kVA & Battery",
+  "/calculators/emergency-power": "Emergency Power – NFPA 110 Genset & UPS",
+  "/calculators/genset-fuel": "Generator Fuel Consumption & Runtime",
+  "/calculators/energy-storage": "BESS Sizing Calculator – Battery Storage",
+  "/calculators/transfer-switch-sizing": "Automatic Transfer Switch (ATS) Sizing",
+  "/calculators/emergency-lighting-duration": "Emergency Lighting Battery Duration",
+  "/calculators/chp-sizing": "CHP (Cogeneration) Sizing Calculator",
+  "/calculators/microgrid-stability-estimator": "Microgrid Stability Estimator",
+  "/calculators/smart-grid-peak-shaving": "Peak Shaving BESS Calculator – Payback",
+  "/calculators/current-loop-4-20ma": "4-20 mA Loop Calculator – Voltage & Length",
+  "/calculators/intrinsic-safety": "Intrinsic Safety Entity Calculator (IEC 60079)",
+  "/calculators/thermocouple-rtd": "Thermocouple & RTD (Pt100) Calculator",
+  "/calculators/fg-loop": "Fire & Gas Detection Loop Voltage Drop",
+  "/calculators/solar-pv": "Solar PV String & Cable Sizing Calculator",
+  "/calculators/ev-charging": "EV Charger Cable & Breaker Sizing",
+  "/calculators/solar-charge-controller-sizing": "Solar Charge Controller Size Calculator",
+  "/calculators/solar-panel-tilt-angle": "Solar Panel Tilt Angle by Latitude",
+  "/calculators/inverter-sizing": "Solar Inverter Sizing & DC/AC Ratio",
+  "/calculators/wind-turbine-power-output": "Wind Turbine Power Calculator",
+  "/calculators/hvac-electrical-sizing": "HVAC MCA & MOCP Calculator (NEC 440)",
+  "/calculators/lighting-design": "Lux Calculator – Lumen Method Lighting",
+  "/calculators/elevator-energy": "Elevator Energy Consumption Calculator",
+  "/calculators/pue": "Data Center PUE Calculator",
+  "/calculators/life-cycle-cost": "Life-Cycle Cost (LCC) Calculator",
+  "/calculators/heat-tracing": "Heat Tracing Calculator – Pipe Heat Loss",
+  "/calculators/enclosure-cooling": "Enclosure Cooling & Fan Sizing Calculator",
+};
+
 /** Metadata for a calculator page, taken from its catalog card (or a search-focused override). */
 export function calcMetadata(href: string): Metadata {
   const o = CALC_SEO[href];
@@ -128,7 +203,7 @@ export function calcMetadata(href: string): Metadata {
     const c = g.calculators.find((x) => x.href === href);
     if (c) {
       // searchers type "... calculator", so make sure the title says it
-      const title = /calculator|study|suite|selector/i.test(c.name) ? c.name : `${c.name} Calculator`;
+      const title = CALC_TITLES[href] ?? (/calculator|study|suite|selector/i.test(c.name) ? c.name : `${c.name} Calculator`);
       return pageMeta(href, title, c.description);
     }
   }
@@ -141,7 +216,7 @@ export function calcJsonLd(href: string): object[] {
     const c = g.calculators.find((x) => x.href === href);
     if (!c) continue;
     const o = CALC_SEO[href];
-    const name = o?.title ?? (/calculator|study|suite|selector/i.test(c.name) ? c.name : `${c.name} Calculator`);
+    const name = o?.title ?? CALC_TITLES[href] ?? (/calculator|study|suite|selector/i.test(c.name) ? c.name : `${c.name} Calculator`);
     const article = CALC_ARTICLES[href];
     const faq = article && article.faqs.length > 0
       ? [{
@@ -167,7 +242,7 @@ export function calcJsonLd(href: string): object[] {
       breadcrumbJsonLd([
         { name: "Home", path: "/" },
         { name: "Calculators", path: "/calculators" },
-        { name: g.title, path: `/calculators#${g.id}` },
+        { name: g.title, path: categoryHref(g.id) },
         { name, path: href },
       ]),
     ];

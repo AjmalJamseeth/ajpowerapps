@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { WORKED_EXAMPLES } from "@/lib/workedExamples";
 import { GUIDES } from "@/lib/guides";
+import { CATEGORY_PAGES } from "@/lib/categories";
 
 // Auto-generated from the same catalog/example/guide data the pages
 // themselves render from, so every live calculator, worked example and
@@ -45,5 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...calculatorRoutes, ...exampleRoutes, ...guideRoutes];
+  const categoryRoutes: MetadataRoute.Sitemap = Object.values(CATEGORY_PAGES).map((c) => ({
+    url: `${BASE_URL}/calculators/${c.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.85,
+  }));
+
+  return [...staticRoutes, ...categoryRoutes, ...calculatorRoutes, ...exampleRoutes, ...guideRoutes];
 }

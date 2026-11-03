@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryHref } from "@/lib/categories";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { CALC_ARTICLES } from "@/lib/calcArticles";
 import { GUIDES } from "@/lib/guides";
@@ -86,7 +87,17 @@ export function CalcPageExtras({ href }: { href: string }) {
         <nav aria-label="Related pages" className="mt-6 grid gap-6 rounded-xl border border-border bg-surface p-6 md:grid-cols-2">
           {related.length > 0 && (
             <div>
-              <h2 className="text-base font-semibold text-foreground">Related calculators{group ? ` — ${group.title}` : ""}</h2>
+              <h2 className="text-base font-semibold text-foreground">
+                Related calculators
+                {group && (
+                  <>
+                    {" — "}
+                    <Link href={categoryHref(group.id)} className="text-accent-2 hover:underline">
+                      {group.title}
+                    </Link>
+                  </>
+                )}
+              </h2>
               <ul className="mt-2 space-y-1.5">
                 {related.map((c) => (
                   <li key={c.href}>

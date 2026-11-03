@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import {
   ShieldCheck,
@@ -19,7 +20,7 @@ import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-export const metadata = { ...pageMeta("/", "AJapps — Free Electrical Engineering Calculators", "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJapps — Free Electrical Engineering Calculators" } };
+export const metadata = { ...pageMeta("/", "AJ Power Apps – Free Electrical Engineering Calculators", "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Free Electrical Engineering Calculators" } };
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
@@ -60,7 +61,7 @@ const HOME_JSON_LD = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "AJapps",
-    alternateName: "AJ Power Apps",
+    alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
     description: "Free standards-based electrical engineering calculators.",
   },
@@ -68,6 +69,7 @@ const HOME_JSON_LD = [
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "AJapps",
+    alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
   },
 ];
@@ -100,7 +102,7 @@ export default function Home() {
             Your one-stop shop for electrical engineering calculations.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
-            From protection relay coordination to solar PV sizing, AJapps
+            From protection relay coordination to solar PV sizing, AJapps (AJ Power Apps)
             covers protection, IEC 61850 substation automation, cable &amp; conductor sizing, earthing,
             power quality, backup power, instrumentation, renewables and
             facilities engineering — built on cited IEC, IEEE, NEC and
@@ -244,7 +246,7 @@ export default function Home() {
             return (
               <Link
                 key={g.id}
-                href={`/calculators#${g.id}`}
+                href={categoryHref(g.id)}
                 className="group flex flex-col rounded-xl border border-border bg-surface p-6 transition-colors hover:border-accent/40"
               >
                 <div className="flex items-center gap-2.5">
@@ -293,7 +295,7 @@ export default function Home() {
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
-          © {new Date().getFullYear()} AJapps. For preliminary engineering
+          © {new Date().getFullYear()} AJapps (AJ Power Apps, ajpowerapps.com). For preliminary engineering
           use only — always verify results against project-specific standards.
         </div>
       </footer>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryHref } from "@/lib/categories";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MobileNav } from "@/components/MobileNav";
@@ -68,7 +69,7 @@ export default function NavBar() {
                   return (
                     <Link
                       key={g.id}
-                      href={`/calculators#${g.id}`}
+                      href={categoryHref(g.id)}
                       className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                     >
                       {Icon && <Icon className="h-4 w-4 text-accent-2" aria-hidden="true" />}

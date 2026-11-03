@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import type { GuideDoc } from "@/lib/guides/types";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
@@ -37,7 +38,7 @@ export default function GuidePage({ guide }: { guide: GuideDoc }) {
         {group && (
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href={`/calculators#${group.id}`}
+              href={categoryHref(group.id)}
               className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
             >
               Browse {group.title} calculators

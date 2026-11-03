@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import {
   ShieldCheck,
@@ -94,9 +95,18 @@ export default function CalculatorsIndex() {
               <section key={g.id} id={g.id} className="scroll-mt-32">
                 <div className="flex items-center gap-2.5">
                   {Icon && <Icon className="h-5 w-5 text-accent-2" aria-hidden="true" />}
-                  <h2 className="text-xl font-semibold text-foreground">{g.title}</h2>
+                  <h2 className="text-xl font-semibold text-foreground">
+                    <Link href={categoryHref(g.id)} className="hover:text-accent-2">
+                      {g.title}
+                    </Link>
+                  </h2>
                 </div>
-                <p className="mt-1.5 max-w-2xl text-sm text-muted">{g.description}</p>
+                <p className="mt-1.5 max-w-2xl text-sm text-muted">
+                  {g.description}{" "}
+                  <Link href={categoryHref(g.id)} className="whitespace-nowrap text-accent-2 hover:underline">
+                    {g.title} page →
+                  </Link>
+                </p>
                 <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {g.calculators.map((c) => (
                     <CalcTile key={c.name} c={c} />
