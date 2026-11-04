@@ -38,7 +38,7 @@ export default function VfdSavingsPage() {
             standards={["Standard centrifugal-load affinity laws (textbook fluid-machinery physics), the same relationship underlying DOE/utility VFD retrofit guidance"]}
             capabilities={[
               "VFD power at a reduced flow: rated power × (flow fraction)³.",
-              "Comparison against a throttled/undamped baseline power (adjustable — defaults to 100% of rated power, a conservative assumption since throttling barely reduces a centrifugal load's motor power).",
+              "Comparison against a throttled/undamped baseline power (adjustable — defaults to 100% of rated power; because throttling usually reduces motor power a little, this default gives an upper-bound (optimistic) savings figure).",
               "Annual energy and cost savings from the operating hours and electricity rate.",
             ]}
             example={{
@@ -51,7 +51,7 @@ export default function VfdSavingsPage() {
               ],
               result: "≈$35,478/year in estimated savings. Feed this into the Life-Cycle Cost calculator as the 'annual operating cost' difference for a full VFD payback analysis.",
             }}
-            notes="The 100% throttled-baseline assumption is deliberately conservative/illustrative — a real valve/damper-throttled system's power at reduced flow depends on the specific pump/fan curve and system curve shape, and is often somewhat lower than 100% of rated power. If you have actual trended power data or a pump/fan curve for the throttled condition, override the baseline percentage for a more accurate estimate. This tool assumes a quadratic (friction-dominated) system curve, typical of most pump/fan applications but not universal (e.g. systems with a large static head component behave differently)."
+            notes="The 100% throttled-baseline default gives an upper-bound (optimistic) savings estimate — a real valve/damper-throttled system's power at reduced flow depends on the specific pump/fan curve and system curve shape, and is often somewhat lower than 100% of rated power. If you have actual trended power data or a pump/fan curve for the throttled condition, override the baseline percentage for a more accurate estimate. This tool assumes a quadratic (friction-dominated) system curve, typical of most pump/fan applications but not universal (e.g. systems with a large static head component behave differently)."
           />
         </div>
 
@@ -60,7 +60,7 @@ export default function VfdSavingsPage() {
             <Section title="Motor & operating point">
               <NumberField label="Motor rated power" unit="kW" value={input.motorRatedPowerKw} onChange={(v) => update({ motorRatedPowerKw: v })} min={0} />
               <NumberField label="Flow reduction" unit="%" hint="vs. full flow" tip="How much the flow is reduced from full/rated flow during typical operation — the calculator computes VFD power at this reduced flow using the cubic affinity law." value={input.flowReductionPct} onChange={(v) => update({ flowReductionPct: v })} min={0} max={100} step={1} />
-              <NumberField label="Throttled baseline power" unit="% of rated" tip="The motor's power draw at the same reduced flow WITHOUT a VFD (i.e. throttled by a valve/damper at full speed). Defaults to 100% (conservative) — override if you have actual pump/fan curve or trend data." value={input.baselinePowerPct} onChange={(v) => update({ baselinePowerPct: v })} min={0} max={100} step={1} />
+              <NumberField label="Throttled baseline power" unit="% of rated" tip="The motor's power draw at the same reduced flow WITHOUT a VFD (i.e. throttled by a valve/damper at full speed). Defaults to 100%, which gives the largest (upper-bound) savings — override with a lower figure if you have actual pump/fan curve or trend data." value={input.baselinePowerPct} onChange={(v) => update({ baselinePowerPct: v })} min={0} max={100} step={1} />
             </Section>
 
             <Section title="Economics">

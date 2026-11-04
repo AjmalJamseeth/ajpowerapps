@@ -71,10 +71,10 @@ export const CABLES_GUIDE: GuideDoc = {
     { standard: "IEC 60364-5-52:2009", scope: "LV cable current-carrying capacity, installation reference methods, and correction/derating factors — the basis for the LV Cable Sizing calculator's ampacity tables." },
     { standard: "IEC 60364-5-54", scope: "Protective conductor (CPC) sizing and adiabatic short-circuit withstand — an advanced feature of the LV Cable Sizing calculator." },
     { standard: "IEC 60287-1-1 / -2-1 / -3-1", scope: "First-principles thermal-circuit current rating method for MV/HV cables — current rating equations, thermal resistance, and operating-condition sections." },
-    { standard: "NEC Chapter 9 Table 1 / IEC / BS 7671 space-factor method", scope: "Conduit fill percentage limits by conductor count (NEC) or a flat 45%/40% space factor for conduit/trunking (IEC/BS 7671)." },
+    { standard: "NEC Chapter 9 Table 1 / IEC / BS 7671 space-factor method", scope: "Conduit fill percentage limits by conductor count (NEC) or the IET/BS 7671 space factor (about 40% for conduit, 45% for trunking)." },
     { standard: "NEC §392.22", scope: "Cable tray fill rules — width/area limits by tray type and cable category. (Outside the US a 40–50% area-fill practice is common; IEC 61537 is a tray product standard and sets no fill limit.)" },
     { standard: "IEEE 1185", scope: "Cable pulling tension, capstan (bend-tension) equations, sidewall bearing pressure, and jam ratio for multi-cable conduit pulls." },
-    { standard: "CIGRE Technical Brochure 880", scope: "Independent cross-check reference for the MV Cable Sizing calculator's IEC 60287-based thermal-circuit results." },
+    { standard: "CIGRE Technical Brochure 880", scope: "Worked IEC 60287 rating cases; the MV Cable Sizing calculator's default example uses the geometry of its Case #0-1." },
   ],
   workflow: [
     {

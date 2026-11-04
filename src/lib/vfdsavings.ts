@@ -3,7 +3,7 @@
 // control to VFD speed control. Basis: the standard centrifugal-load
 // affinity laws (flow proportional to speed, power proportional to speed
 // cubed) — textbook fluid-machinery physics, widely used in DOE/utility
-// VFD retrofit guidance. The throttled-baseline power is a conservative,
+// VFD retrofit guidance. The throttled-baseline power is an upper-bound (savings-optimistic),
 // commonly-used simplifying assumption (see notes below), not a fitted
 // pump/fan curve — for a bankable savings estimate, use actual pump/fan
 // curve data or trended power at the throttled condition. Designed from
@@ -13,7 +13,7 @@
 export interface VfdSavingsInput {
   motorRatedPowerKw: number | null;
   flowReductionPct: number; // 0-100, e.g. 30 means operating at 70% of full flow
-  baselinePowerPct: number; // 0-100, throttled/undamped power as % of rated at the reduced flow — default 100 (conservative: throttling barely reduces motor power)
+  baselinePowerPct: number; // 0-100, throttled/undamped power as % of rated at the reduced flow — default 100 (upper-bound savings: throttling usually reduces motor power somewhat)
   operatingHoursPerYear: number;
   electricityRate: number; // currency per kWh
 }

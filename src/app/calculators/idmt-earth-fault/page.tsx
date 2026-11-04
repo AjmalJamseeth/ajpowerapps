@@ -51,7 +51,7 @@ export default function IdmtEarthFaultPage() {
               ],
               result: "≈0.37s IDMT operating time — hand-checked against the same verified curve equation used by the phase IDMT calculator.",
             }}
-            notes="Reuses the already-verified idmt.ts curve engine directly rather than re-deriving the equations, to avoid a second, potentially-inconsistent implementation."
+            notes="Uses the same IEC 60255-151 / IEEE C37.112 curve equations as the IDMT Relay Coordination calculator. Earth-fault pickup must be set above the maximum standing residual current (unbalance, CT errors) and coordinated with downstream earth-fault devices."
           />
         </div>
 

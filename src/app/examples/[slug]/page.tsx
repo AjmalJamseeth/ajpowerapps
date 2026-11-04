@@ -10,8 +10,13 @@ export function generateStaticParams() {
 
 // "Worked Example: X" -> "X (Worked Example)" so the topic words lead the search result title.
 function seoTitle(title: string): string {
-  const t = title.replace(/^Worked Example:\s*/i, "");
-  if (t === title) return title;
+  let t = title.replace(/^Worked Example:\s*/i, "");
+  // keep the search title near Google's display limit: drop a trailing clause after " — " or ":" when too long
+  if (t.length > 60) {
+    const m = t.match(/^(.{20,}?)(?: — |: )/);
+    if (m && m[1].length <= 60) t = m[1];
+  }
+  if (!/^Worked Example:/i.test(title)) return t;
   // add the label only while the full result title (with " | AJapps") stays near Google's ~60-character display limit
   return t.length <= 40 ? `${t} (Worked Example)` : t;
 }

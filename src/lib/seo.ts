@@ -10,6 +10,9 @@ const BASE = SITE_URL;
 export function snippet(text: string, max = 158): string {
   const t = text.replace(/\s+/g, " ").trim();
   if (t.length <= max) return t;
+  // prefer ending at a full sentence when one fits
+  const sentenceEnd = t.slice(0, max).lastIndexOf(". ");
+  if (sentenceEnd >= 90) return t.slice(0, sentenceEnd + 1);
   const cut = t.slice(0, max - 1);
   return cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.—-]+$/, "") + "…";
 }

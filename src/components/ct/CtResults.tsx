@@ -100,7 +100,7 @@ export default function CtResults({ input, result }: { input: CtInput; result: C
                 <th className="py-2 pr-4 font-medium">Fault level</th>
                 <th className="py-2 pr-4 font-medium">Primary (A)</th>
                 <th className="py-2 pr-4 font-medium">Secondary ideal (A)</th>
-                <th className="py-2 font-medium">Secondary at ALF limit (A)</th>
+                <th className="py-2 font-medium">Secondary up to actual ALF (A)</th>
               </tr>
             </thead>
             <tbody>

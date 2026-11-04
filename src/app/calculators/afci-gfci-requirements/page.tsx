@@ -63,7 +63,7 @@ export default function AfciGfciRequirementsPage() {
               ],
               result: "Both AFCI and GFCI required — many installations use a dual-function AFCI/GFCI breaker here.",
             }}
-            notes="These enumerated lists change between NEC editions (GFCI coverage for laundry areas and all kitchen receptacles was added in the 2020 cycle, for example) and many jurisdictions apply local amendments. Always confirm against the specific NEC edition and any local amendments adopted by the AHJ before finalizing a design."
+            notes="These enumerated lists change between NEC editions (for example, GFCI protection for all kitchen receptacles, not only countertop ones, arrived with the 2020 edition) and many jurisdictions apply local amendments. Always confirm against the specific NEC edition and any local amendments adopted by the AHJ before finalizing a design."
           />
         </div>
 

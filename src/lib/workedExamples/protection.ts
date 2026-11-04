@@ -378,16 +378,16 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
       {
         title: "Select the PPE category",
         body: "Category bands are defined by arc rating ceilings: Cat 1 up to 4 cal/cm², Cat 2 up to 8, Cat 3 up to 25, Cat 4 up to 40.",
-        result: "8.57 cal/cm² falls just above the Category 2 ceiling — Category 3 PPE required",
+        result: "8.57 cal/cm² — arc-rated clothing of at least 8.6 cal/cm² is required; in NFPA 70E category terms this is just above the Category 2 level (8 cal/cm²)",
       },
     ],
     resultSummary: [
       { check: "Incident energy at 455 mm working distance", requirement: "n/a (informational)", actual: "8.57 cal/cm²", pass: true },
       { check: "Arc flash boundary", requirement: "n/a (informational)", actual: "≈1.51 m", pass: true },
-      { check: "PPE category selection", requirement: "Match E to the correct band", actual: "Category 3 (≥25 cal/cm² rated PPE)", pass: true },
+      { check: "Arc-rated PPE", requirement: "Arc rating ≥ incident energy", actual: "≥ 8.6 cal/cm² (above the Category 2 level)", pass: true },
     ],
-    finalAnswer: "At this MCC's normal working distance, incident energy comes out to 8.57 cal/cm² — only 0.57 cal/cm² over the Category 2 ceiling, but that's still enough to require the full jump to Category 3 PPE (rated ≥25 cal/cm²) and a 1.51 m arc flash boundary.",
-    keyInsight: "PPE categories are step functions, not a continuous scale — a result that's barely over a threshold requires the same PPE as a result far over it. That's a strong argument for treating a calculated incident energy close to a boundary with extra caution (e.g. re-verify input assumptions like clearing time) rather than assuming you're 'basically' in the lower category.",
+    finalAnswer: "At this MCC's normal working distance, incident energy comes out to 8.57 cal/cm², with a 1.51 m arc flash boundary. Workers need arc-rated PPE rated at least 8.6 cal/cm²; a standard Category 2 (8 cal/cm²) kit is not enough, so in practice a 12 cal/cm² kit or a Category 3 (25 cal/cm²) suit is selected.",
+    keyInsight: "A result just above a clothing level matters: 8.57 cal/cm² is only 7% above the 8 cal/cm² Category 2 level, yet Category 2 clothing would be inadequate. Results close to a boundary deserve a re-check of the inputs, especially clearing time, and are often the cheapest place to reduce energy (a slightly faster trip here would bring it below 8 cal/cm²).",
     faqs: [
       {
         q: "Why is arcing current only about half the bolted fault current?",
@@ -399,7 +399,7 @@ export const PROTECTION_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Does this apply above 1 kV?",
-        a: "No — this example uses IEEE 1584-2002's Eq. 2a, valid only for 0.208-1 kV systems. Systems from 1-15 kV use the standard's separate Eq. 2b, which has no voltage, gap or enclosure dependency; using the wrong equation for the voltage range produces badly overstated (nonphysical) results, which is exactly the bug this calculator's own methodology note documents finding and fixing.",
+        a: "No — this example uses IEEE 1584-2002's Eq. 2a, valid only for 0.208-1 kV systems. Systems from 1-15 kV use the standard's separate Eq. 2b, which has no voltage, gap or enclosure dependency; using the wrong equation for the voltage range produces badly overstated (nonphysical) results.",
       },
     ],
   },

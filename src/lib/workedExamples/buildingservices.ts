@@ -468,7 +468,7 @@ export const BUILDINGSERVICES_EXAMPLES: WorkedExample[] = [
     faqs: [
       {
         q: "Besides adding a forced-air fan, what other options address a natural-convection shortfall?",
-        a: "A larger enclosure (more surface area), a painted rather than bare-steel finish (painted steel has a somewhat higher convection coefficient, roughly 6–7 vs. 5.5 W/(m²·K)), relocating or upgrading components to reduce total internal losses, or active air conditioning for enclosures in high-ambient or dust/moisture-sensitive environments where simple filtered forced-air ventilation isn't appropriate — the right choice depends on the ambient environment and how much of a shortfall needs to be covered.",
+        a: "A larger enclosure (more surface area), a higher-emissivity painted finish instead of bare metal (it radiates more heat at the same surface temperature, so check the coefficient used for the finish)), relocating or upgrading components to reduce total internal losses, or active air conditioning for enclosures in high-ambient or dust/moisture-sensitive environments where simple filtered forced-air ventilation isn't appropriate — the right choice depends on the ambient environment and how much of a shortfall needs to be covered.",
       },
       {
         q: "Why does a wall-mounted enclosure have less dissipating area than an identical free-standing one?",

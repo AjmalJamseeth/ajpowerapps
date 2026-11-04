@@ -70,7 +70,7 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Why does this calculator's ampacity table matter so much?",
-        a: "This is exactly the table that was cross-checked cell-by-cell against the official IEC 60364-5-52:2009 standard PDF — two genuine transcription errors were found and corrected in that review (see the standards audit report), which is why every ampacity figure quoted in this example traces directly back to the standard's own published tables rather than a secondary/approximated source.",
+        a: "The current-carrying capacities come straight from the published IEC 60364-5-52 tables (Tables B.52.4 to B.52.13) and were checked against them cell by cell, so every ampacity figure in this example traces back to the standard rather than to a secondary or approximated source.",
       },
     ],
   },
@@ -141,7 +141,7 @@ export const CABLES_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Why does the rating change so much with burial depth and soil resistivity?",
-        a: "T4 (surface-to-ambient thermal resistance) is the dominant term in this example (1.595 K·m/W, more than 3x T1 and T3 combined) precisely because soil is a much worse heat conductor than the cable's own insulation — deeper burial or drier/higher-resistivity soil both increase T4 and directly reduce the current the cable can carry before exceeding 90°C.",
+        a: "T4 (surface-to-ambient thermal resistance) is the dominant term in this example (1.988 K·m/W including the air gap in the duct, about four times T1 and T3 combined) precisely because soil is a much worse heat conductor than the cable's own insulation — deeper burial or drier/higher-resistivity soil both increase T4 and directly reduce the current the cable can carry before exceeding 90°C.",
       },
     ],
   },

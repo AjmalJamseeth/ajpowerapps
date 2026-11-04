@@ -22,7 +22,7 @@ export default function IntrinsicSafetyPage() {
           Intrinsic Safety (IS) Verification
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          IEC 60079-11 entity-concept check for combining an associated
+          IEC 60079-14 entity-concept check (apparatus to IEC 60079-11) for combining an associated
           apparatus (barrier/isolator) with intrinsically safe field
           apparatus and field wiring — voltage, current, power, capacitance
           and inductance, including the 1% rule and field cable contribution.

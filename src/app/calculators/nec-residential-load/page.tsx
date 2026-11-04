@@ -41,9 +41,9 @@ export default function NecResidentialLoadPage() {
           <InfoPanel
             purpose="Calculates a single-family dwelling's electrical service demand load using either the NEC Article 220 Part III Standard Method (general lighting/small-appliance/laundry loads with Table 220.42 demand factors, fixed appliances per 220.53, range per Table 220.55, dryer per 220.54, and HVAC per 220.60) or the 220.82 Optional Method (all other loads summed at nameplate with a single 10kVA/40% demand step, HVAC handled separately), then recommends a minimum standard service size."
             standards={[
-              "NEC 220.12 — general lighting load (3 VA/sq ft, dwelling occupancy)",
+              "NEC 220.12 — general lighting load (3 VA/sq ft, dwelling occupancy; 220.41 in the 2023 NEC)",
               "NEC 220.52 — small-appliance and laundry branch-circuit loads",
-              "NEC Table 220.42 — general lighting/small-appliance/laundry demand factors",
+              "NEC Table 220.42 — general lighting/small-appliance/laundry demand factors (Table 220.45 in the 2023 NEC)",
               "NEC 220.53 — fixed-appliance demand factor (75% for 4 or more)",
               "NEC Table 220.55 — electric range demand load",
               "NEC 220.54 — electric dryer demand load",

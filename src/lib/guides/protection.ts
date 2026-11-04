@@ -172,7 +172,7 @@ export const PROTECTION_GUIDE: GuideDoc = {
     },
     {
       q: "Can these calculators be used directly to set real protection relays on a live site?",
-      a: "They're built to the same standard equations and methods a protection engineer would use by hand or in dedicated coordination software, and every worked example's numbers come from the calculators' own verified code — but a real site has CT ratios and accuracy classes, specific relay firmware behavior, utility interconnection requirements, and asset-specific withstand data that a general-purpose calculator can't fully capture. Treat results here as a solid engineering starting point and cross-check, not a substitute for a formal coordination study reviewed by a qualified protection engineer, especially before commissioning actual site settings.",
+      a: "They're built to the same standard equations and methods a protection engineer would use by hand or in dedicated coordination software, and every worked example's numbers are checked against the calculators themselves — but a real site has CT ratios and accuracy classes, specific relay firmware behavior, utility interconnection requirements, and asset-specific withstand data that a general-purpose calculator can't fully capture. Treat results here as a solid engineering starting point and cross-check, not a substitute for a formal coordination study reviewed by a qualified protection engineer, especially before commissioning actual site settings.",
     },
     {
       q: "Why does this category cover both relay settings (IDMT, differential) and physical device sizing (breaker/fuse) together?",

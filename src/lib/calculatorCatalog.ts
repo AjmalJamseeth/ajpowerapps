@@ -78,8 +78,8 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     icon: "Cable",
     calculators: [
       { name: "Cable Sizing & Voltage Drop", description: "IEC 60364-5-52 current-carrying capacity and voltage drop, with derating, short-circuit withstand, CPC sizing and lifecycle cost as advanced features.", href: "/calculators/cable-sizing", status: "live" },
-      { name: "MV Cable Sizing", description: "IEC 60287 first-principles thermal-circuit current rating for single-core MV/HV cables, cross-checked against CIGRE TB880.", href: "/calculators/mv-cable", status: "live" },
-      { name: "Conduit Fill", description: "NEC Chapter 9 Table 1/4/5 (US) or IEC/BS 7671 45%/40% space-factor method (International).", href: "/calculators/conduit-fill", status: "live" },
+      { name: "MV Cable Sizing", description: "IEC 60287 first-principles current rating for three single-core MV/HV cables in trefoil, buried direct or in ducts, with sheath losses and dielectric loss.", href: "/calculators/mv-cable", status: "live" },
+      { name: "Conduit Fill", description: "NEC Chapter 9 Tables 1, 4 and 5 conduit fill with the smallest compliant trade size, or the IET/BS 7671 space-factor method (about 40% conduit, 45% trunking).", href: "/calculators/conduit-fill", status: "live" },
       { name: "Cable Tray Fill", description: "NEC §392.22 width/area rules by tray type & cable category, or the common 40–50% international area-fill practice.", href: "/calculators/cable-tray-fill", status: "live" },
       { name: "Cable Pulling Tension", description: "IEEE 1185 tension/capstan equations, sidewall bearing pressure & jam ratio.", href: "/calculators/cable-pulling-tension", status: "live" },
       { name: "Control / Instrumentation Cable Sizing", description: "HART/4-20mA capacitance-limited maximum cable length, minimum conductor size guidance, and general EMI separation-distance practice.", href: "/calculators/control-cable-sizing", status: "live" },
@@ -117,10 +117,10 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     calculators: [
       { name: "CT Sizing & Saturation", description: "IEC 61869-2 CT ratio, itemized burden and ALF/knee-point voltage check. Saturation analysis, metering class, thermal/mechanical withstand and multi-ratio taps are advanced features.", href: "/calculators/ct-sizing", status: "live" },
       { name: "VT Sizing", description: "IEC 61869-3 voltage transformer ratio, voltage factor by earthing system, and burden vs. standard rated outputs. Protection class, thermal limiting output and open-delta residual voltage are advanced features.", href: "/calculators/vt-sizing", status: "live" },
-      { name: "Transformer Sizer", description: "Sizes a new transformer (or N-1 redundant group) from connected load, growth/safety margins, ambient derating, and standard ANSI/IEEE kVA ratings.", href: "/calculators/transformer-sizer", status: "live" },
+      { name: "Transformer Sizer", description: "Sizes a new transformer (or N-1 redundant group) from connected load, growth/safety margins, ambient and altitude derating, and standard IEC or ANSI/IEEE kVA ratings.", href: "/calculators/transformer-sizer", status: "live" },
       { name: "Generator & Transformer Analysis", description: "Genset sizing for running + motor-starting load, and transformer loss/efficiency/regulation from test data. NGR/NET earthing resistor sizing is an advanced feature.", href: "/calculators/gen-xfmr", status: "live" },
       { name: "Busbar & Switchgear Rating", description: "First-principles continuous ampacity and temperature rise for rectangular busbars. Short-time thermal withstand and electrodynamic force check are advanced features.", href: "/calculators/busbar-rating", status: "live" },
-      { name: "Insulation Resistance Checker", description: "IEEE 43 kV+1 minimum-IR check with 40°C temperature correction.", href: "/calculators/insulation-resistance", status: "live" },
+      { name: "Insulation Resistance Checker", description: "IEEE 43-2013 minimum insulation resistance by winding type (100 MΩ, 5 MΩ or kV + 1 MΩ), with temperature correction to 40 °C.", href: "/calculators/insulation-resistance", status: "live" },
       { name: "Polarization Index (PI)", description: "PI = IR(10min)/IR(1min) with IEEE 43 condition bands and minimum-PI check by insulation class.", href: "/calculators/polarization-index", status: "live" },
     ],
   },
@@ -183,7 +183,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     icon: "Gauge",
     calculators: [
       { name: "4-20mA Current Loop", description: "Loop voltage budget for a 2-wire loop-powered transmitter — wire voltage drop, transmitter headroom, and maximum cable length by AWG.", href: "/calculators/current-loop-4-20ma", status: "live" },
-      { name: "Intrinsic Safety (IS) Verification", description: "IEC 60079-11 entity concept — voltage/current/power and capacitance/inductance checks (with the 1% rule) for combining a barrier with IS field apparatus and cable.", href: "/calculators/intrinsic-safety", status: "live" },
+      { name: "Intrinsic Safety (IS) Verification", description: "IEC 60079-14 entity concept — voltage/current/power and capacitance/inductance checks (with the 1% rule) for combining a barrier with IS field apparatus and cable.", href: "/calculators/intrinsic-safety", status: "live" },
       { name: "Thermocouple & RTD", description: "NIST ITS-90 thermocouple mV-to-temperature with cold-junction compensation (K/J/T/E), plus IEC 60751 Callendar-Van Dusen RTD conversion with lead-wire compensation.", href: "/calculators/thermocouple-rtd", status: "live" },
       { name: "Fire & Gas Detection Loop Budget", description: "Standby and alarm-condition voltage budget for a multi-detector fire/gas initiating device circuit with an end-of-line resistor.", href: "/calculators/fg-loop", status: "live" },
     ],

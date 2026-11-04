@@ -51,12 +51,12 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "See what happens to secondary output beyond the ALF",
-        body: "The fault-current table sweeps multiples of rated primary current and caps the ideal (linear) secondary output at the rated ALF, showing where the CT's output stops faithfully following the primary current.",
+        body: "The fault-current table sweeps multiples of rated primary current and caps the ideal (linear) secondary output at the CT's actual achievable ALF (28.4 here), showing approximately where the CT's output stops faithfully following the primary current.",
         table: {
-          headers: ["Fault multiple", "Primary current", "Ideal secondary (linear)", "Actual output at ALF cap"],
+          headers: ["Fault multiple", "Primary current", "Ideal secondary (linear)", "Approximate output (capped at actual ALF)"],
           rows: [
             ["20x (rated ALF)", "8000 A", "20 A", "20 A — still linear"],
-            ["50x", "20,000 A", "50 A", "20 A — capped, CT has saturated"],
+            ["50x", "20,000 A", "50 A", "≈28.4 A — CT has saturated"],
           ],
         },
       },
@@ -65,7 +65,7 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       { check: "Knee-point voltage vs. required for ALF 20", requirement: "≥ 105.6 V", actual: "150 V", pass: true },
       { check: "Actual achievable ALF at this burden", requirement: "n/a (informational)", actual: "28.4", pass: true },
     ],
-    finalAnswer: "This CT comfortably supports its stated ALF 20 requirement, with enough real margin (actual ALF ≈ 28.4) to still deliver a faithful secondary current up to about 28 times rated primary current before saturating — beyond that, at 50x rated current in this example, the output simply flattens at 20 A instead of continuing to rise.",
+    finalAnswer: "This CT comfortably supports its stated ALF 20 requirement, with enough real margin (actual ALF ≈ 28.4) to still deliver a faithful secondary current up to about 28 times rated primary current before saturating — beyond that, at 50x rated current in this example, the output stops following the primary at roughly 28 A instead of reaching 50 A.",
     keyInsight: "A CT's accuracy limit factor isn't a hard cutoff where the CT stops working — it's the point beyond which the secondary current stops accurately representing the primary current because the core saturates. A protection relay that needs to see the true fault current magnitude at very high multiples (not just detect that a fault occurred) needs a CT with enough real margin above the fault current it will actually see, not just enough to clear the nameplate ALF requirement.",
     faqs: [
       {
@@ -74,7 +74,7 @@ export const TRANSFORMERS_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "What would happen if the relay actually needed to see fault current at 50x rated?",
-        a: "With this CT's actual achievable ALF of about 28.4, secondary output saturates well before reaching 50x — the relay would see a current signal that plateaus around 20 A regardless of how much larger the actual primary fault current becomes, which could cause a protection scheme relying on accurate magnitude (like some differential or distance protection) to misoperate. This is exactly why the required ALF should be chosen based on the actual maximum fault current the CT needs to represent faithfully, with margin, not just a generic default value.",
+        a: "With this CT's actual achievable ALF of about 28.4, secondary output saturates well before reaching 50x — the relay would see a distorted current signal of roughly 28 A or less regardless of how much larger the actual primary fault current becomes, which could cause a protection scheme relying on accurate magnitude (like some differential or distance protection) to misoperate. This is exactly why the required ALF should be chosen based on the actual maximum fault current the CT needs to represent faithfully, with margin, not just a generic default value.",
       },
     ],
   },

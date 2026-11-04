@@ -67,7 +67,7 @@ export const INSTRUMENTATION_EXAMPLES: WorkedExample[] = [
       },
       {
         q: "Would a heavier wire gauge meaningfully extend the maximum run?",
-        a: "Yes — resistance per unit length drops roughly by half with each two-gauge step up (e.g. 22 AWG to 18 AWG cuts resistance to about 40% of the 22 AWG value), which directly multiplies the maximum supportable length for the same voltage budget. For genuinely long runs approaching a wire gauge's practical limit, stepping up gauge is often more effective than trying to increase supply voltage, which has its own upper limits from device and barrier ratings.",
+        a: "Yes — resistance per unit length roughly halves with every three-gauge step up (e.g. 22 AWG to 18 AWG cuts resistance to about 40% of the 22 AWG value), which directly multiplies the maximum supportable length for the same voltage budget. For genuinely long runs approaching a wire gauge's practical limit, stepping up gauge is often more effective than trying to increase supply voltage, which has its own upper limits from device and barrier ratings.",
       },
     ],
   },
@@ -113,7 +113,7 @@ export const INSTRUMENTATION_EXAMPLES: WorkedExample[] = [
       },
       {
         title: "Check whether the 1% rule permits using the barrier's full Co/Lo",
-        body: "IEC 60079-14's 1% rule allows using the full published Co/Lo (rather than halving both) if the field-side Li alone (excluding cable) is under 1% of Lo.",
+        body: "IEC 60079-14's 1% rule: when the field apparatus's own Li and Ci (excluding the cable) are both 1% or more of the barrier's Lo and Co, only half of Lo and Co may be used; if either is below 1%, the full published values apply.",
         equation: "Li / (Lo x 1000) < 1%?",
         substitution: "0 / (4.2 x 1000) = 0%",
         result: "Rule applies — full Co (83 nF) and Lo (4.2 mH) may be used, no halving required",

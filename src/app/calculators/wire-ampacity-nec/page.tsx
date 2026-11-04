@@ -51,6 +51,7 @@ export default function WireAmpacityNecPage() {
               "NEC Table 310.15(B)(1) — ambient temperature correction factors",
               "NEC Table 310.15(C)(1) — adjustment factors for more than 3 current-carrying conductors",
               "NEC 110.14(C) — conductor temperature limitation at terminations",
+              "NEC 240.4(D) — small-conductor overcurrent protection limits (14–10 AWG)",
             ]}
             capabilities={[
               "Auto-size mode: finds the smallest AWG/kcmil conductor whose derated, termination-capped ampacity meets the load.",
@@ -65,7 +66,7 @@ export default function WireAmpacityNecPage() {
               ],
               result: "#6 AWG copper, 75°C — 65A effective ampacity, meeting the 65A load exactly.",
             }}
-            notes="Table 310.16 figures are the standard published NEC values, unchanged across the 2014–2023 NEC editions for this table — but always confirm against the specific code edition adopted by the AHJ, and remember this is ampacity only: voltage drop, short-circuit withstand, and conduit fill must be checked separately (see the Cable Sizing, Conduit Fill, and Feeder Tap Rule calculators)."
+            notes="Table 310.16 figures are the published NEC values (the table was numbered 310.15(B)(16) before the 2020 edition) — always confirm against the specific code edition adopted by the AHJ, and remember this is ampacity only: voltage drop, short-circuit withstand, and conduit fill must be checked separately (see the Cable Sizing, Conduit Fill, and Feeder Tap Rule calculators)."
           />
         </div>
 

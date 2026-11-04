@@ -9,7 +9,7 @@ export const SOLAREV_GUIDE: GuideDoc = {
   dek: "Why a PV string has to clear three genuinely independent inverter constraints at once, and why an EV charge point's earthing system can outright disqualify a design rather than just derate it.",
   readTime: "10 min read",
   intro: [
-    "Solar PV and EV charging are grouped together as this suite's newest, smallest category, but they share a common thread: both involve matching a DC or DC-adjacent source to equipment with hard electrical limits, where getting the match wrong doesn't just reduce performance — it can produce equipment damage (PV) or an outright non-compliant, unsafe circuit (EV charging, on the wrong earthing system). Both calculators in this category are built around checking every relevant limit independently rather than assuming that clearing one check implies the others are also fine.",
+    "Solar PV, EV charging and the other renewables tools are grouped together because they share a common thread: both involve matching a DC or DC-adjacent source to equipment with hard electrical limits, where getting the match wrong doesn't just reduce performance — it can produce equipment damage (PV) or an outright non-compliant, unsafe circuit (EV charging, on the wrong earthing system). The calculators in this category are built around checking every relevant limit independently rather than assuming that clearing one check implies the others are also fine.",
   ],
   coreConcepts: [
     {
@@ -97,7 +97,7 @@ export const SOLAREV_GUIDE: GuideDoc = {
     },
     {
       mistake: "Assuming any earthing system is acceptable for an EV charge point circuit",
-      whyItMatters: "A TN-C-S (PME) supply specifically prohibits extending a PEN conductor into the final circuit feeding a charge point — this isn't a derating situation, it requires a specific compliance path (TN-S conversion, open-PEN detection, or a local TT-style electrode) before the design can be considered acceptable at all.",
+      whyItMatters: "A TN-C-S (PME) supply specifically prohibits extending a PEN conductor into the final circuit feeding a charge point — this isn't a derating situation, the final circuit must be run as TN-S, and some national rules go further (BS 7671 in the UK, for example, requires open-PEN protection or a local TT earth electrode for outdoor charge points).",
     },
     {
       mistake: "Selecting a standard Type AC or Type A RCD alone for an EV charging circuit",

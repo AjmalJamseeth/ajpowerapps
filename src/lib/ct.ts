@@ -156,7 +156,10 @@ export function calcCt(input: CtInput, premiumEnabled: boolean): CtResult | null
   const faultTable: CtFaultRow[] = levels.map((m) => {
     const primaryA = m * ip;
     const secondaryIdealA = m * in_;
-    const secondaryAtAlfA = Math.min(secondaryIdealA, alfRated * in_);
+    // Output follows the primary only up to the ALF the CT actually achieves at this burden
+    // (from its knee-point voltage); beyond that the core saturates. Without a Vk, use the rated ALF.
+    const alfLimit = alfActual > 0 ? alfActual : alfRated;
+    const secondaryAtAlfA = Math.min(secondaryIdealA, alfLimit * in_);
     return { multiple: m, primaryA, secondaryIdealA, secondaryAtAlfA };
   });
 

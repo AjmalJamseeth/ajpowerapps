@@ -73,7 +73,7 @@ export function calcEmergencyPower(input: EmergencyPowerInput): EmergencyPowerRe
     }
     if (input.minRuntimeH != null) {
       const c = CLASSES.find(([, hr]) => (input.minRuntimeH as number) <= hr);
-      cls = c ? `Class ${c[0]}${c[1] === Infinity ? " (X — as required, commonly ~96h)" : ` (≥${c[1]}h)`}` : null;
+      cls = c ? `Class ${c[0]}${c[1] === Infinity ? " (X — duration as specified)" : ` (≥${c[1]}h)`}` : null;
     }
   }
 

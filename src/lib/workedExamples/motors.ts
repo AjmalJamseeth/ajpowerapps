@@ -198,12 +198,12 @@ export const MOTORS_EXAMPLES: WorkedExample[] = [
     keyInsight: "The cube law is what makes VFD retrofits so consistently attractive for variable-flow applications — a modest 30% flow reduction, which might seem to warrant only a modest power reduction, actually corresponds to a much larger 65.7% power reduction (0.70³ = 0.343, so power drops to 34.3% of rated) once speed is actually allowed to drop along with flow, rather than being held constant and throttled.",
     faqs: [
       {
-        q: "Why does a throttling valve barely reduce motor power at all?",
-        a: "A throttling valve reduces flow by adding artificial resistance to the system, forcing the pump to work against a higher effective head at the same speed — the motor still has to do nearly as much work overcoming that added resistance, so throttled power stays close to full-load power even though delivered flow has dropped. This is exactly the wasted energy a VFD retrofit eliminates by letting the pump simply slow down instead.",
+        q: "Why does a throttling valve reduce motor power so little?",
+        a: "A throttling valve reduces flow by adding artificial resistance to the system, forcing the pump to work against a higher effective head at the same speed — the motor still has to do nearly as much work overcoming that added resistance, so throttled power falls much less than flow does, even though delivered flow has dropped. This is exactly the wasted energy a VFD retrofit eliminates by letting the pump simply slow down instead.",
       },
       {
         q: "Does this savings estimate apply to any pump or fan?",
-        a: "It applies specifically to centrifugal-type loads against a system curve dominated by friction/velocity losses (a 'quadratic' system curve) — positive-displacement pumps, and systems dominated by static head rather than friction, don't follow the same cubic power-vs-flow relationship, and the baseline throttled-power assumption itself is a conservative simplification; a bankable savings estimate should use actual trended power data or a real pump/fan curve rather than this default assumption.",
+        a: "It applies specifically to centrifugal-type loads against a system curve dominated by friction/velocity losses (a 'quadratic' system curve) — positive-displacement pumps, and systems dominated by static head rather than friction, don't follow the same cubic power-vs-flow relationship, and the 100% throttled-baseline default gives an upper-bound savings figure; a bankable savings estimate should use actual trended power data or a real pump/fan curve rather than this default assumption.",
       },
     ],
   },

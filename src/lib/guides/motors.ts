@@ -6,7 +6,7 @@ export const MOTORS_GUIDE: GuideDoc = {
   slug: "motors-drives",
   groupId: "motors",
   title: "Motors & Drives: A Practical Guide to Motor Circuits and VFD Savings",
-  dek: "Why a motor circuit needs two genuinely different protective devices doing two different jobs, how overload relay trip class is chosen, and why VFD energy-savings estimates are deliberately conservative.",
+  dek: "Why a motor circuit needs two genuinely different protective devices doing two different jobs, how overload relay trip class is chosen, and why default VFD energy-savings estimates are an upper bound.",
   readTime: "11 min read",
   intro: [
     "A motor is one of the few loads in a typical electrical system that has a dramatically different startup behavior from its running behavior — drawing several times its running current for a few seconds every time it starts, then settling to a much lower steady value. This category's calculators exist because that gap between starting and running behavior is exactly what makes motor circuit design different from ordinary load circuit design: everything from conductor sizing to protective device selection to contactor duty rating has to accommodate a legitimate, repeated inrush transient without treating it as a fault.",
@@ -44,10 +44,10 @@ export const MOTORS_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "VFD energy savings: affinity laws, and why the estimate is deliberately conservative",
+      heading: "VFD energy savings: affinity laws, and why the default estimate is an upper bound",
       body: [
         "For centrifugal pumps and fans specifically, the affinity laws are simple but powerful: flow rate scales roughly linearly with speed, while power draw scales roughly with speed cubed. That cubic relationship is why even a modest reduction in flow requirement — achieved by slowing the pump or fan down with a VFD rather than throttling a valve or damper at full speed — can produce a disproportionately large power reduction, which is the whole economic case for VFD retrofits on variable-flow applications.",
-        "The baseline comparison matters enormously to the result, though: this category's VFD savings calculator defaults to a conservative assumption that throttled (valve/damper) control barely reduces motor power at reduced flow — a deliberately cautious simplification, not a fitted curve for any specific real pump or fan. Real throttled-control power at reduced flow can vary meaningfully depending on the specific pump/fan curve and the type of flow-control device used, so a genuinely bankable savings estimate for a specific retrofit decision should use actual trended power data or manufacturer pump/fan curves rather than the default conservative baseline alone — the calculator's default is intentionally a safe first-pass estimate, not a final number.",
+        "The baseline comparison matters enormously to the result, though: this category's VFD savings calculator defaults to assuming that throttled (valve/damper) control does not reduce motor power at reduced flow at all. Real throttled power usually falls somewhat, so this default gives the largest possible savings — an upper bound, not a fitted curve for any specific pump or fan. Real throttled-control power at reduced flow can vary meaningfully depending on the specific pump/fan curve and the type of flow-control device used, so a genuinely bankable savings estimate for a specific retrofit decision should use actual trended power data or manufacturer pump/fan curves rather than the default baseline alone — the calculator's default is a first-pass upper bound, not a final number.",
       ],
     },
   ],
@@ -96,7 +96,7 @@ export const MOTORS_GUIDE: GuideDoc = {
     },
     {
       mistake: "Treating the default VFD savings estimate as a guaranteed, bankable figure",
-      whyItMatters: "The default throttled-baseline assumption is a deliberately conservative simplification, not a fitted curve for any specific real pump or fan — an investment-grade savings estimate needs actual trended power data or manufacturer pump/fan curves, not the calculator's conservative default baseline alone.",
+      whyItMatters: "The default throttled-baseline assumption gives an upper-bound savings figure, not a fitted curve for any specific real pump or fan — an investment-grade savings estimate needs actual trended power data or manufacturer pump/fan curves, not the calculator's default baseline alone.",
     },
   ],
   faqs: [
