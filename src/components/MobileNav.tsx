@@ -54,6 +54,13 @@ export function MobileNav() {
               Worked Examples
             </Link>
             <Link
+              href="/about"
+              onClick={close}
+              className="rounded-md px-2 py-2.5 text-muted hover:bg-surface-2 hover:text-foreground"
+            >
+              About
+            </Link>
+            <Link
               href="/resources"
               onClick={close}
               className="rounded-md px-2 py-2.5 text-muted hover:bg-surface-2 hover:text-foreground"

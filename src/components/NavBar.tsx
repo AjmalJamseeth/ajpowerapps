@@ -128,6 +128,9 @@ export default function NavBar() {
               </div>
             </div>
           </div>
+          <Link href="/about" className="hover:text-foreground transition-colors">
+            About
+          </Link>
         </nav>
         <div className="flex items-center gap-3">
           <ThemeToggle />

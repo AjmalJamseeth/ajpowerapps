@@ -88,7 +88,7 @@ export default function BatterySizingPage() {
             >
               <div className="col-span-2 text-xs text-muted">
                 Preview only — random load entries are not added to the
-                free-tier result.
+                main result.
               </div>
             </PremiumSection>
 

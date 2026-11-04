@@ -42,9 +42,9 @@ export default function EvChargingPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
           IEC 61851-1 · IEC 60364-7-722 · IEC 62955 — charge point
-          cable/breaker/RCD sizing for a single point is free. Multi-point
-          site demand with load management diversity is an advanced
-          feature.
+          cable, breaker and RCD sizing for a single charge point, plus
+          multi-point site demand with load management diversity as an
+          advanced feature.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

@@ -122,8 +122,8 @@ export default function EarthingPage() {
               unlocked={FREE_LAUNCH}
             >
               <div className="col-span-2 text-xs text-muted">
-                A uniform single-resistivity soil model (left) is used for all
-                free-tier calculations. Layered soil modelling refines the
+                A uniform single-resistivity soil model (left) is used for the
+                main calculations. Layered soil modelling refines the
                 effective resistivity seen by the grid for sites with real
                 stratified ground.
               </div>

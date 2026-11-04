@@ -132,8 +132,8 @@ export const BUILDINGSERVICES_EXAMPLES: WorkedExample[] = [
         a: "UF accounts for how much of a luminaire's emitted light actually reaches the working plane, given room proportions, mounting height, and surface reflectances — a low, wide room with light-colored walls has a higher UF than a tall, narrow room with dark surfaces. MF accounts for the light loss expected over the maintenance cycle from lamp lumen depreciation and luminaire dirt accumulation before the next cleaning or relamping — both factors are why the same luminaire in two different rooms is very unlikely to hit the same lux value.",
       },
       {
-        q: "Why is the car park lighting listed as an advanced-tier feature rather than free like the office?",
-        a: "Interior room types are free on this calculator, while exterior/area lighting types (car parks, building exteriors) are grouped as an advanced feature — reflecting that exterior lighting design typically involves additional considerations (light trespass, glare, pole spacing) beyond the same basic lumen-method illuminance target used here.",
+        q: "Why is the car park lighting listed as an advanced feature, unlike the office?",
+        a: "Interior room types are part of the main calculator, while exterior/area lighting types (car parks, building exteriors) are grouped as an advanced feature — reflecting that exterior lighting design typically involves additional considerations (light trespass, glare, pole spacing) beyond the same basic lumen-method illuminance target used here.",
       },
     ],
   },

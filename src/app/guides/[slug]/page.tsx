@@ -31,7 +31,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
             description: guide.dek,
             url,
             mainEntityOfPage: url,
-            author: { "@type": "Organization", name: "AJapps", url: SITE_URL },
+            author: { "@type": "Person", name: "Ajmal Jamseeth", jobTitle: "Electrical Engineer", url: `${SITE_URL}/about` },
             publisher: { "@type": "Organization", name: "AJapps", url: SITE_URL },
           },
           breadcrumbJsonLd([

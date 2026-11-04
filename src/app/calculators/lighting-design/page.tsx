@@ -33,9 +33,9 @@ export default function LightingDesignPage() {
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Lighting Design Calculator</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Lumen method (EN 12464-1 or IES Handbook). Interior room types are
-          free — exterior/area lighting and EN 1838 emergency lighting checks
-          are advanced features.
+          Lumen method (EN 12464-1 or IES Handbook) for interior rooms, with
+          exterior/area lighting and EN 1838 emergency lighting checks as
+          advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

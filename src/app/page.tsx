@@ -20,7 +20,7 @@ import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-export const metadata = { ...pageMeta("/", "AJ Power Apps – Free Electrical Engineering Calculators", "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Free Electrical Engineering Calculators" } };
+export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical Engineering Calculators", "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Electrical Engineering Calculators" } };
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
@@ -63,7 +63,7 @@ const HOME_JSON_LD = [
     name: "AJapps",
     alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
-    description: "Free standards-based electrical engineering calculators.",
+    description: "Standards-based electrical engineering calculators.",
   },
   {
     "@context": "https://schema.org",
@@ -71,6 +71,7 @@ const HOME_JSON_LD = [
     name: "AJapps",
     alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
+    founder: { "@type": "Person", name: "Ajmal Jamseeth", jobTitle: "Electrical Engineer", url: `${SITE_URL}/about` },
   },
 ];
 
@@ -107,7 +108,7 @@ export default function Home() {
             power quality, backup power, instrumentation, renewables and
             facilities engineering — built on cited IEC, IEEE, NEC and
             NFPA references, checked by an automated test suite and worked
-            examples, free to use, no signup required.
+            examples, with no signup required.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
@@ -179,7 +180,7 @@ export default function Home() {
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
                 <li>Each module names the standard it follows, and the clause or table wherever one applies.</li>
                 <li>Rule-of-thumb figures (e.g. altitude/ambient derating rates without a full thermal model) are labeled as such, not dressed up as normative values.</li>
-                <li>Core results are free with no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked as advanced.</li>
+                <li>Core results need no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked as advanced.</li>
                 <li>Hover tooltips and a worked example on every calculator, so the tool teaches the standard as you use it.</li>
                 <li>Runs entirely in the browser — no installation, no plugin, results update live as inputs change.</li>
               </ul>
@@ -295,8 +296,11 @@ export default function Home() {
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
-          © {new Date().getFullYear()} AJapps (AJ Power Apps, ajpowerapps.com). For preliminary engineering
-          use only — always verify results against project-specific standards.
+          © {new Date().getFullYear()} AJapps (AJ Power Apps, ajpowerapps.com) — built by{" "}
+          <Link href="/about" className="text-accent-2 hover:underline">
+            Ajmal Jamseeth
+          </Link>
+          . For preliminary engineering use only — always verify results against project-specific standards.
         </div>
       </footer>
     </div>

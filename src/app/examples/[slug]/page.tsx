@@ -38,7 +38,7 @@ export default async function ExampleDetailPage({ params }: { params: Promise<{ 
       mainEntityOfPage: url,
       proficiencyLevel: "Expert",
       about: example.standard,
-      author: { "@type": "Organization", name: "AJapps", url: SITE_URL },
+      author: { "@type": "Person", name: "Ajmal Jamseeth", jobTitle: "Electrical Engineer", url: `${SITE_URL}/about` },
       publisher: { "@type": "Organization", name: "AJapps", url: SITE_URL },
       isPartOf: { "@type": "WebSite", name: "AJapps", url: SITE_URL },
     },

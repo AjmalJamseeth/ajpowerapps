@@ -19,7 +19,7 @@ import {
 import { CALCULATOR_GROUPS, ROADMAP_ITEMS, TOTAL_LIVE_COUNT, type CalcCard } from "@/lib/calculatorCatalog";
 import { pageMeta } from "@/lib/seo";
 
-export const metadata = pageMeta("/calculators", `Electrical Engineering Calculators (${TOTAL_LIVE_COUNT} Free Tools)`, "Free standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors, VFDs and more.");
+export const metadata = pageMeta("/calculators", `Electrical Engineering Calculators (${TOTAL_LIVE_COUNT} Tools)`, "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors, VFDs and more.");
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,

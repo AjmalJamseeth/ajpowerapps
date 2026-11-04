@@ -32,17 +32,17 @@ export function pageMeta(path: string, title: string, description: string): Meta
 const CALC_SEO: Record<string, { title: string; description: string }> = {
   "/calculators/iec-61850-scl-editor": {
     title: "IEC 61850 SCL Editor – SCD, ICD, CID Viewer",
-    description: "Free online IEC 61850 SCL viewer and editor: open SCD, ICD, CID and IID files, check IEDs, GOOSE, sampled values and addresses, validate, edit and export.",
+    description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD, CID and IID files, check IEDs, GOOSE, sampled values and addresses, validate, edit and export.",
   },
   "/calculators/max-demand": {
     title: "Maximum Demand Calculator – Demand Factor Table",
     description:
-      "Free maximum demand calculation by load category (lighting, sockets, HVAC, motors, EV) with demand factors, design current, breaker and transformer size.",
+      "Maximum demand calculation by load category (lighting, sockets, HVAC, motors, EV) with demand factors, design current, breaker and transformer size.",
   },
   "/calculators/idmt": {
     title: "IDMT Relay Calculator – Trip Time & Grading",
     description:
-      "Free IDMT relay calculator: trip time for IEC 60255 and IEEE C37.112 curves, plug setting multiplier, TCC plot and grading check for two or more relays.",
+      "IDMT relay calculator: trip time for IEC 60255 and IEEE C37.112 curves, plug setting multiplier, TCC plot and grading check for two or more relays.",
   },
   "/calculators/cable-tray-fill": {
     title: "Cable Tray Fill Calculator – NEC 392.22",
@@ -75,9 +75,9 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
       "kVAr needed to correct power factor, capacitance per phase in µF, capacitor nameplate rating, current reduction, resonance check and detuning reactor.",
   },
   "/calculators/arc-flash": {
-    title: "Arc Flash Calculator (Free) – IEEE 1584",
+    title: "Arc Flash Calculator – IEEE 1584-2018",
     description:
-      "Free arc flash calculator: incident energy, arc-flash boundary and indicative PPE category using IEEE 1584-2018, IEEE 1584-2002 or the Ralph Lee method.",
+      "Arc flash calculator: incident energy, arc-flash boundary and indicative PPE category using IEEE 1584-2018, IEEE 1584-2002 or the Ralph Lee method.",
   },
   "/calculators/arc-flash-study": {
     title: "Arc Flash Study – IEEE 1584-2018 Labels & PPE",
@@ -105,9 +105,9 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
       "NEC Article 430 motor calculator: FLC tables, conductor size, maximum breaker or fuse, overload setting, disconnect, starting voltage dip and motor feeder.",
   },
   "/calculators/protection-suite": {
-    title: "Protection Coordination Software (Free, Online)",
+    title: "Protection Coordination Software (Online)",
     description:
-      "Free online protection coordination: time-current curves for relays, breakers, fuses and motors, grading checks, damage curves, 87T/87B/87L and CT/VT sizing.",
+      "Online protection coordination: time-current curves for relays, breakers, fuses and motors, grading checks, damage curves, 87T/87B/87L and CT/VT sizing.",
   },
   "/calculators/wire-ampacity-nec": {
     title: "Wire Size Calculator – NEC 310.16 Ampacity",
@@ -235,8 +235,6 @@ export function calcJsonLd(href: string): object[] {
         description: snippet(o?.description ?? c.description, 300),
         applicationCategory: "EngineeringApplication",
         operatingSystem: "Any (runs in a web browser)",
-        isAccessibleForFree: true,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         publisher: { "@type": "Organization", name: "AJapps", url: BASE },
       },
       breadcrumbJsonLd([

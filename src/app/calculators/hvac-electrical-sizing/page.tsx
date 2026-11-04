@@ -29,9 +29,9 @@ export default function HvacElectricalSizingPage() {
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">HVAC Electrical Sizing Calculator</h1>
         <p className="mt-2 max-w-2xl text-muted">
           Motor-compressor branch-circuit sizing (NEC Article 440) or general
-          method (IEC 60364-5-52). Single motor free — multi-motor
-          combination-load equipment and VFD-fed motors are advanced
-          features.
+          method (IEC 60364-5-52) for a single motor-compressor, with
+          multi-motor combination-load equipment and VFD-fed motors as
+          advanced features.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

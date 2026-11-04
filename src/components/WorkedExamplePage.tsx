@@ -170,7 +170,7 @@ export default function WorkedExamplePage({ example }: { example: WorkedExample 
         <section className="mt-10 rounded-xl border border-accent/20 bg-gradient-to-br from-surface to-surface-2 p-6">
           <h3 className="text-base font-semibold text-foreground">Try it with your own numbers</h3>
           <p className="mt-1 text-sm text-muted">
-            Every input in this example is editable in the live calculator — free, no signup.
+            Every input in this example is editable in the live calculator — no signup needed.
           </p>
           <Link
             href={example.calculatorHref}

@@ -174,7 +174,7 @@ export interface MotorResult {
 
 export function calcMotor(input: MotorInput): MotorResult {
   const nec = input.standard === "nec";
-  let flc: number | null = nec ? lookupFLC(input.phase, input.type, input.hp, input.voltage, input.syncPf) : input.nameplateFlc;
+  const flc: number | null = nec ? lookupFLC(input.phase, input.type, input.hp, input.voltage, input.syncPf) : input.nameplateFlc;
 
   let branchAmpacityA: number | null = null,
     discA: number | null = null,

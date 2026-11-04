@@ -56,8 +56,8 @@ export default function GenXfmrPage() {
         <p className="mt-2 max-w-2xl text-muted">
           Genset sizing for running + motor-starting load, transformer
           loss/efficiency/regulation from test data, and neutral earthing
-          resistor/transformer sizing. Generator sizing and transformer
-          losses are free; NGR/NET sizing is an advanced feature.
+          resistor/transformer sizing. NGR/NET sizing is an advanced
+          feature.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-2 border-b border-border">

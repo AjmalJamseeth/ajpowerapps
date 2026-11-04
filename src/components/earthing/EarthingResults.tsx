@@ -81,7 +81,7 @@ export default function EarthingResults({ result }: { result: EarthingResult }) 
             <span>
               Mesh voltage (Em), step voltage (Es), and the pass/fail safety
               verdict against IEEE 80 tolerable limits are an advanced
-              feature. Grid resistance and GPR above are free.
+              feature.
             </span>
           </div>
         </div>

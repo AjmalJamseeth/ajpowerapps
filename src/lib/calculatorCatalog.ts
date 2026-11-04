@@ -208,8 +208,8 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     description: "HVAC electrical sizing, lighting design, elevators, data-center PUE, life-cycle cost, and heat management.",
     icon: "Building2",
     calculators: [
-      { name: "HVAC Electrical Sizing", description: "Motor-compressor branch-circuit sizing (NEC Art. 440) or IEC general method. Single motor free — multi-motor combination-load & VFD-fed motor are advanced features.", href: "/calculators/hvac-electrical-sizing", status: "live" },
-      { name: "Lighting Design", description: "Lumen method (EN 12464-1 or IES Handbook). Interior room types are free — exterior/area lighting and EN 1838 emergency lighting checks are advanced features.", href: "/calculators/lighting-design", status: "live" },
+      { name: "HVAC Electrical Sizing", description: "Motor-compressor branch-circuit sizing (NEC Art. 440) or IEC general method. Multi-motor combination loads and VFD-fed motors are advanced features.", href: "/calculators/hvac-electrical-sizing", status: "live" },
+      { name: "Lighting Design", description: "Lumen method (EN 12464-1 or IES Handbook) for interior rooms. Exterior/area lighting and EN 1838 emergency lighting checks are advanced features.", href: "/calculators/lighting-design", status: "live" },
       { name: "Elevator Electrical Demand", description: "Traction elevator motor power from load/speed/balance/efficiency, plus NEC Table 620.14 feeder demand factor for a group of elevators.", href: "/calculators/elevator-demand", status: "live" },
       { name: "Elevator Energy Calculator", description: "Estimates a traction elevator's annual electrical energy use (kWh/year) from running power, duty cycle, regenerative-drive credit and standby power — structured after ISO 25745-2.", href: "/calculators/elevator-energy", status: "live" },
       { name: "Data Center PUE", description: "Power Usage Effectiveness (PUE) & DCiE from facility/IT energy, overhead cost, and a Green Grid efficiency-band classification.", href: "/calculators/pue", status: "live" },

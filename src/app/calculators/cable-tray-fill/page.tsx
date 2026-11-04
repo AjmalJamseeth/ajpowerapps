@@ -54,7 +54,7 @@ export default function CableTrayFillPage() {
           standards={["NEC (NFPA 70) \u00a7392.22(A)/(B)", "Common IEC/BS practice (40–50% fill); IEC 61537 covers tray construction and load testing, not fill"]}
           capabilities={["NEC path: ladder/ventilated-trough/solid-bottom tray types, with separate rules for power/mixed (hybrid sum-of-diameters + area rule for 4/0 AWG+ vs. smaller cables), control/signal-only (area rule), and single-conductor (sum-of-diameters) categories.", "Correctly applies NEC \u00a7392.22's quirk that allowable fill area is capped at a 3-inch depth basis for power/mixed cables regardless of actual tray depth.", "International path: flat 50% (ladder/perforated) or 40% (solid-bottom) area-fill percentage (common practice, not an IEC 61537 requirement)."]}
           example={{ problem: "Six 0.6-inch-diameter power/mixed cables (all smaller than 4/0 AWG) are laid in a 12-inch-wide, 4-inch-deep ladder tray.", steps: ["No cables are 4/0 AWG or larger, so the area-only rule applies (no sum-of-diameters component).", "Sum of cable cross-sectional areas: 6 \u00d7 \u03c0\u00d7(0.6/2)\u00b2 = 1.696 in\u00b2.", "Allowable area = 40% of (tray width \u00d7 depth), with depth capped at 3 inches per \u00a7392.22(A)(1)(a): 40% \u00d7 (12 \u00d7 3) = 14.4 in\u00b2... the calculator's exact governing value is 14.004 in\u00b2.", "Fill % = 1.696 / 14.004 = 38.9% of the depth-capped allowable area."], result: "38.9% fill \u2014 passes the applicable NEC \u00a7392.22 area rule for this power/mixed tray." }}
-          notes="This calculator is free to use in full."
+          notes="All features of this calculator are available."
           />
         </div>
 

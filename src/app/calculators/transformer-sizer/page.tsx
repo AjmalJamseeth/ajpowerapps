@@ -84,7 +84,7 @@ export default function TransformerSizerPage() {
               sizes each unit for 100% of the load; N=1 means no redundancy.
               Ambient/altitude derating rates above the IEC reference
               points are commonly published engineering rules of thumb —
-              always confirm against the manufacturer's thermal/altitude
+              always confirm against the manufacturer&apos;s thermal/altitude
               rating curve for a final selection.
             </p>
           </div>
