@@ -13,6 +13,153 @@ export interface CalcArticle {
 }
 
 export const CALC_ARTICLES: Record<string, CalcArticle> = {
+  "/calculators/ct-sizing": {
+    heading: "How to size a protection CT",
+    paragraphs: [
+      "A protection current transformer must reproduce the fault current accurately enough for the relay to operate correctly. If the secondary voltage needed to drive the fault current through the CT's own winding resistance and the connected burden exceeds the knee-point voltage, the core saturates and the secondary current collapses.",
+      "The burden is the relay plus the leads. Lead resistance often dominates at 5 A secondary, which is one reason 1 A secondaries are preferred for long runs. For differential and distance protection, the DC offset of the fault current also matters, which the calculator's transient (Ktd) check covers.",
+    ],
+    formula: [
+      { label: "Lead resistance", text: "R lead = ρ × L × (1 or 2) / A   (ρ = 0.0175 Ω·mm²/m for copper)" },
+      { label: "Total burden", text: "Rb = R lead + VA relay / In²" },
+      { label: "Required knee-point voltage", text: "Vk ≥ ALF × In × (Rct + Rb)" },
+      { label: "Transient factor", text: "Ktd = 1 + ω·T1·(1 − e^(−t/T1)), T1 = X/R ÷ ω" },
+    ],
+    table: {
+      caption: "Common CT accuracy classes (IEC 61869-2)",
+      headers: ["Class", "Use", "Meaning"],
+      rows: [
+        ["0.2, 0.5, 1", "Metering", "Ratio error ±0.2%, ±0.5% or ±1% at rated current"],
+        ["5P10, 5P20", "Protection", "Composite error ≤ 5% up to 10 or 20 × rated current"],
+        ["10P10, 10P20", "Protection", "Composite error ≤ 10% up to 10 or 20 × rated current"],
+        ["PX", "Differential, distance", "Defined by knee-point voltage Vk, Rct and magnetising current"],
+      ],
+      note: "Preferred rated outputs are 2.5, 5, 10, 15 and 30 VA; rated secondary current is 1 A or 5 A.",
+    },
+    faqs: [
+      { q: "What does 5P20 mean?", a: "A protection CT whose composite error stays within 5% up to 20 times rated current, when connected to its rated burden." },
+      { q: "Why choose a 1 A CT instead of 5 A?", a: "Lead burden is I²R, so for the same leads a 1 A secondary loads the CT 25 times less than a 5 A secondary. That allows smaller CTs or longer cable runs." },
+    ],
+  },
+
+  "/calculators/transformer-sizer": {
+    heading: "How to size a transformer (kVA)",
+    paragraphs: [
+      "Start from the maximum demand in kVA, add margins for future growth and uncertainty, then correct for site conditions. IEC 60076 transformers are rated for an ambient of at most 40 °C, a monthly average of 30 °C and a yearly average of 20 °C, at altitudes up to 1,000 m; hotter or higher sites need derating.",
+      "Where supply must survive the loss of one transformer, size each unit so the remaining units (N−1) carry the full load. Then pick the next standard rating above the result.",
+    ],
+    formula: [
+      { label: "Design load", text: "S (kVA) = P (kW) / power factor" },
+      { label: "With margins", text: "S required = S × (1 + growth) × (1 + safety) / derating" },
+      { label: "N−1 redundancy", text: "S per unit = S required / (N − 1)" },
+    ],
+    table: {
+      caption: "Standard transformer ratings (kVA)",
+      headers: ["Series", "Ratings"],
+      rows: [
+        ["IEC (R10 preferred)", "100, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150"],
+        ["ANSI / IEEE", "75, 112.5, 150, 225, 300, 500, 750, 1000, 1500, 2000, 2500, 3750"],
+      ],
+    },
+    faqs: [
+      { q: "How much spare capacity should a transformer have?", a: "A common design target is 15–25% above the calculated maximum demand, depending on how certain the load estimate is and how much growth is expected." },
+      { q: "Can a transformer be loaded above its nameplate?", a: "Yes, for limited periods. IEC 60076-7 (oil) and IEC 60076-12 (dry-type) loading guides allow overloads based on hot-spot temperature and insulation ageing." },
+    ],
+  },
+
+  "/calculators/harmonic-analysis": {
+    heading: "IEEE 519 harmonic limits",
+    paragraphs: [
+      "IEEE 519-2014 sets limits at the point of common coupling with the utility. Voltage limits depend on the bus voltage; current limits depend on the ratio of short-circuit current to maximum demand load current (Isc/IL), because a stiff supply can absorb more harmonic current with less voltage distortion.",
+      "Current distortion is judged as total demand distortion (TDD), referred to the maximum demand current, not to the current at the moment of measurement. A lightly loaded site can show a high THD that is still within the TDD limit.",
+    ],
+    table: {
+      caption: "IEEE 519-2014 Table 1 — voltage distortion limits",
+      headers: ["Bus voltage at PCC", "Individual harmonic", "Total THD"],
+      rows: [
+        ["V ≤ 1.0 kV", "5.0%", "8.0%"],
+        ["1 kV < V ≤ 69 kV", "3.0%", "5.0%"],
+        ["69 kV < V ≤ 161 kV", "1.5%", "2.5%"],
+        ["V > 161 kV", "1.0%", "1.5%"],
+      ],
+      note: "Current limits (Table 2, 120 V–69 kV): TDD of 5%, 8%, 12%, 15% or 20% for Isc/IL below 20, 20–50, 50–100, 100–1000 and above 1000.",
+    },
+    faqs: [
+      { q: "What is the difference between THD and TDD?", a: "THD is relative to the fundamental current measured at that moment. TDD is relative to the maximum demand current, so it does not exaggerate distortion at light load." },
+      { q: "Where do IEEE 519 limits apply?", a: "At the point of common coupling (PCC) between the facility and the utility, not at each piece of equipment." },
+    ],
+  },
+
+  "/calculators/lightning-protection": {
+    heading: "Lightning risk assessment (IEC 62305-2)",
+    paragraphs: [
+      "IEC 62305-2 decides whether a structure needs lightning protection by comparing the calculated risk of loss of human life, R1, with the tolerable risk RT = 10⁻⁵ per year. The risk grows with the local flash density, the collection area of the structure and any connected lines, and with how many people are present and for how long.",
+      "If R1 exceeds RT, protection measures are added until it falls below: a lightning protection system (LPS) of class IV to I, surge protection on incoming lines, and measures against touch and step voltages.",
+    ],
+    formula: [
+      { label: "Collection area", text: "AD = L·W + 2·(3H)·(L + W) + π·(3H)²" },
+      { label: "Dangerous events per year", text: "ND = NG · AD · CD · 10⁻⁶" },
+      { label: "Risk components", text: "R1 = RA + RB + RU + RV (+ others for special structures)" },
+    ],
+    table: {
+      caption: "LPS classes (IEC 62305)",
+      headers: ["LPS class", "Probability of damage PB", "Rolling sphere radius", "Mesh size"],
+      rows: [
+        ["I", "0.02", "20 m", "5 × 5 m"],
+        ["II", "0.05", "30 m", "10 × 10 m"],
+        ["III", "0.1", "45 m", "15 × 15 m"],
+        ["IV", "0.2", "60 m", "20 × 20 m"],
+      ],
+    },
+    faqs: [
+      { q: "What is a tolerable risk of 10⁻⁵?", a: "A one-in-100,000 chance per year of loss of human life due to lightning. IEC 62305-2 uses it as the threshold for R1." },
+    ],
+  },
+
+  "/calculators/power-converter": {
+    heading: "kW, kVA, kVAr and amps",
+    paragraphs: [
+      "Real power (kW) does the work, reactive power (kVAr) magnetises motors and transformers, and apparent power (kVA) is their vector sum, which sets the current and therefore the size of cables, breakers and transformers. Power factor is the ratio kW / kVA.",
+    ],
+    formula: [
+      { label: "Apparent power", text: "kVA = kW / PF = √(kW² + kVAr²)" },
+      { label: "Three-phase current", text: "I = kVA × 1000 / (√3 × V line-to-line)" },
+      { label: "Single-phase current", text: "I = kVA × 1000 / V" },
+    ],
+    table: {
+      caption: "Three-phase current per kW (A/kW)",
+      headers: ["Line voltage", "PF 1.0", "PF 0.9", "PF 0.85", "PF 0.8"],
+      rows: [
+        ["400 V", "1.44", "1.60", "1.70", "1.80"],
+        ["415 V", "1.39", "1.55", "1.64", "1.74"],
+        ["480 V", "1.20", "1.34", "1.42", "1.50"],
+      ],
+      note: "Single-phase 230 V: 4.35 A per kW at unity power factor. Multiply by the load in kW.",
+    },
+    faqs: [
+      { q: "How many amps is 100 kW at 400 V?", a: "At 0.85 power factor, 100 × 1.70 ≈ 170 A per phase. At unity power factor it would be about 144 A." },
+      { q: "How do I convert kVA to kW?", a: "Multiply kVA by the power factor: 100 kVA at 0.8 PF is 80 kW." },
+    ],
+  },
+
+  "/calculators/ground-resistance": {
+    heading: "Ground rod resistance",
+    paragraphs: [
+      "The resistance of a single driven rod depends mainly on soil resistivity and rod length, and only weakly on diameter. Doubling the length roughly halves the resistance, while doubling the diameter reduces it by only about 10%.",
+      "In the US, NEC 250.53(A)(2) allows a single rod without a supplemental electrode if it measures 25 Ω or less. Other installations set their own targets, and substations and lightning protection systems usually need much lower values achieved with several rods or a grid.",
+    ],
+    formula: [{ label: "Single rod (BS 7430)", text: "R = ρ / (2πL) × [ln(8L/d) − 1]" }],
+    table: {
+      caption: "Resistance of a 16 mm rod in 100 Ω·m soil",
+      headers: ["Rod length (m)", "Resistance (Ω)"],
+      rows: [["1.2", "71.6"], ["1.5", "59.6"], ["2.4", "40.4"], ["3.0", "33.5"], ["4.8", "22.5"], ["6.0", "18.6"]],
+      note: "Resistance scales directly with soil resistivity: in 200 Ω·m soil every value doubles.",
+    },
+    faqs: [
+      { q: "How do I lower ground rod resistance?", a: "Drive the rod deeper, add rods spaced at least one rod length apart, or use a ground ring or grid. Soil treatment helps but needs maintenance." },
+    ],
+  },
+
   "/calculators/iec-61850-scl-editor": {
     heading: "IEC 61850 SCL files explained",
     paragraphs: [

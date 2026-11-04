@@ -29,8 +29,8 @@ export default function ResourcesHubPage() {
             <h2 className="mt-4 text-xl font-semibold text-foreground">Guides</h2>
             <p className="mt-2 flex-1 text-sm text-muted">
               Category primers: core engineering concepts, the standards landscape, and a sensible
-              order to work through each category&apos;s calculators — {TOTAL_GUIDES} so far, growing
-              toward one per category across all {CALCULATOR_GROUPS.length} categories.
+              order to work through each category&apos;s calculators — {TOTAL_GUIDES} guides covering
+              all {CALCULATOR_GROUPS.length} categories.
             </p>
             <span className="mt-4 text-sm font-semibold text-accent-2 group-hover:opacity-80">
               Browse guides →

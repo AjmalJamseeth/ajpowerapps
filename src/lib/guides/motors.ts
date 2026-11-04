@@ -10,7 +10,7 @@ export const MOTORS_GUIDE: GuideDoc = {
   readTime: "11 min read",
   intro: [
     "A motor is one of the few loads in a typical electrical system that has a dramatically different startup behavior from its running behavior — drawing several times its running current for a few seconds every time it starts, then settling to a much lower steady value. This category's calculators exist because that gap between starting and running behavior is exactly what makes motor circuit design different from ordinary load circuit design: everything from conductor sizing to protective device selection to contactor duty rating has to accommodate a legitimate, repeated inrush transient without treating it as a fault.",
-      "The three calculators here cover circuit sizing, protection sizing, and one specific but common retrofit decision (switching a pump or fan from throttled to variable-speed control) — together spanning both the initial design of a motor circuit and one of the more common ways an existing motor installation gets revisited later for energy savings.",
+      "The calculators here cover circuit sizing, protection sizing, torque and acceleration time, VFD and soft starter selection, and one common retrofit decision (switching a pump or fan from throttled to variable-speed control) — spanning both the initial design of a motor circuit and the ways an existing motor installation gets revisited later.",
   ],
   coreConcepts: [
     {

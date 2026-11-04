@@ -10,7 +10,7 @@ export const BUILDINGSERVICES_GUIDE: GuideDoc = {
   readTime: "13 min read",
   intro: [
     "Unlike most other categories in this suite, Building Services & Facilities isn't organized around a single engineering discipline — it's organized around a single practical reality: facility electrical design constantly has to interface with problems that aren't electrical at all. Sizing a heat-tracing circuit starts with a heat-transfer problem (how much heat does this pipe lose through its insulation). Lighting design starts with a photometry problem (how much illuminance does this room actually need). Elevator sizing starts with a mechanics problem (how much power does it take to lift an unbalanced load at a given speed). Comparing two equipment options starts with a discounted-cash-flow economics problem. In every case, the electrical sizing — a breaker rating, a fixture count, a feeder size — is downstream of solving that other problem first.",
-    "The seven calculators here reflect that variety deliberately rather than trying to force everything into one unifying formula. What they share is a facilities-management context: they're the calculations that come up when specifying or evaluating the electrical side of a building's mechanical, lighting, vertical-transportation, and data-center infrastructure.",
+    "The calculators here reflect that variety deliberately rather than trying to force everything into one unifying formula. What they share is a facilities-management context: they're the calculations that come up when specifying or evaluating the electrical side of a building's mechanical, lighting, vertical-transportation, and data-center infrastructure.",
   ],
   coreConcepts: [
     {

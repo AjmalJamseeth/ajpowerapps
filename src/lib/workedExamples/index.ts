@@ -14,6 +14,7 @@ import { BACKUPPOWER_EXAMPLES } from "./backuppower";
 import { INSTRUMENTATION_EXAMPLES } from "./instrumentation";
 import { SOLAREV_EXAMPLES } from "./solarev";
 import { BUILDINGSERVICES_EXAMPLES } from "./buildingservices";
+import { EXTRA_EXAMPLES } from "./extra";
 
 export const WORKED_EXAMPLES: WorkedExample[] = [
   ...PROTECTION_EXAMPLES,
@@ -26,6 +27,7 @@ export const WORKED_EXAMPLES: WorkedExample[] = [
   ...INSTRUMENTATION_EXAMPLES,
   ...SOLAREV_EXAMPLES,
   ...BUILDINGSERVICES_EXAMPLES,
+  ...EXTRA_EXAMPLES,
 ];
 
 export const TOTAL_EXAMPLES = WORKED_EXAMPLES.length;

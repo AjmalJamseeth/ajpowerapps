@@ -1456,3 +1456,13 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Category guide: `src/lib/guides/iec61850.ts` (`/guides/iec-61850-substation-automation`).
 - To update the editor, replace `public/iec-61850/scl-studio.html`, keeping the wrapper added at the
   top (doctype, robots noindex, canonical, theme script).
+
+## Content additions (November 2026)
+
+- 12th category guide: `src/lib/guides/shortcircuit.ts` (`/guides/short-circuit-arc-flash`).
+- Six worked examples in `src/lib/workedExamples/extra.ts` (IEC 60909 network, NEC wire size,
+  motor torque, VFD sizing, ground rod, NEC 220 dwelling load), pinned by the
+  "Worked examples (November 2026)" test section.
+- Written guides under six more calculators (CT sizing, transformer sizing, harmonics,
+  lightning risk, power converter, ground rod) in `src/lib/calcArticles.ts`.
+- Guide intros no longer quote calculator counts; site-wide meta keywords removed.

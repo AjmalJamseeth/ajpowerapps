@@ -20,8 +20,8 @@ export default function GuidesIndexPage() {
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Guides</h1>
         <p className="mt-2 max-w-2xl text-muted">
           Category primers covering the underlying engineering — core concepts, the standards
-          landscape, and how each category&apos;s calculators fit together — {TOTAL_GUIDES} so far,
-          growing toward one per category. For step-by-step numeric problems, see{" "}
+          landscape, and how each category&apos;s calculators fit together — one guide for each of the
+          {TOTAL_GUIDES} categories. For step-by-step numeric problems, see{" "}
           <Link href="/examples" className="text-accent-2 hover:underline">
             Worked Examples
           </Link>{" "}

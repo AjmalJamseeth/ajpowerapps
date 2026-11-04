@@ -9,17 +9,6 @@ export const metadata: Metadata = {
   },
   description:
     "Free standards-based electrical engineering calculators: protection relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, power quality, backup power, instrumentation, renewables and facilities engineering. Built on cited IEC, IEEE, NEC and NFPA references. No signup required.",
-  keywords: [
-    "electrical engineering calculator",
-    "IDMT relay coordination",
-    "arc flash calculator",
-    "cable sizing calculator",
-    "earthing grid design",
-    "protection relay grading",
-    "IEC 60364",
-    "IEEE 1584",
-    "NEC calculator",
-  ],
   openGraph: {
     title: "AJapps — Electrical Engineering Calculators",
     description:

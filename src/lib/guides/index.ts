@@ -3,6 +3,7 @@
 // a new group file, import it here, and /guides stays in sync.
 
 import type { GuideDoc } from "./types";
+import { SHORTCIRCUIT_GUIDE } from "./shortcircuit";
 import { PROTECTION_GUIDE } from "./protection";
 import { IEC61850_GUIDE } from "./iec61850";
 import { CABLES_GUIDE } from "./cables";
@@ -16,6 +17,7 @@ import { SOLAREV_GUIDE } from "./solarev";
 import { BUILDINGSERVICES_GUIDE } from "./buildingservices";
 
 export const GUIDES: GuideDoc[] = [
+  SHORTCIRCUIT_GUIDE,
   PROTECTION_GUIDE,
   IEC61850_GUIDE,
   CABLES_GUIDE,

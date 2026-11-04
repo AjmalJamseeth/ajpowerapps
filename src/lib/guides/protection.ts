@@ -1,7 +1,7 @@
 // Category guide: Protection & Relaying. A conceptual primer, distinct from
 // the numeric worked examples in workedExamples/protection.ts — this
 // explains the underlying theory, standards landscape, and how the
-// category's 9 calculators fit together, rather than solving one specific
+// category's calculators fit together, rather than solving one specific
 // problem.
 
 import type { GuideDoc } from "./types";
@@ -10,12 +10,12 @@ export const PROTECTION_GUIDE: GuideDoc = {
   slug: "protection-relaying",
   groupId: "protection",
   title: "Protection & Relaying: A Practical Guide to Coordinating Fault Protection",
-  dek: "How overcurrent, differential and arc-flash protection actually fit together — the core theory, the standards behind it, and a sensible order to work through this category's 9 calculators.",
+  dek: "How overcurrent, differential and arc-flash protection actually fit together — the core theory, the standards behind it, and a sensible order to work through this category's calculators.",
   readTime: "16 min read",
   intro: [
     "Protection & relaying is the part of electrical design whose whole job is to fail gracefully. Every other calculator in this suite is about making a system work correctly under normal conditions — this category is about what happens the moment something goes wrong: a short circuit, an earth fault, a transformer internal failure, a generator out of sync. The goal isn't to prevent faults (that's an impossible standard) but to clear them fast enough, and in the right place, that the damage stays contained to the smallest possible part of the system and everyone nearby stays safe.",
       "That containment principle has a name: selectivity, also called discrimination or coordination. A well-coordinated system trips only the protective device closest to the fault, leaving everything upstream still energized and serving unaffected loads. A poorly coordinated system either fails to trip fast enough (letting a fault do more damage or burn longer, which directly worsens arc-flash incident energy) or trips too much of the network at once (an outage far larger than the fault itself justified). Almost everything in this category — grading margins, differential restraint, curve shape selection — exists in service of getting that selectivity right.",
-    "This guide doesn't replace a protection coordination study or a qualified protection engineer's sign-off — real sites have CT ratios, relay firmware quirks, utility interconnection requirements and asset-specific withstand curves that no general-purpose calculator can fully capture. What it does do is walk through the concepts these 9 calculators are built on, so the numbers they produce mean something to you rather than being numbers in isolation.",
+    "This guide doesn't replace a protection coordination study or a qualified protection engineer's sign-off — real sites have CT ratios, relay firmware quirks, utility interconnection requirements and asset-specific withstand curves that no general-purpose calculator can fully capture. What it does do is walk through the concepts these calculators are built on, so the numbers they produce mean something to you rather than being numbers in isolation.",
   ],
   coreConcepts: [
     {

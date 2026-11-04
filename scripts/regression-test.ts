@@ -2255,6 +2255,42 @@ section("Audit corrections (October 2026)");
   assertClose("Idyn default = 2.6 × Ith at 60 Hz", ct60?.thermal?.idynKa, 2.6 * DEFAULT_CT_INPUT.ith, 0.1);
 }
 
+
+// --------------------------------------------------------------------------
+// Worked examples (November 2026) — pins the figures quoted in workedExamples/extra.ts
+// --------------------------------------------------------------------------
+section("Worked examples (November 2026)");
+{
+  const sc = analyseShortCircuit(DEFAULT_SC_NETWORK);
+  const [hv, lv, mcc] = sc.buses;
+  assertClose("IEC 60909 example: 11 kV Ik3 = 14.20 kA", hv.ik3, 14.2, 0.2);
+  assertClose("IEC 60909 example: 11 kV ip = 40.17 kA", hv.ip, 40.17, 0.2);
+  assertClose("IEC 60909 example: 11 kV Ib = 13.88 kA", hv.ib, 13.88, 0.2);
+  assertClose("IEC 60909 example: 11 kV Ik1 = 14.50 kA", hv.ikLG, 14.5, 0.2);
+  assertClose("IEC 60909 example: LV board Ik3 = 39.58 kA", lv.ik3, 39.58, 0.2);
+  assertClose("IEC 60909 example: LV board ip = 100.77 kA", lv.ip, 100.77, 0.2);
+  assertClose("IEC 60909 example: LV board Ik1 = 40.34 kA", lv.ikLG, 40.34, 0.2);
+  assertClose("IEC 60909 example: MCC Ik3 = 23.49 kA", mcc.ik3, 23.49, 0.2);
+  assertClose("IEC 60909 example: MCC ip = 48.44 kA", mcc.ip, 48.44, 0.2);
+
+  const w = calcWireAmpacity({ ...DEFAULT_WIRE_AMPACITY_INPUT, loadAmps: 65, ambientC: 40, currentCarryingCount: 6, insulationTemp: 90, terminationTemp: 75 });
+  assertEqual("Wire example: 65 A at 40 °C, 6 CCC → #4 AWG", w.candidate?.size, "4");
+  assertClose("Wire example: #4 usable ampacity 69.2 A", w.candidate?.effectiveAmpacity, 69.16, 0.1);
+
+  assertClose("Torque example: 37 kW at 1480 rpm = 238.75 N·m", calcMotorTorque({ ...DEFAULT_MOTOR_TORQUE_INPUT, unitSystem: "metric", powerKw: 37, speedRpm: 1480 }).torqueNm, 238.75, 0.05);
+  assertClose("Torque example: 50 hp at 1780 rpm = 147.5 lb·ft", calcMotorTorque({ ...DEFAULT_MOTOR_TORQUE_INPUT, unitSystem: "imperial", powerHp: 50, speedRpm: 1780 }).torqueLbFt, 147.53, 0.05);
+
+  const v = calcVfdSizing({ ...DEFAULT_VFD_SIZING_INPUT, motorFlaA: 65, dutyType: "ct", safetyMarginPct: 10, ambientTempC: 50, altitudeM: 1500, candidateVfdRatedCurrentA: 96, candidateVfdRatedVoltageV: 400 });
+  assertClose("VFD example: minimum drive rating 96.2 A", v.minRequiredRatedCurrentA, 96.17, 0.1);
+  assertTrue("VFD example: 96 A candidate just fails", v.candidateCurrentOk === false);
+
+  assertClose("Ground rod example: 3 m × 16 mm in 100 Ω·m = 33.5 Ω", calcGroundResistance({ ...DEFAULT_GROUND_RESISTANCE_INPUT, rodLengthM: 3 }).resistanceOhms, 33.49, 0.1);
+  assertClose("Ground rod example: 6 m × 16 mm = 18.6 Ω", calcGroundResistance({ ...DEFAULT_GROUND_RESISTANCE_INPUT, rodLengthM: 6 }).resistanceOhms, 18.58, 0.1);
+
+  assertEqual("NEC 220 example: standard method 33,125 VA", calcNecResidentialLoad(DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT).totalDemandVa, 33125);
+  assertEqual("NEC 220 example: optional method 28,000 VA", calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, method: "optional" }).totalDemandVa, 28000);
+}
+
 // --------------------------------------------------------------------------
 // Summary
 // --------------------------------------------------------------------------
