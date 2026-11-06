@@ -114,6 +114,10 @@ export default function VerificationPage() {
           <Link href="/about" className="text-accent-2 hover:underline">
             About the author →
           </Link>
+          <span className="mx-3 text-muted">·</span>
+          <Link href="/terms" className="text-accent-2 hover:underline">
+            Terms of use &amp; disclaimer →
+          </Link>
         </p>
       </div>
     </div>

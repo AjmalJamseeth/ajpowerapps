@@ -21,6 +21,7 @@ import {
   GraduationCap,
   BookOpen,
   LayoutGrid,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 import { TOTAL_GUIDES } from "@/lib/guides";
@@ -133,6 +134,9 @@ export default function NavBar() {
           </Link>
         </nav>
         <div className="flex items-center gap-3">
+          <Link href="/calculators#search" aria-label="Search calculators" title="Search" className="text-muted transition-colors hover:text-accent-2">
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </Link>
           <ThemeToggle />
           <FeedbackButton
             calculatorName="General / Site Feedback"

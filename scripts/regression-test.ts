@@ -11,6 +11,7 @@
 
 import { readFileSync } from "fs";
 import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
+import { buildSearchIndex } from "../src/lib/searchIndex";
 import * as CE from "../src/lib/curveEngine";
 import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
 import { tripTime as idmtTripTime } from "../src/lib/idmt";
@@ -2349,6 +2350,12 @@ section("Worked examples (November 2026)");
   const ev = calcEv({ ...DEFAULT_EV_INPUT, ratedCurrentA: 22 }, false);
   assertEqual("EV 22 A: breaker 25 A", ev.breakerA, 25);
   assertTrue("EV 22 A: cable rating ≥ 25 A breaker", (ev.cable.amp ?? 0) >= 25);
+}
+
+{
+  section("Site search index");
+  const idx = buildSearchIndex();
+  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === 65);
 }
 
 section("Published figures");

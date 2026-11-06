@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { AUTOMATED_CHECKS } from "@/lib/siteFacts";
+import SiteSearch from "@/components/SiteSearch";
+import { buildSearchIndex } from "@/lib/searchIndex";
 import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import {
@@ -65,6 +67,11 @@ const HOME_JSON_LD = [
     alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
     description: "Standards-based electrical engineering calculators.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/calculators?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
   },
   {
     "@context": "https://schema.org",
@@ -111,7 +118,10 @@ export default function Home() {
             NFPA references, checked by an automated test suite and worked
             examples, with no signup required.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-8">
+            <SiteSearch items={buildSearchIndex()} />
+          </div>
+          <div className="mt-6 flex flex-wrap gap-4">
             <Link
               href="/calculators"
               className="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90"
@@ -304,6 +314,10 @@ export default function Home() {
           . For preliminary engineering use only — always verify results against project-specific standards.{" "}
           <Link href="/verification" className="text-accent-2 hover:underline">
             How results are checked
+          </Link>
+          {" · "}
+          <Link href="/terms" className="text-accent-2 hover:underline">
+            Terms &amp; disclaimer
           </Link>
           .
         </div>

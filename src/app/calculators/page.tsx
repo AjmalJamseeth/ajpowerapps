@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
+import SiteSearch from "@/components/SiteSearch";
+import { buildSearchIndex } from "@/lib/searchIndex";
 import {
   ShieldCheck,
   Cable,
@@ -73,6 +75,9 @@ export default function CalculatorsIndex() {
           organized into {CALCULATOR_GROUPS.length} categories. Jump to a
           category or scroll through all of them below.
         </p>
+        <div className="mt-6">
+          <SiteSearch items={buildSearchIndex()} />
+        </div>
 
         <div className="sticky top-16 z-10 -mx-6 mt-8 border-b border-border bg-background/95 px-6 py-3 backdrop-blur">
           <div className="flex flex-wrap gap-2">

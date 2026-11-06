@@ -132,6 +132,12 @@ export function CalcPageExtras({ href }: { href: string }) {
           )}
         </nav>
       )}
+      <p className="mt-8 border-t border-border pt-4 text-xs text-muted">
+        For preliminary engineering use. Results must be checked by a qualified engineer against the project&apos;s standards.{" "}
+        <Link href="/verification" className="text-accent-2 hover:underline">How results are checked</Link>
+        {" · "}
+        <Link href="/terms" className="text-accent-2 hover:underline">Terms &amp; disclaimer</Link>
+      </p>
     </section>
   );
 }
