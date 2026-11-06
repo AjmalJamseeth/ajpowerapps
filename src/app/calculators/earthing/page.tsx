@@ -22,6 +22,7 @@ import {
   calcPlateR,
   calcStripR,
   calcRingR,
+  MAX_TEMP_OPTIONS,
   calcParallelR,
 } from "@/lib/earthing";
 
@@ -163,14 +164,23 @@ export default function EarthingPage() {
               <div className="col-span-2">
                 <SelectField<ConductorMaterial>
                   label="Conductor material"
-                  tip={"Sets the adiabatic material constant k used in the minimum-conductor-size (fault withstand) calculation \u2014 different materials tolerate different temperature rises before damage, so the same fault duty needs a different cross-section by material."} value={input.condMat}
+                  tip={"Sets the fault-current density k used for the minimum conductor size, S = I\u00b7\u221at / k (BS 7430 9.7). The conductor is sized for the full fault current If \u00d7 Df, not the reduced grid current IG."} value={input.condMat}
                   onChange={(v) => update({ condMat: v })}
                   options={[
-                    { value: "Cu", label: "Copper (k=226)" },
-                    { value: "CuEC", label: "Copper, electrolytic (k=226)" },
-                    { value: "GS", label: "Galvanised steel (k=80)" },
-                    { value: "SS", label: "Stainless steel (k=106)" },
+                    { value: "Cu", label: "Copper" },
+                    { value: "CuEC", label: "Copper, electrolytic" },
+                    { value: "GS", label: "Galvanised steel" },
+                    { value: "SS", label: "Stainless steel (AISI 304)" },
                   ]}
+                />
+              </div>
+              <div className="col-span-2">
+                <SelectField<number>
+                  label="Maximum conductor temperature"
+                  tip={"BS 7430 Table 4: the highest temperature the conductor and its joints may reach during the fault. Bolted and compression joints are limited to 250 °C; brazed or welded joints allow more. A higher limit gives a higher k and a smaller conductor. Initial temperature 30 °C."}
+                  value={input.maxTempC ?? 250}
+                  onChange={(v) => update({ maxTempC: v })}
+                  options={MAX_TEMP_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
                 />
               </div>
             </Section>

@@ -16,6 +16,10 @@ import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
 import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
 import { encodeShare, decodeShare } from "../src/lib/shareState";
 import { UNIT_ALTS } from "../src/lib/unitPrefs";
+import { EQUIPMENT_CLASSES } from "../src/lib/arcflash2018";
+import { makeDefaultAfNetwork } from "../src/lib/arcflashstudy";
+import { iecTime } from "../src/lib/curveEngine";
+import { kAdiabatic, calcRg, wennerRho, calcParallelR, calcSmin } from "../src/lib/earthing";
 import * as CE from "../src/lib/curveEngine";
 import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
 import { tripTime as idmtTripTime } from "../src/lib/idmt";
@@ -2418,6 +2422,72 @@ section("Worked examples (November 2026)");
   assertClose("100 ft = 30.48 m", UNIT_ALTS.m.fromAlt(100), 30.48, 0.001);
   assertClose("40 °C = 104 °F", UNIT_ALTS["°C"].toAlt(40), 104, 0.001);
   assertClose("100 hp = 74.57 kW", UNIT_ALTS.kW.fromAlt(100), 74.57, 0.01);
+}
+
+{
+  section("Learning series — short circuit");
+  const S = DEFAULT_SC_SETTINGS;
+  const grid = (sk = 250) => ({ id: "g1", name: "Grid", busId: "hv", skMva: sk, rToX: 0.1, z0ToZ1: 1 });
+  const tx = (id: string, from: string, to: string, mva = 1.6, uk = 6, pk = 15) => ({ id, kind: "transformer" as const, name: id, fromBus: from, toBus: to, srMva: mva, ukPct: uk, pkKw: pk, group: "Dyn" as const, z0ToZ1: 1, neutralFromOhm: 0, neutralToOhm: 0, applyKt: true });
+  const base = (): ScNetwork => ({ settings: S, buses: [{ id: "hv", name: "11 kV", unKv: 11, ratingKa: 25 }, { id: "lv", name: "LV", unKv: 0.4, ratingKa: 50 }], grids: [grid()], gens: [], motors: [], branches: [tx("T1", "hv", "lv")] });
+  const bus = (n: ScNetwork, id: string) => analyseShortCircuit(n).buses.find((b) => b.busId === id)!;
+  assertClose("SC1: LV board Ik″ = 37.41 kA", bus(base(), "lv").ik3, 37.41, 0.05);
+  assertClose("SC1: MVA method 34.78 kA", (1 / (1 / 250 + 0.06 / 1.6)) / (Math.sqrt(3) * 0.4), 34.78, 0.05);
+  const n2 = base(); n2.buses.push({ id: "mcc", name: "MCC", unKv: 0.4, ratingKa: 36 }); n2.branches.push({ id: "c1", kind: "cable", name: "c", fromBus: "lv", toBus: "mcc", rOhmKm: 0.0991, xOhmKm: 0.0739, r0OhmKm: 0.3964, x0OhmKm: 0.2217, lengthKm: 0.08, parallel: 2 });
+  const mcc = bus(n2, "mcc");
+  assertTrue("SC2: MCC Ik″ 22.90 kA, ip 39.57 kA, Ik1 17.06 kA", Math.abs(mcc.ik3 - 22.905) < 0.02 && Math.abs(mcc.ip - 39.57) < 0.05 && Math.abs((mcc.ikLG ?? 0) - 17.058) < 0.02);
+  const n3 = base(); n3.motors.push({ id: "m", name: "M", busId: "lv", prKw: 600, urKv: 0.4, cosPhi: 0.85, eff: 0.94, ilrRatio: 6, rToX: 0.42 });
+  const b3 = bus(n3, "lv");
+  assertTrue("SC3: motors add 6.83 kA, total 44.06 kA", Math.abs(b3.ik3 - 44.06) < 0.02 && Math.abs(b3.contributions.find((c) => c.kind === "Motor")!.ikKa - 6.83) < 0.01);
+  const n4: ScNetwork = { settings: S, buses: [{ id: "hv", name: "11", unKv: 11, ratingKa: 25 }, { id: "a", name: "A", unKv: 0.4, ratingKa: 50 }, { id: "b", name: "B", unKv: 0.4, ratingKa: 50 }], grids: [grid()], gens: [], motors: [], branches: [tx("T1", "hv", "a"), tx("T2", "hv", "b"), { id: "bc", kind: "tie", name: "BC", fromBus: "a", toBus: "b", closed: true }] };
+  const b4 = bus(n4, "a");
+  assertTrue("SC4: paralleled transformers 67.49 kA, Ik1 72.20 kA", Math.abs(b4.ik3 - 67.49) < 0.02 && Math.abs((b4.ikLG ?? 0) - 72.2) < 0.02);
+  const n5 = base(); n5.buses.push({ id: "db", name: "DB", unKv: 0.4, ratingKa: 25 }); n5.branches.push({ id: "c2", kind: "cable", name: "c", fromBus: "lv", toBus: "db", rOhmKm: 0.193, xOhmKm: 0.0779, r0OhmKm: 0.772, x0OhmKm: 0.234, lengthKm: 0.15, parallel: 1 });
+  const db = bus(n5, "db");
+  assertTrue("SC5: DB Ik1 max 3.78 kA, min 2.85 kA", Math.abs((db.ikLG ?? 0) - 3.777) < 0.005 && Math.abs((db.ikLGMin ?? 0) - 2.845) < 0.005);
+  assertTrue("SC5: 10 × In upper limit 3.0 kA exceeds Ik1 min; 8 × In does not", 3000 > (db.ikLGMin ?? 0) * 1000 && 2400 < (db.ikLGMin ?? 0) * 1000);
+  const n6: ScNetwork = { settings: S, buses: [{ id: "hv", name: "11", unKv: 11, ratingKa: 25 }, { id: "lv", name: "LV", unKv: 0.4, ratingKa: 65 }], grids: [grid(500)], gens: [], motors: [{ id: "m", name: "M", busId: "lv", prKw: 1000, urKv: 0.4, cosPhi: 0.85, eff: 0.94, ilrRatio: 6, rToX: 0.42 }], branches: [tx("T1", "hv", "lv", 2.5, 6.25, 22)] };
+  const b6 = bus(n6, "lv");
+  assertTrue("SC6: Ik″ 68.81 kA, ip 175.2 kA, Ith 69.45 kA", Math.abs(b6.ik3 - 68.81) < 0.02 && Math.abs(b6.ip - 175.16) < 0.1 && Math.abs(b6.ith - 69.454) < 0.02);
+}
+
+{
+  section("Learning series — earthing");
+  assertClose("E1: Wenner a = 4 m, R = 2.9 Ω → 72.9 Ω·m", wennerRho(4, 2.9), 72.88, 0.05);
+  assertClose("E2: four 3 m rods at 3 m → 9.14 Ω", calcParallelR(calcRodR(100, 3, 0.008)!, 4, 3, 3, 100), 9.1417, 0.05);
+  assertClose("E2: 20 × 20 m mat → 2.73 Ω", calcRg(100, 160, 400, 0.6), 2.7288, 0.05);
+  const g = (nx: number, ny: number, surface: "none" | "crushed_wet") => calcEarthing({ ...DEFAULT_EARTHING_INPUT, rho: 200, Lx: 50, Ly: 40, nx, ny, h: 0.6, lr: 3, nr: 20, diam: 0.0126, If: 5000, Sf: 0.6, Df: 1, tf: 0.5, surface, hs: 0.1, premiumEnabled: true });
+  const g10 = g(6, 5, "crushed_wet"), g5 = g(11, 9, "crushed_wet"), g5n = g(11, 9, "none");
+  assertTrue("E3: 10 m mesh Em 1,365 V fails, 5 m mesh Em 822 V passes (limit 932 V)", Math.abs((g10.mesh?.Em ?? 0) - 1364.5) < 1 && Math.abs((g5.mesh?.Em ?? 0) - 822.0) < 1 && Math.abs(g5.Etouch - 931.8) < 0.5 && g5.mesh?.touchPass === true && g10.mesh?.touchPass === false);
+  assertTrue("E4: no surface layer: touch limit 288.6 V, step 488.5 V, both fail", Math.abs(g5n.Etouch - 288.6) < 0.2 && Math.abs(g5n.Estep - 488.5) < 0.2 && g5n.mesh?.touchPass === false && g5n.mesh?.stepPass === false);
+  assertTrue("E5: k Cu 250 °C = 176, 450 °C = 220 (BS 7430 Table 4)", Math.abs(kAdiabatic("Cu", 250) - 175.8) < 0.5 && Math.abs(kAdiabatic("Cu", 450) - 220.4) < 0.5);
+  assertTrue("E5: BS 7430 Table 4 steel 250 °C = 64, Cu 500 °C = 228", Math.round(kAdiabatic("GS", 250)) === 64 && Math.round(kAdiabatic("Cu", 500)) === 228);
+  assertClose("E5: 25 kA, 1 s, bolted → 142 mm²", calcSmin(25000, 1, "Cu", 250), 142.19, 0.05);
+  assertClose("Earthing default: conductor sized on If·Df (10 kA, 0.5 s, 250 °C) = 40.2 mm²", calcEarthing(DEFAULT_EARTHING_INPUT).Smin, (10000 * Math.sqrt(0.5)) / kAdiabatic("Cu", 250), 0.01);
+}
+
+{
+  section("Learning series — arc flash");
+  const c = EQUIPMENT_CLASSES.find((e) => e.id === "lvsg")!;
+  const af = (ibf: number, cfg: "VCB" | "VCBB" | "HCB", t: number | ((i: number) => number)) => calcAf2018({ ibfKa: ibf, vocKv: 0.415, gapMm: c.gapMm, workingDistMm: c.workingDistMm, config: cfg, widthMm: c.widthMm, heightMm: c.heightMm, depthMm: c.depthMm, durationMs: t });
+  assertTrue("AF1: 30 kA, 100 ms: VCB 3.29, VCBB 4.39, HCB 5.87 cal/cm²", Math.abs(af(30, "VCB", 100).eCal - 3.29) < 0.01 && Math.abs(af(30, "VCBB", 100).eCal - 4.39) < 0.01 && Math.abs(af(30, "HCB", 100).eCal - 5.87) < 0.01);
+  assertTrue("AF2: 50 ms 1.64, 300 ms 9.87, 1 s 32.89 cal/cm²", Math.abs(af(30, "VCB", 50).eCal - 1.64) < 0.01 && Math.abs(af(30, "VCB", 300).eCal - 9.87) < 0.01 && Math.abs(af(30, "VCB", 1000).eCal - 32.89) < 0.02);
+  assertTrue("AF3: 50 kA: 430 ms 20.6, maintenance 60 ms 2.87 cal/cm²", Math.abs(af(50, "VCB", 430).eCal - 20.6) < 0.02 && Math.abs(af(50, "VCB", 60).eCal - 2.87) < 0.01);
+  const prot = { ...defaultProtection(), mode: "idmt" as const, curveFamily: "IEC" as const, curveType: "SI", pickupA: 2500, tms: 0.3, instPickupA: 15000, instMs: 20, breakerMs: 50 };
+  const fMax = af(37, "VCB", clearingTimeFn(prot, 0.415, 2000)), fMin = af(12, "VCB", clearingTimeFn(prot, 0.415, 2000)), fFix = af(12, "VCB", clearingTimeFn({ ...prot, instPickupA: 6000 }, 0.415, 2000));
+  assertTrue("AF4: max 2.74, generator 23.04 (t 1.77 s), with inst 6 kA 0.91 cal/cm²", Math.abs(fMax.eCal - 2.74) < 0.01 && Math.abs(fMin.eCal - 23.04) < 0.02 && Math.abs(fMin.normal.tMs - 1767) < 1 && Math.abs(fFix.eCal - 0.91) < 0.01);
+  const net = makeDefaultAfNetwork(); const st = analyseArcFlash(net, analyseShortCircuit(net));
+  assertTrue("AF5: default study 4.70 / 21.19 / 2.54 cal/cm², maintenance 2.01", Math.abs(st[0].eCal - 4.7) < 0.01 && Math.abs(st[1].eCal - 21.19) < 0.02 && Math.abs(st[2].eCal - 2.54) < 0.01 && Math.abs((st[1].mitigated?.eCal ?? 0) - 2.01) < 0.01);
+}
+
+{
+  section("Learning series — protection");
+  const si = (tms: number, I: number, Is: number) => iecTime("standard_inverse", tms, I / Is);
+  assertTrue("P1: R1 0.194 s at 13.12 kA; required TMS 0.186; TMS 0.19 gives 0.503 s", Math.abs(si(0.1, 13120, 400) - 0.1936) < 0.001 && Math.abs((si(0.1, 13120, 400) + 0.3) / si(1, 13120, 1000) - 0.1863) < 0.001 && Math.abs(si(0.19, 13120, 1000) - 0.5035) < 0.001);
+  assertTrue("P2: governing TMS 0.131 at 1.5 kA; TMS 0.14 gives 2.41 s and 0.35 s at 15 kA", Math.abs(2.25 / si(1, 1500, 1000) - 0.1309) < 0.001 && Math.abs(si(0.14, 1500, 1000) - 2.407) < 0.005 && Math.abs(si(0.14, 15000, 1000) - 0.352) < 0.002);
+  assertTrue("P3: inrush 672 A → 0.36 s; LV fault 1,360 A → 0.26 s; damage 4.76 s", Math.abs(si(0.1, 671.83, 100) - 0.3605) < 0.002 && Math.abs(si(0.1, 1360.25, 100) - 0.2612) < 0.002 && Math.abs(1250 / Math.pow(1360.25 / 83.978, 2) - 4.764) < 0.01);
+  assertTrue("P4: R2 TMS 0.065 needed; R3 TMS 0.119 needed", Math.abs((si(0.05, 22905, 400) * 1.2 + 0.1) / si(1, 22905, 2500) - 0.0646) < 0.001 && Math.abs((si(0.07, 37407, 2500) * 1.2 + 0.1) / si(1, 1360.25, 100) - 0.1192) < 0.001);
+  assertTrue("P5: feeder EF 0.186 s; SBEF TMS 0.13 just short, 0.14 gives 0.523 s", Math.abs(si(0.1, 3777, 100) - 0.1858) < 0.001 && si(0.13, 3777, 600) < si(0.1, 3777, 100) + 0.3 && Math.abs(si(0.14, 3777, 600) - 0.523) < 0.002);
 }
 
 {

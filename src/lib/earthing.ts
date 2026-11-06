@@ -16,7 +16,29 @@ export const SURFACE_RHO: Record<SurfaceMaterial, number | null> = {
   gravel: 5000,
 };
 
-export const KADIABATIC: Record<ConductorMaterial, number> = { Cu: 226, CuEC: 226, GS: 80, SS: 106 };
+/**
+ * Fault-current density k (A/mm² for 1 s) for a bare earthing conductor heated
+ * adiabatically from Ti to Tm. Copper and steel use BS 7430:2011+A1 9.7 and
+ * Table 7 (k = K·√ln((Tm+β)/(Ti+β)), reproducing Table 4); stainless steel uses
+ * the IEEE 80 Eq. 37 constants for AISI 304 (Table 1).
+ */
+export const MAX_TEMP_OPTIONS = [
+  { value: 150, label: "150 °C — soft-soldered joints" },
+  { value: 200, label: "200 °C — bolted, risk of fire or damage nearby" },
+  { value: 250, label: "250 °C — bolted / compression joints (typical)" },
+  { value: 300, label: "300 °C — brazed joints" },
+  { value: 450, label: "450 °C — welded / brazed joints" },
+  { value: 500, label: "500 °C — welded joints, restricted access" },
+] as const;
+export function kAdiabatic(mat: ConductorMaterial, tmC: number, tiC = 30): number {
+  if (mat === "SS") {
+    const [ar, K0, rho, tcap] = [0.0013, 749, 72, 4.03];
+    return 1000 * Math.sqrt(((tcap * 1e-4) / (ar * rho)) * Math.log((K0 + tmC) / (K0 + tiC)));
+  }
+  const [K, beta] = mat === "GS" ? [78, 202] : [226, 234.5];
+  const tm = mat === "GS" ? Math.min(tmC, 419) : tmC; // zinc coating melts at 419 °C
+  return K * Math.sqrt(Math.log((tm + beta) / (tiC + beta)));
+}
 
 // ---- IEEE 80 formulas ----
 export function calcCs(rho: number, rhos: number | null, hs: number): number {
@@ -81,9 +103,9 @@ export function calcLs(Lc: number, nr: number, lr: number): number {
 export function calcEs(rho: number, IG: number, Ks: number, Ki: number, Ls: number): number {
   return (rho * IG * Ks * Ki) / Ls;
 }
-/** Adiabatic conductor sizing, S = IG*sqrt(tf)/k (BS 7430 / IEEE 80). */
-export function calcSmin(IG: number, tf: number, mat: ConductorMaterial): number {
-  return (IG * Math.sqrt(tf)) / (KADIABATIC[mat] || 226);
+/** Adiabatic conductor sizing, S = I·√t / k (BS 7430 9.7). */
+export function calcSmin(I: number, tf: number, mat: ConductorMaterial, tmC = 250): number {
+  return (I * Math.sqrt(tf)) / kAdiabatic(mat, tmC);
 }
 /** Two-layer soil reflection coefficient K. */
 export function calcK(rho1: number, rho2: number): number {
@@ -158,6 +180,7 @@ export interface EarthingInput {
   Df: number; // decrement factor
 
   condMat: ConductorMaterial;
+  maxTempC?: number; // maximum conductor temperature for sizing (default 250 °C, bolted joints)
 
   premiumEnabled: boolean;
 }
@@ -169,6 +192,7 @@ export interface EarthingResult {
   Etouch: number;
   Estep: number;
   Smin: number;
+  kCond: number; // fault-current density used for conductor sizing, A/mm² (1 s)
   Lc: number;
   A: number;
   Lt: number;
@@ -203,7 +227,12 @@ export function calcEarthing(input: EarthingInput): EarthingResult {
   const GPR = Rg !== null ? IG * Rg : null;
   const Etouch = calcEtouch(rhos, Cs, input.tf, input.bw);
   const Estep = calcEstep(rhos, Cs, input.tf, input.bw);
-  const Smin = calcSmin(IG, input.tf, input.condMat);
+  // The grid conductor must carry the full fault current that can flow in it,
+  // not just the share that returns through the soil (IG = If·Sf·Df), so the
+  // split factor Sf is not applied here.
+  const tmC = input.maxTempC ?? 250;
+  const kCond = kAdiabatic(input.condMat, tmC);
+  const Smin = calcSmin(input.If * input.Df, input.tf, input.condMat, tmC);
 
   let mesh: EarthingResult["mesh"] = null;
   if (input.premiumEnabled && Rg !== null && input.nx > 1 && input.ny > 1) {
@@ -222,7 +251,7 @@ export function calcEarthing(input: EarthingInput): EarthingResult {
     mesh = { Km, Ki, Lm, Em, Ks, Ls, Es, D_avg, n_geom, touchPass: Em <= Etouch, stepPass: Es <= Estep };
   }
 
-  return { Cs, rhos, IG, Etouch, Estep, Smin, Lc, A, Lt, Rg, GPR, mesh };
+  return { Cs, rhos, IG, Etouch, Estep, Smin, kCond, Lc, A, Lt, Rg, GPR, mesh };
 }
 
 export const DEFAULT_EARTHING_INPUT: EarthingInput = {
@@ -243,5 +272,6 @@ export const DEFAULT_EARTHING_INPUT: EarthingInput = {
   Sf: 1,
   Df: 1,
   condMat: "Cu",
+  maxTempC: 250,
   premiumEnabled: false,
 };

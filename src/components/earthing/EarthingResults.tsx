@@ -34,7 +34,7 @@ export default function EarthingResults({ result }: { result: EarthingResult }) 
           <div className="col-span-2 rounded-lg border border-border bg-surface-2 p-4">
             <div className="text-xs text-muted">Minimum conductor size</div>
             <div className="mt-1 text-xl font-semibold text-foreground">{fmt(result.Smin, 1, " mm²")}</div>
-            <div className="mt-0.5 text-xs text-muted">Adiabatic · IEEE 80 / BS 7430</div>
+            <div className="mt-0.5 text-xs text-muted">S = If·Df·√t / k, k = {fmt(result.kCond, 0, " A/mm²")} (BS 7430 9.7)</div>
           </div>
         </div>
       </div>

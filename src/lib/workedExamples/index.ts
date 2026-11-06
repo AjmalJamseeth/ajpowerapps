@@ -17,6 +17,10 @@ import { BUILDINGSERVICES_EXAMPLES } from "./buildingservices";
 import { EXTRA_EXAMPLES } from "./extra";
 import { IEC61850_EXAMPLES } from "./iec61850";
 import { BATCH2_EXAMPLES } from "./batch2";
+import { SERIES_SC_EXAMPLES } from "./seriesShortCircuit";
+import { SERIES_EARTHING_EXAMPLES } from "./seriesEarthing";
+import { SERIES_ARCFLASH_EXAMPLES } from "./seriesArcFlash";
+import { SERIES_PROTECTION_EXAMPLES } from "./seriesProtection";
 
 export const WORKED_EXAMPLES: WorkedExample[] = [
   ...PROTECTION_EXAMPLES,
@@ -32,6 +36,10 @@ export const WORKED_EXAMPLES: WorkedExample[] = [
   ...EXTRA_EXAMPLES,
   ...IEC61850_EXAMPLES,
   ...BATCH2_EXAMPLES,
+  ...SERIES_SC_EXAMPLES,
+  ...SERIES_EARTHING_EXAMPLES,
+  ...SERIES_ARCFLASH_EXAMPLES,
+  ...SERIES_PROTECTION_EXAMPLES,
 ];
 
 export const TOTAL_EXAMPLES = WORKED_EXAMPLES.length;

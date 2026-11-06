@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 782;
+export const AUTOMATED_CHECKS = 809;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Learning series and earthing conductor sizing correction",
+    items: [
+      "21 new worked examples in four learning series: short circuit (6), earthing (5), arc flash (5) and protection coordination (5), each with results pinned by tests.",
+      "Earthing Grid Design: the earthing conductor size used k = 226 A/mm² for copper, which BS 7430 Table 4 gives only for welded joints at about 450–500 °C. k is now calculated from BS 7430 9.7 for a chosen maximum temperature (default 250 °C for bolted joints, k = 176), so earlier results were about 22 % too small. Stainless steel used k = 106; it is now about 33 at 250 °C (IEEE 80 constants for AISI 304).",
+      "The conductor is now sized for the full fault current If × Df, not the grid current IG, which excludes the share returning through cable sheaths and earth wires.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Earth electrode formulas checked against BS 7430:2011+A1:2015",

@@ -1507,3 +1507,12 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Rod (9.5.3) and plate (9.5.2) match. Strip now follows 9.5.5 (κ = 1.36 for strip).
 - BS 7430 has no ring formula; calcRingR now uses IEEE Std 142 (Dwight) ring of wire with
   s = 2h. Default ring 6.33 Ω (was 5.67 Ω, which was lower than a straight wire of equal length).
+
+## Learning series (November 2026)
+
+- 21 examples: seriesShortCircuit.ts, seriesEarthing.ts, seriesArcFlash.ts, seriesProtection.ts,
+  pinned in "Learning series — …" test sections.
+- Earthing conductor sizing fixed: kAdiabatic() per BS 7430 9.7/Table 7 with maxTempC (default
+  250 °C bolted); SS from IEEE 80 Table 1 (AISI 304); Smin uses If·Df, not IG.
+- Known conservative simplifications in IEC 60909 engine: motor contribution kept in full in Ib
+  (no μ·q decay); κ method B whenever several sources feed a fault.
