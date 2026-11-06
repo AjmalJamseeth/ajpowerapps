@@ -108,14 +108,24 @@ export function calcRodR(rho: number, L: number, a: number): number | null {
 export function calcPlateR(rho: number, a: number, b: number): number {
   return (rho / 4) * Math.sqrt(Math.PI / (a * b));
 }
-export function calcStripR(rho: number, L: number, w: number, d: number): number | null {
-  if (L <= 0 || w <= 0 || d <= 0) return null;
-  const a = Math.sqrt(w * d) / 2;
-  return (rho / (2 * Math.PI * L)) * (Math.log((2 * L * L) / (d * a)) - 1);
+/**
+ * BS 7430:2011+A1:2015 9.5.5 straight strip electrode:
+ * R = ρ/(2πL) · ln(L² / (κ·h·w)), κ = 1.36 for strip (w = strip width,
+ * h = burial depth).
+ */
+export function calcStripR(rho: number, L: number, w: number, h: number): number | null {
+  if (L <= 0 || w <= 0 || h <= 0) return null;
+  return (rho / (2 * Math.PI * L)) * Math.log((L * L) / (1.36 * h * w));
 }
+/**
+ * Ring of wire (Dwight, as given in IEEE Std 142 Table 4-5):
+ * R = ρ/(2π²D) · [ln(8D/d) + ln(4D/s)], d = conductor diameter (2a),
+ * s = twice the burial depth (2h). BS 7430:2011 has no ring formula.
+ */
 export function calcRingR(rho: number, D: number, a: number, h: number): number | null {
-  if (D <= 0 || a <= 0) return null;
-  return (rho / (2 * Math.PI * Math.PI * D)) * (Math.log((8 * D) / a) + Math.log((2 * D) / h) - 2);
+  if (D <= 0 || a <= 0 || h <= 0) return null;
+  const d = 2 * a, s = 2 * h;
+  return (rho / (2 * Math.PI * Math.PI * D)) * (Math.log((8 * D) / d) + Math.log((4 * D) / s));
 }
 export function calcParallelR(RE: number, n: number, s: number, L: number, rho: number): number {
   if (n <= 1) return RE;

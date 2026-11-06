@@ -105,7 +105,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
       { name: "Static Bonding & Grounding Check", description: "Hazardous-area bonding/grounding resistance check against the NFPA 77 static-electricity dissipation threshold.", href: "/calculators/static-bonding", status: "live" },
       { name: "ESD Spark Energy Check", description: "Capacitive discharge spark energy (E=½CV²) vs. atmosphere Minimum Ignition Energy, per IEC 60079-32-1 screening practice.", href: "/calculators/esd-energy", status: "live" },
       { name: "Ground Resistance Calculator", description: "BS 7430 single-rod resistance-to-earth from soil resistivity and rod geometry, graded against the common 25Ω NEC 250.53(A)(2) practical threshold.", href: "/calculators/ground-resistance", status: "live" },
-      { name: "Ground Ring Resistance Calculator", description: "BS 7430 single-ring resistance-to-earth from soil resistivity, ring diameter and burial depth.", href: "/calculators/ground-ring-resistance", status: "live" },
+      { name: "Ground Ring Resistance Calculator", description: "Single-ring resistance-to-earth (IEEE Std 142 ring-of-wire formula) from soil resistivity, ring diameter, conductor size and burial depth.", href: "/calculators/ground-ring-resistance", status: "live" },
     ],
   },
   {

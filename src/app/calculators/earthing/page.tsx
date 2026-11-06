@@ -176,12 +176,12 @@ export default function EarthingPage() {
             </Section>
 
             <div className="rounded-xl border border-border bg-surface p-6">
-              <h3 className="text-base font-semibold text-foreground">Single electrode resistance (BS 7430)</h3>
+              <h3 className="text-base font-semibold text-foreground">Single electrode resistance (BS 7430; ring: IEEE 142)</h3>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <SelectField<ElectrodeType>
                     label="Electrode type"
-                    tip={"The physical shape of the electrode being sized \u2014 each has its own BS 7430 resistance formula, since current spreads into the soil differently depending on geometry."} value={elecType}
+                    tip={"The physical shape of the electrode being sized \u2014 each has its own resistance formula (rod, plate and strip from BS 7430:2011 clause 9.5; ring from IEEE Std 142, as BS 7430 gives no ring formula), since current spreads into the soil differently depending on geometry."} value={elecType}
                     onChange={setElecType}
                     options={[
                       { value: "rod", label: "Vertical rod" },
@@ -207,7 +207,7 @@ export default function EarthingPage() {
                   <>
                     <NumberField label="Strip length L" unit="m" tip={"Length of the horizontal strip/buried tape electrode \u2014 a long, shallow-buried conductor often used to interconnect other electrodes or where rock prevents deep rod driving."} value={stripL} onChange={setStripL} min={1} step={1} />
                     <NumberField label="Strip width w" unit="m" tip={"Width of the strip/tape conductor."} value={stripW} onChange={setStripW} min={0.001} step={0.001} />
-                    <NumberField label="Burial depth d" unit="m" tip={"Burial depth of the strip/tape electrode."} value={stripD} onChange={setStripD} min={0.1} step={0.1} />
+                    <NumberField label="Burial depth h" unit="m" tip={"Burial depth of the strip/tape electrode. BS 7430 9.5.5: R = ρ/(2πL)·ln(L²/(1.36·h·w))."} value={stripD} onChange={setStripD} min={0.1} step={0.1} />
                   </>
                 )}
                 {elecType === "ring" && (

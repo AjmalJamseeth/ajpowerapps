@@ -25,31 +25,31 @@ export default function GroundRingResistancePage() {
         <p className="mt-2 max-w-2xl text-muted">
           Resistance-to-earth of a single circular buried bare-conductor
           ground ring from soil resistivity, ring diameter and burial depth
-          — the same BS 7430 ring formula used by the full Earthing Grid
+          — the IEEE Std 142 ring-of-wire formula, also used by the Earthing Grid
           Design calculator, as a quick standalone single-ring check.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <ReportButton title="Ground Ring Resistance Calculator" standardsLine="BS 7430:2011 single-ring electrode resistance formula" />
+          <ReportButton title="Ground Ring Resistance Calculator" standardsLine="IEEE Std 142 (Dwight) ring-of-wire resistance formula" />
           <FeedbackButton calculatorName="Ground Ring Resistance Calculator" />
         </div>
 
         <div className="mt-6">
           <InfoPanel
             purpose="Estimates the resistance-to-earth of a single circular buried bare-conductor ground ring (a common perimeter electrode for equipment pads, substations, and tower bases) from soil resistivity, ring geometry and burial depth, and screens the result against a user-settable target resistance."
-            standards={["BS 7430:2011 §11.2.5 — single-ring electrode resistance formula"]}
+            standards={["IEEE Std 142 (Green Book) — ring-of-wire resistance formula (Dwight)"]}
             capabilities={[
               "Single-ring resistance-to-earth from soil resistivity, overall ring diameter, conductor diameter and burial depth.",
               "Grading band (LOW/NORMAL/HIGH/VERY HIGH) and pass/fail against a user-settable target resistance.",
-              "Uses the identical formula already verified in the Earthing Grid Design calculator's BS 7430 ring-sizing path.",
+              "Uses the same formula as the ring electrode option in the Earthing Grid Design calculator.",
             ]}
             example={{
-              problem: "ρ=100 Ω·m, 10m ring diameter, 10mm conductor diameter (5mm radius), 0.6m burial depth.",
+              problem: "ρ=100 Ω·m, 10m ring diameter, 10mm conductor diameter, 0.6m burial depth.",
               steps: [
-                "R = (ρ/2π²D) × (ln(8D/a) + ln(2D/h) − 2)",
-                "R = (100/(2π²×10)) × (ln(8×10/0.005) + ln(2×10/0.6) − 2) = 0.5066 × (9.680 + 3.507 − 2) = 0.5066 × 11.187 ≈ 5.67 Ω",
+                "R = (ρ/2π²D) × (ln(8D/d) + ln(4D/s)), with s = 2 × burial depth",
+                "R = (100/(2π²×10)) × (ln(8×10/0.01) + ln(4×10/1.2)) = 0.5066 × (8.987 + 3.507) = 0.5066 × 12.494 ≈ 6.33 Ω",
               ],
-              result: "≈5.67 Ω — LOW band, well within the 25Ω rule-of-thumb target.",
+              result: "≈6.33 Ω — LOW band, well within the 25Ω rule-of-thumb target.",
             }}
             notes="Ring resistance is very sensitive to soil resistivity, which varies with moisture and season — a measured fall-of-potential test result should always take precedence over a calculated estimate for final acceptance."
           />

@@ -43,7 +43,7 @@ export const CATEGORY_PAGES: Record<string, CategoryPage> = {
     slug: "earthing-lightning",
     title: "Earthing, Lightning & Static Calculators",
     intro: [
-      "Design earthing grids to IEEE 80 with touch and step voltage checks, size rod, plate and ring electrodes to BS 7430, assess lightning risk to IEC 62305-2 and size protection with the rolling sphere method, and check static bonding and ESD ignition risk.",
+      "Design earthing grids to IEEE 80 with touch and step voltage checks, size rod, plate and strip electrodes to BS 7430 and ring electrodes to IEEE 142, assess lightning risk to IEC 62305-2 and size protection with the rolling sphere method, and check static bonding and ESD ignition risk.",
     ],
   },
   transformers: {

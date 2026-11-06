@@ -1,6 +1,6 @@
 // Ground Ring Resistance Calculator — single circular buried bare-conductor
-// ring electrode resistance-to-earth, reusing the same BS 7430 ring formula
-// already verified in earthing.ts (calcRingR) for consistency with the
+// ring electrode resistance-to-earth, using the ring-of-wire formula of
+// IEEE Std 142 (Dwight) in earthing.ts (calcRingR), shared with the
 // Earthing Grid Design module. Standalone quick-check version of just the
 // single-ring case, with the same practical 25Ω grading band used by the
 // Ground Resistance (single rod) calculator.

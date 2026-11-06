@@ -1491,8 +1491,8 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 
 - Worked examples batch 2: `src/lib/workedExamples/batch2.ts` (9 calculators), pinned in
   "Worked examples batch 2". 14 calculators still have no example (see /tmp script idea:
-  compare CALCULATOR_GROUPS hrefs with WORKED_EXAMPLES). Ground Ring Resistance is held back
-  until its formula (calcRingR in earthing.ts, which has a "−2" term) is checked against BS 7430.
+  compare CALCULATOR_GROUPS hrefs with WORKED_EXAMPLES). Ground Ring Resistance example added after
+  the electrode formulas were checked against BS 7430:2011+A1:2015 (see below).
 - Reference tables: `src/lib/referenceTables.ts`, rendered by CalcPageExtras. Generated from
   engine data; full copyrighted standard tables are deliberately not reproduced.
 - Report title-block fields (project, client, ref, revision, prepared/checked by) in
@@ -1501,3 +1501,9 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
   object on 77 calculators; ShareButton appears next to the PDF button on those pages.
 - Unit toggles: NumberField fields with unit m, °C or kW can show ft, °F or hp
   (src/lib/unitPrefs.ts); calculations stay in base units.
+
+## Earth electrode formulas (BS 7430:2011+A1:2015 check, November 2026)
+
+- Rod (9.5.3) and plate (9.5.2) match. Strip now follows 9.5.5 (κ = 1.36 for strip).
+- BS 7430 has no ring formula; calcRingR now uses IEEE Std 142 (Dwight) ring of wire with
+  s = 2h. Default ring 6.33 Ω (was 5.67 Ω, which was lower than a straight wire of equal length).

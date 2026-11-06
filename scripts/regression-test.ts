@@ -35,7 +35,7 @@ import { DEFAULT_CABLEPULLING_INPUT, calcCablePulling, weightCorrectionFactor } 
 import { DEFAULT_CABLETRAY_INPUT, calcCableTrayNec, calcCableTrayIec } from "../src/lib/cabletray";
 import { DEFAULT_CONDUITFILL_INPUT, calcConduitFillNec, calcConduitFillIec } from "../src/lib/conduitfill";
 import { DEFAULT_CT_INPUT, calcCt } from "../src/lib/ct";
-import { DEFAULT_EARTHING_INPUT, calcEarthing, calcKm, calcNGeom, calcPlateR } from "../src/lib/earthing";
+import { DEFAULT_EARTHING_INPUT, calcEarthing, calcKm, calcNGeom, calcPlateR, calcStripR, calcRodR } from "../src/lib/earthing";
 import { DEFAULT_EMERGENCYPOWER_INPUT, calcEmergencyPower } from "../src/lib/emergencypower";
 import { DEFAULT_EV_INPUT, calcEv } from "../src/lib/ev";
 import { DEFAULT_GEN_INPUT, DEFAULT_XFMR_INPUT, DEFAULT_NGR_INPUT, calcGen, calcXfmr, calcNgr } from "../src/lib/genxfmr";
@@ -1317,9 +1317,16 @@ section("Ground Resistance Calculator (single rod)");
 section("Ground Ring Resistance Calculator");
 {
   const r = calcGroundRingResistance(DEFAULT_GROUND_RING_RESISTANCE_INPUT);
-  // R = (rho/2*pi^2*D) * (ln(8D/a) + ln(2D/h) - 2), rho=100, D=10, a=0.005, h=0.6
-  const expected = (100 / (2 * Math.PI * Math.PI * 10)) * (Math.log((8 * 10) / 0.005) + Math.log((2 * 10) / 0.6) - 2);
-  assertClose("Default ring resistance ~5.67 ohms", r.resistanceOhms, expected, 0.5);
+  // IEEE 142 (Dwight) ring of wire: R = rho/(2*pi^2*D) * (ln(8D/d) + ln(4D/s)), s = 2h; rho=100, D=10, d=0.01, h=0.6
+  const expected = (100 / (2 * Math.PI * Math.PI * 10)) * (Math.log((8 * 10) / 0.01) + Math.log((4 * 10) / 1.2));
+  assertClose("Default ring resistance 6.33 ohms (IEEE 142 ring of wire)", r.resistanceOhms, expected, 0.1);
+  assertClose("Default ring resistance hand value 6.329 ohms", r.resistanceOhms, 6.3294, 0.05);
+  const ringPerim = (D: number) => calcGroundRingResistance({ ...DEFAULT_GROUND_RING_RESISTANCE_INPUT, rho: 200, ringDiameterM: D, conductorDiameterMm: 10, burialDepthM: 0.6, targetMaxOhms: 10 });
+  assertClose("Worked example: 12 m ring in 200 Ω·m = 10.86 Ω (fails 10 Ω)", ringPerim(12).resistanceOhms, 10.857, 0.05);
+  assertClose("Worked example: 20 m ring in 200 Ω·m = 7.03 Ω (passes)", ringPerim(20).resistanceOhms, 7.0317, 0.05);
+  // A closed ring must not read lower than a straight round conductor of the same length (BS 7430 9.5.5, κ = 1.83)
+  const Lr = Math.PI * 10;
+  assertTrue("Ring resistance exceeds a straight wire of equal length", (r.resistanceOhms ?? 0) > (100 / (2 * Math.PI * Lr)) * Math.log((Lr * Lr) / (1.83 * 0.6 * 0.01)));
   assertEqual("Grade is LOW (well under 25 ohm target)", r.grade, "LOW");
   assertEqual("Passes default 25 ohm target", r.passesTarget, true);
 
@@ -2253,6 +2260,8 @@ section("Audit corrections (October 2026)");
   const KmHand = (1 / (2 * Math.PI)) * (Math.log(100 / (16 * 0.6 * 0.01) + Math.pow(11.2, 2) / (8 * 10 * 0.01) - 0.6 / 0.04) + (Kii / Math.sqrt(1.6)) * Math.log(8 / (Math.PI * (2 * 3.435 - 1))));
   assertClose("Km (no rods) matches IEEE 80 Eq. 85 by hand", calcKm(10, 0.6, 0.01, 3.435, false), KmHand, 0.1);
   assertClose("BS 7430 plate 1 m² in 100 Ω·m = (ρ/4)·√(π/A) = 44.3 Ω", calcPlateR(100, 1, 1), 44.31, 0.2);
+  assertClose("BS 7430 9.5.5 strip 10 m × 25 mm at 0.6 m in 100 Ω·m = 13.52 Ω", calcStripR(100, 10, 0.025, 0.6), 13.524, 0.05);
+  assertClose("BS 7430 9.5.3 rod 3 m × 16 mm in 100 Ω·m = ρ/(2πL)·(ln(8L/d) − 1) = 33.5 Ω", calcRodR(100, 3, 0.008), (100 / (2 * Math.PI * 3)) * (Math.log(24 / 0.016) - 1), 0.05);
 
   // VT voltage factor (IEC 61869-3 Table 302).
   assertEqual("Solidly earthed phase-earth VT: Vf 1.5 for 30 s", calcVt({ ...DEFAULT_VT_INPUT, earthing: "directEarthed" }, false)?.vf, 1.5);

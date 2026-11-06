@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 776;
+export const AUTOMATED_CHECKS = 782;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Earth electrode formulas checked against BS 7430:2011+A1:2015",
+    items: [
+      "Strip electrode (Earthing Grid Design): now uses BS 7430 9.5.5, R = ρ/(2πL)·ln(L²/(1.36·h·w)). The previous formula read about 10% low (12.1 Ω instead of 13.5 Ω for the default 10 m strip).",
+      "Ring electrode (Earthing Grid Design and Ground Ring Resistance): BS 7430 gives no ring formula, so the pages no longer cite it. The ring-of-wire formula of IEEE Std 142 (Dwight) is now used. The previous formula read about 10% low (5.67 Ω instead of 6.33 Ω for the default ring), lower even than a straight wire of the same length.",
+      "Rod and plate formulas confirmed against BS 7430 9.5.3 and 9.5.2. Added a worked example for a perimeter ring electrode.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Worked examples, reference tables, report details, share links and unit toggles",

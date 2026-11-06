@@ -348,4 +348,55 @@ export const BATCH2_EXAMPLES: WorkedExample[] = [
       { q: "Does a motor-heavy load change the selection?", a: "Motor loads affect transfer switch type (in-phase monitor or delayed transition) and inrush; check the manufacturer's application guide." },
     ],
   },
+
+  // ---------------------------------------------------------------- earthing
+  {
+    slug: "ground-ring-resistance-building-perimeter",
+    groupId: "earthing",
+    calculatorHref: "/calculators/ground-ring-resistance",
+    calculatorName: "Ground Ring Resistance Calculator",
+    title: "Worked Example: Can a Perimeter Ring Electrode Reach 10 Ω in 200 Ω·m Soil?",
+    dek: "A buried ring around a small building, checked against the 10 Ω usually aimed for in lightning protection earthing. A 12 m ring falls short; a 20 m ring passes.",
+    standard: "IEEE Std 142 ring formula",
+    readTime: "6 min read",
+    scenario: [
+      { label: "Soil resistivity", value: "200 Ω·m (measured, Wenner method)" },
+      { label: "Conductor", value: "Bare copper, 10 mm diameter" },
+      { label: "Burial depth", value: "0.6 m" },
+      { label: "Target", value: "10 Ω (low-frequency earth resistance aimed for in BS EN 62305-3)" },
+      { label: "Options", value: "Ring of 12 m diameter (close to the building) or 20 m diameter (around the site)" },
+    ],
+    scenarioNote: "BS 7430:2011 does not give a ring formula, so the ring-of-wire formula from IEEE Std 142 (Dwight) is used, with s equal to twice the burial depth.",
+    steps: [
+      {
+        title: "Ring formula",
+        equation: "R = ρ / (2π²D) × [ln(8D/d) + ln(4D/s)],  s = 2h",
+        body: "D is the ring diameter, d the conductor diameter and h the burial depth.",
+      },
+      {
+        title: "12 m ring",
+        substitution: "R = 200 / (2π² × 12) × [ln(8×12/0.01) + ln(4×12/1.2)] = 0.844 × (9.170 + 3.689)",
+        result: "R = 10.86 Ω — above the 10 Ω target",
+      },
+      {
+        title: "20 m ring",
+        substitution: "R = 200 / (2π² × 20) × [ln(8×20/0.01) + ln(4×20/1.2)] = 0.507 × (9.680 + 4.200)",
+        result: "R = 7.03 Ω — meets the target",
+      },
+      {
+        title: "Other ways to lower the resistance",
+        body: "Instead of a larger ring, earth rods can be added to the 12 m ring, driven deep where the soil is wetter. The conductor size has only a small effect: doubling the diameter lowers the 12 m ring by about 0.6 Ω.",
+      },
+    ],
+    resultSummary: [
+      { check: "12 m ring", requirement: "≤ 10 Ω", actual: "10.86 Ω", pass: false },
+      { check: "20 m ring", requirement: "≤ 10 Ω", actual: "7.03 Ω", pass: true },
+    ],
+    finalAnswer: "In 200 Ω·m soil a 12 m ring gives about 10.9 Ω and misses the 10 Ω target; a 20 m ring gives 7.0 Ω and meets it. Confirm the installed value with a fall-of-potential test.",
+    keyInsight: "Ring resistance falls roughly in inverse proportion to the ring diameter. Size matters far more than conductor thickness.",
+    faqs: [
+      { q: "Why not use BS 7430 for the ring?", a: "BS 7430:2011 gives formulas for rods, plates, straight strips, meshes and some star and cruciform layouts, but not for a ring. IEEE Std 142's ring-of-wire formula is the usual reference." },
+      { q: "Is the 10 Ω target mandatory?", a: "BS EN 62305-3 recommends a low earth resistance, if possible below 10 Ω, for a lightning protection earth. Electrical safety requirements for the installation are set separately, for example by disconnection times and touch voltages." },
+    ],
+  },
 ];
