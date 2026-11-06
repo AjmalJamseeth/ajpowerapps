@@ -38,17 +38,17 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD, CID and IID files, check IEDs, GOOSE, sampled values and addresses, validate, edit and export.",
   },
   "/calculators/max-demand": {
-    title: "Maximum Demand Calculator – Demand Factor Table",
+    title: "Maximum Demand Calculator & Demand Factor Table",
     description:
-      "Maximum demand calculation by load category (lighting, sockets, HVAC, motors, EV) with demand factors, design current, breaker and transformer size.",
+      "Max demand calculation online: maximum demand table of demand factors by load category (lighting, sockets, HVAC, motors, EV), design current, breaker and transformer size.",
   },
   "/calculators/idmt": {
-    title: "IDMT Relay Calculator – Trip Time & Grading",
+    title: "IDMT Relay Calculator – Curve, Trip Time & Grading",
     description:
       "IDMT relay calculator: trip time for IEC 60255 and IEEE C37.112 curves, plug setting multiplier, TCC plot and grading check for two or more relays.",
   },
   "/calculators/cable-tray-fill": {
-    title: "Cable Tray Fill Calculator – NEC 392.22",
+    title: "Cable Tray Fill Calculator & Chart – NEC 392.22",
     description:
       "Check cable tray fill to NEC 392.22 for ladder, ventilated and solid-bottom trays and multiconductor, control or single-conductor cables, or 40–50% area fill.",
   },
@@ -63,14 +63,14 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
       "Size a variable frequency drive from motor FLA with variable or constant torque duty, margin, and ambient and altitude derating; check a candidate drive.",
   },
   "/calculators/rolling-sphere": {
-    title: "Rolling Sphere Method Calculator (IEC 62305)",
+    title: "Rolling Sphere Method Calculator – Protection Radius",
     description:
-      "Lightning mast protection radius by the rolling sphere method, with the IEC 62305-3 sphere radius of 20, 30, 45 or 60 m for LPS Class I to IV.",
+      "Rolling sphere method radius calculation for lightning masts and LPS: protected radius at ground and at any height, with the IEC 62305-3 sphere radius of 20, 30, 45 or 60 m.",
   },
   "/calculators/earthing": {
-    title: "Earthing Design Calculator – IEEE 80 Grid",
+    title: "Earthing Grid Design Calculator – IEEE 80",
     description:
-      "Earthing grid design to IEEE 80: grid resistance, GPR, tolerable and actual touch and step voltage, conductor size, plus BS 7430 rod and plate electrodes.",
+      "Online earthing grid (earth mat) design software to IEEE 80: grid resistance, GPR, touch and step voltage, conductor size, plus BS 7430 rod, plate and strip electrodes.",
   },
   "/calculators/power-factor-correction": {
     title: "Power Factor Correction Capacitor Calculator",
@@ -78,14 +78,14 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
       "kVAr needed to correct power factor, capacitance per phase in µF, capacitor nameplate rating, current reduction, resonance check and detuning reactor.",
   },
   "/calculators/arc-flash": {
-    title: "Arc Flash Calculator – IEEE 1584-2018",
+    title: "Arc Flash Calculator – IEEE 1584 Incident Energy",
     description:
       "Arc flash calculator: incident energy, arc-flash boundary and indicative PPE category using IEEE 1584-2018, IEEE 1584-2002 or the Ralph Lee method.",
   },
   "/calculators/arc-flash-study": {
-    title: "Arc Flash Study – IEEE 1584-2018 Labels & PPE",
+    title: "Arc Flash Study Software – IEEE 1584-2018 Online",
     description:
-      "Arc-flash study to IEEE 1584-2018: incident energy, boundary and PPE at every bus on a single-line diagram, relay clearing times and printable labels.",
+      "Online arc flash calculation software: IEEE 1584-2018 incident energy, arc-flash boundary and PPE at every bus on a single-line diagram, relay clearing times and printable labels.",
   },
   "/calculators/elevator-demand": {
     title: "Elevator Demand Calculator – NEC 620.14",
@@ -136,7 +136,7 @@ const CALC_TITLES: Record<string, string> = {
   "/calculators/generator-sync": "Generator Synchronizing Check (ANSI 25)",
   "/calculators/afci-gfci-requirements": "AFCI & GFCI Requirements by Room (NEC 210)",
   "/calculators/spd-rating": "SPD Rating Calculator – Type, MCOV & SCCR",
-  "/calculators/mv-cable": "MV Cable Current Rating Calculator (IEC 60287)",
+  "/calculators/mv-cable": "Medium Voltage Cable Sizing Calculator (IEC 60287)",
   "/calculators/cable-pulling-tension": "Cable Pulling Tension & Sidewall Pressure",
   "/calculators/control-cable-sizing": "Instrument Cable Capacitance & Length (HART)",
   "/calculators/ohl-voltage-regulation": "Overhead Line Voltage Drop & Regulation",

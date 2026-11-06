@@ -403,6 +403,8 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
     faqs: [
       { q: "What is a good earthing resistance?", a: "There is no single value. Substations usually aim for 1 Ω or less, but the real test is whether touch and step voltages are within the IEEE 80 limits. For a single rod at a building, NEC 250.53(A)(2) waives a second rod if one rod measures 25 Ω or less." },
       { q: "Why does a surface layer help so much?", a: "A high-resistivity layer such as crushed rock (about 3,000 Ω·m or more) adds resistance in series with the person's feet, so a much higher touch and step voltage becomes tolerable." },
+      { q: "Is an earth mat the same as an earthing grid?", a: "Yes. Earth mat, earthing grid, ground grid and earth grid all describe the same thing: a mesh of buried bare conductors, usually with rods, under a substation or plant area. The calculation method in IEEE 80 is the same whichever name is used." },
+      { q: "Do I need dedicated earthing software for a substation?", a: "For a uniform-soil grid of regular shape, the IEEE 80 equations used here give the grid resistance, GPR and touch and step voltages directly. Two-layer or multi-layer soil, irregular grids and transferred potentials need numerical earthing modelling software." },
     ],
   },
 
