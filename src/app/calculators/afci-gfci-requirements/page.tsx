@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -21,7 +22,7 @@ function fmt(v: boolean | "verify"): string {
 }
 
 export default function AfciGfciRequirementsPage() {
-  const [input, setInput] = useState<AfciGfciInput>(DEFAULT_AFCI_GFCI_INPUT);
+  const [input, setInput] = useShareableInput<AfciGfciInput>(DEFAULT_AFCI_GFCI_INPUT);
   const update = (patch: Partial<AfciGfciInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => lookupAfciGfci(input), [input]);

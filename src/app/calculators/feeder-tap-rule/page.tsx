@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/feedertaprule";
 
 export default function FeederTapRulePage() {
-  const [input, setInput] = useState<FeederTapInput>(DEFAULT_FEEDER_TAP_INPUT);
+  const [input, setInput] = useShareableInput<FeederTapInput>(DEFAULT_FEEDER_TAP_INPUT);
   const update = (patch: Partial<FeederTapInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcFeederTap(input), [input]);

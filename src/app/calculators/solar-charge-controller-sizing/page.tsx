@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/solarChargeController";
 
 export default function SolarChargeControllerSizingPage() {
-  const [input, setInput] = useState<SolarChargeControllerInput>(DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT);
+  const [input, setInput] = useShareableInput<SolarChargeControllerInput>(DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT);
   const update = (patch: Partial<SolarChargeControllerInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcSolarChargeController(input), [input]);

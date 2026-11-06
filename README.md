@@ -1486,3 +1486,18 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - SCL Studio + IEC 61850 guide: Type 1A GOOSE/SV APPID ranges; report-client text.
 - EV: cable sized to max(Ib, breaker In); checks-covered list in results.
 - Tests in "Fourth review (November 2026)" section.
+
+## Usability batch (November 2026)
+
+- Worked examples batch 2: `src/lib/workedExamples/batch2.ts` (9 calculators), pinned in
+  "Worked examples batch 2". 14 calculators still have no example (see /tmp script idea:
+  compare CALCULATOR_GROUPS hrefs with WORKED_EXAMPLES). Ground Ring Resistance is held back
+  until its formula (calcRingR in earthing.ts, which has a "−2" term) is checked against BS 7430.
+- Reference tables: `src/lib/referenceTables.ts`, rendered by CalcPageExtras. Generated from
+  engine data; full copyrighted standard tables are deliberately not reproduced.
+- Report title-block fields (project, client, ref, revision, prepared/checked by) in
+  ReportButton, remembered in localStorage. The header block is now included in the PDF.
+- Share links: `useShareableInput` (src/lib/shareState.ts) replaces useState for the main input
+  object on 77 calculators; ShareButton appears next to the PDF button on those pages.
+- Unit toggles: NumberField fields with unit m, °C or kW can show ft, °F or hp
+  (src/lib/unitPrefs.ts); calculations stay in base units.

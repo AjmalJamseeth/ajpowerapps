@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -11,7 +12,7 @@ import PremiumSection from "@/components/PremiumSection";
 import { DEFAULT_LIGHTNING_INPUT, LightningInput, calcLightning } from "@/lib/lightning";
 
 export default function LightningProtectionPage() {
-  const [input, setInput] = useState<LightningInput>(DEFAULT_LIGHTNING_INPUT);
+  const [input, setInput] = useShareableInput<LightningInput>(DEFAULT_LIGHTNING_INPUT);
   const update = (patch: Partial<LightningInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Connected-line risk (RU/RV) and SPD/LEMP protection are advanced

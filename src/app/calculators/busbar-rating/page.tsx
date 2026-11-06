@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -22,7 +23,7 @@ import {
 } from "@/lib/busbar";
 
 export default function BusbarRatingPage() {
-  const [input, setInput] = useState<BusbarInput>(DEFAULT_BUSBAR_INPUT);
+  const [input, setInput] = useShareableInput<BusbarInput>(DEFAULT_BUSBAR_INPUT);
   const update = (patch: Partial<BusbarInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const onFinishChange = (finish: BusFinish) => {

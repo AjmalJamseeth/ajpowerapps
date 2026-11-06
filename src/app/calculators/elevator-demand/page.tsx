@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_ELEVATOR_DEMAND_INPUT, ElevatorDemandInput, calcElevatorDemand } from "@/lib/elevatordemand";
 
 export default function ElevatorDemandPage() {
-  const [input, setInput] = useState<ElevatorDemandInput>(DEFAULT_ELEVATOR_DEMAND_INPUT);
+  const [input, setInput] = useShareableInput<ElevatorDemandInput>(DEFAULT_ELEVATOR_DEMAND_INPUT);
   const update = (patch: Partial<ElevatorDemandInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcElevatorDemand(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/necresidentialload";
 
 export default function NecResidentialLoadPage() {
-  const [input, setInput] = useState<NecResidentialLoadInput>(DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT);
+  const [input, setInput] = useShareableInput<NecResidentialLoadInput>(DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT);
   const update = (patch: Partial<NecResidentialLoadInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcNecResidentialLoad(input), [input]);

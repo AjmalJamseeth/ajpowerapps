@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_ELEVATOR_ENERGY_INPUT, ElevatorEnergyInput, calcElevatorEnergy } from "@/lib/elevatorenergy";
 
 export default function ElevatorEnergyPage() {
-  const [input, setInput] = useState<ElevatorEnergyInput>(DEFAULT_ELEVATOR_ENERGY_INPUT);
+  const [input, setInput] = useShareableInput<ElevatorEnergyInput>(DEFAULT_ELEVATOR_ENERGY_INPUT);
   const update = (patch: Partial<ElevatorEnergyInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcElevatorEnergy(input), [input]);

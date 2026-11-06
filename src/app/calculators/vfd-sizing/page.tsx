@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ const DUTY_OPTIONS: { value: VfdDutyType; label: string }[] = [
 ];
 
 export default function VfdSizingPage() {
-  const [input, setInput] = useState<VfdSizingInput>(DEFAULT_VFD_SIZING_INPUT);
+  const [input, setInput] = useShareableInput<VfdSizingInput>(DEFAULT_VFD_SIZING_INPUT);
   const update = (patch: Partial<VfdSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcVfdSizing(input), [input]);

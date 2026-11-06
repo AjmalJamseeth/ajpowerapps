@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { DEFAULT_MOTOR_TORQUE_INPUT, MotorTorqueInput, TorqueUnitSystem, calcMotorTorque } from "@/lib/motortorque";
 
 export default function MotorTorquePage() {
-  const [input, setInput] = useState<MotorTorqueInput>(DEFAULT_MOTOR_TORQUE_INPUT);
+  const [input, setInput] = useShareableInput<MotorTorqueInput>(DEFAULT_MOTOR_TORQUE_INPUT);
   const update = (patch: Partial<MotorTorqueInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcMotorTorque(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -65,7 +66,7 @@ function TouPeriodsEditor({ periods, onChange }: { periods: TouPeriod[]; onChang
 }
 
 export default function TariffPage() {
-  const [input, setInput] = useState<TariffInput>(DEFAULT_TARIFF_INPUT);
+  const [input, setInput] = useShareableInput<TariffInput>(DEFAULT_TARIFF_INPUT);
   const update = (patch: Partial<TariffInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcTariff(input), [input]);

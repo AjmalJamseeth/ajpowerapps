@@ -25,6 +25,7 @@ export default function SiteSearch({ items, autoFocus = false }: { items: Search
   // Support /calculators?q=... links (also used by the WebSite search action).
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("q");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once from the URL after hydration
     if (initial) setQ(initial);
   }, []);
 

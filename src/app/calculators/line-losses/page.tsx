@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_LINE_LOSSES_INPUT, LineLossesInput, calcLineLosses } from "@/lib/linelosses";
 
 export default function LineLossesPage() {
-  const [input, setInput] = useState<LineLossesInput>(DEFAULT_LINE_LOSSES_INPUT);
+  const [input, setInput] = useShareableInput<LineLossesInput>(DEFAULT_LINE_LOSSES_INPUT);
   const update = (patch: Partial<LineLossesInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcLineLosses(input), [input]);

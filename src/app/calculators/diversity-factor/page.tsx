@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { DEFAULT_DIVERSITY_FACTOR_INPUT, DiversityFactorInput, DiversityMode, calcDiversityFactor } from "@/lib/diversityfactor";
 
 export default function DiversityFactorPage() {
-  const [input, setInput] = useState<DiversityFactorInput>(DEFAULT_DIVERSITY_FACTOR_INPUT);
+  const [input, setInput] = useShareableInput<DiversityFactorInput>(DEFAULT_DIVERSITY_FACTOR_INPUT);
   const update = (patch: Partial<DiversityFactorInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcDiversityFactor(input), [input]);

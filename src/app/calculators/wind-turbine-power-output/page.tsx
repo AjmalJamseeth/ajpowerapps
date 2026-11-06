@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_WIND_TURBINE_POWER_INPUT, WindTurbinePowerInput, calcWindTurbinePower, BETZ_LIMIT_CP } from "@/lib/windTurbinePower";
 
 export default function WindTurbinePowerOutputPage() {
-  const [input, setInput] = useState<WindTurbinePowerInput>(DEFAULT_WIND_TURBINE_POWER_INPUT);
+  const [input, setInput] = useShareableInput<WindTurbinePowerInput>(DEFAULT_WIND_TURBINE_POWER_INPUT);
   const update = (patch: Partial<WindTurbinePowerInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcWindTurbinePower(input), [input]);

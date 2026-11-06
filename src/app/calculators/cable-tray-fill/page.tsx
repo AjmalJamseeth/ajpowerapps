@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -28,7 +29,7 @@ function RowsEditor({ label, unit, rows, onChange }: { label: string; unit: stri
 }
 
 export default function CableTrayFillPage() {
-  const [input, setInput] = useState<CableTrayInput>(DEFAULT_CABLETRAY_INPUT);
+  const [input, setInput] = useShareableInput<CableTrayInput>(DEFAULT_CABLETRAY_INPUT);
   const update = (patch: Partial<CableTrayInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const necResult = useMemo(() => calcCableTrayNec(input), [input]);

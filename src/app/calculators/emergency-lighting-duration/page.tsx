@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/emergencylighting";
 
 export default function EmergencyLightingDurationPage() {
-  const [input, setInput] = useState<EmergencyLightingInput>(DEFAULT_EMERGENCY_LIGHTING_INPUT);
+  const [input, setInput] = useShareableInput<EmergencyLightingInput>(DEFAULT_EMERGENCY_LIGHTING_INPUT);
   const update = (patch: Partial<EmergencyLightingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcEmergencyLighting(input), [input]);

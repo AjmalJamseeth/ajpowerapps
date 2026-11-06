@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
@@ -65,7 +66,7 @@ function GeneratorsEditor({ generators, onChange }: { generators: GeneratorEntry
 }
 
 export default function GeneratorFaultContributionPage() {
-  const [input, setInput] = useState<GenSyncFaultInput>(DEFAULT_GEN_SYNC_FAULT_INPUT);
+  const [input, setInput] = useShareableInput<GenSyncFaultInput>(DEFAULT_GEN_SYNC_FAULT_INPUT);
   const update = (patch: Partial<GenSyncFaultInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcGenSyncFault(input), [input]);

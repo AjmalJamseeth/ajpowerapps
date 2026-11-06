@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { DEFAULT_ESD_ENERGY_INPUT, EsdEnergyInput, GasGroupEsd, calcEsdEnergy } from "@/lib/esdenergy";
 
 export default function EsdEnergyPage() {
-  const [input, setInput] = useState<EsdEnergyInput>(DEFAULT_ESD_ENERGY_INPUT);
+  const [input, setInput] = useShareableInput<EsdEnergyInput>(DEFAULT_ESD_ENERGY_INPUT);
   const update = (patch: Partial<EsdEnergyInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcEsdEnergy(input), [input]);

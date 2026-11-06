@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -19,7 +20,7 @@ import {
 } from "@/lib/vt";
 
 export default function VtSizingPage() {
-  const [input, setInput] = useState<VtInput>(DEFAULT_VT_INPUT);
+  const [input, setInput] = useShareableInput<VtInput>(DEFAULT_VT_INPUT);
   const update = (patch: Partial<VtInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Protection class limits, rated thermal limiting output and open-delta

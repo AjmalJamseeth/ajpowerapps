@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } fr
 import { DEFAULT_HEAT_TRACING_INPUT, HeatTracingInput, calcHeatTracing } from "@/lib/heattracing";
 
 export default function HeatTracingPage() {
-  const [input, setInput] = useState<HeatTracingInput>(DEFAULT_HEAT_TRACING_INPUT);
+  const [input, setInput] = useShareableInput<HeatTracingInput>(DEFAULT_HEAT_TRACING_INPUT);
   const update = (patch: Partial<HeatTracingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcHeatTracing(input), [input]);

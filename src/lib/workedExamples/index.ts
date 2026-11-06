@@ -16,6 +16,7 @@ import { SOLAREV_EXAMPLES } from "./solarev";
 import { BUILDINGSERVICES_EXAMPLES } from "./buildingservices";
 import { EXTRA_EXAMPLES } from "./extra";
 import { IEC61850_EXAMPLES } from "./iec61850";
+import { BATCH2_EXAMPLES } from "./batch2";
 
 export const WORKED_EXAMPLES: WorkedExample[] = [
   ...PROTECTION_EXAMPLES,
@@ -30,6 +31,7 @@ export const WORKED_EXAMPLES: WorkedExample[] = [
   ...BUILDINGSERVICES_EXAMPLES,
   ...EXTRA_EXAMPLES,
   ...IEC61850_EXAMPLES,
+  ...BATCH2_EXAMPLES,
 ];
 
 export const TOTAL_EXAMPLES = WORKED_EXAMPLES.length;

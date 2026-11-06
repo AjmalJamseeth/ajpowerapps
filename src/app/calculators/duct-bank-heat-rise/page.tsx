@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/ductbankheatrise";
 
 export default function DuctBankHeatRisePage() {
-  const [input, setInput] = useState<DuctBankHeatRiseInput>(DEFAULT_DUCT_BANK_HEAT_RISE_INPUT);
+  const [input, setInput] = useShareableInput<DuctBankHeatRiseInput>(DEFAULT_DUCT_BANK_HEAT_RISE_INPUT);
   const update = (patch: Partial<DuctBankHeatRiseInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcDuctBankHeatRise(input), [input]);

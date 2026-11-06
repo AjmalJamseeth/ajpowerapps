@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_PEAK_SHAVING_INPUT, PeakShavingInput, calcPeakShaving } from "@/lib/peakShaving";
 
 export default function SmartGridPeakShavingPage() {
-  const [input, setInput] = useState<PeakShavingInput>(DEFAULT_PEAK_SHAVING_INPUT);
+  const [input, setInput] = useShareableInput<PeakShavingInput>(DEFAULT_PEAK_SHAVING_INPUT);
   const update = (patch: Partial<PeakShavingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcPeakShaving(input), [input]);

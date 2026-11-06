@@ -12,6 +12,10 @@
 import { readFileSync } from "fs";
 import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import { buildSearchIndex } from "../src/lib/searchIndex";
+import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
+import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
+import { encodeShare, decodeShare } from "../src/lib/shareState";
+import { UNIT_ALTS } from "../src/lib/unitPrefs";
 import * as CE from "../src/lib/curveEngine";
 import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
 import { tripTime as idmtTripTime } from "../src/lib/idmt";
@@ -2353,9 +2357,64 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Worked examples batch 2 (November 2026)");
+  assertClose("Fan run-up 46.2 kg·m², 1485 rpm, 636 N·m = 11.3 s", calcMotorAccel({ momentOfInertiaKgm2: 46.2, ratedSpeedRpm: 1485, avgAcceleratingTorqueNm: 636 }).accelTimeS, 11.296, 0.1);
+  const ssBase = { ...DEFAULT_SOFT_STARTER_INPUT, motorFlaA: 140, motorRatedVoltageV: 400, softStarterRatedVoltageV: 400, ambientTempC: 50, altitudeM: 1500, startsPerHour: 12 };
+  assertClose("Soft starter 160 A derated = 123.1 A", calcSoftStarter({ ...ssBase, softStarterRatedCurrentA: 160 }).deratedCapacityA, 123.12, 0.05);
+  assertClose("Soft starter 200 A derated = 153.9 A", calcSoftStarter({ ...ssBase, softStarterRatedCurrentA: 200 }).deratedCapacityA, 153.9, 0.05);
+  const scc = (v: number) => calcSolarChargeController({ ...DEFAULT_SOLAR_CHARGE_CONTROLLER_INPUT, controllerType: "mppt", arrayMaxPowerW: 3200, nominalBatteryVoltageV: v, designMarginPct: 10 });
+  assertClose("MPPT 3.2 kW / 48 V requires 91.7 A", scc(48).requiredControllerA, 91.667, 0.05);
+  assertEqual("MPPT 3.2 kW / 48 V → 100 A controller", scc(48).recommendedCommonRatingA, 100);
+  assertEqual("MPPT 3.2 kW / 24 V → 200 A controller", scc(24).recommendedCommonRatingA, 200);
+  const inv = calcInverterSizing({ ...DEFAULT_INVERTER_SIZING_INPUT, mode: "gridTied", arrayDcKw: 100, targetIlr: 1.25, candidateInverterAcKw: 75 });
+  assertClose("100 kWp at ILR 1.25 → 80 kW inverter", inv.recommendedInverterAcKw, 80, 0.01);
+  assertClose("100 kWp on 75 kW → ILR 1.333", inv.actualIlr, 1.3333, 0.05);
+  const wind = (v: number) => calcWindTurbinePower({ rotorDiameterM: 30, windSpeedMs: v, airDensityKgM3: 1.225, powerCoefficientCp: 0.42, generatorEfficiencyPct: 94 }).powerOutputKw;
+  assertClose("30 m rotor at 8 m/s = 87.5 kW", wind(8), 87.516, 0.05);
+  assertClose("30 m rotor at 10 m/s = 170.9 kW", wind(10), 170.93, 0.05);
+  assertEqual("Tilt at 24.5° winter bias = 39.5°", calcSolarTiltAngle({ latitudeDeg: 24.5, mode: "winter" }).recommendedTiltDeg, 39.5);
+  const sccr = calcSwitchgearSccr({ transformerKva: 2500, secondaryVoltageV: 480, transformerPctZ: 5.75, deviceAicRatingA: 65000, equipmentSccrRatingA: 50000 });
+  assertClose("2500 kVA, 480 V, 5.75% → 52.3 kA", sccr.faultCurrentRmsA, 52296, 0.05);
+  assertTrue("50 kA switchboard fails, 65 kA breaker passes", sccr.equipmentSccrOk === false && sccr.deviceAicOk === true);
+  const tap = (amp: number, ocpd: number) => calcFeederTap({ ...DEFAULT_FEEDER_TAP_INPUT, tapRuleType: "twentyFiveFoot", feederOcpdRatingA: 400, tapConductorAmpacityA: amp, tapLengthFt: 20, terminalOcpdRatingA: ocpd }).compliant;
+  assertTrue("25-ft tap: 1 AWG (130 A) fails, 1/0 (150 A) passes", tap(130, 125) === false && tap(150, 150) === true);
+  const ats = calcTransferSwitch({ ...DEFAULT_TRANSFER_SWITCH_INPUT, loadMethod: "kw", connectedKw: 250, voltageV: 480, phase: 3, powerFactor: 0.9, continuousFractionPct: 80 });
+  assertClose("ATS 250 kW minimum = 400.9 A", ats.minSwitchAmps, 400.94, 0.05);
+  assertEqual("ATS 250 kW → 600 A switch", ats.recommendedSwitchAmps, 600);
+}
+
+{
+  section("Reference tables");
+  const xf = REFERENCE_TABLES["/calculators/transformer-sizer"][0].rows.find((r) => r[0] === "1,000")!;
+  assertEqual("1000 kVA full-load current at 400 V = 1,443 A", xf[1], "1,443");
+  const sc = REFERENCE_TABLES["/calculators/switchgear-short-circuit-rating"][0].rows.find((r) => r[0] === "2,500")!;
+  assertEqual("2500 kVA, 5.75% at 480 V = 52.3 kA (matches worked example)", sc[5], "52.3");
+  assertClose("ISA air density at 1000 m = 1.112 kg/m³", airDensity(1000), 1.1117, 0.1);
+  const amb = REFERENCE_TABLES["/calculators/cable-sizing"][1].rows.find((r) => r[0] === "40")!;
+  assertTrue("Ambient factor at 40 °C: PVC 0.87, XLPE 0.91 (Table B.52.14)", amb[1] === "0.87" && amb[2] === "0.91");
+}
+
+{
+  section("Share links");
+  const changed = { ...DEFAULT_CABLEPULLING_INPUT, configuration: "triangular" as const, frictionCoeff: 0.5 };
+  const back = decodeShare(DEFAULT_CABLEPULLING_INPUT, encodeShare(changed));
+  assertTrue("Share link round-trips inputs (incl. arrays)", back?.configuration === "triangular" && back?.frictionCoeff === 0.5 && back?.segments.length === 6);
+  const tampered = decodeShare(DEFAULT_CABLEPULLING_INPUT, encodeShare({ frictionCoeff: "x", evil: 1, cableWeight: null }));
+  assertTrue("Share link ignores unknown keys and wrong types", tampered?.frictionCoeff === 0.35 && !("evil" in (tampered as object)) && tampered?.cableWeight === null);
+  assertTrue("Corrupt share link is ignored", decodeShare(DEFAULT_CABLEPULLING_INPUT, "%%%") === null);
+}
+
+{
+  section("Unit toggles");
+  assertClose("100 ft = 30.48 m", UNIT_ALTS.m.fromAlt(100), 30.48, 0.001);
+  assertClose("40 °C = 104 °F", UNIT_ALTS["°C"].toAlt(40), 104, 0.001);
+  assertClose("100 hp = 74.57 kW", UNIT_ALTS.kW.fromAlt(100), 74.57, 0.01);
+}
+
+{
   section("Site search index");
   const idx = buildSearchIndex();
-  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === 67);
+  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);
 }
 
 section("Published figures");

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -41,7 +42,7 @@ const INSULATIONS: { value: WireInsulation; label: string }[] = [
 ];
 
 export default function ConduitFillPage() {
-  const [input, setInput] = useState<ConduitFillInput>(DEFAULT_CONDUITFILL_INPUT);
+  const [input, setInput] = useShareableInput<ConduitFillInput>(DEFAULT_CONDUITFILL_INPUT);
   const update = (patch: Partial<ConduitFillInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const necResult = useMemo(() => calcConduitFillNec(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
@@ -66,7 +67,7 @@ function ElementsEditor({ elements, onChange }: { elements: FaultElement[]; onCh
 }
 
 export default function FaultPropagationPage() {
-  const [input, setInput] = useState<FaultPropagationInput>(DEFAULT_FAULT_PROPAGATION_INPUT);
+  const [input, setInput] = useShareableInput<FaultPropagationInput>(DEFAULT_FAULT_PROPAGATION_INPUT);
   const update = (patch: Partial<FaultPropagationInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcFaultPropagation(input), [input]);

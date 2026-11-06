@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, CheckRow, ResultRow, EmptyResult } fr
 import { DEFAULT_SOFT_STARTER_INPUT, SoftStarterInput, calcSoftStarter } from "@/lib/softstarter";
 
 export default function SoftStarterSizingPage() {
-  const [input, setInput] = useState<SoftStarterInput>(DEFAULT_SOFT_STARTER_INPUT);
+  const [input, setInput] = useShareableInput<SoftStarterInput>(DEFAULT_SOFT_STARTER_INPUT);
   const update = (patch: Partial<SoftStarterInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcSoftStarter(input), [input]);

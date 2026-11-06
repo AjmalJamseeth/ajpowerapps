@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { DEFAULT_ENCLOSURE_COOLING_INPUT, EnclosureCoolingInput, MountingType, calcEnclosureCooling } from "@/lib/enclosurecooling";
 
 export default function EnclosureCoolingPage() {
-  const [input, setInput] = useState<EnclosureCoolingInput>(DEFAULT_ENCLOSURE_COOLING_INPUT);
+  const [input, setInput] = useShareableInput<EnclosureCoolingInput>(DEFAULT_ENCLOSURE_COOLING_INPUT);
   const update = (patch: Partial<EnclosureCoolingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcEnclosureCooling(input), [input]);

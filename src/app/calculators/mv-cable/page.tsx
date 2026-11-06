@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { NumberField, SelectField, Section } from "@/components/fields";
 import { InfoPanel } from "@/components/InfoPanel";
@@ -17,7 +18,7 @@ import {
 } from "@/lib/mvcable";
 
 export default function MvCablePage() {
-  const [input, setInput] = useState<MvCableInput>(DEFAULT_MVCABLE_INPUT);
+  const [input, setInput] = useShareableInput<MvCableInput>(DEFAULT_MVCABLE_INPUT);
   const update = (patch: Partial<MvCableInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcMvCable(input), [input]);

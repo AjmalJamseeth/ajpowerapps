@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { COOLING_CLASS_LABEL, CoolingClass, DEFAULT_XFMRSIZER_INPUT, LoadMethod, StandardBasis, XfmrSizerInput, calcXfmrSizer } from "@/lib/xfmrsizer";
 
 export default function TransformerSizerPage() {
-  const [input, setInput] = useState<XfmrSizerInput>(DEFAULT_XFMRSIZER_INPUT);
+  const [input, setInput] = useShareableInput<XfmrSizerInput>(DEFAULT_XFMRSIZER_INPUT);
   const update = (patch: Partial<XfmrSizerInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcXfmrSizer(input), [input]);

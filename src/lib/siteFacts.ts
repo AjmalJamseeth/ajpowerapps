@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 750;
+export const AUTOMATED_CHECKS = 776;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,17 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Worked examples, reference tables, report details, share links and unit toggles",
+    items: [
+      "Nine new worked examples: motor run-up time, soft starter derating, MPPT charge controller, inverter DC:AC ratio, wind turbine output, solar tilt angle, switchgear short-circuit rating, NEC 25-ft tap rule and transfer switch sizing. Each result is pinned by a test.",
+      "Reference tables under calculators (voltage drop mV/A/m, ambient and grouping factors, k values, transformer full-load and fault currents, standard device ratings, air density, soil resistivity), generated from the same data the calculators use.",
+      "PDF reports can carry project, client, document reference, revision, prepared-by and checked-by fields, and now include the report title block.",
+      "Share inputs: a link that reopens a calculator with the same inputs.",
+      "Length, temperature and power fields can be switched between m/ft, °C/°F and kW/hp.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Protection, IEC 61850 and EV checks",

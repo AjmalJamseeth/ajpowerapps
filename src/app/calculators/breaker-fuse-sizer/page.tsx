@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { BfStandard, BreakerFuseInput, DEFAULT_BREAKERFUSE_INPUT, LoadKind, MotorCategory, NecMotorDevice, OcpdKind, calcBreakerFuseGeneral, calcBreakerFuseMotor } from "@/lib/breakerfuse";
 
 export default function BreakerFuseSizerPage() {
-  const [input, setInput] = useState<BreakerFuseInput>(DEFAULT_BREAKERFUSE_INPUT);
+  const [input, setInput] = useShareableInput<BreakerFuseInput>(DEFAULT_BREAKERFUSE_INPUT);
   const update = (patch: Partial<BreakerFuseInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const general = useMemo(() => calcBreakerFuseGeneral(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_PUE_INPUT, PueInput, calcPue } from "@/lib/pue";
 
 export default function PuePage() {
-  const [input, setInput] = useState<PueInput>(DEFAULT_PUE_INPUT);
+  const [input, setInput] = useShareableInput<PueInput>(DEFAULT_PUE_INPUT);
   const update = (patch: Partial<PueInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcPue(input), [input]);

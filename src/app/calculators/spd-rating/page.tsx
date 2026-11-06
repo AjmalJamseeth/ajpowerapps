@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/spdRating";
 
 export default function SpdRatingPage() {
-  const [input, setInput] = useState<SpdRatingInput>(DEFAULT_SPD_RATING_INPUT);
+  const [input, setInput] = useShareableInput<SpdRatingInput>(DEFAULT_SPD_RATING_INPUT);
   const update = (patch: Partial<SpdRatingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcSpdRating(input), [input]);

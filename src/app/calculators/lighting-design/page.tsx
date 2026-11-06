@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -11,7 +12,7 @@ import PremiumSection from "@/components/PremiumSection";
 import { DEFAULT_LIGHTING_INPUT, EmergAreaType, LightingInput, LightingStandard, ROOM_TYPES, calcLighting } from "@/lib/lighting";
 
 export default function LightingDesignPage() {
-  const [input, setInput] = useState<LightingInput>(DEFAULT_LIGHTING_INPUT);
+  const [input, setInput] = useShareableInput<LightingInput>(DEFAULT_LIGHTING_INPUT);
   const update = (patch: Partial<LightingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Exterior/area room types and EN 1838 emergency lighting check are

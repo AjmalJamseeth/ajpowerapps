@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, CheckRow, ResultRow, EmptyResult } fr
 import { DEFAULT_SWITCHGEAR_SCCR_INPUT, SwitchgearSccrInput, calcSwitchgearSccr } from "@/lib/switchgearSccr";
 
 export default function SwitchgearSccrPage() {
-  const [input, setInput] = useState<SwitchgearSccrInput>(DEFAULT_SWITCHGEAR_SCCR_INPUT);
+  const [input, setInput] = useShareableInput<SwitchgearSccrInput>(DEFAULT_SWITCHGEAR_SCCR_INPUT);
   const update = (patch: Partial<SwitchgearSccrInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcSwitchgearSccr(input), [input]);

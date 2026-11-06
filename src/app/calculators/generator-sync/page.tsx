@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } fr
 import { DEFAULT_GEN_SYNC_INPUT, GenSyncInput, calcGenSync } from "@/lib/gensync";
 
 export default function GeneratorSyncPage() {
-  const [input, setInput] = useState<GenSyncInput>(DEFAULT_GEN_SYNC_INPUT);
+  const [input, setInput] = useShareableInput<GenSyncInput>(DEFAULT_GEN_SYNC_INPUT);
   const update = (patch: Partial<GenSyncInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcGenSync(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -10,7 +11,7 @@ import RelayForm from "@/components/RelayForm";
 import { DEFAULT_EF_RELAY_INPUT, EfRelayInput, calcEfRelay } from "@/lib/idmtef";
 
 export default function IdmtEarthFaultPage() {
-  const [input, setInput] = useState<EfRelayInput>(DEFAULT_EF_RELAY_INPUT);
+  const [input, setInput] = useShareableInput<EfRelayInput>(DEFAULT_EF_RELAY_INPUT);
   const update = (patch: Partial<EfRelayInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcEfRelay(input), [input]);

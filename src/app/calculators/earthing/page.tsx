@@ -2,6 +2,7 @@
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
 import { useMemo, useState } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { NumberField, SelectField, Section } from "@/components/fields";
 import { InfoPanel } from "@/components/InfoPanel";
@@ -25,7 +26,7 @@ import {
 } from "@/lib/earthing";
 
 export default function EarthingPage() {
-  const [input, setInput] = useState<EarthingInput>(DEFAULT_EARTHING_INPUT);
+  const [input, setInput] = useShareableInput<EarthingInput>(DEFAULT_EARTHING_INPUT);
   const update = (patch: Partial<EarthingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const [elecType, setElecType] = useState<ElectrodeType>("rod");

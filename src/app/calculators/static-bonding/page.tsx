@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, CheckRow, EmptyResult } from "@/compo
 import { DEFAULT_STATIC_BONDING_INPUT, StaticBondingInput, calcStaticBonding } from "@/lib/staticbonding";
 
 export default function StaticBondingPage() {
-  const [input, setInput] = useState<StaticBondingInput>(DEFAULT_STATIC_BONDING_INPUT);
+  const [input, setInput] = useShareableInput<StaticBondingInput>(DEFAULT_STATIC_BONDING_INPUT);
   const update = (patch: Partial<StaticBondingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcStaticBonding(input), [input]);

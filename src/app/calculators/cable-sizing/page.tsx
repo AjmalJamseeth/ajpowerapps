@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -26,7 +27,7 @@ import {
 } from "@/lib/cable";
 
 export default function CableSizingPage() {
-  const [input, setInput] = useState<CableSizingInput>(DEFAULT_CABLE_INPUT);
+  const [input, setInput] = useShareableInput<CableSizingInput>(DEFAULT_CABLE_INPUT);
   const update = (patch: Partial<CableSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Premium calculation is never enabled on the free site — advanced

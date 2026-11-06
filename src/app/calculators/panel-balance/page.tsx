@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_PANEL_BALANCE_INPUT, PanelBalanceInput, calcPanelBalance } from "@/lib/panelbalance";
 
 export default function PanelBalancePage() {
-  const [input, setInput] = useState<PanelBalanceInput>(DEFAULT_PANEL_BALANCE_INPUT);
+  const [input, setInput] = useShareableInput<PanelBalanceInput>(DEFAULT_PANEL_BALANCE_INPUT);
   const update = (patch: Partial<PanelBalanceInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcPanelBalance(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/transferswitch";
 
 export default function TransferSwitchSizingPage() {
-  const [input, setInput] = useState<TransferSwitchInput>(DEFAULT_TRANSFER_SWITCH_INPUT);
+  const [input, setInput] = useShareableInput<TransferSwitchInput>(DEFAULT_TRANSFER_SWITCH_INPUT);
   const update = (patch: Partial<TransferSwitchInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcTransferSwitch(input), [input]);

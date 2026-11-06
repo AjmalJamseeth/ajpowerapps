@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { ShareButton } from "@/components/ShareButton";
 
 export interface ReportButtonProps {
   title: string; // calculator name, e.g. "Transformer Sizer"
@@ -20,6 +21,37 @@ function todayLabel(): string {
   });
 }
 
+// Optional title-block fields printed on the report. Remembered in this
+// browser so an engineer fills them in once per project.
+const FIELDS_KEY = "ajapps:report-fields";
+const FIELD_DEFS = [
+  { key: "project", label: "Project" },
+  { key: "client", label: "Client" },
+  { key: "docRef", label: "Document / calc ref." },
+  { key: "revision", label: "Revision" },
+  { key: "preparedBy", label: "Prepared by" },
+  { key: "checkedBy", label: "Checked by" },
+] as const;
+type FieldKey = (typeof FIELD_DEFS)[number]["key"];
+type ReportFields = Record<FieldKey, string>;
+const EMPTY_FIELDS: ReportFields = { project: "", client: "", docRef: "", revision: "", preparedBy: "", checkedBy: "" };
+
+function loadFields(): ReportFields {
+  try {
+    const raw = window.localStorage.getItem(FIELDS_KEY);
+    return raw ? { ...EMPTY_FIELDS, ...JSON.parse(raw) } : EMPTY_FIELDS;
+  } catch {
+    return EMPTY_FIELDS;
+  }
+}
+function saveFields(f: ReportFields) {
+  try {
+    window.localStorage.setItem(FIELDS_KEY, JSON.stringify(f));
+  } catch {
+    /* storage unavailable — fields still apply to this report */
+  }
+}
+
 function slugify(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -35,6 +67,9 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
   // differently — e.g. 24-hour vs 12-hour AM/PM — depending on each
   // environment's default ICU locale).
   const [generatedLabel, setGeneratedLabel] = useState("");
+  const [fields, setFields] = useState<ReportFields>(EMPTY_FIELDS);
+  const [formOpen, setFormOpen] = useState(false);
+  const filled = FIELD_DEFS.filter((d) => fields[d.key].trim());
 
   const handleDownload = async () => {
     if (status === "working") return;
@@ -184,7 +219,8 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
         drawFrame(page + 1);
       }
 
-      pdf.save(`AJapps-${slugify(title)}-report-${slugify(label)}.pdf`);
+      const ref = fields.docRef.trim() ? `${slugify(fields.docRef)}-` : "";
+      pdf.save(`AJapps-${ref}${slugify(title)}-report-${slugify(label)}.pdf`);
       setStatus("idle");
     } catch (err) {
       console.error("Report generation failed:", err);
@@ -201,7 +237,7 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
   };
 
   return (
-    <div className="no-print">
+    <div className="report-wrap">
       {/* Only visible while report-mode is active (i.e. inside the
           captured screenshot) — gives the PDF a proper title/branding
           block instead of just starting mid-page at the calculator UI. */}
@@ -216,18 +252,39 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
         <p className="mt-3 text-xl font-semibold text-foreground">{title}</p>
         {standardsLine && <p className="mt-1 text-xs text-muted">{standardsLine}</p>}
         <p className="mt-1 text-xs text-muted">Generated {generatedLabel}</p>
+        {filled.length > 0 && (
+          <table className="mt-3 w-full border-collapse text-xs">
+            <tbody>
+              {Array.from({ length: Math.ceil(filled.length / 2) }, (_, i) => filled.slice(i * 2, i * 2 + 2)).map((pair, i) => (
+                <tr key={i}>
+                  {pair.map((d) => (
+                    <td key={d.key} className="w-1/2 border border-border px-2 py-1">
+                      <span className="text-muted">{d.label}: </span>
+                      <span className="font-medium text-foreground">{fields[d.key]}</span>
+                    </td>
+                  ))}
+                  {pair.length === 1 && <td className="w-1/2 border border-border px-2 py-1" />}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         <p className="mt-2 text-xs italic text-muted">
           For preliminary engineering use only — always verify results against project-specific
           standards and a qualified engineer&apos;s review before use in a real design.
         </p>
       </div>
 
+      <div className="no-print flex flex-wrap gap-3">
       <button
         ref={btnRef}
         type="button"
-        onClick={handleDownload}
+        onClick={() => {
+          setFields(loadFields());
+          setFormOpen(true);
+        }}
         disabled={status === "working"}
-        className="inline-flex items-center gap-2 rounded-md border border-border bg-surface-2 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-accent-2/60 hover:text-accent-2 disabled:cursor-wait disabled:opacity-60"
+        className="no-print inline-flex items-center gap-2 rounded-md border border-border bg-surface-2 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-accent-2/60 hover:text-accent-2 disabled:cursor-wait disabled:opacity-60"
       >
         {status === "working" ? (
           <>
@@ -240,6 +297,55 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
           <>📄 Download PDF Report</>
         )}
       </button>
+      <ShareButton />
+      </div>
+
+      {formOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Report details"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={(e) => e.target === e.currentTarget && setFormOpen(false)}
+        >
+          <form
+            className="w-full max-w-lg rounded-xl border border-border bg-surface p-6 shadow-xl"
+            onSubmit={(e) => {
+              e.preventDefault();
+              saveFields(fields);
+              setFormOpen(false);
+              void handleDownload(); // waits for the re-render before capturing
+            }}
+          >
+            <h3 className="text-base font-semibold text-foreground">Report details (optional)</h3>
+            <p className="mt-1 text-xs text-muted">Printed in the report title block. Saved in this browser for next time.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {FIELD_DEFS.map((d) => (
+                <label key={d.key} className="block text-xs text-muted">
+                  {d.label}
+                  <input
+                    value={fields[d.key]}
+                    maxLength={80}
+                    onChange={(e) => setFields((f) => ({ ...f, [d.key]: e.target.value }))}
+                    className="mt-1 w-full rounded-md border border-border bg-surface-2 px-2.5 py-1.5 text-sm text-foreground focus:border-accent-2/60 focus:outline-none"
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setFields(EMPTY_FIELDS)} className="mr-auto text-xs text-muted hover:text-foreground">
+                Clear
+              </button>
+              <button type="button" onClick={() => setFormOpen(false)} className="rounded-md border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground">
+                Cancel
+              </button>
+              <button type="submit" className="rounded-md bg-accent px-4 py-1.5 text-sm font-semibold text-background hover:opacity-90">
+                Generate PDF
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

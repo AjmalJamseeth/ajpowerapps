@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -13,7 +14,7 @@ import { DEFAULT_PV_INPUT, PvInput, PvPhase, calcPv } from "@/lib/pv";
 import { ConductorMaterial, InstallMethod, INSTALL_METHODS } from "@/lib/cable";
 
 export default function SolarPvPage() {
-  const [input, setInput] = useState<PvInput>(DEFAULT_PV_INPUT);
+  const [input, setInput] = useShareableInput<PvInput>(DEFAULT_PV_INPUT);
   const update = (patch: Partial<PvInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Multi-string array design (combined MPPT current, OCPD, fuse rating) is

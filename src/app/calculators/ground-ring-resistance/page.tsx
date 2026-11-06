@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_GROUND_RING_RESISTANCE_INPUT, GroundRingResistanceInput, calcGroundRingResistance } from "@/lib/groundringresistance";
 
 export default function GroundRingResistancePage() {
-  const [input, setInput] = useState<GroundRingResistanceInput>(DEFAULT_GROUND_RING_RESISTANCE_INPUT);
+  const [input, setInput] = useShareableInput<GroundRingResistanceInput>(DEFAULT_GROUND_RING_RESISTANCE_INPUT);
   const update = (patch: Partial<GroundRingResistanceInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcGroundRingResistance(input), [input]);

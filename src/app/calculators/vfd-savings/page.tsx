@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_VFD_SAVINGS_INPUT, VfdSavingsInput, calcVfdSavings } from "@/lib/vfdsavings";
 
 export default function VfdSavingsPage() {
-  const [input, setInput] = useState<VfdSavingsInput>(DEFAULT_VFD_SAVINGS_INPUT);
+  const [input, setInput] = useShareableInput<VfdSavingsInput>(DEFAULT_VFD_SAVINGS_INPUT);
   const update = (patch: Partial<VfdSavingsInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcVfdSavings(input), [input]);

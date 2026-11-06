@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -16,7 +17,7 @@ const KNOWN_LABEL: Record<KnownQuantity, string> = {
 };
 
 export default function PowerConverterPage() {
-  const [input, setInput] = useState<PowerConverterInput>(DEFAULT_POWERCONVERTER_INPUT);
+  const [input, setInput] = useShareableInput<PowerConverterInput>(DEFAULT_POWERCONVERTER_INPUT);
   const update = (patch: Partial<PowerConverterInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcPowerConverter(input), [input]);

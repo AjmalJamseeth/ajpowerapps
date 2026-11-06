@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import BatteryResults from "@/components/battery/BatteryResults";
 import { DEFAULT_BATTERY_INPUT, BatteryInput, calcBattery } from "@/lib/battery";
 
 export default function BatterySizingPage() {
-  const [input, setInput] = useState<BatteryInput>(DEFAULT_BATTERY_INPUT);
+  const [input, setInput] = useShareableInput<BatteryInput>(DEFAULT_BATTERY_INPUT);
   const update = (patch: Partial<BatteryInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Random loads, cell/voltage window and charger sizing are advanced

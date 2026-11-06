@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { DEFAULT_ROLLING_SPHERE_INPUT, RollingSphereInput, LpsClass, calcRollingSphere } from "@/lib/rollingsphere";
 
 export default function RollingSpherePage() {
-  const [input, setInput] = useState<RollingSphereInput>(DEFAULT_ROLLING_SPHERE_INPUT);
+  const [input, setInput] = useShareableInput<RollingSphereInput>(DEFAULT_ROLLING_SPHERE_INPUT);
   const update = (patch: Partial<RollingSphereInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcRollingSphere(input), [input]);

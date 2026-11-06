@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_CHP_SIZING_INPUT, ChpSizingInput, calcChpSizing } from "@/lib/chpSizing";
 
 export default function ChpSizingPage() {
-  const [input, setInput] = useState<ChpSizingInput>(DEFAULT_CHP_SIZING_INPUT);
+  const [input, setInput] = useShareableInput<ChpSizingInput>(DEFAULT_CHP_SIZING_INPUT);
   const update = (patch: Partial<ChpSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcChpSizing(input), [input]);

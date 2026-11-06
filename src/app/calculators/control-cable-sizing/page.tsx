@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/controlcable";
 
 export default function ControlCableSizingPage() {
-  const [input, setInput] = useState<ControlCableInput>(DEFAULT_CONTROL_CABLE_INPUT);
+  const [input, setInput] = useShareableInput<ControlCableInput>(DEFAULT_CONTROL_CABLE_INPUT);
   const update = (patch: Partial<ControlCableInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcControlCable(input), [input]);

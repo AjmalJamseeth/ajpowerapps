@@ -2,6 +2,7 @@
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
 import { useMemo, useState } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -13,7 +14,7 @@ import CtResults from "@/components/ct/CtResults";
 import { DEFAULT_CT_INPUT, CtInput, calcCt } from "@/lib/ct";
 
 export default function CtSizingPage() {
-  const [input, setInput] = useState<CtInput>(DEFAULT_CT_INPUT);
+  const [input, setInput] = useShareableInput<CtInput>(DEFAULT_CT_INPUT);
   const update = (patch: Partial<CtInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const [tapsText, setTapsText] = useState(DEFAULT_CT_INPUT.taps.join(", "));
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -22,7 +23,7 @@ import {
 import { ConductorMaterial, InsulationType, InstallMethod, INSTALL_METHODS } from "@/lib/cable";
 
 export default function EvChargingPage() {
-  const [input, setInput] = useState<EvInput>(DEFAULT_EV_INPUT);
+  const [input, setInput] = useShareableInput<EvInput>(DEFAULT_EV_INPUT);
   const update = (patch: Partial<EvInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const onPhaseChange = (phase: EvPhase) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Che
 import { DEFAULT_MOTOR_INPUT, DeviceType, FeedRow, MotorInput, MotorPhase, MotorStandard, MotorType, StartMethod, calcMotor, hpOptions, voltageOptions } from "@/lib/motor";
 
 export default function MotorCalculatorPage() {
-  const [input, setInput] = useState<MotorInput>(DEFAULT_MOTOR_INPUT);
+  const [input, setInput] = useShareableInput<MotorInput>(DEFAULT_MOTOR_INPUT);
   const update = (patch: Partial<MotorInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const updateFeed = (i: number, patch: Partial<FeedRow>) => update({ feedRows: input.feedRows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)) });
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { CablePullingInput, DEFAULT_CABLEPULLING_INPUT, PullConfiguration, PullSegment, SegmentType, calcCablePulling } from "@/lib/cablepulling";
 
 export default function CablePullingTensionPage() {
-  const [input, setInput] = useState<CablePullingInput>(DEFAULT_CABLEPULLING_INPUT);
+  const [input, setInput] = useShareableInput<CablePullingInput>(DEFAULT_CABLEPULLING_INPUT);
   const update = (patch: Partial<CablePullingInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const updateSeg = (i: number, patch: Partial<PullSegment>) => update({ segments: input.segments.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) });
 

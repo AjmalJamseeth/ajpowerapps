@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -11,7 +12,7 @@ import PremiumSection from "@/components/PremiumSection";
 import { ComboRow, DEFAULT_HVAC_INPUT, HvacInput, HvacStandard, calcHvac } from "@/lib/hvac";
 
 export default function HvacElectricalSizingPage() {
-  const [input, setInput] = useState<HvacInput>(DEFAULT_HVAC_INPUT);
+  const [input, setInput] = useShareableInput<HvacInput>(DEFAULT_HVAC_INPUT);
   const update = (patch: Partial<HvacInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const updateRow = (i: number, patch: Partial<ComboRow>) => update({ comboRows: input.comboRows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)) });
   const addRow = () => update({ comboRows: [...input.comboRows, { desc: `Row ${input.comboRows.length + 1}`, rla: null }] });

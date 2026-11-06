@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -22,7 +23,7 @@ const H_VOLTAGE_TIP: Record<number, string> = {"2": "2nd-order voltage harmonic 
 const H_CURRENT_TIP: Record<number, string> = {"2": "2nd-order current harmonic as a % of the measured fundamental current \u2014 usually small in a healthy system.", "3": "3rd-order (triplen) current harmonic \u2014 the dominant signature of single-phase non-linear loads. On a 3-phase 4-wire system these sum arithmetically in the neutral rather than cancelling.", "5": "5th-order current harmonic \u2014 the classic dominant order for 6-pulse VSD/rectifier loads.", "7": "7th-order current harmonic \u2014 paired with the 5th as the other characteristic order of 6-pulse rectifier loads.", "9": "9th-order (triplen) current harmonic.", "11": "11th-order current harmonic \u2014 characteristic order for 12-pulse rectifier systems.", "13": "13th-order current harmonic \u2014 paired with the 11th for 12-pulse rectifier systems."};
 
 export default function HarmonicAnalysisPage() {
-  const [input, setInput] = useState<HarmonicsInput>(DEFAULT_HARMONICS_INPUT);
+  const [input, setInput] = useShareableInput<HarmonicsInput>(DEFAULT_HARMONICS_INPUT);
   const update = (patch: Partial<HarmonicsInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const updateV = (h: HarmonicOrder, val: number) => setInput((prev) => ({ ...prev, vPct: { ...prev.vPct, [h]: val } }));
   const updateI = (h: HarmonicOrder, val: number) => setInput((prev) => ({ ...prev, iPctOfI1: { ...prev.iPctOfI1, [h]: val } }));

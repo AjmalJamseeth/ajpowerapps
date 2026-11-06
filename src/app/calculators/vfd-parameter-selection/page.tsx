@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, CheckRow, ResultRow, EmptyResult } fr
 import { DEFAULT_VFD_PARAMETER_INPUT, VfdParameterInput, calcVfdParameter } from "@/lib/vfdparameter";
 
 export default function VfdParameterSelectionPage() {
-  const [input, setInput] = useState<VfdParameterInput>(DEFAULT_VFD_PARAMETER_INPUT);
+  const [input, setInput] = useShareableInput<VfdParameterInput>(DEFAULT_VFD_PARAMETER_INPUT);
   const update = (patch: Partial<VfdParameterInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcVfdParameter(input), [input]);

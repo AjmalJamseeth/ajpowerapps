@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { DEFAULT_SOLAR_TILT_ANGLE_INPUT, SolarTiltAngleInput, TiltMode, calcSolarTiltAngle } from "@/lib/solarTiltAngle";
 
 export default function SolarPanelTiltAnglePage() {
-  const [input, setInput] = useState<SolarTiltAngleInput>(DEFAULT_SOLAR_TILT_ANGLE_INPUT);
+  const [input, setInput] = useShareableInput<SolarTiltAngleInput>(DEFAULT_SOLAR_TILT_ANGLE_INPUT);
   const update = (patch: Partial<SolarTiltAngleInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcSolarTiltAngle(input), [input]);

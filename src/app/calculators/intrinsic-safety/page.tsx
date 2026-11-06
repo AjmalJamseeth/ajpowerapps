@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow } fr
 import { DEFAULT_IS_INPUT, IsInput, GasGroup, calcIntrinsicSafety } from "@/lib/intrinsicsafety";
 
 export default function IntrinsicSafetyPage() {
-  const [input, setInput] = useState<IsInput>(DEFAULT_IS_INPUT);
+  const [input, setInput] = useShareableInput<IsInput>(DEFAULT_IS_INPUT);
   const update = (patch: Partial<IsInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcIntrinsicSafety(input), [input]);

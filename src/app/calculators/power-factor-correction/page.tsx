@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -12,7 +13,7 @@ import PfcResults from "@/components/pfc/PfcResults";
 import { DEFAULT_PFC_INPUT, PfcInput, SystemType, BankConnection, calcPfc } from "@/lib/pfc";
 
 export default function PfcPage() {
-  const [input, setInput] = useState<PfcInput>(DEFAULT_PFC_INPUT);
+  const [input, setInput] = useShareableInput<PfcInput>(DEFAULT_PFC_INPUT);
   const update = (patch: Partial<PfcInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Harmonic resonance, detuning reactor and energy-savings sections are

@@ -4,6 +4,40 @@ import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { CALC_ARTICLES } from "@/lib/calcArticles";
 import { GUIDES } from "@/lib/guides";
 import { getExamplesForCalculator } from "@/lib/workedExamples";
+import { REFERENCE_TABLES, type RefTable } from "@/lib/referenceTables";
+
+function DataTable({ t }: { t: RefTable }) {
+  return (
+    <div className="mt-5">
+      <h3 className="text-base font-semibold text-foreground">{t.caption}</h3>
+      <div className="mt-2 overflow-x-auto">
+        <table className="w-full min-w-[420px] border-collapse text-left text-[13px]">
+          <thead>
+            <tr>
+              {t.headers.map((h, i) => (
+                <th key={i} className="border-b border-border px-3 py-2 font-semibold text-foreground">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {t.rows.map((r, i) => (
+              <tr key={i} className="odd:bg-surface-2/40">
+                {r.map((c, j) => (
+                  <td key={j} className="border-b border-border/60 px-3 py-1.5">
+                    {c}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {t.note && <p className="mt-2 text-xs">{t.note}</p>}
+    </div>
+  );
+}
 
 // Server-rendered content under every calculator: a short written guide with a
 // reference table and FAQs (for the most-searched calculators), plus links to
@@ -15,6 +49,7 @@ export function CalcPageExtras({ href }: { href: string }) {
   const related = group ? group.calculators.filter((c) => c.href !== href && c.status === "live").slice(0, 8) : [];
   const guide = group ? GUIDES.find((g) => g.groupId === group.id) : undefined;
   const examples = getExamplesForCalculator(href);
+  const refTables = REFERENCE_TABLES[href] ?? [];
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-16 text-sm leading-relaxed text-muted">
@@ -39,36 +74,7 @@ export function CalcPageExtras({ href }: { href: string }) {
               </dl>
             </div>
           )}
-          {article.table && (
-            <div className="mt-5">
-              <h3 className="text-base font-semibold text-foreground">{article.table.caption}</h3>
-              <div className="mt-2 overflow-x-auto">
-                <table className="w-full min-w-[420px] border-collapse text-left text-[13px]">
-                  <thead>
-                    <tr>
-                      {article.table.headers.map((h) => (
-                        <th key={h} className="border-b border-border px-3 py-2 font-semibold text-foreground">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {article.table.rows.map((r, i) => (
-                      <tr key={i} className="odd:bg-surface-2/40">
-                        {r.map((c, j) => (
-                          <td key={j} className="border-b border-border/60 px-3 py-1.5">
-                            {c}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {article.table.note && <p className="mt-2 text-xs">{article.table.note}</p>}
-            </div>
-          )}
+          {article.table && <DataTable t={article.table} />}
           {article.faqs.length > 0 && (
             <div className="mt-6">
               <h3 className="text-base font-semibold text-foreground">Frequently asked questions</h3>
@@ -81,6 +87,15 @@ export function CalcPageExtras({ href }: { href: string }) {
             </div>
           )}
         </article>
+      )}
+
+      {refTables.length > 0 && (
+        <section className={`${article ? "mt-6 " : ""}rounded-xl border border-border bg-surface p-6`}>
+          <h2 className="text-xl font-semibold text-foreground">Reference tables</h2>
+          {refTables.map((t) => (
+            <DataTable key={t.caption} t={t} />
+          ))}
+        </section>
       )}
 
       {(related.length > 0 || guide || examples.length > 0) && (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, EmptyResult }
 import { DEFAULT_UPSSIZING_INPUT, LoadMethod, UpsSizingInput, calcUpsSizing } from "@/lib/upssizing";
 
 export default function UpsSizingPage() {
-  const [input, setInput] = useState<UpsSizingInput>(DEFAULT_UPSSIZING_INPUT);
+  const [input, setInput] = useShareableInput<UpsSizingInput>(DEFAULT_UPSSIZING_INPUT);
   const update = (patch: Partial<UpsSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcUpsSizing(input), [input]);

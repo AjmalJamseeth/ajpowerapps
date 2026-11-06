@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -13,7 +14,7 @@ import {
 } from "@/lib/cabletrayventilation";
 
 export default function CableTrayVentilationPage() {
-  const [input, setInput] = useState<CableTrayVentilationInput>(DEFAULT_CABLE_TRAY_VENTILATION_INPUT);
+  const [input, setInput] = useShareableInput<CableTrayVentilationInput>(DEFAULT_CABLE_TRAY_VENTILATION_INPUT);
   const update = (patch: Partial<CableTrayVentilationInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcCableTrayVentilation(input), [input]);

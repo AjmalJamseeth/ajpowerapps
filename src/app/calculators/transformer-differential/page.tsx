@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } fr
 import { DEFAULT_DIFF_TRANSFORMER_INPUT, DiffTransformerInput, calcDiffTransformer } from "@/lib/difftransformer";
 
 export default function TransformerDifferentialPage() {
-  const [input, setInput] = useState<DiffTransformerInput>(DEFAULT_DIFF_TRANSFORMER_INPUT);
+  const [input, setInput] = useShareableInput<DiffTransformerInput>(DEFAULT_DIFF_TRANSFORMER_INPUT);
   const update = (patch: Partial<DiffTransformerInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcDiffTransformer(input), [input]);

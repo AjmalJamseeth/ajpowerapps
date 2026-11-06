@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { DEFAULT_INSULATION_RESISTANCE_INPUT, InsulationResistanceInput, WindingType, WINDING_TYPE_LABEL, calcInsulationResistance } from "@/lib/insulationresistance";
 
 export default function InsulationResistancePage() {
-  const [input, setInput] = useState<InsulationResistanceInput>(DEFAULT_INSULATION_RESISTANCE_INPUT);
+  const [input, setInput] = useShareableInput<InsulationResistanceInput>(DEFAULT_INSULATION_RESISTANCE_INPUT);
   const update = (patch: Partial<InsulationResistanceInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcInsulationResistance(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, CheckRow, EmptyResult } fr
 import { DEFAULT_FG_LOOP_INPUT, FgLoopInput, calcFgLoop } from "@/lib/fgloop";
 
 export default function FgLoopPage() {
-  const [input, setInput] = useState<FgLoopInput>(DEFAULT_FG_LOOP_INPUT);
+  const [input, setInput] = useShareableInput<FgLoopInput>(DEFAULT_FG_LOOP_INPUT);
   const update = (patch: Partial<FgLoopInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcFgLoop(input), [input]);

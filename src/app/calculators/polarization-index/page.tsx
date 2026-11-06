@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { DEFAULT_POLARIZATION_INDEX_INPUT, PolarizationIndexInput, InsulationClass, calcPolarizationIndex } from "@/lib/polarizationindex";
 
 export default function PolarizationIndexPage() {
-  const [input, setInput] = useState<PolarizationIndexInput>(DEFAULT_POLARIZATION_INDEX_INPUT);
+  const [input, setInput] = useShareableInput<PolarizationIndexInput>(DEFAULT_POLARIZATION_INDEX_INPUT);
   const update = (patch: Partial<PolarizationIndexInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcPolarizationIndex(input), [input]);

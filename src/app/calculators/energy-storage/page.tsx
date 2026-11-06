@@ -1,7 +1,8 @@
 "use client";
 
 import { FREE_LAUNCH } from "@/lib/launchConfig";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -12,7 +13,7 @@ import { ConductorMaterial, InstallMethod, INSTALL_METHODS } from "@/lib/cable";
 import { BessChemistry, BessInput, BessPhase, CHEM_DEFAULTS, DEFAULT_BESS_INPUT, calcBess } from "@/lib/storage";
 
 export default function EnergyStoragePage() {
-  const [input, setInput] = useState<BessInput>(DEFAULT_BESS_INPUT);
+  const [input, setInput] = useShareableInput<BessInput>(DEFAULT_BESS_INPUT);
   const update = (patch: Partial<BessInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   // Multi-bank site aggregation & cycle-life estimate are advanced

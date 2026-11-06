@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow, Emp
 import { DEFAULT_TOUCH_VOLTAGE_INPUT, TouchVoltageInput, TouchVoltageEnvironment, calcTouchVoltage } from "@/lib/touchvoltage";
 
 export default function TouchVoltagePage() {
-  const [input, setInput] = useState<TouchVoltageInput>(DEFAULT_TOUCH_VOLTAGE_INPUT);
+  const [input, setInput] = useShareableInput<TouchVoltageInput>(DEFAULT_TOUCH_VOLTAGE_INPUT);
   const update = (patch: Partial<TouchVoltageInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcTouchVoltage(input), [input]);

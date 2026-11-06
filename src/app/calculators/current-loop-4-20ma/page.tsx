@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -16,7 +17,7 @@ import {
 } from "@/lib/loop420";
 
 export default function CurrentLoop420Page() {
-  const [input, setInput] = useState<Loop420Input>(DEFAULT_LOOP420_INPUT);
+  const [input, setInput] = useShareableInput<Loop420Input>(DEFAULT_LOOP420_INPUT);
   const update = (patch: Partial<Loop420Input>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcLoop420(input), [input]);

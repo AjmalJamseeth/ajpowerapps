@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_OHL_VOLTAGE_REG_INPUT, OhlVoltageRegInput, calcOhlVoltageReg } from "@/lib/ohlvoltagereg";
 
 export default function OhlVoltageRegulationPage() {
-  const [input, setInput] = useState<OhlVoltageRegInput>(DEFAULT_OHL_VOLTAGE_REG_INPUT);
+  const [input, setInput] = useShareableInput<OhlVoltageRegInput>(DEFAULT_OHL_VOLTAGE_REG_INPUT);
   const update = (patch: Partial<OhlVoltageRegInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcOhlVoltageReg(input), [input]);

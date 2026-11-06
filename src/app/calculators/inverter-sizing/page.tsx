@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/inverterSizing";
 
 export default function InverterSizingPage() {
-  const [input, setInput] = useState<InverterSizingInput>(DEFAULT_INVERTER_SIZING_INPUT);
+  const [input, setInput] = useShareableInput<InverterSizingInput>(DEFAULT_INVERTER_SIZING_INPUT);
   const update = (patch: Partial<InverterSizingInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcInverterSizing(input), [input]);

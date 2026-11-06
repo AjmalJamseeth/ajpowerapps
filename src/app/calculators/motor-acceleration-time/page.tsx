@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, Section, ResultCard, ResultRow, EmptyResult } from "@/comp
 import { DEFAULT_MOTOR_ACCEL_INPUT, MotorAccelInput, calcMotorAccel } from "@/lib/motoraccel";
 
 export default function MotorAccelerationTimePage() {
-  const [input, setInput] = useState<MotorAccelInput>(DEFAULT_MOTOR_ACCEL_INPUT);
+  const [input, setInput] = useShareableInput<MotorAccelInput>(DEFAULT_MOTOR_ACCEL_INPUT);
   const update = (patch: Partial<MotorAccelInput>) => setInput((prev) => ({ ...prev, ...patch }));
 
   const result = useMemo(() => calcMotorAccel(input), [input]);

@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useState, useId } from "react";
+import { UNIT_ALTS, roundDisplay, toggleUnit, useAltUnit } from "@/lib/unitPrefs";
 
 export function Tip({ text }: { text?: string }) {
   const [open, setOpen] = useState(false);
@@ -57,6 +58,12 @@ export function NumberField({
   step?: string | number;
   disabled?: boolean;
 }) {
+  const conv = unit ? UNIT_ALTS[unit] : undefined;
+  const useAlt = useAltUnit(unit) && !!conv;
+  const show = (v: number) => (useAlt && conv ? roundDisplay(conv.toAlt(v)) : v);
+  const limit = (v: number | undefined) => (v == null ? undefined : show(v));
+  // Fahrenheit is not proportional to Celsius, so min/max are converted point by point.
+  const lo = limit(min), hi = limit(max);
   return (
     <div>
       <label className="flex items-center text-xs font-medium text-muted">
@@ -67,15 +74,29 @@ export function NumberField({
       <div className="mt-1.5 flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent-2">
         <input
           type="number"
-          value={value ?? ""}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-          min={min}
-          max={max}
+          value={value == null ? "" : show(value)}
+          onChange={(e) => {
+            const n = parseFloat(e.target.value) || 0;
+            onChange(useAlt && conv ? conv.fromAlt(n) : n);
+          }}
+          min={lo}
+          max={hi}
           step={step}
           disabled={disabled}
           className="w-full rounded-md bg-transparent px-3 py-2 text-sm text-foreground outline-none disabled:cursor-not-allowed"
         />
-        {unit && <span className="pr-3 text-xs text-muted">{unit}</span>}
+        {unit && conv ? (
+          <button
+            type="button"
+            onClick={() => toggleUnit(unit)}
+            title={`Switch between ${unit} and ${conv.alt} (applies to all ${unit} fields)`}
+            className="mr-2 shrink-0 rounded border border-border/70 px-1.5 py-0.5 text-xs text-muted hover:border-accent-2/60 hover:text-accent-2"
+          >
+            {useAlt ? conv.alt : unit} ⇄
+          </button>
+        ) : (
+          unit && <span className="pr-3 text-xs text-muted">{unit}</span>
+        )}
       </div>
     </div>
   );

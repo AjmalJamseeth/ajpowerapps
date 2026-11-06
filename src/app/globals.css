@@ -92,6 +92,10 @@ body {
 .report-mode .report-header-block {
   display: block !important;
 }
+.report-mode .report-wrap {
+  flex-basis: 100%;
+  width: 100%;
+}
 
 /* =====================================================================
    Futuristic skin (dark theme only). Scoped to :root:not(.light) so the

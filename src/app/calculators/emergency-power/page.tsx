@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useShareableInput } from "@/lib/shareState";
 import NavBar from "@/components/NavBar";
 import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
@@ -9,7 +10,7 @@ import { NumberField, SelectField, Section, ResultCard, ResultRow, CheckRow } fr
 import { DEFAULT_EMERGENCYPOWER_INPUT, EmergencyPowerInput, EpsPriority, LoadStep, calcEmergencyPower } from "@/lib/emergencypower";
 
 export default function EmergencyPowerPage() {
-  const [input, setInput] = useState<EmergencyPowerInput>(DEFAULT_EMERGENCYPOWER_INPUT);
+  const [input, setInput] = useShareableInput<EmergencyPowerInput>(DEFAULT_EMERGENCYPOWER_INPUT);
   const update = (patch: Partial<EmergencyPowerInput>) => setInput((prev) => ({ ...prev, ...patch }));
   const updateStep = (i: number, patch: Partial<LoadStep>) => update({ steps: input.steps.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) });
 
