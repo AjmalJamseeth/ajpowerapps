@@ -10,6 +10,7 @@
 // has a pass/fail concept — one passing and one failing boundary case.
 
 import { readFileSync } from "fs";
+import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import * as CE from "../src/lib/curveEngine";
 import { deviceTimeS, isTimeDevice } from "../src/lib/deviceModels";
 import { tripTime as idmtTripTime } from "../src/lib/idmt";
@@ -24,8 +25,8 @@ import { analyseShortCircuit, muFactor, peakFactor, thermalM, voltageFactor, typ
 import { calcArcingCurrent, calcNormalizedEnergy, calcIncidentEnergy2002, calcArcFlashBoundary2002, calcLeeIncidentEnergy, calcLeeBoundary, AF_EQUIP_CLASSES } from "../src/lib/arcflash";
 import { DEFAULT_BATTERY_INPUT, calcBattery } from "../src/lib/battery";
 import { DEFAULT_BUSBAR_INPUT, calcBusbar } from "../src/lib/busbar";
-import { DEFAULT_CABLE_INPUT, sizeCable, voltDropPct, conductorRX } from "../src/lib/cable";
-import { DEFAULT_CABLEPULLING_INPUT, calcCablePulling } from "../src/lib/cablepulling";
+import { DEFAULT_CABLE_INPUT, sizeCable, voltDropPct, conductorRX, AMPACITY, INSTALL_METHODS, CABLE_SIZES } from "../src/lib/cable";
+import { DEFAULT_CABLEPULLING_INPUT, calcCablePulling, weightCorrectionFactor } from "../src/lib/cablepulling";
 import { DEFAULT_CABLETRAY_INPUT, calcCableTrayNec, calcCableTrayIec } from "../src/lib/cabletray";
 import { DEFAULT_CONDUITFILL_INPUT, calcConduitFillNec, calcConduitFillIec } from "../src/lib/conduitfill";
 import { DEFAULT_CT_INPUT, calcCt } from "../src/lib/ct";
@@ -211,6 +212,23 @@ section("IDMT Relay Coordination");
 // ==========================================================================
 section("Cable Sizing & Voltage Drop");
 {
+  // IEC 60364-5-52 Tables B.52.4 / B.52.5, column 5 (method B2, multicore in conduit on wall)
+  assertEqual("B2 Cu PVC 2.5 mm² = 20 A", AMPACITY.Cu.PVC70.B2[1], 20);
+  assertEqual("B2 Cu PVC 95 mm² = 179 A", AMPACITY.Cu.PVC70.B2[10], 179);
+  assertEqual("B2 Cu XLPE 300 mm² = 455 A", AMPACITY.Cu.XLPE90.B2[15], 455);
+  assertEqual("B2 Al PVC 120 mm² = 160 A", AMPACITY.Al.PVC70.B2[11], 160);
+  assertEqual("B2 Al XLPE 240 mm² = 318 A", AMPACITY.Al.XLPE90.B2[14], 318);
+  {
+    let ok = true;
+    for (const m of ["Cu", "Al"] as const) for (const ins of ["PVC70", "XLPE90"] as const)
+      CABLE_SIZES.forEach((_, k) => { if (AMPACITY[m][ins].B2[k] > AMPACITY[m][ins].B1[k]) ok = false; });
+    assertTrue("B2 (multicore) never exceeds B1 (single-core) for any size", ok);
+  }
+  assertTrue("B1 is labelled as single-core / insulated conductors", /single-core/i.test(INSTALL_METHODS.find((x) => x.value === "B1")!.label));
+  assertTrue("B2 is offered and labelled as multicore", /multicore/i.test(INSTALL_METHODS.find((x) => x.value === "B2")?.label ?? ""));
+  assertEqual("Cable sizing with B2 picks a size (no zero-ampacity gap)", sizeCable({ ...DEFAULT_CABLE_INPUT, method: "B2" }).selected != null, true);
+  assertTrue("Same circuit in B2 needs a size ≥ the B1 size", (sizeCable({ ...DEFAULT_CABLE_INPUT, method: "B2", kw: 150 }).selected?.size ?? 0) >= (sizeCable({ ...DEFAULT_CABLE_INPUT, method: "B1", kw: 150 }).selected?.size ?? 1e9));
+
   const r = sizeCable(DEFAULT_CABLE_INPUT); // 50kW/415V/3ph/Cu/PVC70/Method C/50m — 25mm² @ 1.32% VD (per-conductor r = half the loop mV/A/m)
   assertEqual("Default scenario selects 25mm²", r.selected?.size, 25);
   assertClose("Default scenario VD%", r.selected?.vd?.vd_pct, 1.32, 1.0);
@@ -513,12 +531,28 @@ section("Cable Tray Fill");
 // ==========================================================================
 section("Cable Pulling Tension");
 {
+  // Default = worked example: three cables cradled, total 3.3 lb/ft, 4 in conduit, 1.45 in OD.
   const r = calcCablePulling(DEFAULT_CABLEPULLING_INPUT);
-  assertClose("Final pulling tension ≈200.146lbf", r?.finalTension, 200.146, 0.5);
-  assertClose("Peak sidewall pressure ≈100.073lb/ft", r?.maxSidewallPressure, 100.073, 0.5);
+  assertClose("Cradled weight correction wc = 1.431", r?.weightCorrection, 1.4311, 0.05);
+  assertClose("Three cradled: final tension 363.0 lbf", r?.finalTension, 363.04, 0.1);
+  assertClose("Three cradled: SWBP (3wc−2)T/3R = 138.8 lb/ft", r?.maxSidewallPressure, 138.76, 0.1);
   assertEqual("Tension check passes (< 5000lbf limit)", r?.tensionPass, true);
   assertClose("Jam ratio ≈2.759", r?.jamRatio, 2.759, 0.5);
   assertEqual("Jam ratio correctly flagged in danger zone (2.6-3.2)", r?.jamDanger, true);
+
+  const tri = calcCablePulling({ ...DEFAULT_CABLEPULLING_INPUT, configuration: "triangular" });
+  assertClose("Triangular wc = 1/√(1−(d/(D−d))²) = 1.216", tri?.weightCorrection, 1.2157, 0.05);
+  assertClose("Three triangular: final tension 273.9 lbf", tri?.finalTension, 273.94, 0.1);
+  assertClose("Three triangular: SWBP wc·T/2R = 83.3 lb/ft", tri?.maxSidewallPressure, 83.25, 0.1);
+
+  const one = calcCablePulling({ ...DEFAULT_CABLEPULLING_INPUT, configuration: "single" });
+  assertClose("One cable: final tension 200.1 lbf (wc = 1)", one?.finalTension, 200.146, 0.1);
+  assertClose("One cable: SWBP T/R = 100.1 lb/ft", one?.maxSidewallPressure, 100.073, 0.1);
+  assertNull("One cable: jam check not applicable", one?.jamDanger ?? null);
+
+  assertNull("Triangular arrangement that cannot fit returns no wc", weightCorrectionFactor("triangular", 2, 1));
+  const noDims = calcCablePulling({ ...DEFAULT_CABLEPULLING_INPUT, jamConduitId: null });
+  assertTrue("Three cables without diameters warn that wc is not applied", (noDims?.warnings.length ?? 0) === 1);
 
   const exceeds = calcCablePulling({ ...DEFAULT_CABLEPULLING_INPUT, maxTension: 10 });
   assertEqual("Low max-tension limit correctly fails the check", exceeds?.tensionPass, false);
@@ -2290,6 +2324,10 @@ section("Worked examples (November 2026)");
   assertEqual("NEC 220 example: standard method 33,125 VA", calcNecResidentialLoad(DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT).totalDemandVa, 33125);
   assertEqual("NEC 220 example: optional method 28,000 VA", calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, method: "optional" }).totalDemandVa, 28000);
 }
+
+section("Published figures");
+// The home and Verification pages quote AUTOMATED_CHECKS; it must equal this suite's total (including this check).
+assertEqual("AUTOMATED_CHECKS in src/lib/siteFacts.ts matches the suite total", AUTOMATED_CHECKS, pass + fail + 1);
 
 // --------------------------------------------------------------------------
 // Summary

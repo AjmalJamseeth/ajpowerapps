@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AUTOMATED_CHECKS } from "@/lib/siteFacts";
 import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import {
@@ -129,7 +130,7 @@ export default function Home() {
             {[
               { label: "Calculators", value: String(TOTAL_LIVE_COUNT) },
               { label: "Categories", value: String(CALCULATOR_GROUPS.length) },
-              { label: "Automated checks", value: "721" },
+              { label: "Automated checks", value: String(AUTOMATED_CHECKS) },
               { label: "Account needed", value: "No" },
             ].map((s) => (
               <div key={s.label} className="rounded-lg border border-border bg-surface/60 p-3">
@@ -300,7 +301,11 @@ export default function Home() {
           <Link href="/about" className="text-accent-2 hover:underline">
             Ajmal Jamseeth
           </Link>
-          . For preliminary engineering use only — always verify results against project-specific standards.
+          . For preliminary engineering use only — always verify results against project-specific standards.{" "}
+          <Link href="/verification" className="text-accent-2 hover:underline">
+            How results are checked
+          </Link>
+          .
         </div>
       </footer>
     </div>

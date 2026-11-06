@@ -71,7 +71,11 @@ export default function AboutPage() {
           Each calculator follows a named standard — IEC, IEEE, NEC, NFPA or BS — and its formulas and table values are checked
           against that standard. An automated test suite re-checks the results against hand-calculated values every time the site
           is updated, and the worked examples show each calculation step by step. Where a figure is an engineering rule of thumb
-          rather than a value from a standard, the tool says so.
+          rather than a value from a standard, the tool says so.{" "}
+          <Link href="/verification" className="text-accent-2 hover:underline">
+            Read how results are checked and the change log
+          </Link>
+          .
         </p>
         <p className="mt-3 text-muted">
           The tools are intended for preliminary engineering. Always verify results against the project&apos;s own standards and

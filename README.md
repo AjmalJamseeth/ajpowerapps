@@ -1102,13 +1102,13 @@ checked against known values before shipping, not just ported and trusted:
   app, so results are locked on the free site, but the underlying math
   (including the hybrid Sd+area rule for mixed 4/0+ and smaller cables)
   was ported and verified for when subscriptions launch.
-- **Cable pulling tension**: hand-checked the default 3-segment route
-  (two 50ft horizontal straights + a 90° bend at 2ft radius, f=0.35,
-  w=3.3lb/ft) — tension builds to 57.75lbf, then 115.5lbf, then the bend's
-  capstan equation (T×e^(fθ)) takes it to 200.146lbf with 100.073lb/ft
-  peak sidewall pressure (both pass their 5000lbf/300lb/ft limits) — and
-  the jam ratio (4in ID / 1.45in OD = 2.759, inside the 2.6–3.2 danger
-  zone) — every value matched the code exactly.
+- **Cable pulling tension** (updated November 2026): the default is three
+  cables cradled in a 4 in conduit (1.45 in OD, total w = 3.3 lb/ft), two
+  50 ft straights and a 90° bend at 2 ft radius, f = 0.35. Weight correction
+  wc = 1 + (4/3)(d/(D−d))² = 1.431; tension 82.6 → 165.3 → 363.0 lbf
+  (bend factor e^(wc·f·θ)); SWBP (3wc−2)T/3R = 138.8 lb/ft; jam ratio 2.759
+  (danger zone). Triangular gives wc 1.216, 273.9 lbf, 83.3 lb/ft; one cable
+  gives 200.146 lbf and 100.073 lb/ft.
 - **Lighting design**: hand-checked the default 10m×8m office at 500 lux
   target — area 80m², room index K=1.778, exact luminaire count 22.73 →
   23 required, achieved illuminance 506 lux — and the EN 1838 escape-route
@@ -1466,3 +1466,15 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Written guides under six more calculators (CT sizing, transformer sizing, harmonics,
   lightning risk, power converter, ground rod) in `src/lib/calcArticles.ts`.
 - Guide intros no longer quote calculator counts; site-wide meta keywords removed.
+
+## Third review (November 2026)
+
+- IEC 60364-5-52 method B1 relabelled (insulated conductors / single-core cables
+  in conduit on a wall) and method B2 (multicore cable in conduit) added from
+  Tables B.52.4 and B.52.5, column 5, checked against the standard PDF.
+- Cable pulling: one / three triangular / three cradled configuration, weight
+  correction factor on straights and bends, configuration-specific sidewall
+  pressure; worked example rewritten with cable count and weight basis.
+- New public page `/verification` (how results are checked, limitations, change
+  log). The change log lives in `src/lib/siteFacts.ts`; `AUTOMATED_CHECKS` there
+  must equal the test-suite total (a test enforces it).

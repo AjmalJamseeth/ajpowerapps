@@ -6,11 +6,11 @@
 // AMPACITY below is transcribed verbatim (not "representative" values) from
 // the official IEC 60364-5-52:2009 text, cross-checked cell-by-cell against
 // the standard supplied by the user:
-//   - A1/B1/C/D1 columns: Table B.52.4 (PVC, three loaded conductors) and
+//   - A1/B1/B2/C/D1 columns: Table B.52.4 (PVC, three loaded conductors) and
 //     Table B.52.5 (XLPE/EPR, three loaded conductors), both copper and
 //     aluminium. These tables only tabulate up to 300 mm^2 in the standard
 //     itself, so sizes above 300 mm^2 are correctly left unavailable (0)
-//     for these four methods rather than extrapolated.
+//     for these five methods rather than extrapolated.
 //   - E/F columns: Table B.52.10 (PVC, Cu), B.52.11 (PVC, Al), B.52.12
 //     (XLPE/EPR, Cu) and B.52.13 (XLPE/EPR, Al) — installation methods E,
 //     F, G. "E" uses the "three loaded conductors, multi-core" column; "F"
@@ -48,7 +48,7 @@
 
 export type ConductorMaterial = "Cu" | "Al";
 export type InsulationType = "PVC70" | "XLPE90";
-export type InstallMethod = "A1" | "B1" | "C" | "D1" | "E" | "F";
+export type InstallMethod = "A1" | "B1" | "B2" | "C" | "D1" | "E" | "F";
 export type SystemType = "3ph" | "1ph" | "dc";
 export type CoreCount = "2" | "3" | "4";
 export type CpcType = "incorporated" | "separate" | "bare";
@@ -63,7 +63,8 @@ export const CABLE_SIZES = [
 
 export const INSTALL_METHODS: { value: InstallMethod; label: string }[] = [
   { value: "A1", label: "A1 — Insulated conductors in conduit, in thermally insulated wall" },
-  { value: "B1", label: "B1 — Multicore in conduit on wall" },
+  { value: "B1", label: "B1 — Insulated conductors / single-core cables in conduit on wall" },
+  { value: "B2", label: "B2 — Multicore cable in conduit on wall" },
   { value: "C", label: "C — Single/multicore clipped direct" },
   { value: "D1", label: "D1 — Multicore in duct in ground" },
   { value: "E", label: "E — Multicore in free air" },
@@ -81,6 +82,7 @@ export const AMPACITY: Record<
     PVC70: {
       A1: [13.5, 18, 24, 31, 42, 56, 73, 89, 108, 136, 164, 188, 216, 245, 286, 328, 0, 0, 0],
       B1: [15.5, 21, 28, 36, 50, 68, 89, 110, 134, 171, 207, 239, 262, 296, 346, 394, 0, 0, 0],
+      B2: [15, 20, 27, 34, 46, 62, 80, 99, 118, 149, 179, 206, 225, 255, 297, 339, 0, 0, 0],
       C: [17.5, 24, 32, 41, 57, 76, 96, 119, 144, 184, 223, 259, 299, 341, 403, 464, 0, 0, 0],
       D1: [18, 24, 30, 38, 50, 64, 82, 98, 116, 143, 169, 192, 217, 243, 280, 316, 0, 0, 0],
       E: [18.5, 25, 34, 43, 60, 80, 101, 126, 153, 196, 238, 276, 319, 364, 430, 497, 0, 0, 0],
@@ -89,6 +91,7 @@ export const AMPACITY: Record<
     XLPE90: {
       A1: [17, 23, 31, 40, 54, 73, 95, 117, 141, 179, 216, 249, 285, 324, 380, 435, 0, 0, 0],
       B1: [20, 28, 37, 48, 66, 88, 117, 144, 175, 222, 269, 312, 342, 384, 450, 514, 0, 0, 0],
+      B2: [19.5, 26, 35, 44, 60, 80, 105, 128, 154, 194, 233, 268, 300, 340, 398, 455, 0, 0, 0],
       C: [22, 30, 40, 52, 71, 96, 119, 147, 179, 229, 278, 322, 371, 424, 500, 576, 0, 0, 0],
       D1: [21, 28, 36, 44, 58, 75, 96, 115, 135, 167, 197, 223, 251, 281, 324, 365, 0, 0, 0],
       E: [23, 32, 42, 54, 75, 100, 127, 158, 192, 246, 298, 346, 399, 456, 538, 621, 0, 0, 0],
@@ -99,6 +102,7 @@ export const AMPACITY: Record<
     PVC70: {
       A1: [0, 14, 18.5, 24, 32, 43, 57, 70, 84, 107, 129, 149, 170, 194, 227, 261, 0, 0, 0],
       B1: [0, 16.5, 22, 28, 39, 53, 70, 86, 104, 133, 161, 186, 204, 230, 269, 306, 0, 0, 0],
+      B2: [0, 15.5, 21, 27, 36, 48, 62, 77, 92, 116, 139, 160, 176, 199, 232, 265, 0, 0, 0],
       C: [0, 18.5, 25, 32, 44, 59, 73, 90, 110, 140, 170, 197, 227, 259, 305, 351, 0, 0, 0],
       D1: [0, 18.5, 24, 30, 39, 50, 64, 77, 91, 112, 132, 150, 169, 190, 218, 247, 0, 0, 0],
       E: [0, 19.5, 26, 33, 46, 61, 78, 96, 117, 150, 183, 212, 245, 280, 330, 381, 0, 0, 0],
@@ -107,6 +111,7 @@ export const AMPACITY: Record<
     XLPE90: {
       A1: [0, 19, 25, 32, 44, 58, 76, 94, 113, 142, 171, 197, 226, 256, 300, 344, 0, 0, 0],
       B1: [0, 22, 29, 38, 52, 71, 93, 116, 140, 179, 217, 251, 267, 300, 351, 402, 0, 0, 0],
+      B2: [0, 21, 28, 35, 48, 64, 84, 103, 124, 156, 188, 216, 240, 272, 318, 364, 0, 0, 0],
       C: [0, 24, 32, 41, 57, 76, 90, 112, 136, 174, 211, 245, 283, 323, 382, 440, 0, 0, 0],
       D1: [0, 22, 28, 35, 46, 59, 75, 90, 106, 130, 154, 174, 197, 220, 253, 286, 0, 0, 0],
       E: [0, 24, 32, 42, 58, 77, 97, 120, 146, 187, 227, 263, 304, 347, 409, 471, 0, 0, 0],
