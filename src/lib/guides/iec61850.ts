@@ -34,20 +34,20 @@ export const IEC61850_GUIDE: GuideDoc = {
       heading: "GOOSE: fast peer-to-peer signals on the station bus",
       body: [
         "GOOSE (Generic Object Oriented Substation Event) messages carry trips, interlocks and status between IEDs. They are sent as Ethernet multicast frames directly at layer 2 (EtherType 0x88B8), with no IP routing, and repeated rapidly after every change and then at a slower heartbeat so subscribers can detect a lost publisher.",
-        "IEC 61850-5 puts fast trip messages in its most demanding transfer-time class (3 ms for the highest performance classes). Each GOOSE control block needs a data set, a unique APPID (0x0000–0x3FFF), a multicast MAC address in the range 01-0C-CD-01-00-00 to 01-0C-CD-01-01-FF and usually a VLAN ID and priority. Subscribers bind the received values to their own inputs through ExtRef elements in the SCD.",
+        "IEC 61850-5 puts fast trip messages in its most demanding transfer-time class (3 ms for the highest performance classes). Each GOOSE control block needs a data set, a unique APPID (0x0000–0x3FFF, or 0x8000–0xBFFF for Type 1A trip messages where the IEDs support that range), a multicast MAC address in the range 01-0C-CD-01-00-00 to 01-0C-CD-01-01-FF and usually a VLAN ID and priority. Subscribers bind the received values to their own inputs through ExtRef elements in the SCD.",
       ],
     },
     {
       heading: "Sampled values and the process bus",
       body: [
-        "Sampled values (SV, IEC 61850-9-2, with the instrument transformer profile in IEC 61869-9) stream digitised current and voltage samples from merging units or non-conventional instrument transformers to protection and metering IEDs. They also use layer-2 multicast (EtherType 0x88BA), with APPIDs from 0x4000 to 0x7FFF and MAC addresses from 01-0C-CD-04-00-00 to 01-0C-CD-04-01-FF.",
+        "Sampled values (SV, IEC 61850-9-2, with the instrument transformer profile in IEC 61869-9) stream digitised current and voltage samples from merging units or non-conventional instrument transformers to protection and metering IEDs. They also use layer-2 multicast (EtherType 0x88BA), with APPIDs from 0x4000 to 0x7FFF (0xC000–0xFFFF for Type 1A) and MAC addresses from 01-0C-CD-04-00-00 to 01-0C-CD-04-01-FF.",
         "Sampled-value streams are continuous and heavy, so the process bus is usually kept separate from the station bus or segregated with VLANs, and accurate time synchronisation (typically IEEE 1588 / IEC 61850-9-3 PTP) is essential.",
       ],
     },
     {
       heading: "MMS reports for SCADA and the station HMI",
       body: [
-        "Client-server communication between IEDs and the station computer or gateway uses MMS over TCP/IP (IEC 61850-8-1). Report control blocks send changes in a data set to a client: buffered reports (BRCB) keep events while the connection is down, unbuffered reports (URCB) do not. Each report control block lists which clients may use it, so a missing client entry is a common reason for an empty SCADA point.",
+        "Client-server communication between IEDs and the station computer or gateway uses MMS over TCP/IP (IEC 61850-8-1). Report control blocks send changes in a data set to a client: buffered reports (BRCB) keep events while the connection is down, unbuffered reports (URCB) do not. In the SCL file each report control block can list the clients it is configured for (RptEnabled/ClientLN). When a SCADA point stays empty, check that client allocation, then the runtime side: the client must reserve and enable the report, the data set must contain the point, and the trigger options and integrity period must suit it. Some IEDs also limit how many report instances each client can use.",
       ],
     },
   ],
@@ -72,7 +72,7 @@ export const IEC61850_GUIDE: GuideDoc = {
     { mistake: "Subscriber inputs (ExtRef) pointing to signals that no longer exist", whyItMatters: "After an IED is renamed or its data set changed, the subscriber silently loses the signal; an interlock or intertrip that looks configured never arrives." },
     { mistake: "Editing a CID directly and not the SCD", whyItMatters: "The device then differs from the system file, and the next CID regenerated from the SCD overwrites the fix." },
     { mistake: "Mixing editions without checking", whyItMatters: "An IED that only supports Edition 1 may reject a CID containing Edition 2 attributes." },
-    { mistake: "Missing report clients", whyItMatters: "SCADA points stay empty because the gateway is not listed as a client of the report control block." },
+    { mistake: "Report not reaching the gateway", whyItMatters: "SCADA points stay empty when the gateway is not allocated to the report control block, does not reserve and enable it at runtime, or the point is missing from the report data set." },
   ],
   faqs: [
     { q: "What does SCD stand for?", a: "Substation Configuration Description: the SCL file describing the complete substation automation system, including all IEDs, the network and the data flows between them." },

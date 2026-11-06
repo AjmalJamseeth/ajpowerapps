@@ -1478,3 +1478,11 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - New public page `/verification` (how results are checked, limitations, change
   log). The change log lives in `src/lib/siteFacts.ts`; `AUTOMATED_CHECKS` there
   must equal the test-suite total (a test enforces it).
+
+## Fourth review (November 2026)
+
+- PCW workbench: UK 30 mA rule updated to BS 7671:2018+A2:2022 (sockets ≤ 32 A);
+  sweep shows "not assessed" / "assessment incomplete"; Vk conversion wording.
+- SCL Studio + IEC 61850 guide: Type 1A GOOSE/SV APPID ranges; report-client text.
+- EV: cable sized to max(Ib, breaker In); checks-covered list in results.
+- Tests in "Fourth review (November 2026)" section.

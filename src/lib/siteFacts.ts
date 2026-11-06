@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 741;
+export const AUTOMATED_CHECKS = 749;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,17 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Protection, IEC 61850 and EV checks",
+    items: [
+      "Protection Coordination Workbench: the UK rule for 30 mA additional protection now follows BS 7671:2018+A2:2022 (socket-outlets up to 32 A). The previous 20 A limit came from the superseded 2008 edition and could miss 25 A and 32 A socket circuits.",
+      "Settings philosophy sweep: rules with no data are shown as \"not assessed\", and the summary states that the assessment is incomplete, so a pass covers only the checks actually run.",
+      "IEC 61850 SCL editor and guide: Type 1A GOOSE APPIDs (0x8000–0xBFFF) and Type 1A sampled-value APPIDs (0xC000–0xFFFF) are now recognised instead of being flagged. The report troubleshooting text now covers runtime reservation, enabling, data sets and trigger options.",
+      "EV Charging: the cable is now sized so its rating covers the selected breaker (Ib ≤ In ≤ Iz), not just the design current. A list beside the result shows which checks are and are not performed.",
+      "CT knee-point conversions are described as conventions (about 80 % or 1/1.2), not as exact relationships.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Installation method B2 and multi-cable pulling",

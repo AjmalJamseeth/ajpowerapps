@@ -87,6 +87,7 @@ function sizeCable(
   volt: number,
   phase: EvPhase,
   pf: number,
+  izMin: number = ib,
 ): CableSizeResult {
   if (!ib || !length) return { size: null, amp: null, vd: null };
   const buried = method === "D1";
@@ -98,7 +99,7 @@ function sizeCable(
     const base = lookupAmpacity(material, insulation, method, i);
     if (!base) continue;
     const derated = base * cf;
-    if (derated >= ib) {
+    if (derated >= Math.max(ib, izMin)) {
       const vdResult = voltDropPct(material, sz, ib, length, volt, phase, pf, insulation);
       if (vdResult && vdResult.vd_pct <= 5) {
         return { size: sz, amp: derated, vd: vdResult.vd_pct };
@@ -157,8 +158,10 @@ export interface EvResult {
 export function calcEv(input: EvInput, premiumEnabled: boolean): EvResult {
   const ib = input.ratedCurrentA;
   const pf = input.pf || 1.0;
-  const cable = sizeCable(ib, input.material, input.insulation, input.method, input.routeLengthM, input.ambientC || 30, input.grouping || 1, input.voltage, input.phase, pf);
   const breakerA = pickBreaker(ib);
+  // IEC 60364-4-43: Ib <= In <= Iz, so the cable rating must cover the breaker
+  // rating, not just the design current. Voltage drop is still at Ib.
+  const cable = sizeCable(ib, input.material, input.insulation, input.method, input.routeLengthM, input.ambientC || 30, input.grouping || 1, input.voltage, input.phase, pf, breakerA ?? ib);
 
   let multiSite: EvResult["multiSite"] = null;
   if (premiumEnabled) {

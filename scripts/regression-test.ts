@@ -2325,6 +2325,32 @@ section("Worked examples (November 2026)");
   assertEqual("NEC 220 example: optional method 28,000 VA", calcNecResidentialLoad({ ...DEFAULT_NEC_RESIDENTIAL_LOAD_INPUT, method: "optional" }).totalDemandVa, 28000);
 }
 
+// --------------------------------------------------------------------------
+// Fourth review (November 2026)
+// --------------------------------------------------------------------------
+{
+  section("Fourth review (November 2026)");
+  const html = readFileSync("public/protection-suite/index.html", "utf8");
+  const src = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((x) => x.includes("root.PCW_LvCoord = mod"))!;
+  const holder: { exports: Record<string, unknown> } = { exports: {} };
+  new Function("module", "window", src)(holder, undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const LV = holder.exports as any;
+  assertTrue("UK BS 7671:2018: 32 A socket needs 30 mA RCD", LV.additionalProtection30mA({ kind: "socket", ratedA: 32 }, "UK").required === true);
+  assertTrue("UK BS 7671:2018: 25 A socket needs 30 mA RCD", LV.additionalProtection30mA({ kind: "socket", ratedA: 25 }, "UK").required === true);
+  assertTrue("IEC: 32 A socket needs 30 mA RCD", LV.additionalProtection30mA({ kind: "socket", ratedA: 32 }, "IEC").required === true);
+  assertTrue("40 A socket is outside 411.3.3", LV.additionalProtection30mA({ kind: "socket", ratedA: 40 }, "UK").required === false);
+  assertTrue("Workbench no longer offers the superseded 20 A UK rule", !html.includes("sockets ≤ 20 A"));
+
+  const scl = readFileSync("public/iec-61850/scl-studio.html", "utf8");
+  assertTrue("SCL editor accepts Type 1A GOOSE APPIDs (8000–BFFF)", scl.includes("v>=0x8000&&v<=0xBFFF"));
+
+  // EV: Ib <= In <= Iz — the cable must carry the breaker rating, not only Ib.
+  const ev = calcEv({ ...DEFAULT_EV_INPUT, ratedCurrentA: 22 }, false);
+  assertEqual("EV 22 A: breaker 25 A", ev.breakerA, 25);
+  assertTrue("EV 22 A: cable rating ≥ 25 A breaker", (ev.cable.amp ?? 0) >= 25);
+}
+
 section("Published figures");
 // The home and Verification pages quote AUTOMATED_CHECKS; it must equal this suite's total (including this check).
 assertEqual("AUTOMATED_CHECKS in src/lib/siteFacts.ts matches the suite total", AUTOMATED_CHECKS, pass + fail + 1);

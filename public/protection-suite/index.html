@@ -576,7 +576,7 @@
         </details>
         <div class="modal-field-row">
           <div class="modal-field"><label>Available CT knee-point / Vk (V)</label><input id="ctaD_vk" placeholder="e.g. 500"></div>
-          <div class="modal-field"><label>Vk conversion <span class="tooltip-icon" title="Hitachi's RED670 manual states Eknee is 'approximately 80%' of Eal (PX/TPS/BS-X treated alike). A second real project's own BS 3938 documentation gives a more precise 1/1.2≈0.833 relationship for class-X CTs specifically — the two can disagree for a marginal CT. Pick whichever matches your own CT's class and source documentation.">i</span></label><select id="ctaD_vkfactor"><option value="approx">~80% (Hitachi approximation)</option><option value="bs3938">1/1.2 (precise BS 3938 class-X)</option></select></div>
+          <div class="modal-field"><label>Vk conversion <span class="tooltip-icon" title="Hitachi's RED670 manual states Eknee is 'approximately 80%' of Eal (PX/TPS/BS-X treated alike). A second project's BS 3938 calculation used 1/1.2≈0.833 for class-X CTs. Both are conventions relating the knee-point voltage to the equivalent limiting e.m.f., not exact conversions — the two can disagree for a marginal CT. Pick whichever matches your own CT's class and source documentation.">i</span></label><select id="ctaD_vkfactor"><option value="approx">~80% (Hitachi approximation)</option><option value="bs3938">1/1.2 (BS 3938 class-X convention)</option></select></div>
         </div>
         <div id="ctaD_result" style="margin-top:10px;"></div>
       </div>
@@ -623,7 +623,7 @@
         </details>
         <div class="modal-field-row">
           <div class="modal-field"><label>Available CT knee-point / Vk (V)</label><input id="ctaR_vk" placeholder="e.g. 500"></div>
-          <div class="modal-field"><label>Vk conversion <span class="tooltip-icon" title="See the Differential tab's tooltip — the ~80% Hitachi approximation vs the more precise 1/1.2 BS 3938 class-X relationship.">i</span></label><select id="ctaR_vkfactor"><option value="approx">~80% (Hitachi approximation)</option><option value="bs3938">1/1.2 (precise BS 3938 class-X)</option></select></div>
+          <div class="modal-field"><label>Vk conversion <span class="tooltip-icon" title="See the Differential tab's tooltip — the ~80% Hitachi approximation vs the 1/1.2 convention used for BS 3938 class-X CTs. Neither is exact; use the relay manufacturer's stated relationship where one is given.">i</span></label><select id="ctaR_vkfactor"><option value="approx">~80% (Hitachi approximation)</option><option value="bs3938">1/1.2 (BS 3938 class-X convention)</option></select></div>
         </div>
         <div id="ctaR_result" style="margin-top:10px;"></div>
       </div>
@@ -655,7 +655,7 @@
       </div>
 
       <div id="ctaTab_busbar" style="display:none;">
-        <p style="color:var(--text-dim); font-size:12px; margin:0 0 8px;">REB500 low-impedance busbar CT adequacy — hand-verified against a real 220kV project document (reference project B, Appendix 2).</p>
+        <p style="color:var(--text-dim); font-size:12px; margin:0 0 8px;">REB500 low-impedance busbar CT adequacy — hand-checked against a 220 kV substation project calculation (not public).</p>
         <div class="modal-section-title">Fault data and DC time constant</div>
         <div class="modal-field-row">
           <div class="modal-field"><label>Max through-fault current, Itkmax (A)</label><input id="ctaB_itkmax" placeholder="e.g. 63000"></div>
@@ -674,7 +674,7 @@
       </div>
 
       <div id="ctaTab_metering" style="display:none;">
-        <p style="color:var(--text-dim); font-size:12px; margin:0 0 8px;">Metering/instrument-core CT check — a different concern from protection: does the CT saturate EARLY enough to protect the meter from fault current? Hand-verified against the same real document (Appendix 2, Calc 3).</p>
+        <p style="color:var(--text-dim); font-size:12px; margin:0 0 8px;">Metering/instrument-core CT check — a different concern from protection: does the CT saturate EARLY enough to protect the meter from fault current? Hand-checked against the same project calculation.</p>
         <div class="modal-field-row">
           <div class="modal-field"><label>Rated instrument security factor, FSn</label><input id="ctaM_fsn" placeholder="e.g. 5"></div>
           <div class="modal-field"><label>Rated burden, Sn (VA)</label><input id="ctaM_sn" placeholder="e.g. 25"></div>
@@ -722,7 +722,7 @@
           <div class="modal-field"><label>RCD IΔn (mA)</label><input id="lvS_idn" placeholder="e.g. 30"></div>
           <div class="modal-field"><label>Circuit</label><select id="lvS_kind"><option value="socket">Socket-outlets</option><option value="mobile-outdoor">Mobile equipment used outdoors</option><option value="other">Other</option></select></div>
           <div class="modal-field"><label>Circuit rating (A)</label><input id="lvS_rated" placeholder="e.g. 16"></div>
-          <div class="modal-field"><label>Rule set <span class="tooltip-icon" title="IEC 60364-4-41 411.3.3 names sockets up to 32 A. The UK national variation is 20 A.">i</span></label><select id="lvS_std"><option value="IEC">IEC (sockets ≤ 32 A)</option><option value="UK">UK (sockets ≤ 20 A)</option></select></div>
+          <div class="modal-field"><label>Rule set <span class="tooltip-icon" title="IEC 60364-4-41 411.3.3 and BS 7671:2018+A2:2022 411.3.3 both require 30 mA additional protection for socket-outlets rated up to 32 A. (The 20 A limit applied only under the superseded BS 7671:2008.) In BS 7671, omission is allowed only outside dwellings, and only where a documented risk assessment shows it is not necessary.">i</span></label><select id="lvS_std"><option value="IEC">IEC 60364-4-41 (sockets ≤ 32 A)</option><option value="UK">UK BS 7671:2018+A2:2022 (sockets ≤ 32 A)</option></select></div>
         </div>
         <div class="modal-field-row">
           <div class="modal-field"><label>Earthing system</label><select id="lvS_sys"><option value="TN">TN (or other)</option><option value="TT">TT</option></select></div>
@@ -4406,8 +4406,8 @@
  *    delayed (R) upstream of an S-type; S-type only for IDn > 30 mA.
  *  - TT systems: RA x IDn <= 50 V (IEC 60364-4-41 411.5.3).
  *  - Additional protection 30 mA: a.c. socket-outlets <= 32 A and mobile
- *    outdoor equipment <= 32 A (IEC 60364-4-41 411.3.3); the UK national
- *    variation is <= 20 A sockets.
+ *    outdoor equipment <= 32 A (IEC 60364-4-41 411.3.3). BS 7671:2018+A2:2022
+ *    uses the same 32 A limit (the 20 A limit was BS 7671:2008, superseded).
  *  - Cable overload: Ib <= In <= Iz and I2 <= 1.45 Iz (IEC 60364-4-43);
  *    fuse I2 = If from the app's own gG gate table. Short circuit:
  *    I2t <= k2 S2 (adiabatic, up to 5 s), k-values from curve-engine.
@@ -4624,10 +4624,10 @@
   function ttMaxElectrodeOhms(iDnA, ulV) { if (!(iDnA > 0)) throw new Error('ttMaxElectrodeOhms: iDnA must be > 0'); return (typeof ulV === 'number' ? ulV : TT_TOUCH_VOLTAGE_LIMIT_V) / iDnA; }
   function ttMaxSensitivityA(raOhms, ulV) { if (!(raOhms > 0)) throw new Error('ttMaxSensitivityA: raOhms must be > 0'); return (typeof ulV === 'number' ? ulV : TT_TOUCH_VOLTAGE_LIMIT_V) / raOhms; }
 
-  /** Is 30 mA additional protection required for this circuit? standard: 'IEC' (sockets <= 32 A) or 'UK' (sockets <= 20 A). */
+  /** Is 30 mA additional protection required for this circuit? standard: 'IEC' (IEC 60364-4-41) or 'UK' (BS 7671:2018+A2:2022); both sockets <= 32 A. */
   function additionalProtection30mA(circuit, standard) {
-    const socketLimit = standard === 'UK' ? 20 : 32;
-    if (circuit.kind === 'socket') return { required: circuit.ratedA <= socketLimit, rule: 'a.c. socket-outlets \u2264 ' + socketLimit + ' A for general use (' + (standard === 'UK' ? 'UK national variation of IEC 60364-4-41 411.3.3' : 'IEC 60364-4-41 411.3.3') + ')' };
+    const socketLimit = 32;
+    if (circuit.kind === 'socket') return { required: circuit.ratedA <= socketLimit, rule: 'a.c. socket-outlets \u2264 32 A (' + (standard === 'UK' ? 'BS 7671:2018+A2:2022 411.3.3; outside dwellings it may be omitted only where a documented risk assessment shows it is not necessary' : 'IEC 60364-4-41 411.3.3') + ')' };
     if (circuit.kind === 'mobile-outdoor') return { required: circuit.ratedA <= 32, rule: 'a.c. mobile equipment for use outdoors \u2264 32 A (IEC 60364-4-41 411.3.3)' };
     return { required: false, rule: 'not one of the circuit kinds that 411.3.3 names \u2014 check your national wiring rules (e.g. luminaires in some codes)' };
   }
@@ -11104,8 +11104,13 @@ function resetRelayImportModal(){
     const bannerColor = s.totalChecked===0 ? 'var(--text-dim)' : (s.allPass ? 'var(--accent-teal)' : 'var(--accent-red)');
     $('phSummary').innerHTML = s.totalChecked===0
       ? hint('Nothing to check yet \u2014 add grading pairs, attach a damage curve to a device, or enter a device\u2019s max load above.')
-      : `<span style="color:${bannerColor}; font-weight:700; font-size:15px;">${s.totalPass} / ${s.totalChecked} checks pass</span>` +
-        ` &nbsp; Grading ${s.grading.pass}/${s.grading.checked} &nbsp;|&nbsp; Damage margin ${s.damage.pass}/${s.damage.checked}${s.damage.noOverlap?' ('+s.damage.noOverlap+' no overlap)':''} &nbsp;|&nbsp; Pickup/load ${s.load.pass}/${s.load.checked}`;
+      : (()=>{
+          const part = (name, r, extra)=> r.checked ? `${name} ${r.pass}/${r.checked}${extra||''}` : `${name} <span style="color:var(--text-dim);">not assessed</span>`;
+          const notAssessed = [s.grading.checked?null:'grading', s.damage.checked?null:'damage margin', s.load.checked?null:'pickup/load'].filter(Boolean);
+          return `<span style="color:${bannerColor}; font-weight:700; font-size:15px;">${s.totalPass} / ${s.totalChecked} checks pass</span>` +
+            ` &nbsp; ${part('Grading', s.grading)} &nbsp;|&nbsp; ${part('Damage margin', s.damage, s.damage.noOverlap?' ('+s.damage.noOverlap+' no overlap)':'')} &nbsp;|&nbsp; ${part('Pickup/load', s.load)}` +
+            (notAssessed.length ? `<div style="margin-top:6px; color:var(--text-dim); font-size:12.5px;">Assessment incomplete — not assessed: ${notAssessed.join(', ')}. A pass covers only the checks listed.</div>` : '');
+        })();
 
     $('phGradingSection').style.display = st.gradingResults.length ? 'block' : 'none';
     if(st.gradingResults.length){
@@ -11142,7 +11147,7 @@ function resetRelayImportModal(){
       <tr><td class="hdr" colspan="2">Checked by</td><td class="hdr" colspan="2">Date</td></tr><tr><td class="sub" colspan="2">&nbsp;</td><td class="sub" colspan="2">&nbsp;</td></tr>
       <tr><td class="hdr" colspan="2">Approved by</td><td class="hdr" colspan="2">Date</td></tr><tr><td class="sub" colspan="2">&nbsp;</td><td class="sub" colspan="2">&nbsp;</td></tr></table>`;
     let h = `<div class="pr-tb" style="padding:16px 0; border-bottom:2px solid #111;"><h1 style="margin:0; font-size:20px;">Settings Philosophy Sweep</h1><p style="margin:6px 0 0; font-size:11px; color:#555;">${eh(NOTE)}</p></div>`;
-    h += `<table class="sheet-table" style="margin-top:14px;"><tr><td class="hdr">Overall</td></tr><tr><td class="sub"><b>${s.totalPass} / ${s.totalChecked} checks pass</b> (house minimum CTI ${st.houseMinCTI}s, damage margin fraction ${st.damageMargin}, pickup/load minimum ratio ${st.loadMinRatio})</td></tr></table>`;
+    h += `<table class="sheet-table" style="margin-top:14px;"><tr><td class="hdr">Overall</td></tr><tr><td class="sub"><b>${s.totalPass} / ${s.totalChecked} checks pass</b> (house minimum CTI ${st.houseMinCTI}s, damage margin fraction ${st.damageMargin}, pickup/load minimum ratio ${st.loadMinRatio})${(()=>{ const na=[s.grading.checked?null:'grading', s.damage.checked?null:'damage margin', s.load.checked?null:'pickup/load'].filter(Boolean); return na.length ? '<br>Assessment incomplete \u2014 not assessed: '+na.join(', ')+'.' : ''; })()}</td></tr></table>`;
     if(st.gradingResults.length){
       h += `<table class="sheet-table" style="margin-top:10px;"><tr><td class="hdr" colspan="5">Rule 1 \u2014 Grading (CTI): ${s.grading.pass}/${s.grading.checked} pass</td></tr>
         <tr><th class="colhead">Upstream / Downstream</th><th class="colhead">Configured CTI</th><th class="colhead">vs. house min</th><th class="colhead">Worst margin</th><th class="colhead">Result</th></tr>
@@ -11229,7 +11234,7 @@ function resetRelayImportModal(){
       let html = '<table class="grading-table" style="width:100%;"><thead><tr><th>Equation</th><th>Requirement (Ealreq)</th></tr></thead><tbody>' +
         r.components.map(c=>`<tr><td>${eh(c.eq)}</td><td>${f(c.value)} V</td></tr>`).join('') + '</tbody></table>';
       html += `<p style="margin:8px 0 4px;">Governing: <b>${eh(r.governing.eq)}</b> \u2192 Ealreq = <b style="color:var(--text);">${f(r.ealreq)} V</b></p>`;
-      const factorLabel = r.vkFactor===H.VKFACTOR_BS3938 ? '1/1.2 (precise BS 3938 class-X)' : '~0.8 (Hitachi approximation)';
+      const factorLabel = r.vkFactor===H.VKFACTOR_BS3938 ? '1/1.2 (BS 3938 class-X convention)' : '~0.8 (Hitachi approximation)';
       html += `<p style="margin:4px 0;">Required Vk [${factorLabel}] = ${r.vkFactor.toFixed(4)} \u00d7 ${f(r.ealreq)} = <b style="color:var(--text);">${f(r.requiredVk)} V</b> (i.e. \u2265 ${r.requiredVkRoundedUp} V)</p>`;
       if(vk>0){ html += `<p style="margin:6px 0;">Available CT Vk = ${vk} V &nbsp; ${okp(H.satisfiesRequirement(vk, r.requiredVk), 'SATISFIES the requirement', 'DOES NOT satisfy the requirement')}</p>`; }
       resEl.innerHTML = html;
@@ -11328,7 +11333,7 @@ function resetRelayImportModal(){
       let html = '<table class="grading-table" style="width:100%;"><thead><tr><th>Equation</th><th>Requirement (Ealreq)</th></tr></thead><tbody>' +
         r.components.map(c=>`<tr><td>${eh(c.eq)}</td><td>${f(c.value)} V</td></tr>`).join('') + '</tbody></table>';
       html += `<p style="margin:8px 0 4px;">Governing: <b>${eh(r.governing.eq)}</b> \u2192 Ealreq = <b style="color:var(--text);">${f(r.ealreq)} V</b></p>`;
-      const factorLabel = r.vkFactor===H.VKFACTOR_BS3938 ? '1/1.2 (precise BS 3938 class-X)' : '~0.8 (Hitachi approximation)';
+      const factorLabel = r.vkFactor===H.VKFACTOR_BS3938 ? '1/1.2 (BS 3938 class-X convention)' : '~0.8 (Hitachi approximation)';
       html += `<p style="margin:4px 0;">Required Vk [${factorLabel}] = ${r.vkFactor.toFixed(4)} \u00d7 ${f(r.ealreq)} = <b style="color:var(--text);">${f(r.requiredVk)} V</b> (i.e. \u2265 ${r.requiredVkRoundedUp} V)</p>`;
       if(vk>0){ html += `<p style="margin:6px 0;">Available CT Vk = ${vk} V &nbsp; ${okp(H.satisfiesRequirement(vk, r.requiredVk), 'SATISFIES the requirement', 'DOES NOT satisfy the requirement')}</p>`; }
       resEl.innerHTML = html;
@@ -11460,7 +11465,7 @@ function resetRelayImportModal(){
       out += `<table class="sheet-table" style="margin-top:8px;"><tr><td class="hdr" colspan="2">CT adequacy requirements</td></tr>
         ${s.r.components.map(c=>`<tr><td class="sub">Eq ${eh(c.eq)}</td><td class="sub">Ealreq = ${f(c.value)} V</td></tr>`).join('')}
         <tr><td class="sub"><b>Governing</b></td><td class="sub"><b>${eh(s.r.governing.eq)} \u2014 Ealreq = ${f(s.r.ealreq)} V</b></td></tr>
-        <tr><td class="sub">Vk conversion [${s.r.vkFactor===H.VKFACTOR_BS3938?'1/1.2 precise BS 3938':'~0.8 Hitachi approx.'}]</td><td class="sub">${s.r.vkFactor.toFixed(4)} \u00d7 ${f(s.r.ealreq)} = ${f(s.r.requiredVk)} V (i.e. \u2265 ${s.r.requiredVkRoundedUp} V)</td></tr>
+        <tr><td class="sub">Vk conversion [${s.r.vkFactor===H.VKFACTOR_BS3938?'1/1.2 BS 3938 class-X convention':'~0.8 Hitachi approx.'}]</td><td class="sub">${s.r.vkFactor.toFixed(4)} \u00d7 ${f(s.r.ealreq)} = ${f(s.r.requiredVk)} V (i.e. \u2265 ${s.r.requiredVkRoundedUp} V)</td></tr>
         ${s.vk!=null?`<tr><td class="sub">Available CT Vk</td><td class="sub"><b>${s.vk} V \u2014 ${H.satisfiesRequirement(s.vk,s.r.requiredVk)?'SATISFIES':'DOES NOT SATISFY'} the requirement</b></td></tr>`:''}</table>`;
       return out;
     }
