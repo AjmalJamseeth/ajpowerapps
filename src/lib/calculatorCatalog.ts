@@ -183,7 +183,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     icon: "Gauge",
     calculators: [
       { name: "4-20mA Current Loop", description: "Loop voltage budget for a 2-wire loop-powered transmitter — wire voltage drop, transmitter headroom, and maximum cable length by AWG.", href: "/calculators/current-loop-4-20ma", status: "live" },
-      { name: "Intrinsic Safety (IS) Verification", description: "IEC 60079-14 entity concept — voltage/current/power and capacitance/inductance checks (with the 1% rule) for combining a barrier with IS field apparatus and cable.", href: "/calculators/intrinsic-safety", status: "live" },
+      { name: "Intrinsic Safety (IS) Verification", description: "IEC 60079-11 / IEC 60079-14 entity concept — voltage/current/power and capacitance/inductance checks (with the 1% rule) for combining a barrier with IS field apparatus and cable.", href: "/calculators/intrinsic-safety", status: "live" },
       { name: "Thermocouple & RTD", description: "NIST ITS-90 thermocouple mV-to-temperature with cold-junction compensation (K/J/T/E), plus IEC 60751 Callendar-Van Dusen RTD conversion with lead-wire compensation.", href: "/calculators/thermocouple-rtd", status: "live" },
       { name: "Fire & Gas Detection Loop Budget", description: "Standby and alarm-condition voltage budget for a multi-detector fire/gas initiating device circuit with an end-of-line resistor.", href: "/calculators/fg-loop", status: "live" },
     ],

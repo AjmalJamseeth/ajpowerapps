@@ -267,7 +267,7 @@ export default function Home() {
                 </div>
                 <p className="mt-2 flex-1 text-sm text-muted">{g.description}</p>
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-muted">{g.calculators.length} calculators</span>
+                  <span className="text-muted">{g.calculators.length} {g.calculators.length === 1 ? "tool" : "calculators"}</span>
                   <span className="font-semibold text-accent-2 group-hover:opacity-80">View category →</span>
                 </div>
               </Link>

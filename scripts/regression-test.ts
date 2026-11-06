@@ -2355,7 +2355,7 @@ section("Worked examples (November 2026)");
 {
   section("Site search index");
   const idx = buildSearchIndex();
-  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === 65);
+  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === 67);
 }
 
 section("Published figures");

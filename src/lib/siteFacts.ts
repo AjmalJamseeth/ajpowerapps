@@ -19,6 +19,7 @@ export const CHANGE_LOG: ChangeEntry[] = [
       "IEC 61850 SCL editor and guide: Type 1A GOOSE APPIDs (0x8000–0xBFFF) and Type 1A sampled-value APPIDs (0xC000–0xFFFF) are now recognised instead of being flagged. The report troubleshooting text now covers runtime reservation, enabling, data sets and trigger options.",
       "EV Charging: the cable is now sized so its rating covers the selected breaker (Ib ≤ In ≤ Iz), not just the design current. A list beside the result shows which checks are and are not performed.",
       "CT knee-point conversions are described as conventions (about 80 % or 1/1.2), not as exact relationships.",
+      "Added two IEC 61850 worked examples (duplicate GOOSE addresses; tracing an unresolved GOOSE subscription), site search, and a Terms of use & disclaimer page.",
     ],
   },
   {
