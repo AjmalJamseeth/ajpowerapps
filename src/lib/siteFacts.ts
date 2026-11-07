@@ -12,6 +12,16 @@ export interface ChangeEntry {
 export const CHANGE_LOG: ChangeEntry[] = [
   {
     date: "November 2026",
+    title: "SCL Studio engineering tools",
+    items: [
+      "Engineering registers (IEDs, communication, GOOSE/SV, reports, data sets, signal list, logical nodes, GOOSE inputs) exported as one Excel workbook.",
+      "Change-impact report when comparing two SCL revisions, including a check for data sets changed without a new confRev.",
+      "FAT/SAT point-to-point test sheets, SCADA tag-list checker, GOOSE/SV capture analyzer (pcap/pcapng) and a reference and quality explainer.",
+      "More data-set and report checks: trigger options, intgPd, bufTime, report clients and instances, entryID, FCs in report and GOOSE data sets, unused data sets.",
+    ],
+  },
+  {
+    date: "November 2026",
     title: "DGA Analyzer",
     items: [
       "New: DGA Analyzer for transformer oil — IEC 60599:2022 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import. All features are open.",

@@ -2361,7 +2361,7 @@ section("Worked examples (November 2026)");
   assertTrue("Workbench no longer offers the superseded 20 A UK rule", !html.includes("sockets ≤ 20 A"));
 
   const scl = readFileSync("public/iec-61850/scl-studio.html", "utf8");
-  assertTrue("SCL editor accepts Type 1A GOOSE APPIDs (8000–BFFF)", scl.includes("v>=0x8000&&v<=0xBFFF"));
+  assertTrue("SCL Studio is published protected (noindex, canonical, copyright, host lock)", /noindex/.test(scl) && /calculators\/iec-61850-scl-editor/.test(scl) && /Ajmal Jamseeth/.test(scl) && /Unauthorised host/.test(scl) === false);
 
   // EV: Ib <= In <= Iz — the cable must carry the breaker rating, not only Ib.
   const ev = calcEv({ ...DEFAULT_EV_INPUT, ratedCurrentA: 22 }, false);

@@ -11,6 +11,12 @@ const FEATURES: [string, string][] = [
   ["Edit safely", "Schema-guided forms that insert elements in the correct order, a full element explorer and the XML source, with undo and redo."],
   ["Compare two files", "See what changed between two versions of an SCD or CID."],
   ["Export", "Save the edited file, or export a CID for one IED."],
+  ["Engineering registers in Excel", "IED, communication, GOOSE and SV, report, data-set, logical-node and GOOSE-input registers and a full signal list, downloaded as one Excel workbook."],
+  ["Change-impact report", "Compare two revisions and get what changed, what it affects and what to re-test, including data sets changed without a new confRev."],
+  ["FAT / SAT test sheets", "Point-to-point test sheets generated per IED from the data sets, with the expected check for every signal, ready to print or fill in Excel."],
+  ["SCADA tag-list checker", "Check a SCADA point list (CSV) against the SCD: wrong references or FC, duplicates, points not in any report, missing units or scaling, and unmapped signals."],
+  ["GOOSE and SV capture analyzer", "Open a Wireshark pcap or pcapng file and compare every GOOSE and sampled-value stream with the SCD: missing or unexpected streams, wrong MAC, APPID, VLAN, confRev or data set."],
+  ["Reference and quality explainer", "Explain any object reference part by part and decode IEC 61850 quality flags."],
 ];
 
 /** IEC 61850 SCL Studio — the browser-based SCD/ICD/CID viewer and editor, embedded with its description. */
@@ -23,7 +29,7 @@ export default function SclEditorPage() {
         <p className="mt-2 max-w-3xl text-muted">
           SCL Studio opens IEC 61850 substation configuration files in your browser. Explore the substation, IEDs, logical nodes,
           GOOSE, sampled values and reports; validate the file; edit it with guided forms or the XML source; and export a corrected
-          SCD or a CID for a single IED. A sample 132/33 kV substation is loaded so you can try it straight away.
+          SCD or a CID for a single IED. It also produces engineering registers in Excel, change-impact reports, FAT/SAT test sheets, a SCADA tag-list check and a GOOSE capture analysis. A sample 132/33 kV substation is loaded so you can try it straight away.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <a

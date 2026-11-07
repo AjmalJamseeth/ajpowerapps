@@ -39,7 +39,7 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
   },
   "/calculators/iec-61850-scl-editor": {
     title: "IEC 61850 SCL Editor – SCD, ICD, CID Viewer",
-    description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD, CID and IID files, check IEDs, GOOSE, sampled values and addresses, validate, edit and export.",
+    description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD and CID files, validate, edit, export signal lists to Excel, compare revisions, make FAT/SAT test sheets and analyse GOOSE captures.",
   },
   "/calculators/max-demand": {
     title: "Maximum Demand Calculator & Demand Factor Table",
