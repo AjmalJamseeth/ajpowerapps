@@ -1530,3 +1530,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
   domain-locked to ajpowerapps.com; it will not run on localhost or Vercel previews).
 - Readable source is kept outside the repo (apps_cleaned/04 CABLE SUITE). Rebuild with tools/protect-app.js
   (lock CABLESUITE), then add the noindex/canonical lines to the head. Review notes: CHANGES v6.md there.
+
+## Engineering Suites and Sketch Studio (November 2026)
+
+- Hub page src/app/suites, list in src/lib/suites.ts (menu, hub and home strip all read it).
+- Sketch Studio page: src/app/calculators/engineering-sketch-studio; app: public/sketch-studio/index.html
+  (protected, domain-locked). Readable source: apps_cleaned/07 DIAGRAM TOOL. Rebuild with
+  tools/protect-app.js (lock SKETCHSTUDIO), then add the noindex/canonical lines to the head.

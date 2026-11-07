@@ -60,4 +60,16 @@ export const SUITES: Suite[] = [
     ],
     standards: "IEC 60599:2022, IEEE C57.104-2019",
   },
+  {
+    name: "Engineering Sketch Studio",
+    short: "Sketch Studio (drawings)",
+    href: "/calculators/engineering-sketch-studio",
+    tagline: "Single-line diagrams, schematics and process sketches in the browser.",
+    points: [
+      "620 symbols: electrical, instrumentation, mechanical, civil, IT, control logic and flowchart",
+      "Wires snap to terminals, with wire numbers, tags, title blocks and multiple sheets",
+      "BOM, instrument index, terminal and cable schedules; SVG, DXF, PNG and PDF export",
+    ],
+    standards: "IEC 60617 / IEEE 315 style symbols, ANSI C37.2 device numbers",
+  },
 ];

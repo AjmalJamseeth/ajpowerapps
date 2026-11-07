@@ -116,6 +116,11 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     description:
       "Online cable engineering suite: LV/MV cable schedule sizing to IEC 60364-5-52 and IEC 60502-2, derating, voltage drop, fault level, IEC 60287 rating, pulling tension and test planning.",
   },
+  "/calculators/engineering-sketch-studio": {
+    title: "Single Line Diagram Software Online – SLD Drawing",
+    description:
+      "Draw single-line diagrams, schematics, loop sheets and P&ID-style sketches online: 620 engineering symbols, terminal-snapping wires, title blocks, BOM and schedules, SVG/DXF/PDF export.",
+  },
   "/calculators/protection-suite": {
     title: "Protection Coordination Software (Online)",
     description:

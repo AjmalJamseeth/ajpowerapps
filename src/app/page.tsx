@@ -165,7 +165,7 @@ export default function Home() {
               All engineering suites →
             </Link>
           </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {SUITES.map((s) => (
               <Link key={s.href} href={s.href} className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent-2/60">
                 <div className="font-semibold text-foreground">{s.name}</div>

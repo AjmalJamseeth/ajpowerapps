@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 813;
+export const AUTOMATED_CHECKS = 814;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,14 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Engineering Suites and Engineering Sketch Studio",
+    items: [
+      "New Engineering Suites menu and page bringing the full applications together; each one also stays listed in its own category.",
+      "New: Engineering Sketch Studio for single-line diagrams, schematics, loop sheets and process sketches, with 620 symbols, schedules generated from the drawing and SVG/DXF/PDF export. All features are open.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Cable Engineering Suite",

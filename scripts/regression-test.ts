@@ -2514,6 +2514,12 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Engineering Sketch Studio page");
+  const essHtml = readFileSync("public/sketch-studio/index.html", "utf8");
+  assertTrue("Sketch Studio is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(essHtml) && /calculators\/engineering-sketch-studio/.test(essHtml) && /Ajmal Jamseeth/.test(essHtml) && /AJPA-SKETCHSTUDIO-/.test(essHtml));
+}
+
+{
   section("Engineering Suites hub");
   const liveHrefs = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
   assertTrue("Every engineering suite links to a live catalog page (and stays listed in its category)", SUITES.length >= 4 && SUITES.every((s) => liveHrefs.has(s.href)));

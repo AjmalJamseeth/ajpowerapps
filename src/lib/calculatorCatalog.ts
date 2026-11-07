@@ -184,6 +184,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     description: "4-20mA loop budgets, intrinsic safety, thermocouple/RTD conversion, and fire & gas loop power.",
     icon: "Gauge",
     calculators: [
+      { name: "Engineering Sketch Studio (drawing tool)", description: "Single-line diagrams, schematics, loop sheets, P&ID-style sketches and network diagrams in the browser: 620 symbols, terminal-snapping wires, title blocks, BOM, instrument index, terminal and cable schedules, and SVG/DXF/PDF export.", href: "/calculators/engineering-sketch-studio", status: "live" },
       { name: "4-20mA Current Loop", description: "Loop voltage budget for a 2-wire loop-powered transmitter — wire voltage drop, transmitter headroom, and maximum cable length by AWG.", href: "/calculators/current-loop-4-20ma", status: "live" },
       { name: "Intrinsic Safety (IS) Verification", description: "IEC 60079-11 / IEC 60079-14 entity concept — voltage/current/power and capacitance/inductance checks (with the 1% rule) for combining a barrier with IS field apparatus and cable.", href: "/calculators/intrinsic-safety", status: "live" },
       { name: "Thermocouple & RTD", description: "NIST ITS-90 thermocouple mV-to-temperature with cold-junction compensation (K/J/T/E), plus IEC 60751 Callendar-Van Dusen RTD conversion with lead-wire compensation.", href: "/calculators/thermocouple-rtd", status: "live" },
