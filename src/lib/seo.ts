@@ -33,6 +33,10 @@ export function pageMeta(path: string, title: string, description: string): Meta
 // for real queries (from Search Console): the words people type go first.
 // Keep titles under ~52 characters so " | AJapps" still fits in the result.
 const CALC_SEO: Record<string, { title: string; description: string }> = {
+  "/calculators/dga-analyzer": {
+    title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
+    description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
+  },
   "/calculators/iec-61850-scl-editor": {
     title: "IEC 61850 SCL Editor – SCD, ICD, CID Viewer",
     description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD, CID and IID files, check IEDs, GOOSE, sampled values and addresses, validate, edit and export.",

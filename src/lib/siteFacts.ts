@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 809;
+export const AUTOMATED_CHECKS = 810;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,13 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "DGA Analyzer",
+    items: [
+      "New: DGA Analyzer for transformer oil — IEC 60599:2022 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import. All features are open.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Learning series and earthing conductor sizing correction",

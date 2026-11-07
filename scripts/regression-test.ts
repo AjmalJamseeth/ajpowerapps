@@ -2491,6 +2491,12 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("DGA Analyzer page");
+  const dgaHtml = readFileSync("public/dga/dga-analyzer.html", "utf8");
+  assertTrue("DGA app is published protected (noindex, canonical, copyright, no EGA)", /noindex/.test(dgaHtml) && /calculators\/dga-analyzer/.test(dgaHtml) && /Ajmal Jamseeth/.test(dgaHtml) && !/\bEGA\b/.test(dgaHtml));
+}
+
+{
   section("Site search index");
   const idx = buildSearchIndex();
   assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);

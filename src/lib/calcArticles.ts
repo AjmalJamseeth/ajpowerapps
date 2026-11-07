@@ -13,6 +13,37 @@ export interface CalcArticle {
 }
 
 export const CALC_ARTICLES: Record<string, CalcArticle> = {
+  "/calculators/dga-analyzer": {
+    heading: "Dissolved gas analysis (DGA) of transformer oil",
+    paragraphs: [
+      "Faults inside an oil-filled transformer break down the oil and the paper insulation and release gases that dissolve in the oil. Which gases appear, and in what proportions, points to the type of fault: partial discharge produces mainly hydrogen, arcing produces acetylene, and overheating produces methane, ethane and ethylene in proportions that rise with temperature. Carbon monoxide and carbon dioxide indicate that the paper is involved.",
+      "IEC 60599 interprets a sample with three gas ratios and assigns one of six fault types. The Duval Triangle method plots the relative amounts of methane, ethylene and acetylene and is used alongside it because it always gives an answer. IEEE C57.104-2019 decides whether the gas levels and their rate of increase are high enough to act on.",
+    ],
+    formula: [
+      { label: "IEC 60599 ratios", text: "R1 = C2H2 / C2H4,  R2 = CH4 / H2,  R3 = C2H4 / C2H6" },
+      { label: "Duval Triangle 1 coordinates", text: "%CH4 = CH4 / (CH4 + C2H4 + C2H2) × 100, and likewise for C2H4 and C2H2" },
+    ],
+    table: {
+      caption: "IEC 60599 fault types and gas ratios",
+      headers: ["Fault", "Meaning", "C2H2/C2H4", "CH4/H2", "C2H4/C2H6"],
+      rows: [
+        ["PD", "Partial discharges", "NS", "< 0.1", "< 0.2"],
+        ["D1", "Discharges of low energy", "> 1", "0.1 – 0.5", "> 1"],
+        ["D2", "Discharges of high energy", "0.6 – 2.5", "0.1 – 1", "> 2"],
+        ["T1", "Thermal fault < 300 °C", "NS", "> 1 (NS)", "< 1"],
+        ["T2", "Thermal fault 300 – 700 °C", "< 0.1", "> 1", "1 – 4"],
+        ["T3", "Thermal fault > 700 °C", "< 0.2", "> 1", "> 4"],
+      ],
+      note: "NS = non-significant whatever the value. Ratios are only meaningful when gas levels are above typical values; confirm with a repeat sample.",
+    },
+    faqs: [
+      { q: "What does acetylene in transformer oil mean?", a: "Acetylene (C2H2) forms only at very high temperatures, typically in an electrical arc or a hot spot above about 700 °C. Even a few ppm rising between samples needs investigation." },
+      { q: "What is the Duval Triangle?", a: "A graphical method that plots the relative percentages of methane, ethylene and acetylene. The point falls in a zone that identifies the fault type (PD, D1, D2, T1, T2, T3 or a mixture DT)." },
+      { q: "How often should transformer oil be sampled for DGA?", a: "Typically once a year for large power transformers, more often after a fault, a Buchholz alarm or when gas levels are rising. Online DGA monitors give continuous data." },
+      { q: "Is my data uploaded?", a: "No. The analyzer runs in your browser and stores the fleet only there. Use Backup data to keep a copy as a file." },
+    ],
+  },
+
   "/calculators/ct-sizing": {
     heading: "How to size a protection CT",
     paragraphs: [

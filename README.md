@@ -1516,3 +1516,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
   250 °C bolted); SS from IEEE 80 Table 1 (AISI 304); Smin uses If·Df, not IG.
 - Known conservative simplifications in IEC 60909 engine: motor contribution kept in full in Ib
   (no μ·q decay); κ method B whenever several sources feed a fault.
+
+## DGA Analyzer (November 2026)
+
+- Page: src/app/calculators/dga-analyzer; app: public/dga/dga-analyzer.html (protected build,
+  domain-locked to ajpowerapps.com; it will not run on localhost or Vercel previews).
+- Readable source is kept outside the repo (apps_cleaned/02 DGA ANALYZER/FINAL). Rebuild with
+  tools/protect-app.js, then add the noindex/canonical lines to the head.

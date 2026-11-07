@@ -122,6 +122,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
       { name: "Busbar & Switchgear Rating", description: "First-principles continuous ampacity and temperature rise for rectangular busbars. Short-time thermal withstand and electrodynamic force check are advanced features.", href: "/calculators/busbar-rating", status: "live" },
       { name: "Insulation Resistance Checker", description: "IEEE 43-2013 minimum insulation resistance by winding type (100 MΩ, 5 MΩ or kV + 1 MΩ), with temperature correction to 40 °C.", href: "/calculators/insulation-resistance", status: "live" },
       { name: "Polarization Index (PI)", description: "PI = IR(10min)/IR(1min) with IEEE 43 condition bands and minimum-PI check by insulation class.", href: "/calculators/polarization-index", status: "live" },
+      { name: "DGA Analyzer (Transformer Oil)", description: "Dissolved gas analysis for oil-filled transformers: IEC 60599:2022 gas ratios, Duval Triangles 1, 4, 5 and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard, lab PDF import and reports.", href: "/calculators/dga-analyzer", status: "live" },
     ],
   },
   {
