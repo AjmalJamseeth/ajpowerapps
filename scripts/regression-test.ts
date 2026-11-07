@@ -17,6 +17,7 @@ import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import { buildSearchIndex } from "../src/lib/searchIndex";
 import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
 import { SUITES } from "../src/lib/suites";
+import { CALC_ARTICLES } from "../src/lib/calcArticles";
 import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
 import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
 import { encodeShare, decodeShare } from "../src/lib/shareState";
@@ -2517,6 +2518,36 @@ section("Worked examples (November 2026)");
   section("Engineering Sketch Studio page");
   const essHtml = readFileSync("public/sketch-studio/index.html", "utf8");
   assertTrue("Sketch Studio is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(essHtml) && /calculators\/engineering-sketch-studio/.test(essHtml) && /Ajmal Jamseeth/.test(essHtml) && /AJPA-SKETCHSTUDIO-/.test(essHtml));
+}
+
+{
+  section("Engineering Suites worked examples");
+  const S3 = Math.sqrt(3);
+  // Cable Suite C04: 75 kW DOL motor, 95 mm² Cu/XLPE, 150 m
+  const ib = 75000 / (S3 * 400 * 0.95 * 0.86);
+  const sin = Math.sqrt(1 - 0.86 * 0.86), sinSt = Math.sqrt(1 - 0.3 * 0.3);
+  const vdc = (S3 * ib * 0.150 * (0.2475 * 0.86 + 0.082 * sin)) / 400 * 100;
+  const st = (S3 * 7 * ib * 0.150 * (0.2475 * 0.3 + 0.082 * sinSt)) / 400 * 100 + 3;
+  const u0 = 400 / S3, ze = 0.95 * u0 / 12000, ia = 12 * ib;
+  const zs = ze + Math.hypot((0.2475 + 0.4935) * 0.150, 2 * 0.082 * 0.150), zsMax = 0.95 * u0 / ia;
+  assertTrue("C04: Ib 132.5 A, Iz 192.2 A, VD 2.19 % (total 4.65 %), start 12.19 %, Zs 0.1321 ≤ 0.1380 Ω", Math.abs(ib - 132.5) < 0.05 && Math.abs(298 * Math.sqrt(40 / 60) * 0.79 - 192.2) < 0.1 && Math.abs(vdc - 2.19) < 0.005 && Math.abs(2.457 + vdc - 4.65) < 0.005 && Math.abs(st - 12.19) < 0.01 && Math.abs(zs - 0.1321) < 0.0001 && Math.abs(zsMax - 0.1380) < 0.0001);
+  // Cable Suite C01: 11 kV feeder, adiabatic and screen checks
+  const kCu = 226 * Math.sqrt(Math.log((250 + 234.5) / (90 + 234.5)));
+  const kScr = 226 * Math.sqrt(Math.log((200 + 234.5) / (80 + 234.5)));
+  assertTrue("C01: Ib 105 A, k 143.1, Smin 119.8 mm², screen 5.3 mm², k-factors 0.617", Math.abs(2000 / (S3 * 11) - 105.0) < 0.05 && Math.abs(kCu - 143.1) < 0.05 && Math.abs((25000 * Math.sqrt(0.47)) / kCu - 119.8) < 0.05 && Math.abs((1000 * Math.sqrt(0.47)) / kScr - 5.3) < 0.05 && Math.abs(Math.sqrt(50 / 70) * 0.83 * 0.88 - 0.617) < 0.001);
+  // Cable Suite IEC 60287 module
+  const u = 2000 / 95, t4 = (1.2 / (2 * Math.PI)) * Math.log(u + Math.sqrt(u * u - 1));
+  const den = 0.35 + 3 * 1.1 * 0.03 + 3 * 1.1 * (0.05 + t4), I287 = Math.sqrt(60 / (0.161e-3 * den));
+  const t4tref = (1.5 / Math.PI) * 1.2 * (Math.log(2 * u) - 0.63);
+  assertTrue("IEC 60287 example: T4 0.714, I 354 A, trefoil T4 1.782", Math.abs(t4 - 0.714) < 0.0005 && Math.round(I287) === 354 && Math.abs(t4tref - 1.782) < 0.0005);
+  // DGA examples: IEC 60599 ratios and Duval coordinates
+  const tx204 = { h2: 210, ch4: 70, c2h6: 18, c2h4: 55, c2h2: 140, co: 360, co2: 2800 };
+  const tx101 = { h2: 50, ch4: 150, c2h6: 50, c2h4: 270, c2h2: 120, co: 380, co2: 3200 };
+  const d204 = tx204.ch4 + tx204.c2h4 + tx204.c2h2, d101 = tx101.ch4 + tx101.c2h4 + tx101.c2h2;
+  assertTrue("DGA TX-204: ratios 2.55 / 0.33 / 3.06 in the D1 row; Duval 26/21/53 (D1); TDCG 853", tx204.c2h2 / tx204.c2h4 > 1 && tx204.ch4 / tx204.h2 >= 0.1 && tx204.ch4 / tx204.h2 <= 0.5 && tx204.c2h4 / tx204.c2h6 > 1 && Math.round((100 * tx204.c2h4) / d204) === 21 && Math.round((100 * tx204.c2h2) / d204) === 53 && tx204.h2 + tx204.ch4 + tx204.c2h6 + tx204.c2h4 + tx204.c2h2 + tx204.co === 853);
+  assertTrue("DGA TX-101: C2H2/H2 2.4 (> 2, OLTC check), Duval 28/50/22, CO2/CO 8.4, TDCG 1020", tx101.c2h2 / tx101.h2 === 2.4 && Math.round((100 * tx101.ch4) / d101) === 28 && Math.round((100 * tx101.c2h4) / d101) === 50 && Math.abs(tx101.co2 / tx101.co - 8.42) < 0.01 && tx101.h2 + tx101.ch4 + tx101.c2h6 + tx101.c2h4 + tx101.c2h2 + tx101.co === 1020);
+  const suiteHrefs = new Set(SUITES.map((s) => s.href));
+  assertTrue("Every engineering suite has a How-to guide and at least one worked example", SUITES.every((s) => !!CALC_ARTICLES[s.href]?.howTo && WORKED_EXAMPLES.some((e) => e.calculatorHref === s.href)) && suiteHrefs.size === SUITES.length);
 }
 
 {

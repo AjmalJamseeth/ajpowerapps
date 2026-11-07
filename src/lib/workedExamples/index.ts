@@ -21,6 +21,7 @@ import { SERIES_SC_EXAMPLES } from "./seriesShortCircuit";
 import { SERIES_EARTHING_EXAMPLES } from "./seriesEarthing";
 import { SERIES_ARCFLASH_EXAMPLES } from "./seriesArcFlash";
 import { SERIES_PROTECTION_EXAMPLES } from "./seriesProtection";
+import { SUITES_EXAMPLES } from "./suites";
 
 export const WORKED_EXAMPLES: WorkedExample[] = [
   ...PROTECTION_EXAMPLES,
@@ -40,6 +41,7 @@ export const WORKED_EXAMPLES: WorkedExample[] = [
   ...SERIES_EARTHING_EXAMPLES,
   ...SERIES_ARCFLASH_EXAMPLES,
   ...SERIES_PROTECTION_EXAMPLES,
+  ...SUITES_EXAMPLES,
 ];
 
 export const TOTAL_EXAMPLES = WORKED_EXAMPLES.length;

@@ -10,10 +10,22 @@ export interface CalcArticle {
   formula?: { label: string; text: string }[];
   table?: { caption: string; headers: string[]; rows: string[][]; note?: string };
   faqs: { q: string; a: string }[];
+  /** Step-by-step "how to use" guide, shown first on the full applications (Engineering Suites). */
+  howTo?: { title: string; steps: { title: string; text: string }[] };
 }
 
 export const CALC_ARTICLES: Record<string, CalcArticle> = {
   "/calculators/dga-analyzer": {
+    howTo: {
+      title: "How to use the DGA Analyzer",
+      steps: [
+        { title: "Start with the demonstration fleet", text: "Six transformers with sample histories are loaded the first time you open the analyzer. The Fleet dashboard ranks them by condition: TX-204, TX-101 and its tap changer TX-101-LTC are critical, TX-118 and TX-225 are at caution, and TX-330 is normal. Click any row to open its diagnosis." },
+        { title: "Read the diagnosis of one transformer", text: "Asset diagnosis shows the most probable fault with a confidence, the other candidates, the probable physical location and recommended actions, then every method side by side: IEEE C57.104-2019 status, IEC 60599 ratios, Rogers, Duval Triangles 1, 4 and 5 and Pentagons 1 and 2, plus CO2/CO. Click a result in the fleet table to jump to the Interpretation Guide for that method." },
+        { title: "Check the trend, not just the latest sample", text: "The gas-trend charts, the TDCG history and the gassing events show how fast each gas is rising. A gassing event opens when the IEEE rate-of-rise limit is exceeded on two consecutive samples (one for acetylene), so a developing fault is caught before it crosses an absolute threshold." },
+        { title: "Add your own transformers and samples", text: "Use ≡ Manage assets to add a transformer (manufacturer, year, voltage, MVA, cooling, oil type and conservator or sealed design all affect the thresholds). Add samples with + Add DGA sample, or use ↓ Import lab data to read the gas values from a laboratory PDF and check them before saving." },
+        { title: "Report and back up", text: "Generate PDF report gives a printable diagnosis for one transformer; Export CSV gives the fleet table. Your fleet is stored only in your browser, so use Backup data regularly and Restore data on another computer." },
+      ],
+    },
     heading: "Dissolved gas analysis (DGA) of transformer oil",
     paragraphs: [
       "Faults inside an oil-filled transformer break down the oil and the paper insulation and release gases that dissolve in the oil. Which gases appear, and in what proportions, points to the type of fault: partial discharge produces mainly hydrogen, arcing produces acetylene, and overheating produces methane, ethane and ethylene in proportions that rise with temperature. Carbon monoxide and carbon dioxide indicate that the paper is involved.",
@@ -41,6 +53,89 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
       { q: "What is the Duval Triangle?", a: "A graphical method that plots the relative percentages of methane, ethylene and acetylene. The point falls in a zone that identifies the fault type (PD, D1, D2, T1, T2, T3 or a mixture DT)." },
       { q: "How often should transformer oil be sampled for DGA?", a: "Typically once a year for large power transformers, more often after a fault, a Buchholz alarm or when gas levels are rising. Online DGA monitors give continuous data." },
       { q: "Is my data uploaded?", a: "No. The analyzer runs in your browser and stores the fleet only there. Use Backup data to keep a copy as a file." },
+    ],
+  },
+
+  "/calculators/cable-engineering-suite": {
+    howTo: {
+      title: "How to use the Cable Engineering Suite",
+      steps: [
+        { title: "Open Getting Started & Help", text: "It is the first item in the suite's menu. It explains the three ways to work (one cable, a whole project, or a single check), what the worked example project contains, the standards used and what ORANGE values mean." },
+        { title: "Size one cable with Quick Size", text: "Choose the load type, power, voltage, route length and installation method. The suite returns the smallest cable that passes current capacity, voltage drop, short circuit, earth-fault loop impedance and motor starting, and says why the next size down fails." },
+        { title: "Set up a project in Project & Design Basis", text: "Enter the site conditions once: air and ground temperature, solar gain, soil resistivity and depth, system voltages and earthing, cmax/cmin and the voltage-drop limits for each circuit category. Every circuit in the project uses them. Save the project file to keep your work." },
+        { title: "Size every circuit in the Sizing Engine", text: "Enter the buses with their fault levels and clearing times from your short-circuit and protection studies, then one row per circuit. Click Load worked example project to see ten finished circuits (11 kV feeders, LV incomer, MCC and lighting feeders, motors and a heater). Each circuit shows the recommended size, the governing criterion and every check." },
+        { title: "Run the detailed studies you need", text: "The numbered modules cover derating, voltage drop, short-circuit withstand, IEC 60287 thermal rating with mutual heating, sheath bonding, HV sequence impedance and induced voltage, pulling tension, tray, duct and trench fill, drum cutting, glands and lugs, and site tests (insulation resistance, conductor resistance, VLF/AC withstand)." },
+        { title: "Issue the results", text: "Print the calculation sheet for one circuit, the full submission report, the cable schedule and the drum schedule, or export the schedule to Excel. Each module also has its own PDF report." },
+      ],
+    },
+    heading: "Cable sizing: the checks every cable must pass",
+    paragraphs: [
+      "A cable is correctly sized when it carries the design current continuously without overheating in its actual installation, keeps the voltage at the load within limits, survives the fault current until the protection clears it, and, on TN systems, lets the protective device disconnect an earth fault within the required time. Motor circuits add a fifth check: the voltage dip while the motor starts.",
+      "The tabulated current ratings in IEC 60364-5-52 (LV) and IEC 60502-2 (MV) apply to reference conditions — 30 °C air, 20 °C ground, one circuit, a set soil resistivity and depth. Real installations are hotter, grouped and buried deeper, so the rating is multiplied by correction factors. The Sizing Engine checks every standard size against all criteria and recommends the smallest one that passes, naming the criterion that governs.",
+    ],
+    formula: [
+      { label: "Derated capacity", text: "Iz = n × Itab × kT × kG × kS × kD ≥ In (or Ib for motor starters)" },
+      { label: "Temperature factor", text: "kT = √((θmax − θa) / (θmax − θref)), θref = 30 °C in air, 20 °C in ground" },
+      { label: "Voltage drop (3-phase)", text: "ΔU% = √3 · Ib · L · (R cos φ + X sin φ) / U × 100" },
+      { label: "Short-circuit withstand", text: "S ≥ √(I²t) / k, k = 143 for Cu/XLPE (90 → 250 °C)" },
+      { label: "Earth-fault loop", text: "Zs = Ze + |(R1 + R2) + j·2X| · L / n ≤ cmin · U0 / Ia" },
+    ],
+    faqs: [
+      { q: "Which standards does the suite use?", a: "IEC 60364-5-52:2009 Annex B for LV ratings and correction factors, IEC 60502-2:2014 Annex B for MV ratings and factors, IEC 60228 for conductor resistance, IEC 60287 for AC resistance and thermal rating, IEC 60909 for fault level and IEC 60364-4-41, 4-43 and 5-54 for protection and earth-fault checks." },
+      { q: "What do ORANGE values mean?", a: "A rating or factor outside the published tables, for example a group of more than 20 circuits or a depth beyond the table. The suite holds the nearest safe-side value and flags it so you can confirm it with the manufacturer or a full IEC 60287 calculation." },
+      { q: "Is my project uploaded?", a: "No. The suite runs in your browser. Save the project file to your computer and open it again later." },
+    ],
+  },
+
+  "/calculators/protection-suite": {
+    howTo: {
+      title: "How to use the Protection Coordination Suite",
+      steps: [
+        { title: "Open the demo project", text: "On the start screen choose ▶ Demo Project. It loads a seven-device HV–LV study: a 400 kV grid intertie relay (REL-01, IEEE EI), a 250 MVA transformer differential (REL-02, 87T), a 33 kV incomer (REL-04, IEC SI) and feeder (REL-05, IEC VI), a 6.6 kV motor relay, a 400 V LSIG MCCB (MCCB-12) and a 32 A type C MCB." },
+        { title: "Read the time-current chart", text: "All curves are drawn on one log–log chart, referred to the plot reference voltage (0.4 kV in the demo) so devices on different voltage levels can be compared. Reference curves such as the transformer through-fault withstand and the cable ampacity line are drawn as well." },
+        { title: "Check grading", text: "The Protection Grading Check table lists each upstream/downstream pair with the time margin at 2, 3, 5, 8, 12 and 20 times the downstream pickup, against the required coordination time interval (CTI). Hover a cell to see the current and both operating times. In the demo, REL-05 over MCCB-12 fails at ×3 and ×5." },
+        { title: "Use Suggest — then re-check upstream", text: "💡 Suggest proposes the smallest TMS that gives the CTI at every checked multiple. Applying it to one relay often breaks the pair above it, so work up the system from the load end and re-check every pair. The worked example on this page walks through the demo." },
+        { title: "Add your own devices", text: "＋ Add Circuit/Device creates IDMT, definite-time, LSIG, thermal-magnetic, MCB, fuse, motor or custom-equation devices; 📥 Import Devices reads a device list from a spreadsheet. Link each device to its upstream device so the grading pairs are created." },
+        { title: "Use the setting tools and issue sheets", text: "The tools cover OC setting checks, 87T/87B/87L, distance (21), 46/49/51V, 81/27/59, CT and VT sizing, Metrosil/high-impedance sizing, LV board coordination and RCDs. 📄 Settings Sheet and 📑 Export All Settings Sheets produce the relay setting sheets; 💾 Save Project keeps the study as a file." },
+      ],
+    },
+    heading: "Protection coordination: what the grading check shows",
+    paragraphs: [
+      "Protection coordination makes sure that the device nearest a fault operates first and that each upstream device waits long enough to let it clear. For inverse-time relays this means a minimum time margin, the coordination time interval (CTI), between the downstream and upstream curves at every fault current both can see. Typical CTIs are 0.3–0.4 s for electromechanical relays and 0.2–0.3 s between numerical relays with fast breakers.",
+      "Checking a single fault level is not enough: inverse curves of different shapes (standard, very and extremely inverse) converge or cross, so the suite checks the margin at several multiples of the downstream pickup and at the maximum fault level. Each change to a setting moves the margin to the next device up, which is why grading is always worked from the load end towards the source.",
+    ],
+    formula: [
+      { label: "IEC 60255-151 inverse time", text: "t = TMS × k / ((I/Is)^α − 1); SI: k = 0.14, α = 0.02; VI: k = 13.5, α = 1; EI: k = 80, α = 2" },
+      { label: "Grading margin", text: "Δt = t_upstream − t_downstream ≥ CTI at every current both devices see" },
+    ],
+    faqs: [
+      { q: "Why does fixing one pair break another?", a: "Raising the TMS of a relay to grade above the device below it also slows that relay, so the relay above it now has less margin. Grade from the load end upwards and re-check every pair after each change." },
+      { q: "Why are differential relays excluded from the grading table?", a: "Differential protection (87T, 87B, 87L) is unit protection: it only operates for faults inside its zone, so it has no time margin to grade. The suite shows its operate/restraint characteristic separately." },
+      { q: "Is my project uploaded?", a: "No. The workbench runs in your browser; save the project as a file to keep it." },
+    ],
+  },
+
+  "/calculators/engineering-sketch-studio": {
+    howTo: {
+      title: "How to use Engineering Sketch Studio",
+      steps: [
+        { title: "Look at the demo drawing", text: "The studio opens with a transformer feeder: busbar BUS A, breaker CB-1, current transformer CT-1, transformer T1 (Dyn11), breaker CB-2, busbar BUS B and a 50/51 relay R1, inside a title block. Click Load demo at any time to bring it back, and Help or Manual for the full guide." },
+        { title: "Place symbols", text: "Search the library on the left (620 symbols in Electrical, Instrumentation, Mechanical, Civil, IT & networking, Control logic, Flowchart and Annotation) and drag a symbol onto the sheet, or click it and click on the sheet. R rotates the selected symbol." },
+        { title: "Wire and tag", text: "Choose Wire and click from one terminal to another; wires snap to the symbol terminals on a 2.5 mm grid. Auto-tag numbers the devices (CB-1, CT-1 …), Wire nos and Number terminals number the wires and terminals, and Check tags finds duplicates and missing tags. Set the properties of the selected symbol in the panel on the right." },
+        { title: "Use the wizards and templates", text: "Wizards draw a transformer feeder, a switchboard or a flowchart from a list of steps; Templates start a drawing from a saved layout. Add sheets with + Add sheet and fill the title block with Title block…." },
+        { title: "Generate the schedules", text: "Reports builds lists from the drawing: bill of materials, parts database, instrument index, terminal schedule, cabinet labels, loop sheets, process line list, protection functions and settings, ANSI ↔ IEC cross-reference, LAN/fibre cable schedule and CSV equipment and connection lists." },
+        { title: "Save and export", text: "Save downloads the project file (nothing is uploaded). Export writes SVG, DXF for CAD, PNG at 150–600 DPI, vector PDF through the browser's print dialog, or all sheets as a ZIP." },
+      ],
+    },
+    heading: "Single-line diagrams and schematics",
+    paragraphs: [
+      "A single-line diagram (SLD) shows a three-phase power system with one line per circuit: sources, busbars, breakers, transformers, instrument transformers, protection relays and loads, with their ratings. It is the first drawing of any electrical project and the reference for the short-circuit, coordination and arc-flash studies.",
+      "Engineering Sketch Studio draws SLDs, schematics, loop sheets, P&ID-style process sketches, network diagrams and flowcharts with symbols in the style of IEC 60617 and IEEE 315. Because the symbols carry tags and properties, the schedules — bill of materials, terminal and cable lists, protection functions — come straight from the drawing.",
+    ],
+    faqs: [
+      { q: "Can I open the drawing in AutoCAD?", a: "Yes. Export ▸ DXF writes the current sheet, or all sheets in one file, with lines, circles, polylines, text and layers." },
+      { q: "Are the symbols to IEC 60617?", a: "They are original artwork in the style of IEC 60617 and IEEE 315, with ANSI device numbers for protection functions. Check them against your company's drawing standard before issue." },
+      { q: "Where are my drawings stored?", a: "In your browser while you work. Use Save to download the project file and Open to reopen it later; nothing is uploaded." },
     ],
   },
 
@@ -192,6 +287,17 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
   },
 
   "/calculators/iec-61850-scl-editor": {
+    howTo: {
+      title: "How to use SCL Studio",
+      steps: [
+        { title: "Open a file or the sample substation", text: "Choose Open file (or drop an .scd, .icd, .cid, .iid or .ssd file on the page), or click Sample to load S13_Sample.scd: a 132/33 kV substation with a line distance IED (P132_Q01), a transformer differential IED (P87T_T1) and a station gateway (GW1). The file is read in your browser and never uploaded." },
+        { title: "Get the overview", text: "Overview counts the IEDs, logical devices, logical nodes, data sets, GOOSE, sampled values, reports and ExtRef inputs, and shows the validation result. The sample has 3 IEDs, 4 data sets, 2 GOOSE control blocks and 2 report control blocks, with no errors or warnings." },
+        { title: "Follow the data flows", text: "Data flow shows the subscription matrix and every control block with its data set, confRev, address and subscribers. In the sample, P132_Q01 sends a trip GOOSE (APPID 0011) to P87T_T1, P87T_T1 sends a differential intertrip GOOSE (APPID 0021) back, and GW1 receives two reports from P132_Q01." },
+        { title: "Validate and correct", text: "Validation lists errors and warnings with the element they refer to: duplicate MAC/APPID, IP addresses outside the subnet, unresolved ExtRefs, data-set members that do not exist, report settings and more. Edit addresses in Communication (or use Auto-assign MAC/APPID), or any attribute in Explorer, then validate again." },
+        { title: "Produce engineering documents", text: "Registers exports the IED, communication, GOOSE/SV, report and signal lists to one Excel workbook. Test sheets generates FAT/SAT point-to-point sheets from the data sets (5 signals for the sample's gateway reports). Compare shows what changed between two revisions, and SCADA check compares a SCADA tag list with the file." },
+        { title: "Export", text: "Export writes the corrected SCD, or a CID for one IED. Always import a CID into the manufacturer's configuration tool before loading it into the device." },
+      ],
+    },
     heading: "IEC 61850 SCL files explained",
     paragraphs: [
       "IEC 61850 describes a whole substation automation system in XML files written in SCL, the System Configuration description Language defined in IEC 61850-6. The same language describes what an IED can do, how the substation is built, which IEDs exchange which signals, and the network addresses they use. Different file extensions mark different stages of the engineering process.",

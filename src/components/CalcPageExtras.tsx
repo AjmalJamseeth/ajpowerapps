@@ -53,6 +53,36 @@ export function CalcPageExtras({ href }: { href: string }) {
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-16 text-sm leading-relaxed text-muted">
+      {article?.howTo && (
+        <section id="how-to-use" className="mb-6 rounded-xl border border-accent-2/40 bg-surface p-6">
+          <h2 className="text-xl font-semibold text-foreground">{article.howTo.title}</h2>
+          <ol className="mt-4 space-y-4">
+            {article.howTo.steps.map((st, i) => (
+              <li key={st.title} className="flex gap-3">
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-accent-2/15 text-sm font-semibold text-accent-2">{i + 1}</span>
+                <div>
+                  <h3 className="font-semibold text-foreground">{st.title}</h3>
+                  <p className="mt-1">{st.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+      {article?.howTo && examples.length > 0 && (
+        <section id="worked-examples" className="mb-6 rounded-xl border border-border bg-surface p-6">
+          <h2 className="text-xl font-semibold text-foreground">Worked examples</h2>
+          <p className="mt-1">Step-by-step examples you can follow in the application, with every result checked against it.</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {examples.map((ex) => (
+              <Link key={ex.slug} href={`/examples/${ex.slug}`} className="rounded-lg border border-border p-4 transition-colors hover:border-accent-2/60">
+                <div className="font-semibold text-foreground">{ex.title.replace(/^Worked Example:\s*/, "")}</div>
+                <p className="mt-1 text-xs">{ex.dek}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       {article && (
         <article className="rounded-xl border border-border bg-surface p-6">
           <h2 className="text-xl font-semibold text-foreground">{article.heading}</h2>

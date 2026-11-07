@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 814;
+export const AUTOMATED_CHECKS = 820;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -14,6 +14,7 @@ export const CHANGE_LOG: ChangeEntry[] = [
     date: "November 2026",
     title: "Engineering Suites and Engineering Sketch Studio",
     items: [
+      "How-to guides on all five application pages, eight new worked examples followed in the applications themselves (Cable Suite motor and 11 kV feeders and IEC 60287 rating, Protection Suite demo grading, two DGA diagnoses, SCL Studio sample substation, Sketch Studio feeder drawing), and a Getting Started page inside the Cable Engineering Suite.",
       "New Engineering Suites menu and page bringing the full applications together; each one also stays listed in its own category.",
       "New: Engineering Sketch Studio for single-line diagrams, schematics, loop sheets and process sketches, with 620 symbols, schedules generated from the drawing and SVG/DXF/PDF export. All features are open.",
     ],
