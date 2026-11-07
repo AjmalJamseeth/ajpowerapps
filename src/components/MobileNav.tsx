@@ -15,7 +15,7 @@ export function MobileNav() {
   const close = () => setOpen(false);
 
   return (
-    <div className="sm:hidden">
+    <div className="md:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

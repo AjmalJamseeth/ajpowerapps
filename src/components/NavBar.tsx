@@ -56,7 +56,7 @@ export default function NavBar() {
             AJ<span className="text-accent">apps</span>
           </span>
         </Link>
-        <nav className="hidden items-center gap-5 text-sm text-muted sm:flex lg:gap-8">
+        <nav className="hidden items-center gap-5 whitespace-nowrap text-sm text-muted md:flex lg:gap-8">
           <div className="group relative">
             <Link
               href="/calculators"
@@ -173,7 +173,7 @@ export default function NavBar() {
           <FeedbackButton
             calculatorName="General / Site Feedback"
             buttonLabel="💬 Feedback"
-            buttonClassName="hidden text-sm text-muted hover:text-accent-2 transition-colors sm:inline"
+            buttonClassName="hidden whitespace-nowrap text-sm text-muted hover:text-accent-2 transition-colors lg:inline"
           />
           <Link
             href="/calculators"

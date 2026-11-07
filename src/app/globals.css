@@ -43,12 +43,13 @@ body {
    ThemeToggle.tsx and persisted to localStorage. Dark (the :root values
    above) remains the default when no class is present. ---- */
 .light {
-  --background: #ffffff;
+  /* Soft grey page with white cards, so sections and cards stand out */
+  --background: #eef2f6;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --foreground: #0f172a;
+  --surface-2: #e7ecf2;
+  --foreground: #0b1b2e;
   --muted: #475569;
-  --border: #cbd5e1;
+  --border: #d3dbe6;
   --pass: #15803d;
   --fail: #b91c1c;
   --accent: #b45309;
@@ -260,4 +261,123 @@ body {
     padding: 12px;
     background: #fff;
   }
+}
+
+/* =====================================================================
+   Light theme contrast layer: grey page, white cards with soft shadows,
+   grey/white section banding, and navy bands for the home hero and the
+   footer. Report-mode (PDF capture) is excluded so reports stay plain.
+   ===================================================================== */
+.light:not(.report-mode) header.sticky {
+  background-color: rgba(255, 255, 255, 0.94);
+  border-bottom-color: #d3dbe6;
+  box-shadow: 0 1px 0 rgba(11, 27, 46, 0.04), 0 6px 18px -12px rgba(11, 27, 46, 0.25);
+}
+.light:not(.report-mode) header.sticky::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0e7490, #14b8a6 45%, #f59e0b);
+  opacity: 0.85;
+}
+.light:not(.report-mode) header .group > div.absolute {
+  box-shadow: 0 18px 40px -16px rgba(11, 27, 46, 0.35);
+}
+
+/* White cards that lift off the grey page */
+.light:not(.report-mode) .rounded-xl.border.bg-surface,
+.light:not(.report-mode) .rounded-lg.border.bg-surface {
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(11, 27, 46, 0.05), 0 6px 18px -10px rgba(11, 27, 46, 0.18);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.light:not(.report-mode) a.rounded-xl.border:hover,
+.light:not(.report-mode) a.rounded-lg.border:hover {
+  border-color: rgba(14, 116, 144, 0.55);
+  box-shadow: 0 2px 4px rgba(11, 27, 46, 0.06), 0 14px 30px -12px rgba(14, 116, 144, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Section banding: sections marked bg-surface/40 become a deeper grey band;
+   plain sections sit on the lighter page grey */
+.light:not(.report-mode) section.bg-surface\/40 {
+  background-color: #e3e9f0;
+}
+.light:not(.report-mode) .band-white {
+  background-color: #ffffff;
+}
+
+/* Inputs: white with a clear border and a teal focus ring */
+.light:not(.report-mode) input,
+.light:not(.report-mode) select,
+.light:not(.report-mode) textarea {
+  background-color: #ffffff;
+  border-color: #c3cedb;
+}
+.light:not(.report-mode) input:focus,
+.light:not(.report-mode) select:focus,
+.light:not(.report-mode) textarea:focus {
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.18);
+}
+
+/* Primary buttons and logo mark: warm amber gradient */
+.light:not(.report-mode) button.bg-accent,
+.light:not(.report-mode) a.bg-accent,
+.light:not(.report-mode) span.bg-accent.rounded-md {
+  background-image: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 4px 14px -6px rgba(180, 83, 9, 0.6);
+}
+
+/* Navy bands: home hero and footer */
+.light:not(.report-mode) .hero-band,
+.light:not(.report-mode) footer {
+  --background: #0b1f3a;
+  --surface: rgba(255, 255, 255, 0.07);
+  --surface-2: rgba(255, 255, 255, 0.12);
+  --foreground: #f1f5f9;
+  --muted: #b8c4d4;
+  --border: rgba(255, 255, 255, 0.16);
+  --accent: #fbbf24;
+  --accent-2: #5eead4;
+  color: var(--foreground);
+}
+.light:not(.report-mode) .hero-band {
+  background-color: #0b1f3a;
+  background-image:
+    radial-gradient(900px circle at 10% -10%, rgba(20, 184, 166, 0.28), transparent 55%),
+    radial-gradient(700px circle at 100% 10%, rgba(245, 158, 11, 0.18), transparent 50%),
+    linear-gradient(160deg, #0b1f3a 0%, #102c4f 55%, #0d2442 100%);
+}
+.light:not(.report-mode) .hero-band .hero-grid,
+.light:not(.report-mode) .hero-band .hero-wave { display: block; }
+.light:not(.report-mode) .hero-band .hero-grid {
+  background-image:
+    linear-gradient(rgba(148, 197, 255, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 197, 255, 0.10) 1px, transparent 1px);
+}
+.light:not(.report-mode) .hero-band .hero-title {
+  background-image: linear-gradient(100deg, #ffffff 15%, #99f6e4 60%, #fcd34d 100%);
+  -webkit-text-fill-color: transparent;
+}
+.light:not(.report-mode) .hero-band a.bg-accent {
+  background-image: linear-gradient(135deg, #fde68a 0%, #fbbf24 45%, #f59e0b 100%);
+}
+/* keep the search box white and readable inside the navy hero */
+.light:not(.report-mode) .hero-band #search {
+  --surface: #ffffff;
+  --surface-2: #eef2f6;
+  --foreground: #0b1b2e;
+  --muted: #475569;
+  --border: #d3dbe6;
+  color: var(--foreground);
+}
+.light:not(.report-mode) footer {
+  background-color: #0b1f3a;
+  border-top: 3px solid #0e7490;
+}
+.light:not(.report-mode) .band-white a.rounded-xl.border {
+  border-top: 3px solid #0e7490;
 }

@@ -91,7 +91,7 @@ export default function Home() {
       <NavBar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border">
+      <section className="hero-band relative overflow-hidden border-b border-border">
         <div className="hero-grid pointer-events-none absolute inset-0" />
         <div className="hero-orb -left-24 top-0 h-80 w-80 bg-accent-2/25" />
         <div className="hero-orb -right-16 top-24 h-72 w-72 bg-accent/20" style={{ animationDelay: "-6s" }} />
@@ -154,7 +154,7 @@ export default function Home() {
       </section>
 
       {/* Engineering suites */}
-      <section className="border-b border-border">
+      <section className="band-white border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-14">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
