@@ -10,6 +10,9 @@
 // has a pass/fail concept — one passing and one failing boundary case.
 
 import { readFileSync } from "fs";
+// The published workbench (public/protection-suite/index.html) is obfuscated; the engine-parity
+// checks read the readable source, which is kept outside this repository.
+const PCW_SOURCE = process.env.PCW_SOURCE || "../apps_cleaned/01 IDMT CURVE/Protection Suite SOURCE - keep private.html";
 import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import { buildSearchIndex } from "../src/lib/searchIndex";
 import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
@@ -2140,7 +2143,7 @@ section("IEEE 1584-2018 Arc Flash (Annex D)");
 // --------------------------------------------------------------------------
 {
   section("Curve engine parity (TypeScript port vs the workbench's own engine)");
-  const html = readFileSync("public/protection-suite/index.html", "utf8");
+  const html = readFileSync(PCW_SOURCE, "utf8");
   const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
   const src = scripts.find((s) => s.includes("PCW_CurveEngine") && s.includes("function iecTime"))!;
   const holder: { exports: Record<string, unknown> } = { exports: {} };
@@ -2348,7 +2351,7 @@ section("Worked examples (November 2026)");
 // --------------------------------------------------------------------------
 {
   section("Fourth review (November 2026)");
-  const html = readFileSync("public/protection-suite/index.html", "utf8");
+  const html = readFileSync(PCW_SOURCE, "utf8");
   const src = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((x) => x.includes("root.PCW_LvCoord = mod"))!;
   const holder: { exports: Record<string, unknown> } = { exports: {} };
   new Function("module", "window", src)(holder, undefined);
@@ -2488,6 +2491,12 @@ section("Worked examples (November 2026)");
   assertTrue("P3: inrush 672 A → 0.36 s; LV fault 1,360 A → 0.26 s; damage 4.76 s", Math.abs(si(0.1, 671.83, 100) - 0.3605) < 0.002 && Math.abs(si(0.1, 1360.25, 100) - 0.2612) < 0.002 && Math.abs(1250 / Math.pow(1360.25 / 83.978, 2) - 4.764) < 0.01);
   assertTrue("P4: R2 TMS 0.065 needed; R3 TMS 0.119 needed", Math.abs((si(0.05, 22905, 400) * 1.2 + 0.1) / si(1, 22905, 2500) - 0.0646) < 0.001 && Math.abs((si(0.07, 37407, 2500) * 1.2 + 0.1) / si(1, 1360.25, 100) - 0.1192) < 0.001);
   assertTrue("P5: feeder EF 0.186 s; SBEF TMS 0.13 just short, 0.14 gives 0.523 s", Math.abs(si(0.1, 3777, 100) - 0.1858) < 0.001 && si(0.13, 3777, 600) < si(0.1, 3777, 100) + 0.3 && Math.abs(si(0.14, 3777, 600) - 0.523) < 0.002);
+}
+
+{
+  section("Protection Suite published build");
+  const pub = readFileSync("public/protection-suite/index.html", "utf8");
+  assertTrue("Protection Suite is published obfuscated with noindex and copyright", /noindex/.test(pub) && /Ajmal Jamseeth/.test(pub) && !/function iecTime/.test(pub));
 }
 
 {
