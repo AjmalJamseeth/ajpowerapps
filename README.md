@@ -1523,3 +1523,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
   domain-locked to ajpowerapps.com; it will not run on localhost or Vercel previews).
 - Readable source is kept outside the repo (apps_cleaned/02 DGA ANALYZER/FINAL). Rebuild with
   tools/protect-app.js, then add the noindex/canonical lines to the head.
+
+## Cable Engineering Suite (November 2026)
+
+- Page: src/app/calculators/cable-engineering-suite; app: public/cable-suite/index.html (protected build,
+  domain-locked to ajpowerapps.com; it will not run on localhost or Vercel previews).
+- Readable source is kept outside the repo (apps_cleaned/04 CABLE SUITE). Rebuild with tools/protect-app.js
+  (lock CABLESUITE), then add the noindex/canonical lines to the head. Review notes: CHANGES v6.md there.

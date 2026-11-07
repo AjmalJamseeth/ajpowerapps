@@ -2506,6 +2506,12 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Cable Engineering Suite page");
+  const csHtml = readFileSync("public/cable-suite/index.html", "utf8");
+  assertTrue("Cable Suite is published protected (noindex, canonical, copyright, no ad-blocker scripts)", /noindex/.test(csHtml) && /calculators\/cable-engineering-suite/.test(csHtml) && /Ajmal Jamseeth/.test(csHtml) && !/adguard/i.test(csHtml) && !/\bEGA\b/.test(csHtml));
+}
+
+{
   section("Site search index");
   const idx = buildSearchIndex();
   assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);

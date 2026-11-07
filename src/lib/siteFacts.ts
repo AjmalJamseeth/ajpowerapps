@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 811;
+export const AUTOMATED_CHECKS = 812;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Cable Engineering Suite",
+    items: [
+      "New: Cable Engineering Suite, a full LV/MV cable design workbench. It covers cable schedule sizing, derating, fault level, earth-fault loop, IEC 60287 rating, sheath bonding, pulling, fill, drums and site tests. All features are open.",
+      "Before publishing, its tables were checked against IEC 60364-5-52:2009 and IEC 60502-2:2014. 98 buried (D1/D2) LV ratings were corrected, and the duct grouping factors for single-core circuits now use the single-core values. Above 2.5 K·m/W the direct-buried soil factor row is now used.",
+      "Fixes made during the review: the IEC 60287 module now uses Ω/m, insulation-resistance temperature correction runs in the right direction, harmonic neutral current follows IEC 60364-5-52 Annex E, and the IEC 60909 KT factor is applied. The earth-fault loop includes cable reactance, pulling handles three cables in a duct, and duct-bank ratings include the duct air space and wall.",
+    ],
+  },
   {
     date: "November 2026",
     title: "SCL Studio engineering tools",

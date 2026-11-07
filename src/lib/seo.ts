@@ -111,6 +111,11 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     description:
       "NEC Article 430 motor calculator: FLC tables, conductor size, maximum breaker or fuse, overload setting, disconnect, starting voltage dip and motor feeder.",
   },
+  "/calculators/cable-engineering-suite": {
+    title: "Cable Sizing Software – IEC 60364 & IEC 60502",
+    description:
+      "Online cable engineering suite: LV/MV cable schedule sizing to IEC 60364-5-52 and IEC 60502-2, derating, voltage drop, fault level, IEC 60287 rating, pulling tension and test planning.",
+  },
   "/calculators/protection-suite": {
     title: "Protection Coordination Software (Online)",
     description:

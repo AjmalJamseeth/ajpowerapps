@@ -77,6 +77,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
       "Cable and conductor sizing, fill and pulling calculations, and overhead/distribution line voltage regulation and losses.",
     icon: "Cable",
     calculators: [
+      { name: "Cable Engineering Suite (full workbench)", description: "Complete LV/MV cable design: cable schedule sizing to IEC 60364-5-52 and IEC 60502-2, derating, fault level, earth-fault loop, IEC 60287 rating with mutual heating, sheath bonding, pulling, fill, drums and site test planning.", href: "/calculators/cable-engineering-suite", status: "live" },
       { name: "Cable Sizing & Voltage Drop", description: "IEC 60364-5-52 current-carrying capacity and voltage drop, with derating, short-circuit withstand, CPC sizing and lifecycle cost as advanced features.", href: "/calculators/cable-sizing", status: "live" },
       { name: "MV Cable Sizing", description: "IEC 60287 first-principles current rating for three single-core MV/HV cables in trefoil, buried direct or in ducts, with sheath losses and dielectric loss.", href: "/calculators/mv-cable", status: "live" },
       { name: "Conduit Fill", description: "NEC Chapter 9 Tables 1, 4 and 5 conduit fill with the smallest compliant trade size, or the IET/BS 7671 space-factor method (about 40% conduit, 45% trunking).", href: "/calculators/conduit-fill", status: "live" },
