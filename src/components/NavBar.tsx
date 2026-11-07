@@ -22,10 +22,12 @@ import {
   BookOpen,
   LayoutGrid,
   Search,
+  AppWindow,
   type LucideIcon,
 } from "lucide-react";
 import { TOTAL_GUIDES } from "@/lib/guides";
 import { TOTAL_EXAMPLES } from "@/lib/workedExamples";
+import { SUITES } from "@/lib/suites";
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
@@ -54,7 +56,7 @@ export default function NavBar() {
             AJ<span className="text-accent">apps</span>
           </span>
         </Link>
-        <nav className="hidden items-center gap-8 text-sm text-muted sm:flex">
+        <nav className="hidden items-center gap-5 text-sm text-muted sm:flex lg:gap-8">
           <div className="group relative">
             <Link
               href="/calculators"
@@ -85,6 +87,36 @@ export default function NavBar() {
                   className="block rounded-md px-2 py-2 text-sm font-semibold text-accent-2 transition-colors hover:bg-surface-2"
                 >
                   Browse all {TOTAL_LIVE_COUNT} calculators →
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="group relative">
+            <Link
+              href="/suites"
+              className="flex items-center gap-1 hover:text-foreground transition-colors"
+            >
+              Engineering Suites
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+            <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2 rounded-xl border border-border bg-surface p-2 opacity-0 shadow-xl transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              {SUITES.map((s) => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  className="flex items-start gap-2.5 rounded-md px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                >
+                  <AppWindow className="mt-0.5 h-4 w-4 flex-none text-accent-2" aria-hidden="true" />
+                  <span className="block font-medium text-foreground">{s.short}</span>
+                </Link>
+              ))}
+              <div className="mt-1 border-t border-border pt-1">
+                <Link
+                  href="/suites"
+                  className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-semibold text-accent-2 transition-colors hover:bg-surface-2"
+                >
+                  <LayoutGrid className="h-4 w-4 flex-none" aria-hidden="true" />
+                  All engineering suites →
                 </Link>
               </div>
             </div>
@@ -145,7 +177,7 @@ export default function NavBar() {
           />
           <Link
             href="/calculators"
-            className="hidden rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90 sm:inline-block"
+            className="hidden rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90 lg:inline-block"
           >
             Browse calculators
           </Link>

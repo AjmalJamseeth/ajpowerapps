@@ -15,6 +15,8 @@ import { readFileSync } from "fs";
 const PCW_SOURCE = process.env.PCW_SOURCE || "../apps_cleaned/01 IDMT CURVE/Protection Suite SOURCE - keep private.html";
 import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import { buildSearchIndex } from "../src/lib/searchIndex";
+import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
+import { SUITES } from "../src/lib/suites";
 import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
 import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
 import { encodeShare, decodeShare } from "../src/lib/shareState";
@@ -2509,6 +2511,12 @@ section("Worked examples (November 2026)");
   section("Cable Engineering Suite page");
   const csHtml = readFileSync("public/cable-suite/index.html", "utf8");
   assertTrue("Cable Suite is published protected (noindex, canonical, copyright, no ad-blocker scripts)", /noindex/.test(csHtml) && /calculators\/cable-engineering-suite/.test(csHtml) && /Ajmal Jamseeth/.test(csHtml) && !/adguard/i.test(csHtml) && !/\bEGA\b/.test(csHtml));
+}
+
+{
+  section("Engineering Suites hub");
+  const liveHrefs = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
+  assertTrue("Every engineering suite links to a live catalog page (and stays listed in its category)", SUITES.length >= 4 && SUITES.every((s) => liveHrefs.has(s.href)));
 }
 
 {

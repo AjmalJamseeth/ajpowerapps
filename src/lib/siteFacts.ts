@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 812;
+export const AUTOMATED_CHECKS = 813;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"

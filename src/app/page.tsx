@@ -22,6 +22,7 @@ import {
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
+import { SUITES } from "@/lib/suites";
 
 export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical Engineering Calculators", "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Electrical Engineering Calculators" } };
 
@@ -147,6 +148,30 @@ export default function Home() {
                 <div className="text-xs text-muted">{s.label}</div>
                 <div className="mt-1 text-lg font-semibold text-foreground">{s.value}</div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Engineering suites */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-semibold text-foreground">Engineering Suites</h2>
+              <p className="mt-1 max-w-2xl text-sm text-muted">Full applications for whole studies, running in your browser with nothing uploaded.</p>
+            </div>
+            <Link href="/suites" className="text-sm font-semibold text-accent-2 hover:underline">
+              All engineering suites →
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SUITES.map((s) => (
+              <Link key={s.href} href={s.href} className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent-2/60">
+                <div className="font-semibold text-foreground">{s.name}</div>
+                <p className="mt-2 text-sm text-muted">{s.tagline}</p>
+                <span className="mt-3 inline-block text-sm font-semibold text-accent-2">Open →</span>
+              </Link>
             ))}
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, GraduationCap, BookOpen, LayoutGrid } from "lucide-react";
+import { Menu, X, GraduationCap, BookOpen, LayoutGrid, AppWindow } from "lucide-react";
 import { FeedbackButton } from "@/components/FeedbackButton";
 
 // Everything the desktop NavBar exposes through its hover dropdowns
@@ -36,6 +36,14 @@ export function MobileNav() {
             >
               <LayoutGrid className="h-4 w-4 flex-none text-accent-2" aria-hidden="true" />
               Calculators
+            </Link>
+            <Link
+              href="/suites"
+              onClick={close}
+              className="flex items-center gap-2.5 rounded-md px-2 py-2.5 font-medium text-foreground hover:bg-surface-2"
+            >
+              <AppWindow className="h-4 w-4 flex-none text-accent-2" aria-hidden="true" />
+              Engineering Suites
             </Link>
             <Link
               href="/guides"
