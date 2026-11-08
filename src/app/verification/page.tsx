@@ -106,6 +106,16 @@ export default function VerificationPage() {
           <li>Every page and PDF report shows the build it came from ({BUILD_LABEL} for this page), so a result can be traced to a release.</li>
         </ul>
 
+        <div className="mt-6 rounded-xl border border-accent-2/40 bg-surface p-5">
+          <h3 className="font-semibold text-foreground">Validation register</h3>
+          <p className="mt-1 text-sm text-muted">
+            Per-case evidence for the cable, protection, earthing and arc-flash calculators: inputs, the independent reference
+            (standard table, the standard&apos;s own worked example or hand calculation), expected and actual values, tolerance and result.{" "}
+            <Link href="/validation" className="text-accent-2 hover:underline">Open the validation register</Link> or{" "}
+            <a href="/validation/register.csv" className="text-accent-2 hover:underline">download it as CSV</a>.
+          </p>
+        </div>
+
         <h2 className="mt-12 text-xl font-semibold text-foreground">Known issues and open items</h2>
         <ul className="mt-4 list-disc space-y-2 pl-6 text-muted">
           {KNOWN_ISSUES.map((k) => (

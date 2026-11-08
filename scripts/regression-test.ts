@@ -17,6 +17,7 @@ import { AUTOMATED_CHECKS } from "../src/lib/siteFacts";
 import { buildSearchIndex } from "../src/lib/searchIndex";
 import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
 import { SUITES } from "../src/lib/suites";
+import { runValidation } from "../src/lib/validation";
 import { CALC_ARTICLES } from "../src/lib/calcArticles";
 import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
 import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
@@ -2518,6 +2519,13 @@ section("Worked examples (November 2026)");
   section("Engineering Sketch Studio page");
   const essHtml = readFileSync("public/sketch-studio/index.html", "utf8");
   assertTrue("Sketch Studio is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(essHtml) && /calculators\/engineering-sketch-studio/.test(essHtml) && /Ajmal Jamseeth/.test(essHtml) && /AJPA-SKETCHSTUDIO-/.test(essHtml));
+}
+
+{
+  section("Validation register (independent references)");
+  for (const r of runValidation()) {
+    assertTrue(`${r.id} ${r.tool}: ${r.quantity} — expected ${r.expected} ${r.unit}, got ${Number(r.actual.toPrecision(6))} (tol ±${r.tolerancePct} %)`, r.pass);
+  }
 }
 
 {

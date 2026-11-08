@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 822;
+export const AUTOMATED_CHECKS = 860;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -10,7 +10,7 @@ export const KNOWN_ISSUES: string[] = [
   "Battery sizing (IEEE 485): random / intermittent loads are not yet added to the result.",
   "Protection Coordination Suite: device curves are generic IEC/IEEE, LSIG, MCB and fuse characteristics, not manufacturer-specific data. Enter actual device curves (custom points) for final settings.",
   "Cable sizing uses typical cable reactance values; use the manufacturer's data for long or large cables where voltage drop governs.",
-  "A downloadable per-tool validation register (inputs, independent reference, tolerance and result) is in preparation, starting with the Cable, Protection and Earthing tools.",
+  "The validation register covers the cable, protection, earthing and arc-flash calculators so far; the other calculators and the Engineering Suites will be added. The Cable Engineering Suite has its own 198-value check against an independently prepared workbook (Sizing Engine ▸ Verify).",
 ];
 
 export interface ChangeEntry {
@@ -21,6 +21,13 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Validation register",
+    items: [
+      "New validation register (/validation, with CSV download): 38 cases for the cable, protection, earthing and arc-flash calculators, each compared with an independent reference — printed IEC 60364-5-52 table values, the worked examples published in IEEE Std 80-2013 (Annex B) and IEEE Std 1584-2018 (Annex D), and hand calculations from the IEC 60255-151, IEEE C37.112, IEC 60364-4-43, IEC 60228, BS 7430 and IEEE 142 formulas. All cases run before every release.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Page text and example corrections",
