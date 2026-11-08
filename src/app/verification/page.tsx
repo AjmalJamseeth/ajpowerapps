@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { BUILD_LABEL } from "@/lib/buildInfo";
 import NavBar from "@/components/NavBar";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL, breadcrumbJsonLd, pageMeta } from "@/lib/seo";
 import { TOTAL_EXAMPLES } from "@/lib/workedExamples";
-import { AUTOMATED_CHECKS, CHANGE_LOG } from "@/lib/siteFacts";
+import { AUTOMATED_CHECKS, CHANGE_LOG, KNOWN_ISSUES } from "@/lib/siteFacts";
 
 export const metadata = pageMeta(
   "/verification",
@@ -81,6 +82,36 @@ export default function VerificationPage() {
             periodically. Confirmed errors are corrected, a test is added for each, and the change is logged below.
           </li>
         </ol>
+
+        <h2 className="mt-12 text-xl font-semibold text-foreground">What the tests do and do not prove</h2>
+        <ul className="mt-4 list-disc space-y-2 pl-6 text-muted">
+          <li>
+            A regression test stops a result from changing unnoticed. On its own it does not prove the original result was right —
+            that comes from the reference it is compared with.
+          </li>
+          <li>
+            The references are independent of the code wherever possible: printed table values (IEC 60364-5-52, IEC 60502-2,
+            NEC 310.16), worked cases published in the standards themselves (for example the IEEE 1584-2018 Annex D arc-flash
+            cases), and hand calculations shown step by step in the worked examples.
+          </li>
+          <li>
+            The full applications (Engineering Suites) carry their own checks: for example the Cable Engineering Suite compares 198
+            results of its ten-circuit example project with an independently prepared workbook.
+          </li>
+          <li>
+            The tests have not been witnessed by a third party, and the site has not yet had an independent technical review. Use
+            the results for preliminary design and independent checking; final designs, protection settings and earthing safety
+            need project-specific verification.
+          </li>
+          <li>Every page and PDF report shows the build it came from ({BUILD_LABEL} for this page), so a result can be traced to a release.</li>
+        </ul>
+
+        <h2 className="mt-12 text-xl font-semibold text-foreground">Known issues and open items</h2>
+        <ul className="mt-4 list-disc space-y-2 pl-6 text-muted">
+          {KNOWN_ISSUES.map((k) => (
+            <li key={k}>{k}</li>
+          ))}
+        </ul>
 
         <h2 className="mt-12 text-xl font-semibold text-foreground">Known limitations</h2>
         <ul className="mt-4 list-disc space-y-2 pl-6 text-muted">

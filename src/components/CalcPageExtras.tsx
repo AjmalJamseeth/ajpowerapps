@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BUILD_LABEL } from "@/lib/buildInfo";
 import { categoryHref } from "@/lib/categories";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { CALC_ARTICLES } from "@/lib/calcArticles";
@@ -182,6 +183,8 @@ export function CalcPageExtras({ href }: { href: string }) {
         <Link href="/verification" className="text-accent-2 hover:underline">How results are checked</Link>
         {" · "}
         <Link href="/terms" className="text-accent-2 hover:underline">Terms &amp; disclaimer</Link>
+        {" · "}
+        <span title="Release that produced this page">{BUILD_LABEL}</span>
       </p>
     </section>
   );

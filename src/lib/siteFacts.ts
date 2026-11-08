@@ -2,6 +2,17 @@
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
 export const AUTOMATED_CHECKS = 822;
 
+// Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
+export const KNOWN_ISSUES: string[] = [
+  "SCL Studio does not validate files against the official IEC 61850-6 XML schema (XSD); it checks references and settings within the file. Use a schema validator or the system configuration tool for schema compliance.",
+  "Earthing grid design: the IEEE 80 §17 transferred-potential check is not yet calculated — review any metallic path crossing the grid boundary manually.",
+  "Lightning risk (IEC 62305-2): the Annex D SPD / LEMP checks are not yet included; the R1 risk result does not depend on them.",
+  "Battery sizing (IEEE 485): random / intermittent loads are not yet added to the result.",
+  "Protection Coordination Suite: device curves are generic IEC/IEEE, LSIG, MCB and fuse characteristics, not manufacturer-specific data. Enter actual device curves (custom points) for final settings.",
+  "Cable sizing uses typical cable reactance values; use the manufacturer's data for long or large cables where voltage drop governs.",
+  "A downloadable per-tool validation register (inputs, independent reference, tolerance and result) is in preparation, starting with the Cable, Protection and Earthing tools.",
+];
+
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
   title: string;
@@ -14,6 +25,8 @@ export const CHANGE_LOG: ChangeEntry[] = [
     date: "November 2026",
     title: "Page text and example corrections",
     items: [
+      "Every page footer and PDF report now shows the build (release and date) that produced it. This page now lists what the tests do and do not prove, and the open items users should know about.",
+      "Cable Engineering Suite: the page states exactly where ratings and factors come from (tables, interpolation, safe-side values beyond the tables). SCL Studio: the page states which levels of checking it performs — XSD schema validation, device acceptance and network testing are not among them.",
       "Example texts brought in line with the calculators: lighting design (4,000 lm luminaires, UF 0.55), thermocouple (Type K 9.13 mV → 224.7 °C), harmonic K-factor 1.142, emergency-power load steps (50, 80 and 150 kW), EV charging (three-phase 400 V) and the CT-sizing example (E_ALF = ALF × Is × (Rct + Rb) = 105.6 V).",
       "CT sizing: the result is now labelled as the required secondary EMF E_ALF, with a note on comparing it with Vk for Class PX CTs.",
       "Features not yet built (earthing transferred-potential check and grid-spacing search, battery random loads, multi-string PV, lightning SPD/LEMP checks) are listed as planned additions instead of appearing as empty input panels.",

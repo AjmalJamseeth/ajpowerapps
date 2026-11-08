@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { BUILD_LABEL } from "@/lib/buildInfo";
 import { ShareButton } from "@/components/ShareButton";
 
 export interface ReportButtonProps {
@@ -252,7 +253,7 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
         </div>
         <p className="mt-3 text-xl font-semibold text-foreground">{title}</p>
         {standardsLine && <p className="mt-1 text-xs text-muted">{standardsLine}</p>}
-        <p className="mt-1 text-xs text-muted">Generated {generatedLabel}</p>
+        <p className="mt-1 text-xs text-muted">Generated {generatedLabel} · AJapps {BUILD_LABEL}</p>
         {filled.length > 0 && (
           <table className="mt-3 w-full border-collapse text-xs">
             <tbody>

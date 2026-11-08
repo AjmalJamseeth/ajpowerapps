@@ -381,3 +381,6 @@ body {
 .light:not(.report-mode) .band-white a.rounded-xl.border {
   border-top: 3px solid #0e7490;
 }
+
+/* Logo monogram drawn with CSS so crawlers read the brand as "AJapps", not "AAJapps" */
+.logo-mark::before { content: "A"; }

@@ -23,6 +23,7 @@ import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SUITES } from "@/lib/suites";
+import { BUILD_LABEL } from "@/lib/buildInfo";
 
 export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical Engineering Calculators", "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Electrical Engineering Calculators" } };
 
@@ -344,7 +345,8 @@ export default function Home() {
           <Link href="/terms" className="text-accent-2 hover:underline">
             Terms &amp; disclaimer
           </Link>
-          .
+          {" · "}
+          <span title="Release that produced this page">{BUILD_LABEL}</span>
         </div>
       </footer>
     </div>

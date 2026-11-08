@@ -59,9 +59,16 @@ export default function CableEngineeringSuitePage() {
             </li>
           ))}
         </ul>
+        <h2 className="mt-8 text-xl font-semibold text-foreground">Where the numbers come from</h2>
+        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-muted">
+          <li><span className="text-foreground">LV current ratings:</span> IEC 60364-5-52:2009 Tables B.52.2–B.52.13, used exactly as printed for the installation method, conductor, insulation and number of loaded conductors. Each circuit shows the table key it used.</li>
+          <li><span className="text-foreground">MV current ratings:</span> IEC 60502-2:2014 Tables B.2, B.3, B.6 and B.7 (XLPE, 6/10 kV basis; EPR cables use the same ratings). For three-core cables the lower of the armoured and unarmoured values is used.</li>
+          <li><span className="text-foreground">Correction factors:</span> temperature by the IEC formula; grouping, soil resistivity and depth from IEC 60364-5-52 Tables B.52.14–B.52.21 and IEC 60502-2 Tables B.10–B.21. Between tabulated points the factor is interpolated linearly. IEC 60502-2 gives soil and depth factors per conductor size; the suite uses the lowest value over all sizes (safe side).</li>
+          <li><span className="text-foreground">Outside the tables:</span> where a table stops (for example more than 20 circuits, or depths beyond the table) the nearest safe-side value is held and the result is flagged in <span className="font-semibold text-accent">orange</span>. Nothing is extrapolated silently.</li>
+          <li><span className="text-foreground">Resistance, reactance and thermal rating:</span> conductor resistance from IEC 60228; AC resistance (skin and proximity effect) and the current-rating equations from IEC 60287-1-1 and IEC 60287-2-1. Reactances are typical values for the cable type — use the manufacturer&apos;s data where available.</li>
+        </ul>
         <p className="mt-4 text-xs text-muted">
-          Tabulated ratings and correction factors are averages from the standards. Values outside the published tables are flagged
-          in orange. Confirm cable data, thermal resistances and loss factors with the manufacturer before issuing a design.
+          Confirm cable data, thermal resistances and loss factors with the manufacturer before issuing a design.
         </p>
       </div>
     </div>

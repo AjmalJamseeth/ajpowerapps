@@ -63,6 +63,24 @@ export default function SclEditorPage() {
             </li>
           ))}
         </ul>
+        <h2 className="mt-8 text-xl font-semibold text-foreground">What &ldquo;0 errors&rdquo; does and does not mean</h2>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-border text-foreground">
+                <th className="py-2 pr-4 font-semibold">Level</th>
+                <th className="py-2 pr-4 font-semibold">Checked by SCL Studio?</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted">
+              <tr className="border-b border-border/60"><td className="py-2 pr-4">1. The file is well-formed XML and reads as SCL</td><td className="py-2 pr-4 text-pass">Yes</td></tr>
+              <tr className="border-b border-border/60"><td className="py-2 pr-4">2. Validation against the official IEC 61850-6 XML schema (XSD) for the edition</td><td className="py-2 pr-4">No — the schema files are not bundled. Run a schema validator or the system configuration tool.</td></tr>
+              <tr className="border-b border-border/60"><td className="py-2 pr-4">3. Internal consistency: references resolve (ExtRef, data sets, data types, ClientLN), unique GOOSE/SV addresses, IP subnets, report and data-set settings</td><td className="py-2 pr-4 text-pass">Yes — this is what the validation panel reports</td></tr>
+              <tr className="border-b border-border/60"><td className="py-2 pr-4">4. Acceptance by a particular manufacturer&apos;s IED and tool (device limits, private extensions)</td><td className="py-2 pr-4">No — import the file into the manufacturer&apos;s tool</td></tr>
+              <tr><td className="py-2 pr-4">5. Real GOOSE, sampled-value and report exchange on the network</td><td className="py-2 pr-4">No — test on the system (FAT/SAT); the test sheets and GOOSE capture analyzer help prepare and check it</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p className="mt-4 text-xs text-muted">
           SCL Studio is an engineering aid for reviewing and correcting configuration files. Always load the final file into the IED
           manufacturer&apos;s configuration tool, and test GOOSE and sampled-value exchanges on the real system before energisation.
