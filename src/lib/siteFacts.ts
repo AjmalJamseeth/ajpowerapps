@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 820;
+export const AUTOMATED_CHECKS = 822;
 
 export interface ChangeEntry {
   date: string; // e.g. "November 2026"
@@ -10,6 +10,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Page text and example corrections",
+    items: [
+      "Example texts brought in line with the calculators: lighting design (4,000 lm luminaires, UF 0.55), thermocouple (Type K 9.13 mV → 224.7 °C), harmonic K-factor 1.142, emergency-power load steps (50, 80 and 150 kW), EV charging (three-phase 400 V) and the CT-sizing example (E_ALF = ALF × Is × (Rct + Rb) = 105.6 V).",
+      "CT sizing: the result is now labelled as the required secondary EMF E_ALF, with a note on comparing it with Vk for Class PX CTs.",
+      "Features not yet built (earthing transferred-potential check and grid-spacing search, battery random loads, multi-string PV, lightning SPD/LEMP checks) are listed as planned additions instead of appearing as empty input panels.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Engineering Suites and Engineering Sketch Studio",

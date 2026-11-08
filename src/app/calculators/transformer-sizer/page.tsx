@@ -26,7 +26,7 @@ export default function TransformerSizerPage() {
           derating (IEC 60076-1/2/11-aligned reference conditions), and
           standard ANSI/IEEE or IEC preferred kVA ratings. For analyzing
           losses/efficiency of an <em>existing</em> transformer, see the
-          Generator &amp; Transformer Analysis calculator instead. Fully
+          Generator &amp; Transformer Analysis calculator instead.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

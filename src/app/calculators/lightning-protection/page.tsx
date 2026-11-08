@@ -103,17 +103,7 @@ export default function LightningProtectionPage() {
               <NumberField label="Telecom Line Length" unit="m" tip={"Length of the telecom/data line section between the structure and the first node (m). Set to 0 if no telecom line is connected. If unknown, assume 1,000m per the standard."} value={input.telecomLineLengthM} onChange={(v) => update({ telecomLineLengthM: v })} min={0} />
             </PremiumSection>
 
-            <PremiumSection
-              title="SPD / LEMP protection (Annex D)"
-              description="Effective protection level (Upf) vs equipment withstand (Uw), and oscillation/induction protection distances (loc / lpi)."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2 text-xs text-muted">
-                Not yet implemented in this calculator — the effective protection level (Upf) vs. equipment
-                withstand (Uw) and induction-distance (loc/lpi) checks from IEC 62305-2 Annex D haven&apos;t been
-                built yet. R1 above (including the connected-line RU/RV terms) doesn&apos;t depend on this section.
-              </div>
-            </PremiumSection>
+            <p className="mt-4 text-xs text-muted">Planned additions: SPD / LEMP checks from IEC 62305-2 Annex D (protection level Upf against equipment withstand Uw). R1 above does not depend on them.</p>
           </div>
 
           <div className="lg:col-span-2">

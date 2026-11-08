@@ -82,16 +82,7 @@ export default function BatterySizingPage() {
               <NumberField label="Design margin" hint="growth / cell variation" tip={"An additional allowance on top of the aging factor for future load growth and normal cell-to-cell capacity variation within a string \u2014 a general engineering safety margin, not tied to a specific standard's number."} value={input.marginCF} onChange={(v) => update({ marginCF: v })} min={1} step={0.01} />
             </Section>
 
-            <PremiumSection
-              title="Random / intermittent loads"
-              description="Loads that could switch on at any single moment during the duty cycle — sized on their own and added on top of whichever period needs the most capacity."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2 text-xs text-muted">
-                Preview only — random load entries are not added to the
-                main result.
-              </div>
-            </PremiumSection>
+            <p className="mt-4 text-xs text-muted">Planned additions: random / intermittent loads added on top of the governing duty-cycle period (IEEE 485).</p>
 
             <PremiumSection
               title="Cell count & voltage window"

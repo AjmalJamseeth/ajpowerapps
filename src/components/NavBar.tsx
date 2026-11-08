@@ -48,8 +48,8 @@ export default function NavBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur relative">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-background font-bold">
+        <Link href="/" aria-label="AJapps home" className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-background font-bold">
             A
           </span>
           <span className="text-lg font-semibold tracking-tight text-foreground">

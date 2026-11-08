@@ -260,30 +260,7 @@ export default function EarthingPage() {
               )}
             </PremiumSection>
 
-            <PremiumSection
-              title="Transferred potential (offsite hazard)"
-              description="IEEE 80 §17 — checks whether a metallic path (pipe, rail, fence, cable sheath) crossing the grid boundary could carry the full GPR to a point outside the grid."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2 text-xs text-muted">
-                Not yet implemented in this calculator — this section describes the IEEE 80 §17 transferred-potential
-                check but doesn&apos;t compute it yet. Applies when a metallic conductor crosses the grid boundary and
-                could carry the ground potential rise largely undiminished to someone standing on true remote earth;
-                treat any such crossing as a hazard to review manually against §17 until this is built.
-              </div>
-            </PremiumSection>
-
-            <PremiumSection
-              title="Grid design assistant"
-              description="If the grid fails the mesh/step voltage check, searches finer conductor spacings for the smallest change that passes both, reusing the same IEEE 80 formulas."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2 text-xs text-muted">
-                Not yet implemented in this calculator — mesh/step voltage checking itself (above) is now unlocked,
-                but this auto-search assistant for a compliant spacing hasn&apos;t been built yet. Adjust grid
-                geometry manually and re-check the mesh/step result in the panel to the right.
-              </div>
-            </PremiumSection>
+            <p className="mt-4 text-xs text-muted">Planned additions: the IEEE 80 §17 transferred-potential check (until then, review any pipe, rail, fence or cable sheath crossing the grid boundary manually) and an automatic search for a grid spacing that passes the mesh and step limits.</p>
           </div>
 
           <div className="lg:col-span-2">

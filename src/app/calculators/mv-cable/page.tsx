@@ -38,7 +38,7 @@ export default function MvCablePage() {
           in touching trefoil, with a CIGRE TB880-based example. v1 scope:
           single-core, unarmoured, XLPE-insulated, buried (duct or direct)
           cables. Free-air installation and armoured cables are not yet
-          supported. This calculator is fully
+          supported.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

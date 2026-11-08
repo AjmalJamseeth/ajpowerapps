@@ -241,9 +241,10 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
       {/* Only visible while report-mode is active (i.e. inside the
           captured screenshot) — gives the PDF a proper title/branding
           block instead of just starting mid-page at the calculator UI. */}
+      {status === "working" && (
       <div className="report-header-block mb-6 border-b-2 border-border pb-4">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-sm font-bold text-white">A</span>
+          <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-sm font-bold text-white">A</span>
           <span className="text-lg font-bold text-foreground">
             AJ<span className="text-accent">apps</span>
           </span>
@@ -274,6 +275,7 @@ export function ReportButton({ title, standardsLine }: ReportButtonProps) {
           standards and a qualified engineer&apos;s review before use in a real design.
         </p>
       </div>
+      )}
 
       <div className="no-print flex flex-wrap gap-3">
       <button

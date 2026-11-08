@@ -2521,6 +2521,13 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Page text consistency (November 2026 review)");
+  const pg = (p: string) => readFileSync(p, "utf8");
+  assertTrue("No page introduction ends with a dangling word (e.g. '…fully')", ["src/app/calculators/mv-cable/page.tsx", "src/app/calculators/transformer-sizer/page.tsx"].every((f) => !/(fully|Fully)\s*<\/p>/.test(pg(f))));
+  assertTrue("Example texts match the calculators (lighting 4,000 lm/UF 0.55, Type K 224.7 °C, K-factor 1.142, EV three-phase) and the logo badge is hidden from screen readers", /4000 \\u00d7 0\.55/.test(pg("src/app/calculators/lighting-design/page.tsx")) && /224\.7°C/.test(pg("src/app/calculators/thermocouple-rtd/page.tsx")) && /1\.142/.test(pg("src/app/calculators/harmonic-analysis/page.tsx")) && /three-phase 400V charge point/.test(pg("src/app/calculators/ev-charging/page.tsx")) && /aria-hidden="true"[^>]*>\s*A\s*</.test(pg("src/components/NavBar.tsx")));
+}
+
+{
   section("Engineering Suites worked examples");
   const S3 = Math.sqrt(3);
   // Cable Suite C04: 75 kW DOL motor, 95 mm² Cu/XLPE, 150 m

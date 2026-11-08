@@ -45,9 +45,9 @@ export default function CtResults({ input, result }: { input: CtInput; result: C
             <div className="mt-0.5 text-xs text-muted">Required ALF = {input.alfRated}×</div>
           </div>
           <div className={`rounded-lg border p-4 ${result.alfPass ? "border-pass/30 bg-pass/10" : "border-fail/30 bg-fail/10"}`}>
-            <div className="text-xs text-muted">Vk required</div>
+            <div className="text-xs text-muted" title="E_ALF = ALF × Is × (Rct + Rb). For a Class P CT this is the accuracy-limit EMF the CT must deliver; for a Class PX CT it is compared with the knee-point voltage Vk.">Required secondary EMF (E_ALF)</div>
             <div className="mt-1 text-xl font-semibold text-foreground">{fmt(result.vkReq, 1)} V</div>
-            <div className="mt-0.5 text-xs text-muted">Actual Vk = {input.vk || "not set"} V</div>
+            <div className="mt-0.5 text-xs text-muted">= ALF × Is × (Rct + Rb); CT voltage entered = {input.vk || "not set"} V (Vk for Class PX)</div>
           </div>
         </div>
         {!result.alfPass && input.vk > 0 && (

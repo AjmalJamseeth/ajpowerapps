@@ -145,7 +145,7 @@ export const DEFAULT_MOTOR_INPUT: MotorInput = {
   scCapacityKva: 5000,
   maxDipPct: 15,
   feedRows: [
-    { desc: "Largest Motor", flc: 28, wound: false },
+    { desc: "Motor 1", flc: 28, wound: false },
     { desc: "Motor 2", flc: 14, wound: false },
   ],
   feedDeviceType: "td",

@@ -8,7 +8,6 @@ import { InfoPanel } from "@/components/InfoPanel";
 import { ReportButton } from "@/components/ReportButton";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { NumberField, SelectField, Section } from "@/components/fields";
-import PremiumSection from "@/components/PremiumSection";
 import PvResults from "@/components/pv/PvResults";
 import { DEFAULT_PV_INPUT, PvInput, PvPhase, calcPv } from "@/lib/pv";
 import { ConductorMaterial, InstallMethod, INSTALL_METHODS } from "@/lib/cable";
@@ -130,15 +129,7 @@ export default function SolarPvPage() {
               </div>
             </Section>
 
-            <PremiumSection
-              title="Multi-string array"
-              description="Uses the Strings in Parallel (Np) value above to check combined MPPT current, string-level overcurrent protection requirement, and DC:AC oversizing ratio."
-              unlocked={FREE_LAUNCH}
-            >
-              <div className="col-span-2 text-xs text-muted">
-                Preview only — full multi-string combiner/feeder sizing unlocks with advanced accounts.
-              </div>
-            </PremiumSection>
+            <p className="mt-4 text-xs text-muted">Planned additions: multi-string arrays with combiner and feeder sizing.</p>
           </div>
 
           <div className="lg:col-span-2">
