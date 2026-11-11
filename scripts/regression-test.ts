@@ -18,6 +18,10 @@ import { buildSearchIndex } from "../src/lib/searchIndex";
 import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
 import { SUITES } from "../src/lib/suites";
 import { runValidation } from "../src/lib/validation";
+import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
+import { calcScadaConnect, DEFAULT_SCADA_CONNECT_INPUT } from "../src/lib/scadaconnect";
+import { calcFibreBudget, DEFAULT_FIBRE_BUDGET_INPUT, XCVRS, FIBRES, COMPONENT_LOSS } from "../src/lib/fibrebudget";
+import { checkRegister, parseRegister, SAMPLE_REGISTER } from "../src/lib/ipregister";
 import { CALC_ARTICLES } from "../src/lib/calcArticles";
 import { WORKED_EXAMPLES } from "../src/lib/workedExamples";
 import { REFERENCE_TABLES, airDensity } from "../src/lib/referenceTables";
@@ -2578,6 +2582,74 @@ section("Worked examples (November 2026)");
   const tb = tx + 15 + q + 1.5;
   assertTrue("NetStudio example: trip GOOSE tb = 233.1 µs, t = 2.233 ms ≤ 3 ms (TT6)", Math.abs(tx - 35.904) < 0.01 && Math.abs(q - 180.7) < 0.05 && Math.abs(tb - 233.1) < 0.1 && Math.abs((1000 + tb + 1000) / 1000 - 2.233) < 0.001);
   assertTrue("NetStudio example: PTP budget 650 ns (T5), holdover (4 − 0.65) µs at 1 ppm ≈ 3.4 s", 250 + 4 * 50 + 200 === 650 && 250 + 15 * 50 === 1000 && Math.abs((4 - 0.65) / 1 - 3.35) < 1e-9);
+}
+
+{
+  section("Networking — IPv4 helpers");
+  assertEqual("parseIp rejects 256 and leading text", [ipParse("10.13.0.256"), ipParse("a10.1.1.1")].every((x) => x == null), true);
+  assertEqual("parseMask accepts 255.255.255.128, /25 and 25", [ipMask("255.255.255.128"), ipMask("/25"), ipMask("25")].join(","), "25,25,25");
+  assertNull("parseMask rejects a non-contiguous mask (255.0.255.0)", ipMask("255.0.255.0"));
+  const sn = ipSubnet(ipParse("10.13.0.200")!, 26);
+  assertEqual("10.13.0.200/26 → network .192, broadcast .255, 62 hosts", `${ipToStr(sn.network)} ${ipToStr(sn.broadcast)} ${sn.hosts}`, "10.13.0.192 10.13.0.255 62");
+  assertTrue("169.254.x.x flagged as link-local, 10.x not special", !!ipSpecial(ipParse("169.254.1.1")!) && !ipSpecial(ipParse("10.1.1.1")!));
+}
+
+{
+  section("Networking — SCADA Connectivity Assistant");
+  const ep = (ip: string, mask: string, gateway = "") => ({ ip, mask, gateway });
+  const run = (a: ReturnType<typeof ep>, b: ReturnType<typeof ep>) => calcScadaConnect({ ...DEFAULT_SCADA_CONNECT_INPUT, a, b });
+  const d = calcScadaConnect(DEFAULT_SCADA_CONNECT_INPUT);
+  assertTrue("Default (192.168.1.10/24 no gateway vs 10.13.0.14/25) → cannot talk, suggests 10.13.0.117/25", d.verdict === "no" && d.suggestion?.ip === "10.13.0.117" && d.suggestion?.mask === "255.255.255.128");
+  const ow = run(ep("10.13.0.200", "255.255.255.0"), ep("10.13.0.14", "255.255.255.128", "10.13.0.1"));
+  assertTrue("Laptop /24 vs IED /25 (worked example) → one-way: laptop local, IED via gateway", ow.verdict === "one-way" && ow.aSeesB === "local" && ow.bSeesA === "gateway");
+  assertEqual("Same subnet, same mask → direct", run(ep("10.13.0.117", "/25"), ep("10.13.0.14", "/25")).verdict, "direct");
+  assertEqual("Different subnets, both with gateways → routed", run(ep("10.20.0.5", "/24", "10.20.0.1"), ep("10.13.0.14", "/25", "10.13.0.1")).verdict, "routed");
+  assertEqual("Duplicate IP → cannot talk", run(ep("10.13.0.14", "/25"), ep("10.13.0.14", "/25")).verdict, "no");
+  const bc = run(ep("10.13.0.127", "/25"), ep("10.13.0.14", "/25"));
+  assertTrue("Broadcast address on the laptop → cannot talk, reported", bc.verdict === "no" && bc.findings.some((f) => /broadcast address/.test(f.text)));
+  const gw = run(ep("10.13.0.100", "/25", "10.13.1.1"), ep("10.13.0.14", "/25"));
+  assertTrue("Gateway outside own subnet is reported as an error", gw.findings.some((f) => f.sev === "error" && /outside its own subnet/.test(f.text)));
+  assertTrue("APIPA laptop → cannot talk", run(ep("169.254.3.4", "/16"), ep("10.13.0.14", "/25")).verdict === "no");
+  assertTrue("Invalid mask → not valid, no throw", !run(ep("10.13.0.5", "255.0.255.0"), ep("10.13.0.14", "/25")).valid);
+}
+
+{
+  section("Networking — Fibre-Optic Link Budget");
+  const f = calcFibreBudget(DEFAULT_FIBRE_BUDGET_INPUT);
+  assertClose("1000BASE-LX 3.2 km OS2: budget 7.5 dB", f.budgetDb, 7.5, 0.01);
+  assertClose("Loss at TIA maximum 4.88 dB", f.totalLossDb, 4.88, 0.01);
+  assertTrue("Margin −0.38 dB → FAIL; max length 2.25 km", Math.abs(f.marginLeftDb + 0.38) < 1e-9 && !f.pass && Math.abs((f.maxLengthKm ?? 0) - 2.25) < 1e-9);
+  const t = calcFibreBudget({ ...DEFAULT_FIBRE_BUDGET_INPUT, basis: "typical", connectorDb: COMPONENT_LOSS.typical.connector, spliceDb: COMPONENT_LOSS.typical.splice });
+  assertTrue("Typical losses: 3.48 dB, margin +1.02 dB → PASS", Math.abs(t.totalLossDb - 3.48) < 1e-9 && Math.abs(t.marginLeftDb - 1.02) < 1e-9 && t.pass);
+  const x = XCVRS["1000lx10"];
+  const lx10 = calcFibreBudget({ ...DEFAULT_FIBRE_BUDGET_INPUT, xcvr: "1000lx10", txMin: x.txMin, txMax: x.txMax, rxSens: x.rxSens, rxOverload: x.rxOverload });
+  assertTrue("1000BASE-LX10 on maximum losses: margin +2.12 dB → PASS (worked example)", Math.abs(lx10.marginLeftDb - 2.12) < 1e-9 && lx10.pass);
+  const s = XCVRS["1000sx"];
+  const sx = calcFibreBudget({ ...DEFAULT_FIBRE_BUDGET_INPUT, xcvr: "1000sx", fibre: "om2_850", attDbKm: FIBRES.om2_850.att, lengthKm: 0.8, connectors: 2, splices: 0, txMin: s.txMin, txMax: s.txMax, rxSens: s.rxSens, rxOverload: s.rxOverload });
+  assertTrue("1000BASE-SX on OM2 at 0.8 km: power margin positive but beyond the 550 m reach → FAIL", sx.marginLeftDb > 0 && sx.reachOk === false && !sx.pass);
+  const z = XCVRS["1000zx"];
+  const zx = calcFibreBudget({ ...DEFAULT_FIBRE_BUDGET_INPUT, xcvr: "1000zx", fibre: "os2_1550", attDbKm: FIBRES.os2_1550.att, lengthKm: 0.5, connectors: 2, splices: 0, txMin: z.txMin, txMax: z.txMax, rxSens: z.rxSens, rxOverload: z.rxOverload });
+  assertTrue("1000BASE-ZX over 0.5 km overloads the receiver", zx.overload && !zx.pass);
+}
+
+{
+  section("Networking — IP Address Register Checker");
+  const r = checkRegister(SAMPLE_REGISTER);
+  assertEqual("Sample register: 16 devices, 7 errors / 3 warnings / 2 info (worked example)", `${r.rows.length} ${r.counts.error}/${r.counts.warning}/${r.counts.info}`, "16 7/3/2");
+  const has = (code: string, lines: string) => r.findings.some((f) => f.code === code && f.lines.join(" ") === lines);
+  assertTrue("Finds DUP-IP (lines 5, 7), GW-OUTSIDE (9), IP-NETBC (10), DUP-MAC (11, 12), IP-SPECIAL (17)", has("DUP-IP", "5 7") && has("GW-OUTSIDE", "9") && has("IP-NETBC", "10") && has("DUP-MAC", "11 12") && has("IP-SPECIAL", "17"));
+  const tsv = parseRegister("Name\tIP\n A\t10.1.1.1/24\nB\t10.1.1.2/24");
+  assertTrue("Tab-separated paste with IP/prefix is parsed", tsv.rows.length === 2 && tsv.columns.ip === 1 && tsv.rows[0].maskText === "24");
+  const clean = checkRegister("Device,IP address,Subnet mask,Gateway\nA,10.1.1.10,255.255.255.0,10.1.1.1\nB,10.1.1.11,255.255.255.0,10.1.1.1");
+  assertEqual("A consistent register gives no findings", clean.findings.length, 0);
+  assertTrue("Empty input does not throw and reports the missing IP column", (() => { const e = checkRegister(""); return e.rows.length === 0 && e.findings.some((x) => x.code === "COL"); })());
+}
+
+{
+  section("Networking — pages, guides and examples");
+  const live = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
+  const net = ["/calculators/scada-connectivity", "/calculators/fibre-link-budget", "/calculators/ip-register-checker"];
+  assertTrue("The three networking tools are live in the catalog, with a guide and a worked example each", net.every((h) => live.has(h) && !!CALC_ARTICLES[h] && WORKED_EXAMPLES.some((w) => w.calculatorHref === h)));
 }
 
 {

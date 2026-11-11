@@ -16,6 +16,7 @@ import { SOLAREV_EXAMPLES } from "./solarev";
 import { BUILDINGSERVICES_EXAMPLES } from "./buildingservices";
 import { EXTRA_EXAMPLES } from "./extra";
 import { IEC61850_EXAMPLES } from "./iec61850";
+import { NETWORKING_EXAMPLES } from "./networking";
 import { BATCH2_EXAMPLES } from "./batch2";
 import { SERIES_SC_EXAMPLES } from "./seriesShortCircuit";
 import { SERIES_EARTHING_EXAMPLES } from "./seriesEarthing";
@@ -36,6 +37,7 @@ export const WORKED_EXAMPLES: WorkedExample[] = [
   ...BUILDINGSERVICES_EXAMPLES,
   ...EXTRA_EXAMPLES,
   ...IEC61850_EXAMPLES,
+  ...NETWORKING_EXAMPLES,
   ...BATCH2_EXAMPLES,
   ...SERIES_SC_EXAMPLES,
   ...SERIES_EARTHING_EXAMPLES,

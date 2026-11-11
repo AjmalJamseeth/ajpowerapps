@@ -1548,3 +1548,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 
 - Page: src/app/calculators/scl-netstudio; app: public/scl-netstudio/index.html (protected, domain-locked, lock SCLNETSTUDIO).
 - Readable source: apps_cleaned/03 IEC 61850/SCL NetStudio SOURCE - keep private.html. Listed in src/lib/suites.ts.
+
+## Networking tools, Phase 1 (November 2026)
+
+- /calculators/scada-connectivity — src/lib/scadaconnect.ts (two-sided IPv4 reachability, suggested address).
+- /calculators/fibre-link-budget — src/lib/fibrebudget.ts (TIA-568.3-D component loss, IEEE 802.3 reach; transceiver power values are representative datasheet figures).
+- /calculators/ip-register-checker — src/lib/ipregister.ts (CSV/TSV register checks; runs in the browser only).
+- Shared IPv4 helpers: src/lib/ipv4.ts. Worked examples: src/lib/workedExamples/networking.ts. Validation cases NET-01 … NET-06.

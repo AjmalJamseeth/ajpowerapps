@@ -41,6 +41,18 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "IEC 61850 Network Design Tool – VLAN, PTP, PRP/HSR",
     description: "Design an IEC 61850 substation network online: IP plan, GOOSE/SV VLAN and multicast addressing, bandwidth, GOOSE latency (TT6), PRP/HSR, PTP time sync budget, firewall zones and capture check.",
   },
+  "/calculators/scada-connectivity": {
+    title: "Can My Laptop Talk to the IED? – SCADA IP Checker",
+    description: "Check if a laptop or SCADA server can reach an IED: IP, subnet mask and gateway checked from both sides, one-way mask mismatches, duplicates, APIPA, suggested address and IEC 61850 / IEC 104 / DNP3 / Modbus ports.",
+  },
+  "/calculators/fibre-link-budget": {
+    title: "Fibre Optic Link Budget Calculator – SFP Loss & Reach",
+    description: "Fibre link budget online: 1000BASE-LX/SX/LX10/ZX and 100BASE-FX power budget, OS2/OM1–OM4 attenuation, connector and splice loss (TIA-568.3-D), margin, IEEE 802.3 reach and receiver overload.",
+  },
+  "/calculators/ip-register-checker": {
+    title: "IP Address List Checker – Duplicate IP, Subnet & Gateway",
+    description: "Check a substation or SCADA IP address register online: duplicate IPs and MACs, broadcast addresses, gateways outside the subnet, mixed masks per VLAN and overlapping subnets, with line numbers and CSV export.",
+  },
   "/calculators/goose-sv-analyzer": {
     title: "GOOSE Analyzer Online – IEC 61850 Wireshark Check",
     description: "Analyse GOOSE and sampled values in a Wireshark capture online: stNum/sqNum, TAL, retransmission, APPID/VLAN, lost samples and smpSynch, with IEC 61850 clause references and SCD comparison.",

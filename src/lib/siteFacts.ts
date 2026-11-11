@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 878;
+export const AUTOMATED_CHECKS = 911;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Substation and SCADA networking tools",
+    items: [
+      "New: SCADA Connectivity Assistant — checks a laptop or SCADA server and an IED from both sides (IP, mask, gateway) and explains whether they can talk directly, only through a router or not at all, including one-way mask mismatches, with a suggested address.",
+      "New: Fibre-Optic Link Budget — transceiver power budget against fibre, connector and splice loss (TIA-568.3-D) with a safety margin, IEEE 802.3 reach on OS2 and OM1–OM4 fibre, receiver overload and maximum length.",
+      "New: IP Address Register Checker — duplicate IPs, MACs and names, network or broadcast addresses, gateways outside their subnet, mixed masks per VLAN and overlapping subnets, with line numbers and CSV export.",
+      "Validation register: six networking cases added (fibre budget, loss, margin, maximum length; subnet broadcast address and host count).",
+    ],
+  },
   {
     date: "November 2026",
     title: "SCL NetStudio",

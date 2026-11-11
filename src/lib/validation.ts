@@ -15,12 +15,14 @@ import { analyseShortCircuit, peakFactor, muFactor, thermalM, voltageFactor, DEF
 import { calcXfmr, DEFAULT_XFMR_INPUT } from "./genxfmr";
 import { calcCt, DEFAULT_CT_INPUT } from "./ct";
 import { getVoltageFactor } from "./vt";
+import { calcFibreBudget, DEFAULT_FIBRE_BUDGET_INPUT, COMPONENT_LOSS } from "./fibrebudget";
+import { parseIp, subnetOf } from "./ipv4";
 
 export type ReferenceType = "Standard table" | "Standard worked example" | "Hand calculation from the standard's formula";
 
 export interface ValidationCase {
   id: string;
-  area: "Cables" | "Protection" | "Earthing" | "Arc flash" | "Short circuit" | "Transformers & CT/VT" | "Cable Engineering Suite";
+  area: "Cables" | "Protection" | "Earthing" | "Arc flash" | "Short circuit" | "Transformers & CT/VT" | "Cable Engineering Suite" | "Networking";
   tool: string;
   href: string;
   quantity: string;
@@ -104,6 +106,11 @@ const XFMR = "/calculators/gen-xfmr";
 const CTP = "/calculators/ct-sizing";
 const VTP = "/calculators/vt-sizing";
 const CSUITE = "/calculators/cable-engineering-suite";
+const FIBRE = "/calculators/fibre-link-budget";
+const SCADA = "/calculators/scada-connectivity";
+const FIBRE_INPUTS = "1000BASE-LX (Tx min −11.5 dBm, Rx −19 dBm), OS2 0.4 dB/km × 3.2 km, 4 connector pairs, 2 splices, 3 dB margin";
+const fibreMax = calcFibreBudget(DEFAULT_FIBRE_BUDGET_INPUT);
+const fibreTyp = calcFibreBudget({ ...DEFAULT_FIBRE_BUDGET_INPUT, basis: "typical", connectorDb: COMPONENT_LOSS.typical.connector, spliceDb: COMPONENT_LOSS.typical.splice });
 const CS_REC = "Cable Engineering Suite v6 (build AJPA-CABLESUITE-251BE8FC219D9970), worked example project";
 
 export const VALIDATION_CASES: ValidationCase[] = [
@@ -178,6 +185,13 @@ export const VALIDATION_CASES: ValidationCase[] = [
   { id: "AF-04", area: "Arc flash", tool: "Arc Flash", href: AF, quantity: "Arcing current", reference: "IEEE Std 1584-2018 Annex D.2", referenceType: "Standard worked example", inputs: D2_INPUTS, expected: 28.793, unit: "kA", tolerancePct: 0.1, compute: () => afD2.normal.iarcKa },
   { id: "AF-05", area: "Arc flash", tool: "Arc Flash", href: AF, quantity: "Incident energy", reference: "IEEE Std 1584-2018 Annex D.2", referenceType: "Standard worked example", inputs: D2_INPUTS, expected: 11.585, unit: "J/cm²", tolerancePct: 0.1, compute: () => afD2.normal.eJcm2 },
   { id: "AF-06", area: "Arc flash", tool: "Arc Flash", href: AF, quantity: "Arc-flash boundary", reference: "IEEE Std 1584-2018 Annex D.2", referenceType: "Standard worked example", inputs: D2_INPUTS, expected: 1029, unit: "mm", tolerancePct: 0.2, compute: () => afD2.normal.afbMm },
+  // ---------------------------------------------------------------- Networking
+  { id: "NET-01", area: "Networking", tool: "Fibre-Optic Link Budget", href: FIBRE, quantity: "Optical power budget", reference: "PB = Ptx,min − Prx,sens (datasheet values)", referenceType: "Hand calculation from the standard's formula", inputs: FIBRE_INPUTS, expected: 7.5, unit: "dB", tolerancePct: 0, compute: () => fibreMax.budgetDb },
+  { id: "NET-02", area: "Networking", tool: "Fibre-Optic Link Budget", href: FIBRE, quantity: "Link loss at TIA maximum component loss", reference: "TIA-568.3-D maximum loss: 0.75 dB per mated connector pair, 0.3 dB per splice; L = α·ℓ + Nc·Lc + Ns·Ls", referenceType: "Hand calculation from the standard's formula", inputs: FIBRE_INPUTS, expected: 4.88, unit: "dB", tolerancePct: 0.01, compute: () => fibreMax.totalLossDb },
+  { id: "NET-03", area: "Networking", tool: "Fibre-Optic Link Budget", href: FIBRE, quantity: "Margin left after 3 dB safety margin, typical component loss", reference: "M = PB − (α·ℓ + Nc·0.5 + Ns·0.1) − 3", referenceType: "Hand calculation from the standard's formula", inputs: FIBRE_INPUTS + "; 0.5 dB connectors, 0.1 dB splices", expected: 1.02, unit: "dB", tolerancePct: 0.01, compute: () => fibreTyp.marginLeftDb },
+  { id: "NET-04", area: "Networking", tool: "Fibre-Optic Link Budget", href: FIBRE, quantity: "Maximum length by loss", reference: "ℓmax = (PB − M − Nc·Lc − Ns·Ls)/α with TIA-568.3-D maximum component loss", referenceType: "Hand calculation from the standard's formula", inputs: FIBRE_INPUTS, expected: 2.25, unit: "km", tolerancePct: 0.01, compute: () => fibreMax.maxLengthByLossKm ?? NaN },
+  { id: "NET-05", area: "Networking", tool: "SCADA Connectivity Assistant", href: SCADA, quantity: "Broadcast address of 10.13.0.14/25 (last octet)", reference: "RFC 950: broadcast = network OR NOT mask = 10.13.0.0 OR 0.0.0.127", referenceType: "Hand calculation from the standard's formula", inputs: "10.13.0.14, mask 255.255.255.128", expected: 127, unit: "—", tolerancePct: 0, compute: () => subnetOf(parseIp("10.13.0.14")!, 25).broadcast & 255 },
+  { id: "NET-06", area: "Networking", tool: "SCADA Connectivity Assistant", href: SCADA, quantity: "Usable host addresses in a /27 subnet", reference: "RFC 950: 2^(32 − 27) − 2", referenceType: "Hand calculation from the standard's formula", inputs: "Prefix /27 (255.255.255.224)", expected: 30, unit: "hosts", tolerancePct: 0, compute: () => subnetOf(parseIp("10.13.0.194")!, 27).hosts },
 ];
 
 export function runValidation(): ValidationRow[] {

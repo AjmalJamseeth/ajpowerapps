@@ -334,6 +334,76 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
     ],
   },
 
+  "/calculators/scada-connectivity": {
+    heading: "Why a laptop cannot reach an IED — and how to read the result",
+    paragraphs: [
+      "Every IPv4 device decides on its own whether a destination is on its own LAN. It applies its own subnet mask to its own address and to the destination: if both give the same network address, it sends the frame directly (after an ARP request for the destination's MAC address). If not, it sends the frame to its default gateway. If it has no gateway, it cannot send at all.",
+      "Because each side uses its own mask, two devices can disagree. A laptop on 10.13.0.200/24 sees an IED at 10.13.0.14 as local and sends directly. The IED on 10.13.0.14/25 sees 10.13.0.200 as outside its range 10.13.0.0–127 and sends its reply to its gateway. The request arrives, the reply goes to the router and is normally lost. Ping fails, but the IED's counters show that requests came in — a typical one-way fault on site.",
+      "The assistant repeats the decision from both sides and gives one of four results: can talk directly (same subnet on both sides), only through a router (different subnets, both have gateways), mask mismatch (the two sides disagree), or cannot talk. It also flags addresses that can never work: duplicates, the network or broadcast address of a subnet, 169.254.x.x link-local addresses (the adapter was set to DHCP and got no answer), and gateways outside the device's own subnet.",
+      "When the addressing is right, the next step is the service. IEC 61850 MMS uses TCP 102, IEC 60870-5-104 uses TCP 2404, DNP3 uses TCP 20000 and Modbus TCP uses 502. If ping works but the engineering tool does not connect, the cause is usually the Windows firewall, a switch port in a different VLAN, the service disabled on the IED, or the IED's limit on simultaneous client connections.",
+    ],
+    formula: [
+      { label: "Network address", text: "network = IP AND mask (bit by bit). Two addresses are on the same subnet when IP₁ AND mask = IP₂ AND mask — evaluated with each device's OWN mask." },
+      { label: "Usable range", text: "first host = network + 1, last host = broadcast − 1, broadcast = network OR (NOT mask); usable hosts = 2^(32 − prefix) − 2 (for prefixes up to /30)." },
+    ],
+    table: {
+      caption: "Common masks on substation networks",
+      headers: ["Prefix", "Mask", "Addresses", "Usable hosts"],
+      rows: [["/24", "255.255.255.0", "256", "254"], ["/25", "255.255.255.128", "128", "126"], ["/26", "255.255.255.192", "64", "62"], ["/27", "255.255.255.224", "32", "30"], ["/28", "255.255.255.240", "16", "14"], ["/29", "255.255.255.248", "8", "6"], ["/30", "255.255.255.252", "4", "2"]],
+    },
+    faqs: [
+      { q: "Do I need a default gateway on my laptop to talk to the IED?", a: "Not if the laptop is in the IED's subnet — the traffic goes directly over the LAN. A gateway is needed only to reach other subnets. A gateway outside the laptop's own subnet is ignored by Windows." },
+      { q: "Ping works but the IEC 61850 client cannot connect. Why?", a: "The network is fine; check TCP 102. Common causes are the Windows firewall blocking the tool, the MMS server disabled or limited to a few clients on the IED, or an access list on a router or firewall in between." },
+      { q: "Why does my laptop show 169.254.x.x?", a: "The adapter is set to obtain an address automatically and found no DHCP server, so Windows picked a link-local address. Set a static address in the IED's subnet." },
+      { q: "Can two devices with different masks talk?", a: "Yes, if each sees the other inside its own subnet (for example /24 and /25 with both addresses in the lower half). It is still poor practice: all devices on one LAN should use the same mask." },
+    ],
+  },
+  "/calculators/fibre-link-budget": {
+    heading: "How a fibre link budget works",
+    paragraphs: [
+      "The power budget of a link is the difference between the transmitter's minimum launch power and the receiver's sensitivity, both from the transceiver datasheet. Everything between them uses up that budget: fibre attenuation (dB per km times length), each mated connector pair and each splice. What is left must cover a safety margin for ageing, temperature, repair splices and dirty connectors — 3 dB is common practice.",
+      "Connector and splice loss can be taken at the maximum allowed by TIA-568.3-D (0.75 dB per mated pair, 0.3 dB per splice), which is the safe design basis, or at typical installed values for factory-polished connectors and fusion splices (around 0.5 dB and 0.1 dB). If a link passes only on typical values, measure the installed loss before commissioning.",
+      "On multimode fibre the distance is often limited by modal bandwidth, not by loss. 1000BASE-SX reaches 275 m on OM1 and 550 m on OM2 according to IEEE 802.3, even though the power budget would allow more. A link longer than the standard's reach can fail with power to spare, so the calculator checks both limits and reports the smaller one as the maximum usable length.",
+      "Short single-mode links with high-power optics can overload the receiver. The calculator compares the strongest transmitter with a low estimate of the link loss against the receiver overload level; if exceeded, an in-line attenuator is needed.",
+    ],
+    formula: [
+      { label: "Power budget", text: "PB = Ptx,min − Prx,sens  (dB)" },
+      { label: "Link loss", text: "L = α·ℓ + Nc·Lc + Ns·Ls  (fibre attenuation α in dB/km, length ℓ, connector pairs Nc, splices Ns)" },
+      { label: "Margin left", text: "M = PB − L − Msafety ≥ 0 for the link to pass" },
+      { label: "Maximum length by loss", text: "ℓmax = (PB − Msafety − Nc·Lc − Ns·Ls) / α" },
+    ],
+    table: {
+      caption: "IEEE 802.3 reach used by the calculator",
+      headers: ["Standard", "Wavelength", "Fibre", "Reach"],
+      rows: [["100BASE-FX", "1300 nm", "OM1 / OM2 multimode", "2 km"], ["100BASE-LX10", "1310 nm", "OS2 single-mode", "10 km"], ["1000BASE-SX", "850 nm", "OM1 / OM2 (OM3, OM4)", "275 m / 550 m"], ["1000BASE-LX", "1310 nm", "Single-mode / OM1–OM2 with mode-conditioning cord", "5 km / 550 m"], ["1000BASE-LX10", "1310 nm", "OS2 single-mode", "10 km"]],
+      note: "1000BASE-ZX is a manufacturer specification, not an IEEE 802.3 standard. OM3 and OM4 are taken at the OM2 reach for 1000BASE-SX, which is conservative.",
+    },
+    faqs: [
+      { q: "How many connectors should I count?", a: "Count every mated pair: the patch cord into the panel at each end and any intermediate patch panels. A simple panel-to-panel link with patch cords at both ends usually has 2 mated pairs on the permanent link, plus the equipment connections if the budget includes the patch cords." },
+      { q: "Is 3 dB margin enough?", a: "It is the usual design margin for substation and industrial links. Use more for long outdoor routes where repair splices are likely, and keep a record of the measured loss at commissioning to compare later." },
+      { q: "Why does my 1000BASE-SX link fail at 400 m on OM1 with power to spare?", a: "The IEEE 802.3 reach for 1000BASE-SX on OM1 (62.5 µm, 200 MHz·km) is 275 m. Beyond that the pulses spread (modal dispersion) and bit errors rise regardless of power. Use OM3/OM4 or single-mode with LX optics." },
+      { q: "Where do the transceiver values come from?", a: "The presets are representative datasheet values. Real modules differ, so enter the minimum transmit power and receiver sensitivity from the datasheet of the module you use." },
+    ],
+  },
+  "/calculators/ip-register-checker": {
+    heading: "What the IP register checker looks for",
+    paragraphs: [
+      "The IP address register is usually a spreadsheet: one line per device with its name, IP address, subnet mask, gateway, MAC address and VLAN. It is written early, copied between documents and edited by several people, so typing errors survive until commissioning. Checking the whole list at once is faster than finding the faults one by one on site.",
+      "Per device the checker verifies the format of the IP, mask and MAC, and flags addresses that cannot be assigned: the network or broadcast address of the subnet, loopback, multicast and 169.254.x.x link-local addresses. It checks that the gateway is inside the device's own subnet and is not the device itself.",
+      "Across the register it finds duplicate IP addresses, MAC addresses and device names; masks or gateways that differ inside one VLAN or network (the majority value is taken as intended); subnets that overlap, which means devices disagree about who is local; and one subnet spread over several VLANs, which cannot work without routing.",
+      "Paste the table directly from Excel (it is tab separated), or open a CSV file. The checker reads the column headings to find the columns, accepts IP/prefix notation such as 10.13.0.14/25, and gives the line number of every finding. The data stays in your browser.",
+    ],
+    table: {
+      caption: "Findings and their meaning",
+      headers: ["Code", "Severity", "Meaning"],
+      rows: [["DUP-IP", "Error", "The same IP address on two or more devices"], ["DUP-MAC", "Error", "The same MAC address on two devices (often a copied line)"], ["IP-NETBC", "Error", "Network or broadcast address given to a device"], ["IP-SPECIAL", "Error", "Loopback, link-local (169.254.x.x), multicast or reserved address"], ["GW-OUTSIDE", "Error", "Gateway outside the device's own subnet"], ["SUBNET-OVERLAP", "Error", "Two different subnets cover the same addresses"], ["MASK-MIX / GW-MIX", "Warning", "Mask or gateway differs from the rest of the VLAN or network"], ["SUBNET-VLANS", "Warning", "One subnet appears in more than one VLAN"], ["VLAN-SUBNETS", "Info", "A VLAN carries more than one subnet"]],
+    },
+    faqs: [
+      { q: "Which columns does the checker need?", a: "At least an IP address column. A subnet mask column (or IP/prefix notation) enables the mask, gateway and subnet checks; gateway, MAC, VLAN and network columns enable the rest. Column names such as Device, IP address, Subnet mask, Gateway, MAC address, VLAN are recognised." },
+      { q: "Is my register uploaded anywhere?", a: "No. The file is read and checked in your browser; nothing is sent to a server." },
+      { q: "Why is an overlap an error and not a warning?", a: "When two subnets overlap, a device on the wider subnet treats addresses as local that the device on the narrower subnet sends to its gateway. The result is the one-way fault that the SCADA Connectivity Assistant explains — it nearly always means one mask is wrong." },
+    ],
+  },
   "/calculators/goose-sv-analyzer": {
     howTo: {
       title: "How to use the GOOSE & SV Capture Analyzer",

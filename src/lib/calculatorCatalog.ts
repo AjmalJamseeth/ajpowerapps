@@ -64,12 +64,15 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     id: "iec-61850",
     title: "IEC 61850 & Substation Automation",
     description:
-      "View, check and edit IEC 61850 SCL files (SCD, ICD, CID, IID, SSD) in the browser, and check GOOSE and sampled-value traffic in Wireshark captures against the standard.",
+      "View, check and edit IEC 61850 SCL files (SCD, ICD, CID, IID, SSD) in the browser, check GOOSE and sampled-value traffic in Wireshark captures against the standard, and check substation and SCADA networks: IP addressing, fibre links and IP registers.",
     icon: "Network",
     calculators: [
       { name: "IEC 61850 SCL Editor (SCL Studio)", description: "Open, view, validate and edit SCD, ICD, CID, IID and SSD files: substation single-line structure, IED data model, GOOSE and sampled-value publishers and subscribers, report control blocks, communication addressing, file compare and CID export. Files stay on your computer.", href: "/calculators/iec-61850-scl-editor", status: "live" },
       { name: "SCL NetStudio (IEC 61850 network design)", description: "Design the substation network: IP plan with VLSM, VLAN and multicast addressing for GOOSE/SV with switch port membership, bandwidth per port, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time-error budget, IEC 62443 firewall zones and a capture analyser to verify on site.", href: "/calculators/scl-netstudio", status: "live" },
       { name: "GOOSE & Sampled Values Capture Analyzer", description: "Check a Wireshark capture (.pcap/.pcapng) against IEC 61850-8-1 and 9-2: addressing, stNum/sqNum, time allowed to live, retransmission, data-set consistency, flags, lost samples, sample rate and synchronisation — 86 checks with clause references, optional comparison with the SCD.", href: "/calculators/goose-sv-analyzer", status: "live" },
+      { name: "SCADA Connectivity Assistant", description: "Can my laptop talk to the IED? Enter both IP addresses, masks and gateways: the assistant checks the addressing from both sides and explains in plain language whether they can talk directly, only through a router or not at all, finds one-way mask mismatches, duplicates and bad gateways, and suggests a working laptop address.", href: "/calculators/scada-connectivity", status: "live" },
+      { name: "Fibre-Optic Link Budget", description: "Power budget of 100BASE-FX/LX10 and 1000BASE-SX/LX/LX10/ZX transceivers against fibre, connector and splice loss (TIA-568.3-D) with a safety margin, the IEEE 802.3 reach limit for OS2 and OM1–OM4 fibre, receiver overload and maximum link length.", href: "/calculators/fibre-link-budget", status: "live" },
+      { name: "IP Address Register Checker", description: "Paste or open the IP address list of a substation or SCADA network: finds duplicate IPs, MACs and names, network or broadcast addresses, gateways outside their subnet, mixed masks per VLAN and overlapping subnets, with line numbers and CSV export.", href: "/calculators/ip-register-checker", status: "live" },
     ],
   },
   {
