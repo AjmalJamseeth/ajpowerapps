@@ -109,7 +109,7 @@ export default function VerificationPage() {
         <div className="mt-6 rounded-xl border border-accent-2/40 bg-surface p-5">
           <h3 className="font-semibold text-foreground">Validation register</h3>
           <p className="mt-1 text-sm text-muted">
-            Per-case evidence for the cable, protection, earthing and arc-flash calculators: inputs, the independent reference
+            Per-case evidence for the cable, protection, earthing, arc-flash, short-circuit and transformer calculators and the Cable Engineering Suite: inputs, the independent reference
             (standard table, the standard&apos;s own worked example or hand calculation), expected and actual values, tolerance and result.{" "}
             <Link href="/validation" className="text-accent-2 hover:underline">Open the validation register</Link> or{" "}
             <a href="/validation/register.csv" className="text-accent-2 hover:underline">download it as CSV</a>.

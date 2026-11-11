@@ -2523,9 +2523,12 @@ section("Worked examples (November 2026)");
 
 {
   section("Validation register (independent references)");
-  for (const r of runValidation()) {
+  const vr = runValidation();
+  for (const r of vr.filter((x) => x.run !== "recorded")) {
     assertTrue(`${r.id} ${r.tool}: ${r.quantity} — expected ${r.expected} ${r.unit}, got ${Number(r.actual.toPrecision(6))} (tol ±${r.tolerancePct} %)`, r.pass);
   }
+  // Recorded Engineering Suite values are not re-run here (separate programs); check the register stays consistent.
+  assertTrue("Recorded Engineering Suite cases are within tolerance of their independent references", vr.filter((x) => x.run === "recorded").every((x) => x.pass));
 }
 
 {
@@ -2563,6 +2566,12 @@ section("Worked examples (November 2026)");
   assertTrue("DGA TX-101: C2H2/H2 2.4 (> 2, OLTC check), Duval 28/50/22, CO2/CO 8.4, TDCG 1020", tx101.c2h2 / tx101.h2 === 2.4 && Math.round((100 * tx101.ch4) / d101) === 28 && Math.round((100 * tx101.c2h4) / d101) === 50 && Math.abs(tx101.co2 / tx101.co - 8.42) < 0.01 && tx101.h2 + tx101.ch4 + tx101.c2h6 + tx101.c2h4 + tx101.c2h2 + tx101.co === 1020);
   const suiteHrefs = new Set(SUITES.map((s) => s.href));
   assertTrue("Every engineering suite has a How-to guide and at least one worked example", SUITES.every((s) => !!CALC_ARTICLES[s.href]?.howTo && WORKED_EXAMPLES.some((e) => e.calculatorHref === s.href)) && suiteHrefs.size === SUITES.length);
+}
+
+{
+  section("GOOSE & SV Capture Analyzer page");
+  const gaHtml = readFileSync("public/goose-sv-analyzer/index.html", "utf8");
+  assertTrue("GOOSE/SV analyzer is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(gaHtml) && /calculators\/goose-sv-analyzer/.test(gaHtml) && /Ajmal Jamseeth/.test(gaHtml) && /AJPA-GOOSESVANALYZER-/.test(gaHtml));
 }
 
 {

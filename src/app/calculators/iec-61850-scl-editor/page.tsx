@@ -81,6 +81,10 @@ export default function SclEditorPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-4 text-sm text-muted">
+          To check the GOOSE and sampled-value traffic itself in a Wireshark capture, with clause references for every finding, use the{" "}
+          <a href="/calculators/goose-sv-analyzer" className="text-accent-2 hover:underline">GOOSE &amp; SV Capture Analyzer</a>.
+        </p>
         <p className="mt-4 text-xs text-muted">
           SCL Studio is an engineering aid for reviewing and correcting configuration files. Always load the final file into the IED
           manufacturer&apos;s configuration tool, and test GOOSE and sampled-value exchanges on the real system before energisation.

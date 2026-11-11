@@ -286,6 +286,31 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
     ],
   },
 
+  "/calculators/goose-sv-analyzer": {
+    howTo: {
+      title: "How to use the GOOSE & SV Capture Analyzer",
+      steps: [
+        { title: "Try the demo", text: "Click Load demo. It opens a five-second capture of one bay with its SCD file: a trip GOOSE with a lost repetition, a status GOOSE whose time allowed to live has no margin and which then goes silent for three seconds, an interlocking GOOSE in simulation with low VLAN priority whose data changes without a new stNum, and a 9-2LE merging unit with eight lost samples and a neutral that does not match the phases." },
+        { title: "Capture the traffic", text: "In Wireshark, capture on a switch port that receives the GOOSE / SV multicast (a mirror port or a TAP), for long enough to include a few state changes. Save as .pcap or .pcapng. A filter such as eth.type == 0x88b8 || eth.type == 0x88ba keeps only GOOSE and SV." },
+        { title: "Open the capture and, if you have it, the SCD", text: "Open the capture with Open capture, or drag it onto the page. Add the SCD with Open SCL to compare every stream with its configuration: APPID, MAC address, VLAN, confRev, data set, goID, number of entries, MaxTime and smpRate." },
+        { title: "Read the streams and findings", text: "The streams table shows each GOOSE control block and SV stream with its worst verdict; click a stream to see only its findings. Each finding opens to show the standard reference, what was expected and observed, an explanation, likely causes, what to do and the impact, with the frame numbers where it occurred." },
+        { title: "Check the rule list", text: "The tab Checks & standard references lists all 86 checks with their verdict and the clause they are based on." },
+        { title: "Report", text: "Print report produces a one-document summary of streams and findings; Export CSV gives every finding for Excel." },
+      ],
+    },
+    heading: "GOOSE and sampled values: what goes wrong on the network",
+    paragraphs: [
+      "GOOSE messages (IEC 61850-8-1) carry trips, interlocks and status between IEDs. Each message repeats the whole data set: when a value changes, the publisher increments stNum, resets sqNum to 0 and sends the message several times in quick succession, then slows down to the steady repetition interval (MaxTime). Every message carries a time allowed to live (TAL); a subscriber that hears nothing within TAL treats the data as lost. Most field problems show up as gaps in stNum or sqNum, repetitions arriving too close to TAL, a changed data set without a new confRev, or a device left in simulation.",
+      "Sampled values (IEC 61850-9-2, usually to the 9-2LE profile) stream currents and voltages from a merging unit at 80 samples per cycle — 4,000 frames per second at 50 Hz. Lost or out-of-order samples, a sample counter that wraps at the wrong value, loss of time synchronisation (smpSynch) or invalid channel quality can block or mis-operate protection.",
+    ],
+    faqs: [
+      { q: "Can the analyzer capture live traffic?", a: "No. Browsers cannot read raw Ethernet frames. Capture with Wireshark (or a hardware capture device) and open the file here." },
+      { q: "Which standard editions do the clause references follow?", a: "IEC 61850-7-2:2010, IEC 61850-8-1:2011 and IEC 61850-9-2:2011 (Edition 2), the UCA 9-2LE guideline, IEC 61869-9, IEC 62439-3 and IEEE 802.1Q. Confirm the clause against your copy of the standard before quoting it." },
+      { q: "Is my capture uploaded?", a: "No. The capture and the SCD are read in your browser and never leave your computer." },
+      { q: "Why does the analyzer warn about time allowed to live without margin?", a: "If TAL is close to the repetition interval, a single delayed or lost repetition makes subscribers declare the GOOSE lost. A TAL of about twice the repetition interval is common practice." },
+    ],
+  },
+
   "/calculators/iec-61850-scl-editor": {
     howTo: {
       title: "How to use SCL Studio",

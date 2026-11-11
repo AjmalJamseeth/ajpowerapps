@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 860;
+export const AUTOMATED_CHECKS = 874;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -10,7 +10,7 @@ export const KNOWN_ISSUES: string[] = [
   "Battery sizing (IEEE 485): random / intermittent loads are not yet added to the result.",
   "Protection Coordination Suite: device curves are generic IEC/IEEE, LSIG, MCB and fuse characteristics, not manufacturer-specific data. Enter actual device curves (custom points) for final settings.",
   "Cable sizing uses typical cable reactance values; use the manufacturer's data for long or large cables where voltage drop governs.",
-  "The validation register covers the cable, protection, earthing and arc-flash calculators so far; the other calculators and the Engineering Suites will be added. The Cable Engineering Suite has its own 198-value check against an independently prepared workbook (Sizing Engine ▸ Verify).",
+  "The validation register covers the cable, protection, earthing, arc-flash, short-circuit and transformer/CT/VT calculators and the Cable Engineering Suite so far; the remaining calculators and the other Engineering Suites will be added. The Cable Engineering Suite has its own 198-value check against an independently prepared workbook (Sizing Engine ▸ Verify).",
 ];
 
 export interface ChangeEntry {
@@ -23,9 +23,17 @@ export interface ChangeEntry {
 export const CHANGE_LOG: ChangeEntry[] = [
   {
     date: "November 2026",
+    title: "GOOSE & Sampled Values Capture Analyzer",
+    items: [
+      "New: GOOSE & SV Capture Analyzer. Open a Wireshark capture to check GOOSE (IEC 61850-8-1) and sampled values (IEC 61850-9-2 / 9-2LE) — 86 checks, each with the clause of the standard it is based on, expected and observed values, causes and actions — and optionally compare every stream with the SCD.",
+    ],
+  },
+  {
+    date: "November 2026",
     title: "Validation register",
     items: [
-      "New validation register (/validation, with CSV download): 38 cases for the cable, protection, earthing and arc-flash calculators, each compared with an independent reference — printed IEC 60364-5-52 table values, the worked examples published in IEEE Std 80-2013 (Annex B) and IEEE Std 1584-2018 (Annex D), and hand calculations from the IEC 60255-151, IEEE C37.112, IEC 60364-4-43, IEC 60228, BS 7430 and IEEE 142 formulas. All cases run before every release.",
+      "New validation register (/validation, with CSV download): 58 cases for the cable, protection, earthing, arc-flash, IEC 60909 short-circuit, transformer/CT/VT calculators and the Cable Engineering Suite, each compared with an independent reference — printed IEC 60364-5-52 table values, the worked examples published in IEEE Std 80-2013 (Annex B) and IEEE Std 1584-2018 (Annex D), and hand calculations from the IEC 60255-151, IEEE C37.112, IEC 60909-0, IEC 60076-1, IEC 61869, IEC 60364-4-43, IEC 60228, BS 7430 and IEEE 142 formulas. Calculator cases run before every release; Cable Engineering Suite results are recorded from the application.",
+      "Cable Engineering Suite: LV buried-cable ratings (methods D1/D2) are no longer flagged orange — they now match IEC 60364-5-52:2009 exactly.",
     ],
   },
   {

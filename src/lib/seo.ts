@@ -37,6 +37,10 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/goose-sv-analyzer": {
+    title: "GOOSE Analyzer Online – IEC 61850 Wireshark Check",
+    description: "Analyse GOOSE and sampled values in a Wireshark capture online: stNum/sqNum, TAL, retransmission, APPID/VLAN, lost samples and smpSynch, with IEC 61850 clause references and SCD comparison.",
+  },
   "/calculators/iec-61850-scl-editor": {
     title: "IEC 61850 SCL Editor – SCD, ICD, CID Viewer",
     description: "Online IEC 61850 SCL viewer and editor: open SCD, ICD and CID files, validate, edit, export signal lists to Excel, compare revisions, make FAT/SAT test sheets and analyse GOOSE captures.",

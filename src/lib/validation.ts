@@ -11,12 +11,16 @@ import * as E from "./earthing";
 import { iecTime, ieeeTime } from "./curveEngine";
 import { tripTime, DEFAULT_RELAY } from "./idmt";
 import { calcAf2018 } from "./arcflash2018";
+import { analyseShortCircuit, peakFactor, muFactor, thermalM, voltageFactor, DEFAULT_SC_SETTINGS, type ScNetwork } from "./iec60909";
+import { calcXfmr, DEFAULT_XFMR_INPUT } from "./genxfmr";
+import { calcCt, DEFAULT_CT_INPUT } from "./ct";
+import { getVoltageFactor } from "./vt";
 
 export type ReferenceType = "Standard table" | "Standard worked example" | "Hand calculation from the standard's formula";
 
 export interface ValidationCase {
   id: string;
-  area: "Cables" | "Protection" | "Earthing" | "Arc flash";
+  area: "Cables" | "Protection" | "Earthing" | "Arc flash" | "Short circuit" | "Transformers & CT/VT" | "Cable Engineering Suite";
   tool: string;
   href: string;
   quantity: string;
@@ -27,6 +31,8 @@ export interface ValidationCase {
   unit: string;
   tolerancePct: number; // acceptance tolerance, fixed before testing
   note?: string;
+  /** "automatic": re-run by the test suite before every release. "recorded": read from an Engineering Suite application (a separate program) at the stated build, and re-recorded when that application is updated. */
+  run?: "automatic" | "recorded";
   compute: () => number;
 }
 
@@ -74,6 +80,32 @@ const afD2 = calcAf2018({ ibfKa: 45, vocKv: 0.48, gapMm: 32, workingDistMm: 609.
 const D1_INPUTS = "4.16 kV, VCB, Ibf 15 kA, gap 104 mm, working distance 914.4 mm, enclosure 762 × 1143 × 762 mm, T 197 ms";
 const D2_INPUTS = "0.48 kV, VCB, Ibf 45 kA, gap 32 mm, working distance 609.6 mm, enclosure 610 × 610 × 254 mm, T 61.3 ms";
 
+// Simple 11 kV grid + 1.6 MVA transformer network, solved by the IEC 60909 calculator
+// and by hand from the IEC 60909-0:2016 equations.
+const SC_NET: ScNetwork = {
+  settings: DEFAULT_SC_SETTINGS,
+  buses: [
+    { id: "hv", name: "11 kV", unKv: 11, ratingKa: 25 },
+    { id: "lv", name: "0.4 kV", unKv: 0.4, ratingKa: 50 },
+  ],
+  grids: [{ id: "q", name: "Grid", busId: "hv", skMva: 250, rToX: 0.1, z0ToZ1: 1 }],
+  gens: [],
+  motors: [],
+  branches: [
+    { id: "t", kind: "transformer", name: "T 11/0.4 kV", fromBus: "hv", toBus: "lv", srMva: 1.6, ukPct: 6, pkKw: 15, group: "Dyn", z0ToZ1: 1, neutralFromOhm: 0, neutralToOhm: 0, applyKt: true },
+  ],
+};
+const scRes = analyseShortCircuit(SC_NET);
+const scHv = scRes.buses.find((b) => b.busId === "hv")!;
+const scLv = scRes.buses.find((b) => b.busId === "lv")!;
+const SC_INPUTS = "Grid S″kQ 250 MVA at 11 kV (R/X 0.1, cQ 1.10); transformer 1.6 MVA, 11/0.4 kV, uk 6 %, Pk 15 kW, KT applied; LV c = 1.05";
+const SC = "/calculators/iec-60909";
+const XFMR = "/calculators/gen-xfmr";
+const CTP = "/calculators/ct-sizing";
+const VTP = "/calculators/vt-sizing";
+const CSUITE = "/calculators/cable-engineering-suite";
+const CS_REC = "Cable Engineering Suite v6 (build AJPA-CABLESUITE-251BE8FC219D9970), worked example project";
+
 export const VALIDATION_CASES: ValidationCase[] = [
   // ---------------------------------------------------------------- Cables
   { id: "CAB-01", area: "Cables", tool: "Cable Sizing & Voltage Drop", href: CABLE, quantity: "Current rating Itab, Cu/PVC, method C, 25 mm², 3 loaded conductors", reference: "IEC 60364-5-52:2009 Table B.52.4, column C", referenceType: "Standard table", inputs: "Cu, PVC 70 °C, method C, 25 mm², 3 loaded", expected: 96, unit: "A", tolerancePct: 0, compute: () => amp("Cu", "PVC70", "C", 25) },
@@ -113,6 +145,32 @@ export const VALIDATION_CASES: ValidationCase[] = [
   { id: "EAR-11", area: "Earthing", tool: "Ground Ring Resistance", href: RING, quantity: "Ring electrode resistance", reference: "IEEE Std 142-2007 Table 4-5 (Dwight ring formula)", referenceType: "Hand calculation from the standard's formula", inputs: "ρ 100 Ω·m, ring 10 m diameter, 10 mm conductor, buried 0.6 m", expected: 6.329, unit: "Ω", tolerancePct: 0.05, compute: () => E.calcRingR(100, 10, 0.005, 0.6) ?? NaN },
   { id: "EAR-12", area: "Earthing", tool: "Earthing Grid Design", href: EARTH, quantity: "Earthing conductor k, copper, bolted joints", reference: "BS 7430:2011+A1:2015 9.7 and Table 7, k = 226·√ln((θf + 234.5)/(θi + 234.5))", referenceType: "Hand calculation from the standard's formula", inputs: "Copper, θi 30 °C, θf 250 °C", expected: 175.8, unit: "A/mm² (1 s)", tolerancePct: 0.05, compute: () => E.kAdiabatic("Cu", 250) },
 
+  // ---------------------------------------------------------------- Short circuit
+  { id: "SC-01", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Voltage factor cmax / cmin, LV (6 % tolerance)", reference: "IEC 60909-0:2016 Table 1", referenceType: "Standard table", inputs: "Un ≤ 1 kV, +6 % tolerance", expected: 1.05, unit: "—", tolerancePct: 0, compute: () => voltageFactor(0.4, 6).cMax },
+  { id: "SC-02", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Voltage factor cmax, MV", reference: "IEC 60909-0:2016 Table 1", referenceType: "Standard table", inputs: "1 kV < Un ≤ 35 kV", expected: 1.1, unit: "—", tolerancePct: 0, compute: () => voltageFactor(11, 6).cMax },
+  { id: "SC-03", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Initial short-circuit current Ik″ at the 11 kV bus", reference: "IEC 60909-0:2016, network feeder: ZQ = cQ·UnQ²/S″kQ, Ik″ = c·Un/(√3·ZQ)", referenceType: "Hand calculation from the standard's formula", inputs: SC_INPUTS, expected: 13.122, unit: "kA", tolerancePct: 0.1, compute: () => scHv.ik3 },
+  { id: "SC-04", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Initial short-circuit current Ik″ at the 0.4 kV bus", reference: "IEC 60909-0:2016: ZQ referred to LV by the rated ratio; transformer ZTK = KT·ZT with KT = 0.95·cmax/(1 + 0.6·xT) = 0.9632", referenceType: "Hand calculation from the standard's formula", inputs: SC_INPUTS, expected: 37.407, unit: "kA", tolerancePct: 0.2, compute: () => scLv.ik3 },
+  { id: "SC-05", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Peak short-circuit current ip at the 0.4 kV bus", reference: "IEC 60909-0:2016 peak current: ip = κ·√2·Ik″, κ = 1.02 + 0.98·e^(−3R/X), R/X = 0.152", referenceType: "Hand calculation from the standard's formula", inputs: SC_INPUTS, expected: 86.83, unit: "kA", tolerancePct: 0.3, compute: () => scLv.ip },
+  { id: "SC-06", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Peak factor κ", reference: "IEC 60909-0:2016: κ = 1.02 + 0.98·e^(−3R/X)", referenceType: "Hand calculation from the standard's formula", inputs: "R/X = 0.1", expected: 1.746, unit: "—", tolerancePct: 0.05, compute: () => peakFactor(0.1) },
+  { id: "SC-07", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Breaking-current decay factor μ (generator)", reference: "IEC 60909-0:2016 factor μ for tmin = 0.1 s: μ = 0.62 + 0.72·e^(−0.32·I″kG/IrG)", referenceType: "Hand calculation from the standard's formula", inputs: "I″kG/IrG = 5, tmin = 0.1 s", expected: 0.7654, unit: "—", tolerancePct: 0.05, compute: () => muFactor(5, 0.1) },
+  { id: "SC-08", area: "Short circuit", tool: "IEC 60909 Short-Circuit", href: SC, quantity: "Thermal factor m (DC component)", reference: "IEC 60909-0:2016 thermal factor: m = [e^(4·f·Tk·ln(κ−1)) − 1] / (2·f·Tk·ln(κ−1))", referenceType: "Hand calculation from the standard's formula", inputs: "κ = 1.8, f = 50 Hz, Tk = 1 s", expected: 0.04481, unit: "—", tolerancePct: 0.1, compute: () => thermalM(1.8, 50, 1) },
+
+  // ---------------------------------------------------------------- Transformers & CT/VT
+  { id: "TX-01", area: "Transformers & CT/VT", tool: "Generator & Transformer Analysis", href: XFMR, quantity: "Transformer efficiency at full load", reference: "η = P/(P + P0 + x²·Pk) — IEC 60076-1 loss definitions", referenceType: "Hand calculation from the standard's formula", inputs: "1000 kVA, P0 1.8 kW, Pk 11 kW, full load, cos φ 0.85", expected: 98.517, unit: "%", tolerancePct: 0.01, compute: () => calcXfmr(DEFAULT_XFMR_INPUT)?.effPct ?? NaN },
+  { id: "TX-02", area: "Transformers & CT/VT", tool: "Generator & Transformer Analysis", href: XFMR, quantity: "Voltage regulation at full load", reference: "IEC 60076-1:2011 Annex A: ε = εr·cos φ + εx·sin φ + (εx·cos φ − εr·sin φ)²/200", referenceType: "Hand calculation from the standard's formula", inputs: "1000 kVA, uk 6 %, Pk 11 kW (εr 1.1 %, εx 5.898 %), cos φ 0.85 lagging", expected: 4.140, unit: "%", tolerancePct: 0.1, compute: () => calcXfmr(DEFAULT_XFMR_INPUT)?.regPct ?? NaN },
+  { id: "TX-03", area: "Transformers & CT/VT", tool: "CT Sizing & Saturation", href: CTP, quantity: "Required secondary EMF E_ALF", reference: "IEC 61869-2:2012: E_ALF = ALF·Isr·(Rct + Rb)", referenceType: "Hand calculation from the standard's formula", inputs: "400/1 A, ALF 20, Rct 2.5 Ω, relay 2.5 VA, 20 m of 2.5 mm² Cu go-and-return (0.28 Ω)", expected: 105.6, unit: "V", tolerancePct: 0.1, compute: () => calcCt(DEFAULT_CT_INPUT, true)?.vkReq ?? NaN },
+  { id: "TX-04", area: "Transformers & CT/VT", tool: "VT Sizing", href: VTP, quantity: "Rated voltage factor, phase-to-earth VT, non-effectively earthed, no automatic clearance", reference: "IEC 61869-3:2011 Table 302", referenceType: "Standard table", inputs: "Phase-to-earth connection, isolated / resistance-earthed neutral, earth fault not cleared automatically (8 h)", expected: 1.9, unit: "—", tolerancePct: 0, compute: () => getVoltageFactor("phase-earth", "noAutoClear").vf },
+
+  // ---------------------------------------------------------------- Cable Engineering Suite (recorded)
+  { id: "CS-01", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "MV current rating, Cu/XLPE single-core trefoil, buried direct, 120 mm²", reference: "IEC 60502-2:2014 Table B.2", referenceType: "Standard table", inputs: "6/10 kV basis, trefoil, buried direct, 20 °C ground, 1.5 K·m/W, 0.8 m", expected: 323, unit: "A", tolerancePct: 0, run: "recorded", note: CS_REC, compute: () => 323 },
+  { id: "CS-02", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "MV current rating, Al/XLPE three-core, buried direct, 95 mm² (lower of armoured / unarmoured)", reference: "IEC 60502-2:2014 Table B.7 (unarmoured 203 A, armoured 204 A)", referenceType: "Standard table", inputs: "6/10 kV basis, buried direct", expected: 203, unit: "A", tolerancePct: 0, run: "recorded", note: CS_REC, compute: () => 203 },
+  { id: "CS-03", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "LV current rating, Cu/XLPE, method D2 (buried direct), 240 mm²", reference: "IEC 60364-5-52:2009 Table B.52.5, column D2", referenceType: "Standard table", inputs: "Cu, XLPE, 3 loaded conductors", expected: 375, unit: "A", tolerancePct: 0, run: "recorded", note: CS_REC, compute: () => 375 },
+  { id: "CS-04", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "Circuit C01: minimum conductor size for 25 kA, 0.47 s", reference: "IEC 60949 / IEC 60364-4-43 adiabatic: S = I·√t/k, k = 226·√ln((250+234.5)/(90+234.5)) = 143.1", referenceType: "Hand calculation from the standard's formula", inputs: "Cu/XLPE, 25 kA, 0.40 s relay + 0.07 s breaker", expected: 119.8, unit: "mm²", tolerancePct: 0.1, run: "recorded", note: CS_REC, compute: () => 119.784 },
+  { id: "CS-05", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "Circuit C01: minimum copper screen area for 1 kA, 0.47 s", reference: "IEC 60949 adiabatic, k = 226·√ln((200+234.5)/(80+234.5)) = 128.5", referenceType: "Hand calculation from the standard's formula", inputs: "Copper wire screen, 80 → 200 °C, 1 kA earth fault, 0.47 s", expected: 5.336, unit: "mm²", tolerancePct: 0.1, run: "recorded", note: CS_REC, compute: () => 5.3358 },
+  { id: "CS-06", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "Circuit C04: running voltage drop of the circuit", reference: "ΔU = √3·I·L·(R cos φ + X sin φ); R = 0.193 Ω/km (IEC 60228) at 90 °C = 0.2461 Ω/km, X = 0.082 Ω/km", referenceType: "Hand calculation from the standard's formula", inputs: "75 kW motor, 132.5 A, 150 m, 95 mm² Cu/XLPE, 400 V, cos φ 0.86", expected: 2.182, unit: "%", tolerancePct: 0.6, run: "recorded", note: CS_REC + ". The suite adds the IEC 60287 skin and proximity effect (+0.6 % on R); the hand value uses DC resistance only.", compute: () => 2.192 },
+  { id: "CS-07", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "Circuit C04: earth-fault loop impedance Zs", reference: "IEC 60364-4-41: Zs = Ze + |(R1 + R2) + j·2X|·L, Ze = cmin·U0/Ik1min", referenceType: "Hand calculation from the standard's formula", inputs: "Ze 0.0183 Ω, R1 0.2461, R2 (50 mm²) 0.4935, X 0.082 Ω/km, 150 m", expected: 0.1319, unit: "Ω", tolerancePct: 0.5, run: "recorded", note: CS_REC + ". Difference: skin and proximity effect on R1.", compute: () => 0.13212 },
+  { id: "CS-08", area: "Cable Engineering Suite", tool: "Cable Engineering Suite", href: CSUITE, quantity: "IEC 60287 module: continuous rating, three-core cable", reference: "IEC 60287-1-1 eq. (1) with T4 = (ρ/2π)·ln(u + √(u² − 1)) (IEC 60287-2-1)", referenceType: "Hand calculation from the standard's formula", inputs: "θ 90/30 °C, Rac 0.161 Ω/km, n 3, λ1 0.10, T1 0.35, T2 0.03, T3 0.05 K·m/W, L 1.0 m, ρ 1.2 K·m/W, De 95 mm", expected: 354.18, unit: "A", tolerancePct: 0.2, run: "recorded", note: CS_REC + " (value shown rounded to 354 A).", compute: () => 354 },
+
   // ---------------------------------------------------------------- Arc flash
   { id: "AF-01", area: "Arc flash", tool: "Arc Flash", href: AF, quantity: "Arcing current", reference: "IEEE Std 1584-2018 Annex D.1", referenceType: "Standard worked example", inputs: D1_INPUTS, expected: 12.979, unit: "kA", tolerancePct: 0.1, compute: () => afD1.normal.iarcKa },
   { id: "AF-02", area: "Arc flash", tool: "Arc Flash", href: AF, quantity: "Incident energy", reference: "IEEE Std 1584-2018 Annex D.1", referenceType: "Standard worked example", inputs: D1_INPUTS, expected: 12.152, unit: "J/cm²", tolerancePct: 0.1, compute: () => afD1.normal.eJcm2 },
@@ -127,7 +185,7 @@ export function runValidation(): ValidationRow[] {
     const actual = compute();
     const deviationPct = c.expected !== 0 ? ((actual - c.expected) / c.expected) * 100 : actual * 100;
     const pass = Number.isFinite(actual) && Math.abs(deviationPct) <= c.tolerancePct + 1e-9;
-    return { ...c, actual, deviationPct, pass };
+    return { ...c, run: c.run ?? "automatic", actual, deviationPct, pass };
   });
 }
 
@@ -137,9 +195,9 @@ export function validationCsv(rows: ValidationRow[], buildLabel: string): string
     const s = String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const head = ["ID", "Area", "Tool", "Page", "Quantity", "Reference", "Reference type", "Inputs", "Expected", "Actual", "Unit", "Deviation %", "Tolerance %", "Result", "Note", "Build"];
+  const head = ["ID", "Area", "Tool", "Page", "Quantity", "Reference", "Reference type", "Inputs", "Expected", "Actual", "Unit", "Deviation %", "Tolerance %", "Result", "How run", "Note", "Build"];
   const lines = rows.map((r) =>
-    [r.id, r.area, r.tool, `https://www.ajpowerapps.com${r.href}`, r.quantity, r.reference, r.referenceType, r.inputs, r.expected, Number(r.actual.toPrecision(6)), r.unit, r.deviationPct.toFixed(3), r.tolerancePct, r.pass ? "PASS" : "FAIL", r.note ?? "", buildLabel].map(esc).join(",")
+    [r.id, r.area, r.tool, `https://www.ajpowerapps.com${r.href}`, r.quantity, r.reference, r.referenceType, r.inputs, r.expected, Number(r.actual.toPrecision(6)), r.unit, r.deviationPct.toFixed(3), r.tolerancePct, r.pass ? "PASS" : "FAIL", r.run === "recorded" ? "Recorded from the application" : "Automatic, every release", r.note ?? "", buildLabel].map(esc).join(",")
   );
   return [head.join(","), ...lines].join("\n");
 }

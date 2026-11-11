@@ -101,7 +101,10 @@ export default function ValidationPage() {
                       <td className="px-3 py-2 text-right font-mono text-foreground">{r.expected} {r.unit}</td>
                       <td className="px-3 py-2 text-right font-mono text-foreground">{fmt(r.actual)} {r.unit}</td>
                       <td className="px-3 py-2 text-right font-mono">{r.deviationPct.toFixed(2)} % / ±{r.tolerancePct} %</td>
-                      <td className={`px-3 py-2 font-semibold ${r.pass ? "text-pass" : "text-fail"}`}>{r.pass ? "PASS" : "FAIL"}</td>
+                      <td className={`px-3 py-2 font-semibold ${r.pass ? "text-pass" : "text-fail"}`}>
+                        {r.pass ? "PASS" : "FAIL"}
+                        {r.run === "recorded" && <div className="mt-1 text-[11px] font-normal text-muted">recorded from the app</div>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -124,6 +127,12 @@ export default function ValidationPage() {
           <li>
             <span className="text-foreground">Hand calculation:</span> the standard&apos;s formula evaluated separately from the site&apos;s
             code. This confirms the formula is implemented correctly; it does not test the data a user enters.
+          </li>
+          <li>
+            <span className="text-foreground">Recorded from the app:</span> the Engineering Suites are separate programs. Their results
+            are read from the application at the build stated in the note and re-recorded whenever the application is updated; the
+            other cases are re-run automatically before every release. The Cable Engineering Suite also checks itself: Sizing Engine ▸
+            Verify compares 198 results of its example project with an independently prepared workbook.
           </li>
           <li>
             Passing these cases does not certify a design. See{" "}
