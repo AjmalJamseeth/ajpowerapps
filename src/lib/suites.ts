@@ -49,6 +49,18 @@ export const SUITES: Suite[] = [
     standards: "IEC 61850-6, IEC 61850-7, IEC 61850-8-1, IEC 61850-9-2",
   },
   {
+    name: "SCL NetStudio",
+    short: "SCL NetStudio (network)",
+    href: "/calculators/scl-netstudio",
+    tagline: "Design and verify the communication network of an IEC 61850 substation.",
+    points: [
+      "IP plan (VLSM), GOOSE/SV VLAN and multicast addressing, switch port membership",
+      "Bandwidth, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time budget",
+      "IEC 62443 firewall zones and a capture analyser to verify the plan on site",
+    ],
+    standards: "IEC 61850-5, -8-1, -9-2, IEC 61850-9-3, IEC 62439-3, IEC 62443, IEC 62351",
+  },
+  {
     name: "DGA Analyzer",
     short: "DGA Analyzer",
     href: "/calculators/dga-analyzer",

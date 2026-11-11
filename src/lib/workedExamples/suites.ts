@@ -17,6 +17,8 @@ const SCL = "/calculators/iec-61850-scl-editor";
 const SCL_NAME = "IEC 61850 SCL Editor (SCL Studio)";
 const ESS = "/calculators/engineering-sketch-studio";
 const ESS_NAME = "Engineering Sketch Studio (drawing tool)";
+const NS = "/calculators/scl-netstudio";
+const NS_NAME = "SCL NetStudio (IEC 61850 network design)";
 
 export const SUITES_EXAMPLES: WorkedExample[] = [
   // ------------------------------------------------------------------ Cable Suite
@@ -308,6 +310,141 @@ export const SUITES_EXAMPLES: WorkedExample[] = [
     faqs: [
       { q: "Can I add manufacturer and part numbers to the BOM?", a: "Yes. Reports ▸ Parts database maps symbol types to manufacturer, part number and description; the BOM then fills those columns." },
       { q: "Can the drawing go into AutoCAD?", a: "Yes, Export ▸ DXF writes lines, circles, polylines, text and layers for the sheet or all sheets." },
+    ],
+  },
+  // ------------------------------------------------------------------ SCL NetStudio
+  {
+    slug: "iec-61850-process-bus-bandwidth-sampled-values-vlan-filtering",
+    groupId: "iec-61850",
+    calculatorHref: NS,
+    calculatorName: NS_NAME,
+    title: "Worked Example: Process Bus Bandwidth — Sampled Values, GOOSE Bursts and Multicast Filtering",
+    dek: "How much of a 100 Mb/s port do two 9-2LE merging units use, why a protection IED receives both streams with VLAN filtering, and what a GOOSE avalanche adds. Numbers from the SCL NetStudio sample substation.",
+    standard: "IEC 61850-9-2 / UCA 9-2LE",
+    readTime: "8 min read",
+    scenario: [
+      { label: "Process bus", value: "Switch PB1, 100 Mb/s device ports, 1 Gb/s uplink" },
+      { label: "SV streams", value: "MU_Q01 and MU_T1, 9-2LE: 80 samples per cycle, 1 ASDU per frame, 8 channels, 50 Hz; frames of 131 and 130 bytes, VLAN 11" },
+      { label: "Subscribers", value: "P132_Q01 subscribes to MU_Q01 only; P87T_T1 to MU_T1 only" },
+      { label: "GOOSE", value: "Trip GOOSE of 184–202 bytes, MinTime 4 ms, MaxTime 1000 ms" },
+      { label: "Multicast filtering", value: "By VLAN (every port in VLAN 11 receives every SV stream)" },
+    ],
+    scenarioNote: "Open SCL NetStudio ▸ Bandwidth with the sample project loaded.",
+    steps: [
+      { title: "Frame rate of one SV stream", equation: "frames/s = samples per cycle × frequency ÷ ASDUs per frame", substitution: "80 × 50 ÷ 1", result: "4 000 frames/s" },
+      { title: "Bandwidth of one SV stream", body: "Each frame occupies its own bytes plus 8 bytes of preamble and 12 bytes of inter-frame gap on the wire.", equation: "load = (frame + 20) × 8 × frames/s", substitution: "MU_Q01: (131 + 20) × 8 × 4 000 = 4.832 Mb/s;  MU_T1: (130 + 20) × 8 × 4 000 = 4.800 Mb/s", result: "≈ 4.8 Mb/s per stream" },
+      { title: "What a protection IED port receives", body: "With filtering by VLAN, the switch sends every frame of VLAN 11 to every port that is a member of VLAN 11. P132_Q01 therefore receives MU_T1's stream as well as its own.", substitution: "4.832 + 4.800 = 9.632 Mb/s on a 100 Mb/s port", result: "9.6 % — the busiest device port in the sample", note: "With per-stream filtering (static multicast entries or MMRP) the port would carry only MU_Q01: 4.8 %. On a larger process bus with ten merging units in one VLAN, VLAN-only filtering would put about 48 Mb/s on every IED port." },
+      { title: "GOOSE in steady state and in a burst", equation: "steady: 1 frame per MaxTime; burst: MinTime doubling 4, 8, 16 … ms", substitution: "184-byte trip GOOSE: (184 + 20) × 8 × 1 = 1.6 kb/s steady; about 8 frames/s averaged over the first second after a change = 0.013 Mb/s", result: "Negligible next to sampled values, even when every GOOSE changes at once" },
+    ],
+    resultSummary: [
+      { check: "SV stream load", requirement: "≈ 5 Mb/s for 9-2LE at 50 Hz", actual: "4.83 / 4.80 Mb/s", pass: true },
+      { check: "Busiest device port (burst)", requirement: "< 50 % steady, < 80 % burst", actual: "9.6 %", pass: true },
+      { check: "Uplinks", requirement: "< 50 %", actual: "< 0.1 % of 1 Gb/s", pass: true },
+    ],
+    finalAnswer: "Each 9-2LE stream needs about 4.8 Mb/s. With VLAN filtering every IED in the SV VLAN receives every stream, so P132_Q01's 100 Mb/s port carries 9.6 % instead of 4.8 %. That is comfortable for two merging units, but filtering per stream (or one VLAN per bay) becomes necessary as the process bus grows.",
+    keyInsight: "On the process bus, size ports for every SV stream they can receive, not just the ones the IED subscribes to — the multicast filtering method decides which that is.",
+    faqs: [
+      { q: "Why add 20 bytes per frame?", a: "Every Ethernet frame is preceded by an 8-byte preamble and start delimiter and followed by a 12-byte inter-frame gap; the wire is busy for that time too." },
+      { q: "What about 256 samples per cycle?", a: "Metering streams at 256 samples per cycle usually pack 8 ASDUs per frame: 1 600 frames/s at 50 Hz but much larger frames — enter the stream with its smpRate and nofASDU and the tool recalculates." },
+    ],
+  },
+  {
+    slug: "iec-61850-goose-trip-transfer-time-tt6-switch-latency",
+    groupId: "iec-61850",
+    calculatorHref: NS,
+    calculatorName: NS_NAME,
+    title: "Worked Example: Does a Trip GOOSE Meet TT6 (3 ms) Through Three Switches?",
+    dek: "Transfer time t = ta + tb + tc for a 184-byte trip GOOSE through three store-and-forward switches, with worst-case queuing behind full-size frames. Every term worked by hand and compared with SCL NetStudio.",
+    standard: "IEC 61850-5 / IEC 61850-10",
+    readTime: "9 min read",
+    scenario: [
+      { label: "Message", value: "P132_Q01 trip GOOSE, 184-byte frame, priority 6" },
+      { label: "Requirement", value: "Type 1A trip, performance class P2/P3: TT6, t ≤ 3 ms" },
+      { label: "Path", value: "3 store-and-forward switches: 2 device links at 100 Mb/s, 2 backbone links at 1 Gb/s, 5 µs switch latency each, 300 m of cable" },
+      { label: "Devices", value: "Sender processing ta = 1 ms, receiver processing tc = 1 ms" },
+      { label: "Queuing", value: "A 1 522-byte frame already being sent at each egress port, plus 2 frames of the same priority ahead" },
+    ],
+    steps: [
+      { title: "Frame transmission at each link", equation: "t = (frame + 20 bytes) × 8 / link speed", substitution: "(184 + 20) × 8 = 1 632 bits: 16.32 µs at 100 Mb/s, 1.63 µs at 1 Gb/s. Two links of each: 2 × 16.32 + 2 × 1.63", result: "35.9 µs (store-and-forward: the frame is received completely at each switch)" },
+      { title: "Switch fabric latency", substitution: "3 × 5 µs", result: "15.0 µs" },
+      { title: "Worst-case queuing", body: "At each egress port a maximum-size frame may have just started; priority cannot interrupt it. The two backbone egress ports run at 1 Gb/s, the last one to the receiver at 100 Mb/s.", substitution: "(1 522 + 20) × 8 = 12 336 bits: 2 × 12.34 µs + 123.36 µs, plus 2 same-priority GOOSE frames ahead at 100 Mb/s: 2 × 16.32 µs", result: "180.7 µs" },
+      { title: "Cable propagation", substitution: "300 m × 5 ns/m", result: "1.5 µs" },
+      { title: "Network time and total", equation: "tb = 35.9 + 15.0 + 180.7 + 1.5;  t = ta + tb + tc", substitution: "tb = 233.1 µs;  t = 1 000 + 233.1 + 1 000 µs", result: "t = 2.233 ms — meets TT6 with 0.77 ms margin" },
+    ],
+    resultSummary: [
+      { check: "Network part tb", requirement: "Small share of 3 ms", actual: "0.233 ms", pass: true },
+      { check: "Total transfer time", requirement: "≤ 3 ms (TT6)", actual: "2.233 ms", pass: true },
+    ],
+    finalAnswer: "The trip GOOSE takes 2.233 ms from application to application, of which only 0.233 ms is the network. TT6 is met with 0.77 ms margin. The IED processing times ta and tc (1 ms each here) dominate — use the manufacturer's figures, which can be much shorter.",
+    keyInsight: "With 100 Mb/s device ports the worst case is set by queuing behind one full-size frame at the last egress port (123 µs). Gigabit links and strict priority keep the network part well below 1 ms even through many switches.",
+    faqs: [
+      { q: "Why 1 522 bytes?", a: "The largest tagged Ethernet frame (1 518 bytes plus the 4-byte VLAN tag). Strict priority cannot pre-empt a frame that has started; it only chooses the next frame." },
+      { q: "How is TT6 tested?", a: "IEC 61850-10 describes performance tests; in practice a test set publishes a GOOSE and measures the round trip to the subscriber's reply, which includes ta and tc of both devices." },
+    ],
+  },
+  {
+    slug: "iec-61850-9-3-ptp-time-synchronisation-error-budget",
+    groupId: "iec-61850",
+    calculatorHref: NS,
+    calculatorName: NS_NAME,
+    title: "Worked Example: PTP Time Error Budget for Sampled Values (IEC 61850-9-3)",
+    dek: "Add up grandmaster, transparent clock and end-device errors, check the result against the time class sampled values need, and estimate how long the merging units stay accurate if GPS is lost.",
+    standard: "IEC 61850-9-3 / IEC 61850-5",
+    readTime: "7 min read",
+    scenario: [
+      { label: "Function", value: "Sampled values for protection — class T4, ±4 µs" },
+      { label: "Method", value: "PTP power profile (IEC 61850-9-3)" },
+      { label: "Error contributions", value: "Grandmaster 250 ns, 4 transparent clocks of 50 ns, no boundary clocks, end device 200 ns" },
+      { label: "Holdover", value: "Device oscillator TCXO, 1 ppm" },
+    ],
+    steps: [
+      { title: "Worst-case sum", equation: "error = GM + n_TC × e_TC + n_BC × e_BC + end device", substitution: "250 + 4 × 50 + 0 + 200 ns", result: "650 ns = ±0.65 µs" },
+      { title: "Which class is reached", body: "IEC 61850-5 time performance classes: T3 ±25 µs, T4 ±4 µs, T5 ±1 µs.", result: "±0.65 µs achieves T5 — better than the T4 that protection SV needs" },
+      { title: "The profile's own limit", body: "IEC 61850-9-3 allows 250 ns at the grandmaster, 50 ns per transparent clock and 200 ns per boundary clock, so that 1 µs is held after 15 transparent clocks: 250 + 15 × 50 = 1 000 ns.", result: "The 4-switch design is well inside the profile" },
+      { title: "Holdover after loss of GPS", equation: "time to reach the limit = (requirement − error) / oscillator drift", substitution: "(4 − 0.65) µs ÷ 1 µs/s (1 ppm)", result: "≈ 3.4 s" },
+    ],
+    resultSummary: [
+      { check: "Time error", requirement: "≤ ±4 µs (T4)", actual: "±0.65 µs", pass: true },
+      { check: "Holdover with TCXO", requirement: "Long enough to ride through a GPS outage", actual: "≈ 3.4 s", pass: false },
+    ],
+    finalAnswer: "The PTP design reaches ±0.65 µs, comfortably inside the ±4 µs sampled values need. But a 1 ppm oscillator keeps that accuracy for only about 3.4 s after the grandmaster loses GPS; for protection schemes that compare samples from different merging units, specify grandmasters with OCXO or rubidium holdover, or a redundant grandmaster.",
+    keyInsight: "The accuracy budget is usually easy to meet with PTP; holdover is where designs fall short. Check what happens when the GPS antenna fails, not only when it works.",
+    faqs: [
+      { q: "Should the errors be added or combined statistically?", a: "The worst-case sum is conservative. The tool can also show the root-sum-square, which is closer to what is measured when errors are independent." },
+      { q: "What does smpSynch tell me?", a: "In each sampled-value frame smpSynch shows whether the merging unit is synchronised to a global source (2), a local one (1) or none (0); the capture analyser flags frames that are not synchronised." },
+    ],
+  },
+  {
+    slug: "iec-61850-network-capture-vs-plan-goose-sv-commissioning",
+    groupId: "iec-61850",
+    calculatorHref: NS,
+    calculatorName: NS_NAME,
+    title: "Worked Example: Checking a Commissioning Capture Against the Network Plan",
+    dek: "A 10-second capture of the sample substation compared with the planned streams: a missing merging unit, a confRev mismatch, an unknown test publisher with a clashing APPID, lost GOOSE and unsynchronised samples.",
+    standard: "IEC 61850-8-1 / 9-2",
+    readTime: "8 min read",
+    scenario: [
+      { label: "Capture", value: "Sample capture generated from the project: 40 099 frames in 10 s (SV 39 997, GOOSE 61, MMS 31, PTP 10)" },
+      { label: "Plan", value: "4 GOOSE and 2 SV streams from the VLAN & multicast table" },
+    ],
+    scenarioNote: "Open SCL NetStudio ▸ Capture analyser ▸ Load sample capture.",
+    steps: [
+      { title: "Plan check", table: { headers: ["Planned stream", "Seen", "Result"], rows: [["GOOSE P132_Q01/GCB_TRIP · 0001", "Yes", "Matches"], ["GOOSE P132_Q02/GCB_TRIP · 0002", "Yes", "Matches"], ["GOOSE P87T_T1/GCB_DIFF · 0003", "Yes", "confRev 2 (plan 1)"], ["GOOSE BCU_J01/GCB_IL · 0004", "Yes", "Matches"], ["SV MU_Q01/MSVCB01 · 4001", "Yes", "VLAN 0 (plan 11)"], ["SV MU_T1/MSVCB01 · 4002", "No", "Missing"], ["— (not in the project)", "TEST_IEDLD0/LLN0$GO$gcb01 · 0001", "Unexpected"]] } },
+      { title: "GOOSE findings", body: "P132_Q01: stNum jumped 6 → 8 — one state change was never seen. P132_Q02: no message for 3 000 ms against a TAL of 2 000 ms — subscribers would declare the stream lost — and sqNum jumped 6 → 9. TEST_IED publishes APPID 0001, the same as P132_Q01's trip, untagged and with the test flag set." },
+      { title: "Sampled-value findings", body: "MU_Q01: 3 samples missing before smpCnt 2003, and smpSynch = 0 in 1 599 samples (not time synchronised). It is only priority-tagged (VLAN 0), so it is not in the planned SV VLAN 11." },
+      { title: "MMS", body: "One TCP retransmission between the gateway (10.13.0.11) and P132_Q01 (port 102): packet loss or congestion on the station bus." },
+    ],
+    resultSummary: [
+      { check: "All planned streams present", requirement: "6 of 6", actual: "5 of 6 (MU_T1 missing)", pass: false },
+      { check: "No unknown publishers", requirement: "None", actual: "TEST_IED with APPID 0001", pass: false },
+      { check: "GOOSE continuity", requirement: "No lost state changes, TAL respected", actual: "stNum gap; TAL exceeded", pass: false },
+      { check: "SV synchronisation", requirement: "smpSynch = 2", actual: "0 in 1 599 samples", pass: false },
+    ],
+    finalAnswer: "Before energisation: find and remove the test set publishing APPID 0001, put MU_Q01 in VLAN 11, restore its time synchronisation, bring MU_T1 on line, re-load P87T_T1's CID (confRev 2 against the planned 1, or update the plan if the change is intended), and investigate the lost GOOSE messages from P132_Q01 and P132_Q02.",
+    keyInsight: "A capture compared with the plan finds the problems that each device's own configuration tool cannot: missing and unknown publishers, address clashes between vendors, and devices that are configured correctly but not on the right VLAN or clock.",
+    faqs: [
+      { q: "Where should the capture be taken?", a: "On a mirror port or TAP that receives the multicast traffic of interest — for sampled values, on the process bus switch; for GOOSE, on the station bus. Capture for long enough to include a few state changes." },
+      { q: "How is this different from the GOOSE & SV Capture Analyzer?", a: "SCL NetStudio checks the capture against the network plan. The GOOSE & SV Capture Analyzer runs 86 detailed conformance checks per frame with clause references; the two complement each other." },
     ],
   },
 ];

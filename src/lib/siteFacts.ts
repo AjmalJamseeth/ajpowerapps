@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 874;
+export const AUTOMATED_CHECKS = 878;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,14 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "SCL NetStudio",
+    items: [
+      "New: SCL NetStudio, IEC 61850 substation network design — IP plan (VLSM), GOOSE/SV VLAN and multicast addressing with switch port membership, bandwidth, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time-error budget, IEC 62443 firewall zones and a capture analyser to verify the plan. Added to the Engineering Suites with a how-to guide and four worked examples.",
+      "SCL NetStudio accepts the Edition 2 Type 1A APPID ranges (8000–BFFF for GOOSE, C000–FFFF for SV) instead of flagging them.",
+    ],
+  },
   {
     date: "November 2026",
     title: "GOOSE & Sampled Values Capture Analyzer",

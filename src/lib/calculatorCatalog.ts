@@ -68,6 +68,7 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     icon: "Network",
     calculators: [
       { name: "IEC 61850 SCL Editor (SCL Studio)", description: "Open, view, validate and edit SCD, ICD, CID, IID and SSD files: substation single-line structure, IED data model, GOOSE and sampled-value publishers and subscribers, report control blocks, communication addressing, file compare and CID export. Files stay on your computer.", href: "/calculators/iec-61850-scl-editor", status: "live" },
+      { name: "SCL NetStudio (IEC 61850 network design)", description: "Design the substation network: IP plan with VLSM, VLAN and multicast addressing for GOOSE/SV with switch port membership, bandwidth per port, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time-error budget, IEC 62443 firewall zones and a capture analyser to verify on site.", href: "/calculators/scl-netstudio", status: "live" },
       { name: "GOOSE & Sampled Values Capture Analyzer", description: "Check a Wireshark capture (.pcap/.pcapng) against IEC 61850-8-1 and 9-2: addressing, stNum/sqNum, time allowed to live, retransmission, data-set consistency, flags, lost samples, sample rate and synchronisation — 86 checks with clause references, optional comparison with the SCD.", href: "/calculators/goose-sv-analyzer", status: "live" },
     ],
   },

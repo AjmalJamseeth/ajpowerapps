@@ -286,6 +286,54 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
     ],
   },
 
+  "/calculators/scl-netstudio": {
+    howTo: {
+      title: "How to use SCL NetStudio",
+      steps: [
+        { title: "Start from the sample substation", text: "The tool opens with S13, a 132/33 kV substation: a gateway, HMI, GPS clock, three protection IEDs, a bay controller and two merging units on three switches (two station bus, one process bus), with four GOOSE and two sampled-value streams. The Project page shows a nine-step checklist with the status of every tool — work down it, or jump to any tool from the left rail." },
+        { title: "Enter or import the devices", text: "On Project, list each device with its bay, role and the networks it is connected to (station bus, process bus, management, SCADA DMZ, engineering) and its switch. Or use Import SCD to fill devices and streams from your SCD. Load sample project brings S13 back; New empty project starts from scratch." },
+        { title: "Plan the IP addresses", text: "IP plan has a subnet calculator and a VLSM planner: give the address block (10.13.0.0/22 in the sample) and the host count and growth for each segment; the largest segments are placed first so each starts on its natural boundary. Assign addresses to all devices then numbers them in a fixed order (gateway, HMI, time server, protection, control, merging units)." },
+        { title: "Allocate GOOSE and SV addressing", text: "VLAN & multicast gives each stream a MAC address, APPID, VLAN and priority from your rules (in the sample GOOSE VLAN 10, SV VLAN 11, trip GOOSE priority 6), checks them against the IEC 61850 ranges and for duplicates, works out which VLANs each switch port must carry, and writes a vendor-neutral switch configuration template." },
+        { title: "Check bandwidth, latency, redundancy and time", text: "Bandwidth shows the load of every port and uplink, steady and during a GOOSE avalanche. Latency adds sender, network and receiver times for a GOOSE and compares the total with the transfer time class (TT6 = 3 ms for trips). Redundancy sizes an HSR ring or a PRP network. Time sync adds up the PTP error budget and compares it with the accuracy class the function needs." },
+        { title: "Plan the firewall", text: "Firewall planner: define zones with a target security level, list the services each conduit needs, and read the warnings — unencrypted MMS, a corporate network reaching the station LAN directly, GOOSE that needs layer 2 rather than a routed rule. Copy the generated rule table for the firewall team." },
+        { title: "Verify on site with a capture", text: "Capture analyser opens a Wireshark capture and compares it with the plan: GOOSE stNum/sqNum and time allowed to live, sampled-value continuity and synchronisation, addresses and VLANs, streams missing from the capture and publishers the project does not know. Load sample capture shows a 10-second capture generated from the project with typical site faults." },
+        { title: "Export", text: "Every tool exports to Excel (IP plan, streams, bandwidth, firewall rules, capture findings), and Export SCD writes the addresses back into the SCD Communication section. The project is kept in your browser; nothing is uploaded." },
+      ],
+    },
+    heading: "Designing an IEC 61850 substation network",
+    paragraphs: [
+      "An IEC 61850 substation carries three kinds of traffic with very different needs. MMS (client/server) carries reports, controls and file transfer between the IEDs and the gateway or HMI over TCP/IP; it is tolerant of delay. GOOSE carries trips, interlocks and status between IEDs as layer-2 multicast; a trip must reach the subscriber within 3 ms (transfer time class TT6 in IEC 61850-5). Sampled values carry currents and voltages from merging units at 4,000 frames per second per stream at 50 Hz (9-2LE), about 5 Mb/s each, and must not be lost.",
+      "The network design therefore has to answer a few questions before anything is bought. Which IP subnets and VLANs keep the traffic apart, and which switch ports must carry which multicast streams? Is every link comfortably below its capacity even when every GOOSE changes at once during a busbar fault? Does a trip GOOSE reach its subscriber in time through the chosen number of switches? Which redundancy scheme (RSTP, MRP, PRP or HSR) gives the recovery time the protection needs? Is the time synchronisation accurate enough for sampled values (±4 µs for protection, class T4)? And which services may cross between the station LAN, the SCADA DMZ, engineering access and the corporate network?",
+      "SCL NetStudio answers each question with its own tool, all working from one inventory of devices and streams that can be imported from, and written back to, the SCD file. A capture analyser then checks the commissioned network against the plan.",
+    ],
+    formula: [
+      { label: "Frame rate of a 9-2LE SV stream", text: "80 samples/cycle × 50 Hz = 4 000 frames/s; load = (frame bytes + 20) × 8 × 4 000 b/s (preamble and inter-frame gap included)" },
+      { label: "GOOSE transfer time (IEC 61850-5)", text: "t = ta + tb + tc; trips (type 1A, P2/P3) must meet TT6: t ≤ 3 ms" },
+      { label: "PTP time error (IEC 61850-9-3 budget)", text: "grandmaster 250 ns + 50 ns per transparent clock + 200 ns per boundary clock + end device ≤ class limit" },
+    ],
+    table: {
+      caption: "Typical figures used in the design",
+      headers: ["Item", "Typical value", "Source"],
+      rows: [
+        ["GOOSE MAC / APPID range", "01-0C-CD-01-00-00 … 01-FF / 0000–3FFF (Type 1A 8000–BFFF)", "IEC 61850-8-1"],
+        ["SV MAC / APPID range", "01-0C-CD-04-00-00 … 01-FF / 4000–7FFF (Type 1A C000–FFFF)", "IEC 61850-9-2"],
+        ["Default VLAN priority", "4 (trips often 6)", "IEC 61850-8-1 / 9-2"],
+        ["Trip GOOSE transfer time", "TT6: 3 ms", "IEC 61850-5"],
+        ["Time class for SV protection / metering", "T4 ±4 µs / T5 ±1 µs", "IEC 61850-5"],
+        ["PTP budget", "1 µs after 15 transparent clocks", "IEC 61850-9-3"],
+        ["PRP / HSR recovery", "0 ms (both copies always sent)", "IEC 62439-3"],
+        ["Link loading target", "steady < 50 %, burst < 80 %", "Engineering practice"],
+      ],
+      note: "Engineering practice values are rules of thumb; follow the project specification where it differs.",
+    },
+    faqs: [
+      { q: "What is the difference between SCL Studio and SCL NetStudio?", a: "SCL Studio opens, validates and edits the SCL files themselves (data model, data sets, GOOSE/SV/report control blocks, references). SCL NetStudio designs the network around the IEDs: IP plan, VLANs and multicast, bandwidth, latency, redundancy, time synchronisation, firewall zones and on-site verification. Both read and write the SCD." },
+      { q: "Does the bandwidth calculation include the GOOSE burst after a fault?", a: "Yes. The burst figure assumes every GOOSE changes state at the same moment (avalanche) and is retransmitted at the MinTime / MaxTime scheme — about 9 frames in the first second per stream with MinTime 4 ms." },
+      { q: "Can it configure my switches?", a: "It writes a vendor-neutral configuration template (VLANs, port membership, priority trust, multicast filtering) to translate into your switch's CLI or web interface. It does not connect to the switches." },
+      { q: "Is the project uploaded anywhere?", a: "No. The project is stored in your browser and capture files are analysed locally. Export to Excel or SCD to keep a copy." },
+    ],
+  },
+
   "/calculators/goose-sv-analyzer": {
     howTo: {
       title: "How to use the GOOSE & SV Capture Analyzer",

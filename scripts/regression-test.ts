@@ -2569,6 +2569,18 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("SCL NetStudio page and worked examples");
+  const nsHtml = readFileSync("public/scl-netstudio/index.html", "utf8");
+  assertTrue("SCL NetStudio is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(nsHtml) && /calculators\/scl-netstudio/.test(nsHtml) && /Ajmal Jamseeth/.test(nsHtml) && /AJPA-SCLNETSTUDIO-/.test(nsHtml));
+  const bits = (bytes: number) => (bytes + 20) * 8;
+  assertTrue("NetStudio example: SV 4.832 + 4.800 Mb/s = 9.6 % of a 100 Mb/s port", Math.abs(bits(131) * 4000 / 1e6 - 4.832) < 1e-9 && Math.abs(bits(130) * 4000 / 1e6 - 4.8) < 1e-9 && Math.abs((bits(131) + bits(130)) * 4000 / 1e8 * 100 - 9.632) < 1e-6);
+  const tx = 2 * bits(184) / 100 + 2 * bits(184) / 1000, q = 2 * bits(1522) / 1000 + bits(1522) / 100 + 2 * bits(184) / 100;
+  const tb = tx + 15 + q + 1.5;
+  assertTrue("NetStudio example: trip GOOSE tb = 233.1 µs, t = 2.233 ms ≤ 3 ms (TT6)", Math.abs(tx - 35.904) < 0.01 && Math.abs(q - 180.7) < 0.05 && Math.abs(tb - 233.1) < 0.1 && Math.abs((1000 + tb + 1000) / 1000 - 2.233) < 0.001);
+  assertTrue("NetStudio example: PTP budget 650 ns (T5), holdover (4 − 0.65) µs at 1 ppm ≈ 3.4 s", 250 + 4 * 50 + 200 === 650 && 250 + 15 * 50 === 1000 && Math.abs((4 - 0.65) / 1 - 3.35) < 1e-9);
+}
+
+{
   section("GOOSE & SV Capture Analyzer page");
   const gaHtml = readFileSync("public/goose-sv-analyzer/index.html", "utf8");
   assertTrue("GOOSE/SV analyzer is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(gaHtml) && /calculators\/goose-sv-analyzer/.test(gaHtml) && /Ajmal Jamseeth/.test(gaHtml) && /AJPA-GOOSESVANALYZER-/.test(gaHtml));

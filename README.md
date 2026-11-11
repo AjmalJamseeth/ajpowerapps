@@ -1543,3 +1543,8 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Page: src/app/calculators/goose-sv-analyzer; app: public/goose-sv-analyzer/index.html (protected, domain-locked).
 - Readable source and parts (engine, UI, rule knowledge base from MPACT, demo generator gen.py, demo.pcap/.scd):
   apps_cleaned/08 GOOSE SV ANALYZER. Rebuild with tools/protect-app.js (lock GOOSESVANALYZER), then add noindex/canonical.
+
+## SCL NetStudio (November 2026)
+
+- Page: src/app/calculators/scl-netstudio; app: public/scl-netstudio/index.html (protected, domain-locked, lock SCLNETSTUDIO).
+- Readable source: apps_cleaned/03 IEC 61850/SCL NetStudio SOURCE - keep private.html. Listed in src/lib/suites.ts.
