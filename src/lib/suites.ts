@@ -56,6 +56,7 @@ export const SUITES: Suite[] = [
     points: [
       "IP plan (VLSM), GOOSE/SV VLAN and multicast addressing, switch port membership",
       "Bandwidth, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time budget",
+      "Switch-port and cable schedule, network asset register (models, firmware, serials)",
       "IEC 62443 firewall zones and a capture analyser to verify the plan on site",
     ],
     standards: "IEC 61850-5, -8-1, -9-2, IEC 61850-9-3, IEC 62439-3, IEC 62443, IEC 62351",

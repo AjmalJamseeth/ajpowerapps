@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 911;
+export const AUTOMATED_CHECKS = 913;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "SCL NetStudio: ports, cables and asset register",
+    items: [
+      "New in SCL NetStudio: Ports & cables — switch-port and cable schedule from the design (PRP doubled, HSR ring links), checks for duplicate ports, switch capacity, unconnected devices and cable length against the 100 m copper channel and multimode reach, cable quantities and a port map per switch.",
+      "New in SCL NetStudio: Asset register — panel, manufacturer, model, firmware, serial and MAC per device and switch next to IP addresses, ports and VLANs; duplicate serial, MAC and IP checks, multicast MACs, firmware differences within one model; Excel export and CSV import.",
+      "SCL NetStudio VLAN checks extended: stream on the untagged data VLAN, overlapping per-bay GOOSE/SV VLAN ranges, priorities below 4, trip priority below ordinary GOOSE, publishers or subscribers without a switch on their network, VLAN 0 and reserved IDs.",
+      "The switch configuration template now uses the scheduled port numbers, names the cable on each port and shuts down unused ports.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Substation and SCADA networking tools",

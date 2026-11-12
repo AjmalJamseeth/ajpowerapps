@@ -1555,3 +1555,9 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - /calculators/fibre-link-budget — src/lib/fibrebudget.ts (TIA-568.3-D component loss, IEEE 802.3 reach; transceiver power values are representative datasheet figures).
 - /calculators/ip-register-checker — src/lib/ipregister.ts (CSV/TSV register checks; runs in the browser only).
 - Shared IPv4 helpers: src/lib/ipv4.ts. Worked examples: src/lib/workedExamples/networking.ts. Validation cases NET-01 … NET-06.
+
+## SCL NetStudio, Phase 2 (November 2026)
+
+- New views in the app source (apps_cleaned/03 IEC 61850/SCL NetStudio SOURCE - keep private.html): Ports & cables (portPlan, cabRows, bomRows) and Asset register (assetList, assetIssues, assetRows, importAssets); VLAN plan checks (vlanPlanIssues).
+- Project model additions: switches[].ports, switches[].asset, ieds[].asset, P.cab (cable rules), P.lk (per-link overrides keyed by lkKey). migrate() fills them for older project files.
+- Republish: tools/protect-app.js (lock SCLNETSTUDIO), then add noindex/canonical after the meta charset line. Current watermark AJPA-SCLNETSTUDIO-DA5ECAC9C0589889.

@@ -2575,6 +2575,8 @@ section("Worked examples (November 2026)");
 {
   section("SCL NetStudio page and worked examples");
   const nsHtml = readFileSync("public/scl-netstudio/index.html", "utf8");
+  assertTrue("SCL NetStudio guide covers the ports & cables schedule and the asset register, with a worked example", /Schedule ports and cables/.test(JSON.stringify(CALC_ARTICLES["/calculators/scl-netstudio"]?.howTo)) && /asset register/i.test(JSON.stringify(CALC_ARTICLES["/calculators/scl-netstudio"]?.howTo)) && WORKED_EXAMPLES.some((e) => e.slug === "iec-61850-switch-port-cable-schedule-asset-register"));
+  assertTrue("NetStudio cable example: 115 m copper exceeds the 100 m channel; 220 m multimode within 2 km at 100 Mb/s", 115 > 100 && 220 <= 2000);
   assertTrue("SCL NetStudio is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(nsHtml) && /calculators\/scl-netstudio/.test(nsHtml) && /Ajmal Jamseeth/.test(nsHtml) && /AJPA-SCLNETSTUDIO-/.test(nsHtml));
   const bits = (bytes: number) => (bytes + 20) * 8;
   assertTrue("NetStudio example: SV 4.832 + 4.800 Mb/s = 9.6 % of a 100 Mb/s port", Math.abs(bits(131) * 4000 / 1e6 - 4.832) < 1e-9 && Math.abs(bits(130) * 4000 / 1e6 - 4.8) < 1e-9 && Math.abs((bits(131) + bits(130)) * 4000 / 1e8 * 100 - 9.632) < 1e-6);
