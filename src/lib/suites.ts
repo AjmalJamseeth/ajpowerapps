@@ -62,6 +62,18 @@ export const SUITES: Suite[] = [
     standards: "IEC 61850-5, -8-1, -9-2, IEC 61850-9-3, IEC 62439-3, IEC 62443, IEC 62351",
   },
   {
+    name: "61850 Academy",
+    short: "61850 Academy (training)",
+    href: "/calculators/iec-61850-academy",
+    tagline: "Learn IEC 61850 on a live virtual substation, with guided labs and quizzes.",
+    points: [
+      "Virtual 132/33 kV substation: SCADA HMI, IEDs, station bus, packet sniffer and incident timeline",
+      "GOOSE retransmission and LGOS supervision, confRev, test mode, buffered reports, select-before-operate",
+      "Ten guided labs with automatic step checks and a quiz at the end of each",
+    ],
+    standards: "IEC 61850-7-2, -7-4, -8-1, IEC 61850-5",
+  },
+  {
     name: "DGA Analyzer",
     short: "DGA Analyzer",
     href: "/calculators/dga-analyzer",

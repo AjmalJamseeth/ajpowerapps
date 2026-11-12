@@ -27,9 +27,10 @@ export const CATEGORY_PAGES: Record<string, CategoryPage> = {
   },
   "iec-61850": {
     slug: "iec-61850",
-    title: "IEC 61850 Tools – SCL, SCD & CID Files",
+    title: "IEC 61850 & SCADA Tools – SCL, GOOSE, Networks",
     intro: [
-      "Work with IEC 61850 substation automation configuration files in the browser. SCL Studio opens SCD, ICD, CID, IID and SSD files, shows the substation, IEDs, GOOSE, sampled values and reports, validates addressing and references, and lets you edit, compare and export them. Files never leave your computer.",
+      "Tools for substation automation and SCADA engineers. SCL Studio opens, validates and edits SCD, ICD, CID, IID and SSD files; SCL NetStudio designs the station network; the GOOSE & SV Capture Analyzer checks Wireshark captures against the standard; and 61850 Academy teaches IEC 61850 on a live virtual substation.",
+      "For everyday site problems: the SCADA Connectivity Assistant explains why a laptop cannot reach an IED, the IP Address Register Checker finds duplicates and wrong masks before they reach site, and the Fibre-Optic Link Budget checks fibre links. Every tool explains its method and limits, and files never leave your computer.",
     ],
   },
   cables: {

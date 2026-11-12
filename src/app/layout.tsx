@@ -4,24 +4,24 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ajpowerapps.com"),
   title: {
-    default: "AJapps — Electrical Engineering Calculators",
+    default: "AJapps — Electrical Power & SCADA Engineering Tools",
     template: "%s | AJapps",
   },
   description:
-    "Standards-based electrical engineering calculators: protection relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, power quality, backup power, instrumentation, renewables and facilities engineering. Built on cited IEC, IEEE, NEC and NFPA references. No signup required.",
+    "Electrical power, protection and SCADA engineering tools: relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, IEC 61850 SCL and GOOSE analysis, substation network design and SCADA connectivity. Every method, standard and limit explained. No signup required.",
   openGraph: {
-    title: "AJapps — Electrical Engineering Calculators",
+    title: "AJapps — Electrical Power & SCADA Engineering Tools",
     description:
-      "Standards-based electrical engineering calculators — protection relay coordination, arc flash, cable sizing, earthing, transformers, power quality, backup power, renewables and more. No signup required.",
+      "Electrical power, protection and SCADA engineering tools — calculators, engineering suites and IEC 61850 applications, with every method explained. No signup required.",
     url: "https://www.ajpowerapps.com",
     siteName: "AJapps",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "AJapps — Electrical Engineering Calculators",
+    title: "AJapps — Electrical Power & SCADA Engineering Tools",
     description:
-      "Standards-based electrical engineering calculators. No signup required.",
+      "Electrical power and SCADA engineering tools, with every method explained.",
   },
 };
 

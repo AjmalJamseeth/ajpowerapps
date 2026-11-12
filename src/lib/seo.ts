@@ -37,6 +37,10 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/iec-61850-academy": {
+    title: "IEC 61850 Training Simulator – GOOSE, MMS & SCADA Labs",
+    description: "Learn IEC 61850 on a virtual 132/33 kV substation: GOOSE retransmission and supervision, confRev, test mode, MMS select-before-operate, buffered reports, VLAN faults, protection trips. Ten guided labs with quizzes.",
+  },
   "/calculators/scl-netstudio": {
     title: "IEC 61850 Network Design Tool – VLAN, PTP, PRP/HSR",
     description: "Design an IEC 61850 substation network online: IP plan, GOOSE/SV VLAN and multicast addressing, bandwidth, GOOSE latency (TT6), PRP/HSR, PTP time sync budget, firewall zones and capture check.",

@@ -266,4 +266,60 @@ export const NETWORKING_EXAMPLES: WorkedExample[] = [
       { q: "Can I import asset data from a spreadsheet?", a: "Yes. Export the register, fill in panel, manufacturer, model, firmware, serial and MAC in Excel, save as CSV and import it; rows are matched by tag." },
     ],
   },
+  {
+    slug: "iec-61850-goose-retransmission-tal-confrev-academy",
+    groupId: "iec-61850",
+    calculatorHref: "/calculators/iec-61850-academy",
+    calculatorName: "61850 Academy (IEC 61850 training simulator)",
+    title: "Worked Example: GOOSE Retransmission, Time Allowed to Live and a confRev Mismatch, Step by Step",
+    dek: "Follow a transformer trip GOOSE from the first frame to the steady heartbeat, unplug the publisher to see the subscriber declare the stream lost, then break the intertrip with a one-sided confRev change.",
+    standard: "IEC 61850-8-1 / 7-4",
+    readTime: "8 min read",
+    scenario: [
+      { label: "Publisher", value: "P_T1, transformer T1 protection, GOOSE with the trip of T1" },
+      { label: "Subscriber", value: "B_J01, 33 kV incomer bay controller, supervised by LGOS" },
+      { label: "Repetition", value: "Heartbeat MaxTime 1000 ms; retransmission intervals doubling after a change" },
+      { label: "Tool", value: "61850 Academy, Labs 6 and 7 (speed 0.01× to read frames)" },
+    ],
+    steps: [
+      {
+        title: "Cause a change and read the burst",
+        body: "With the clock at 0.01×, apply a permanent fault on T1 and open the Sniffer. P_T1 increments stNum once, because the data changed, then repeats the same message with sqNum 1, 2, 3 and so on.",
+        result: "stNum +1 once; sqNum counts the repeats; time allowed to live 16, 32, 64 ms … grows with the interval",
+        note: "stNum changes only when the data changes. sqNum counts repetitions of the same state and restarts at 0 on the next change.",
+      },
+      {
+        title: "Why time allowed to live grows",
+        body: "Each message tells the subscriber how long to wait for the next one. Right after a change the repeats are close together, so the time allowed to live is short; as the intervals double up to MaxTime, it grows with them. A subscriber that hears nothing within the time allowed to live treats the data as lost.",
+      },
+      {
+        title: "Unplug the publisher",
+        body: "Restore the plant, return to 1× and unplug the P_T1 cable in Network. B_J01 keeps waiting for the next heartbeat, which never comes.",
+        result: "LGOS of B_J01 goes to lost about 2 s later (about 2 × MaxTime)",
+        note: "On a real system this alarm is your first sign of a broken GOOSE link. Without supervision the subscriber would silently keep the last value.",
+      },
+      {
+        title: "Change confRev on the publisher only",
+        body: "Plug the cable back, then in IEDs → P_T1 raise the GOOSE confRev from 1 to 2, as happens when a new data set is loaded only into the publisher. B_J01 decodes GOOSE members by position, so it rejects a stream whose confRev differs from what it was configured for.",
+        result: "B_J01 subscription: confRev mismatch, GOOSE alarm on",
+      },
+      {
+        title: "See the consequence, then fix it",
+        body: "Apply a permanent fault on T1 again. P_T1 trips its own breaker, but the intertrip to J01 never arrives and J01 stays closed. Set B_J01's expected confRev to 2 and the subscription returns to ok.",
+        result: "Intertrip lost while the mismatch exists; restored after both sides carry confRev 2",
+      },
+    ],
+    resultSummary: [
+      { check: "stNum changes once per data change", requirement: "Yes", actual: "+1 at the fault", pass: true },
+      { check: "Repeats carry the same stNum, rising sqNum", requirement: "Yes", actual: "sqNum 1, 2, 3 …", pass: true },
+      { check: "Lost publisher detected", requirement: "Within about 2 × MaxTime", actual: "about 2 s", pass: true },
+      { check: "Intertrip with one-sided confRev change", requirement: "Delivered", actual: "Lost", pass: false },
+    ],
+    finalAnswer: "GOOSE repeats a changed state quickly and then settles to the MaxTime heartbeat; the time allowed to live in each message lets the subscriber detect a lost publisher in about two heartbeats. A confRev change on one side only makes the subscriber reject the stream, so a protection intertrip can disappear without any fault on the publisher.",
+    keyInsight: "Whenever a GOOSE data set changes, raise confRev and reload the publisher and every subscriber; then prove the link with a test trip and the LGOS status.",
+    faqs: [
+      { q: "Which LGOS attribute shows the received confRev?", a: "LGOS.ConfRevNum reports the confRev being received; LGOS.St goes false when the subscription is not healthy." },
+      { q: "Can I see the same in a real capture?", a: "Yes. Open a Wireshark capture in the GOOSE & SV Capture Analyzer: it checks stNum, sqNum, time allowed to live and confRev against the SCD." },
+    ],
+  },
 ];

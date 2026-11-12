@@ -18,6 +18,7 @@ import { buildSearchIndex } from "../src/lib/searchIndex";
 import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
 import { SUITES } from "../src/lib/suites";
 import { runValidation } from "../src/lib/validation";
+import { TOOL_GUIDES } from "../src/lib/toolGuides";
 import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
 import { calcScadaConnect, DEFAULT_SCADA_CONNECT_INPUT } from "../src/lib/scadaconnect";
 import { calcFibreBudget, DEFAULT_FIBRE_BUDGET_INPUT, XCVRS, FIBRES, COMPONENT_LOSS } from "../src/lib/fibrebudget";
@@ -2652,6 +2653,23 @@ section("Worked examples (November 2026)");
   const live = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
   const net = ["/calculators/scada-connectivity", "/calculators/fibre-link-budget", "/calculators/ip-register-checker"];
   assertTrue("The three networking tools are live in the catalog, with a guide and a worked example each", net.every((h) => live.has(h) && !!CALC_ARTICLES[h] && WORKED_EXAMPLES.some((w) => w.calculatorHref === h)));
+}
+
+{
+  section("Tool guides (know before you use)");
+  const live = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
+  const entries = Object.entries(TOOL_GUIDES);
+  assertTrue("Every tool guide belongs to a live tool", entries.length >= 11 && entries.every(([h]) => live.has(h)));
+  assertTrue("Every tool guide answers all questions (what, can, why, understand, need, output, interpret, basis, limits)", entries.every(([, g]) => g.what.length > 20 && [g.can, g.why, g.understand, g.need, g.output, g.interpret, g.basis, g.limits].every((a) => a.length > 0 && a.every((t) => t.trim().length > 10))));
+  assertTrue("Tools without a step-by-step guide carry their own how-to-use steps", entries.every(([h, g]) => !!CALC_ARTICLES[h]?.howTo || (g.use?.length ?? 0) >= 3));
+  assertTrue("Every Engineering Suite has a tool guide", SUITES.every((s) => !!TOOL_GUIDES[s.href]));
+  assertTrue("Tool guides never use the word free", !/\bfree\b/i.test(JSON.stringify(TOOL_GUIDES)));
+}
+
+{
+  section("61850 Academy page");
+  const acHtml = readFileSync("public/61850-academy/index.html", "utf8");
+  assertTrue("61850 Academy is published protected (noindex, canonical, copyright, watermark)", /noindex/.test(acHtml) && /calculators\/iec-61850-academy/.test(acHtml) && /Ajmal Jamseeth/.test(acHtml) && /AJPA-ACADEMY61850-/.test(acHtml));
 }
 
 {

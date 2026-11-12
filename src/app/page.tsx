@@ -24,8 +24,10 @@ import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SUITES } from "@/lib/suites";
 import { BUILD_LABEL } from "@/lib/buildInfo";
+import { PowerNetMotif } from "@/components/PowerNetMotif";
+import { TraceDivider } from "@/components/TraceDivider";
 
-export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical Engineering Calculators", "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors and more. No signup."), title: { absolute: "AJ Power Apps – Electrical Engineering Calculators" } };
+export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical & SCADA Engineering Calculators", "Electrical power, protection and SCADA engineering tools: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, IEC 61850 SCL and GOOSE tools, substation networks and more — every method explained. No signup."), title: { absolute: "AJ Power Apps – Electrical & SCADA Engineering Calculators" } };
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
@@ -68,7 +70,7 @@ const HOME_JSON_LD = [
     name: "AJapps",
     alternateName: ["AJ Power Apps", "ajpowerapps.com"],
     url: SITE_URL,
-    description: "Standards-based electrical engineering calculators.",
+    description: "Electrical power, protection and SCADA engineering calculators and applications, with every method explained.",
     potentialAction: {
       "@type": "SearchAction",
       target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/calculators?q={search_term_string}` },
@@ -105,20 +107,22 @@ export default function Home() {
           <path d="M0 60 Q150 0 300 60 T600 60 T900 60 T1200 60" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
           <path d="M0 70 Q150 10 300 70 T600 70 T900 70 T1200 70" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.6" />
         </svg>
-        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <div>
           <span className="inline-flex items-center rounded-full border border-accent-2/40 bg-accent-2/10 px-3 py-1 text-xs font-medium tracking-wide text-accent-2 shadow-[0_0_20px_-4px_rgba(34,211,238,0.5)]">
-            {TOTAL_LIVE_COUNT} standards-based calculators, one suite
+            {TOTAL_LIVE_COUNT} tools · power · protection · IEC 61850 · SCADA
           </span>
           <h1 className="hero-title mt-6 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Your one-stop shop for electrical engineering calculations.
+            Electrical power and SCADA engineering — calculated, and explained.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
-            From protection relay coordination to solar PV sizing, AJapps (AJ Power Apps)
-            covers protection, IEC 61850 substation automation, cable &amp; conductor sizing, earthing,
-            power quality, backup power, instrumentation, renewables and
-            facilities engineering — built on cited IEC, IEEE, NEC and
-            NFPA references, checked by an automated test suite and worked
-            examples, with no signup required.
+            AJapps (AJ Power Apps) brings power-system design, protection, substation automation and SCADA networking together:
+            calculators and full engineering suites for protection coordination, cables, earthing, short circuit and arc flash,
+            IEC 61850 SCL, GOOSE and network design, and the IT and network checks SCADA engineers meet on site.
+          </p>
+          <p className="mt-3 max-w-xl text-sm text-muted">
+            Every tool states what it does, what it needs from you, the standard, formula and assumptions behind each result, and
+            where it stops — so you understand the answer instead of trusting it blindly.
           </p>
           <div className="mt-8">
             <SiteSearch items={buildSearchIndex()} />
@@ -140,7 +144,7 @@ export default function Home() {
 
           <div className="mt-10 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { label: "Calculators", value: String(TOTAL_LIVE_COUNT) },
+              { label: "Tools", value: String(TOTAL_LIVE_COUNT) },
               { label: "Categories", value: String(CALCULATOR_GROUPS.length) },
               { label: "Automated checks", value: String(AUTOMATED_CHECKS) },
               { label: "Account needed", value: "No" },
@@ -151,6 +155,10 @@ export default function Home() {
               </div>
             ))}
           </div>
+          </div>
+          <div className="hidden md:block md:max-w-md lg:max-w-none">
+            <PowerNetMotif />
+          </div>
         </div>
       </section>
 
@@ -159,7 +167,8 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-14">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-semibold text-foreground">Engineering Suites</h2>
+              <div className="kicker">Full applications</div>
+              <h2 className="mt-1 text-2xl font-semibold text-foreground">Engineering Suites</h2>
               <p className="mt-1 max-w-2xl text-sm text-muted">Full applications for whole studies, running in your browser with nothing uploaded.</p>
             </div>
             <Link href="/suites" className="text-sm font-semibold text-accent-2 hover:underline">
@@ -177,6 +186,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <TraceDivider />
 
       {/* About / purpose / standards / audience */}
       <section id="about" className="border-b border-border bg-surface/40">
@@ -202,12 +213,11 @@ export default function Home() {
                 Who it&apos;s for
               </h3>
               <p className="mt-2 text-sm text-muted">
-                Protection &amp; relay engineers doing IDMT grading and CT/VT sizing;
-                design and consulting engineers running cable, earthing, lighting,
-                conduit/tray and load studies; EPC and site engineers sizing
-                transformers, generators, UPS and motor protection; solar, BESS and EV
-                infrastructure designers; and electrical engineering students who want
-                to see the standard clause behind every formula, not just an answer.
+                Protection and relay engineers grading IDMT curves and sizing CTs and VTs; substation automation and SCADA
+                engineers working with IEC 61850 SCL files, GOOSE, sampled values, gateways and station networks;
+                commissioning engineers who need to find a communication fault on site without waiting for support;
+                design and consulting engineers running cable, earthing, short-circuit, arc-flash and load studies; and
+                students and trainees who want to see the standard and the reasoning behind every result.
               </p>
             </div>
             <div>
@@ -216,6 +226,7 @@ export default function Home() {
               </h3>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
                 <li>Each module names the standard it follows, and the clause or table wherever one applies.</li>
+                <li>Tool guides explain what each tool does, what it needs, how it calculates and where it stops — the knowledge, not only the number.</li>
                 <li>Rule-of-thumb figures (e.g. altitude/ambient derating rates without a full thermal model) are labeled as such, not dressed up as normative values.</li>
                 <li>Core results need no signup — deeper analysis (full harmonic breakdowns, saturation studies, multi-site aggregation) is clearly marked as advanced.</li>
                 <li>Hover tooltips and a worked example on every calculator, so the tool teaches the standard as you use it.</li>
@@ -322,10 +333,10 @@ export default function Home() {
             </p>
           </div>
           <div>
-            <div className="text-accent text-2xl font-bold">No install required</div>
+            <div className="text-accent text-2xl font-bold">Knowledge, shared openly</div>
             <p className="mt-2 text-sm text-muted">
-              Runs in the browser. Results, checks and pass/fail limits update
-              instantly as you adjust inputs.
+              No need to wait for a senior engineer to explain it: each tool guide sets out the method, formulas,
+              assumptions and limits, so you can check the answer and defend it.
             </p>
           </div>
         </div>

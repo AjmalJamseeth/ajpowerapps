@@ -286,6 +286,46 @@ export const CALC_ARTICLES: Record<string, CalcArticle> = {
     ],
   },
 
+  "/calculators/iec-61850-academy": {
+    howTo: {
+      title: "How to use 61850 Academy",
+      steps: [
+        { title: "Start with Lab 1", text: "Open Labs and start Lab 1, Tour of the virtual substation. Each lab states its goal and level, lists the steps on the right and ticks each step when the simulator sees you have done it. Restore plant and Reset simulation bring everything back to normal at any time." },
+        { title: "Learn the plant and the IEDs", text: "Substation shows two 132 kV lines (Q01, Q02) feeding a busbar and transformer T1 (Q03) supplying the 33 kV incomer J01 and a 40 MW load. IEDs opens P_L1, P_L2, P_T1, B_J01 and the station gateway: their mode, logical nodes, GOOSE publication, subscriptions and reports." },
+        { title: "Operate as SCADA does", text: "In SCADA HMI, open and close a breaker with select-before-operate, and try to operate a disconnector that interlocking (CILO) blocks. Labs 2 and 3 walk through both and show every MMS message in the Sniffer." },
+        { title: "Apply faults and watch the protection", text: "Apply a fault on a line or on T1 and watch distance (PDIS), differential and trip (PTRC) logic operate the breaker; make a breaker stick and see breaker-failure protection (RBRF) trip the adjacent breakers over GOOSE. The Timeline gives the fault clearance time." },
+        { title: "Slow the clock and read the messages", text: "Set the speed to 0.01× and open the Sniffer: each GOOSE shows stNum, sqNum, time allowed to live, test flag, confRev, VLAN and priority. Lab 6 follows a retransmission burst frame by frame." },
+        { title: "Break things on purpose", text: "Unplug a cable or change a VLAN in Network, change confRev on one side only, or put an IED in test mode, and see which subscriptions go lost or are ignored. Labs 6 to 10 turn each of these into a guided exercise, and every lab ends with a quiz that explains each answer." },
+      ],
+    },
+    heading: "Why learn IEC 61850 on a simulator",
+    paragraphs: [
+      "Most of IEC 61850 cannot be seen: GOOSE messages repeat in milliseconds, subscribers decide silently whether to accept a message, and a wrong confRev or VLAN produces no error on the publisher. On a real substation these behaviours can only be studied with test sets, captures and an outage. A simulator lets you cause each fault on purpose, slow time down and watch exactly what each device does.",
+      "61850 Academy models the parts of IEC 61850 that matter most in commissioning and fault finding: GOOSE publication with the retransmission curve and time allowed to live, LGOS subscription supervision, confRev checking, test mode and the test flag, MMS select-before-operate and buffered reports, together with simple distance, differential, overcurrent and breaker-failure protection so that the messages have consequences.",
+    ],
+    table: {
+      caption: "The ten labs",
+      headers: ["Lab", "Title", "Level", "What you learn"],
+      rows: [
+        ["1", "Tour of the virtual substation", "Beginner", "Primary plant, IEDs, station bus and the messages on it"],
+        ["2", "Remote control with select-before-operate", "Beginner", "Every MMS message of an SBO sequence"],
+        ["3", "Interlocking keeps operators safe", "Beginner", "How CILO blocks unsafe switching; making a line safe for work"],
+        ["4", "Line fault cleared by distance protection", "Intermediate", "PDIS detection, PTRC trip, fault clearance time"],
+        ["5", "Breaker failure protection over GOOSE", "Intermediate", "RBRF tripping adjacent breakers through GOOSE"],
+        ["6", "GOOSE retransmission and supervision", "Intermediate", "MinTime/MaxTime curve, time allowed to live, LGOS lost detection"],
+        ["7", "confRev mismatch: the silent killer", "Advanced", "Why a publisher change without the subscriber loses an intertrip"],
+        ["8", "Testing with Mod = test", "Advanced", "Testing one IED in a live station without tripping other bays"],
+        ["9", "Buffered reports during a communication loss", "Advanced", "How buffered reports keep events when SCADA disconnects"],
+        ["10", "VLAN misconfiguration", "Advanced", "Why a correctly configured GOOSE never arrives"],
+      ],
+    },
+    faqs: [
+      { q: "Does 61850 Academy connect to real IEDs?", a: "No. It is a self-contained simulation that runs in your browser. It sends nothing on any network." },
+      { q: "Is the behaviour the same as my manufacturer's IED?", a: "It follows IEC 61850 in a simplified form for training. Timings, settings and screens differ between manufacturers; use the IED manual for the real device." },
+      { q: "What should I learn after the labs?", a: "Open a real SCD in SCL Studio, check its GOOSE addressing in SCL NetStudio and analyse a site capture with the GOOSE & SV Capture Analyzer — the same concepts, on your own project." },
+    ],
+  },
+
   "/calculators/scl-netstudio": {
     howTo: {
       title: "How to use SCL NetStudio",

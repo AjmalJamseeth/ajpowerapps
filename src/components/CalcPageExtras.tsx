@@ -6,6 +6,7 @@ import { CALC_ARTICLES } from "@/lib/calcArticles";
 import { GUIDES } from "@/lib/guides";
 import { getExamplesForCalculator } from "@/lib/workedExamples";
 import { REFERENCE_TABLES, type RefTable } from "@/lib/referenceTables";
+import { TOOL_GUIDES, type ToolGuide } from "@/lib/toolGuides";
 
 function DataTable({ t }: { t: RefTable }) {
   return (
@@ -40,6 +41,50 @@ function DataTable({ t }: { t: RefTable }) {
   );
 }
 
+function GuideBlock({ title, items, tone }: { title: string; items: string[]; tone?: "warn" }) {
+  return (
+    <div className={`rounded-lg border p-4 ${tone === "warn" ? "border-accent/50 bg-accent/5" : "border-border bg-background/40"}`}>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">{title}</h3>
+      <ul className="mt-2 list-disc space-y-1.5 pl-5">
+        {items.map((t, i) => (
+          <li key={i}>{t}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** "Know before you use": what the tool is, why, what it needs, how it works and how far to trust it. */
+function ToolGuideSection({ g, hasHowTo }: { g: ToolGuide; hasHowTo: boolean }) {
+  return (
+    <section id="tool-guide" className="mb-6 rounded-xl border border-accent-2/40 bg-surface p-6">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-2">Tool guide · know before you use</div>
+      <h2 className="mt-1 text-xl font-semibold text-foreground">What this tool is, how it works and how far to trust it</h2>
+      <p className="mt-2 text-foreground">{g.what}</p>
+      <p className="mt-2 text-xs">
+        Read this before relying on a result. Every method, formula, assumption and limit is stated here, so you can check the answer yourself
+        instead of accepting it blindly.
+      </p>
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <GuideBlock title="What it can do" items={g.can} />
+        <GuideBlock title="Why you need it" items={g.why} />
+        <GuideBlock title="Understand this first" items={g.understand} />
+        <GuideBlock title="What you need before you start" items={g.need} />
+        {g.use && !hasHowTo && <GuideBlock title="How to use it" items={g.use} />}
+        <GuideBlock title="What you get" items={g.output} />
+        <GuideBlock title="How to read the results" items={g.interpret} />
+        <GuideBlock title="Technical basis" items={g.basis} />
+        <GuideBlock title="Limits: when not to rely on it" items={g.limits} tone="warn" />
+      </div>
+      {hasHowTo && (
+        <p className="mt-4 text-xs">
+          Step-by-step instructions: <a href="#how-to-use" className="text-accent-2 hover:underline">How to use</a>.
+        </p>
+      )}
+    </section>
+  );
+}
+
 // Server-rendered content under every calculator: a short written guide with a
 // reference table and FAQs (for the most-searched calculators), plus links to
 // related calculators, the category guide and the worked examples. This gives
@@ -51,9 +96,11 @@ export function CalcPageExtras({ href }: { href: string }) {
   const guide = group ? GUIDES.find((g) => g.groupId === group.id) : undefined;
   const examples = getExamplesForCalculator(href);
   const refTables = REFERENCE_TABLES[href] ?? [];
+  const toolGuide = TOOL_GUIDES[href];
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-16 text-sm leading-relaxed text-muted">
+      {toolGuide && <ToolGuideSection g={toolGuide} hasHowTo={!!article?.howTo} />}
       {article?.howTo && (
         <section id="how-to-use" className="mb-6 rounded-xl border border-accent-2/40 bg-surface p-6">
           <h2 className="text-xl font-semibold text-foreground">{article.howTo.title}</h2>

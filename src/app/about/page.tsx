@@ -52,8 +52,8 @@ export default function AboutPage() {
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">About</h1>
         <p className="mt-6 text-lg text-foreground">
           I&apos;m Ajmal Jamseeth, an electrical engineer working in the smelting industry. I built AJapps to give engineers
-          reliable, standards-based tools for everyday design and analysis work, and as my contribution to the electrical
-          engineering community.
+          reliable, standards-based tools for everyday power-system, protection, substation automation and SCADA work, and as my
+          contribution to the electrical engineering community.
         </p>
         <p className="mt-4 text-lg text-muted">
           The site is growing. Simulation tools and power analysis programs are coming in the next updates, so check back soon.
@@ -65,6 +65,15 @@ export default function AboutPage() {
             </a>
           </p>
         )}
+
+        <h2 className="mt-12 text-xl font-semibold text-foreground">Why every tool explains itself</h2>
+        <p className="mt-3 text-muted">
+          When I was a trainee, knowledge came from senior engineers — and often only when they needed a job done. Today information
+          is everywhere, but much of it is unverified, and a number without its reasoning is easy to misuse. So every tool here
+          comes with a tool guide: what the tool is, why you need it, what to understand first, what you need before you start,
+          how to use it, what it gives you, how to read the result, the standard, formulas and assumptions behind it, and where it
+          stops. Use the knowledge, not only the number — and if something does not add up, tell me through the feedback button.
+        </p>
 
         <h2 className="mt-12 text-xl font-semibold text-foreground">How the tools are checked</h2>
         <p className="mt-3 text-muted">

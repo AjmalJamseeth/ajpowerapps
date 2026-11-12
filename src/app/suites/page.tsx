@@ -5,8 +5,8 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta(
   "/suites",
-  "Electrical Engineering Software Online – Engineering Suites",
-  "Full electrical engineering applications in the browser: protection coordination, cable engineering (IEC 60364 / IEC 60502 / IEC 60287), IEC 61850 SCL Studio and transformer DGA analysis."
+  "Electrical & SCADA Engineering Software Online – Engineering Suites",
+  "Full electrical and SCADA engineering applications in the browser: protection coordination, cable engineering, IEC 61850 SCL Studio, SCL NetStudio network design, 61850 Academy training, transformer DGA and engineering drawings."
 );
 
 export default function SuitesPage() {
@@ -14,7 +14,8 @@ export default function SuitesPage() {
     <div className="flex flex-1 flex-col">
       <NavBar />
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
-        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Engineering Suites</h1>
+        <div className="kicker">Power · protection · automation</div>
+        <h1 className="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">Engineering Suites</h1>
         <p className="mt-2 max-w-3xl text-muted">
           Complete engineering applications for whole studies, not single calculations. Each one opens in your browser, with nothing
           to install and nothing uploaded: your projects and files stay on your computer.

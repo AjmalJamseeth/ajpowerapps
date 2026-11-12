@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 913;
+export const AUTOMATED_CHECKS = 919;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Electrical and SCADA site, tool guides, 61850 Academy",
+    items: [
+      "The site now presents itself as electrical power, protection and SCADA engineering, with a new home page illustration of the power system feeding the automation network.",
+      "New: tool guides (\"know before you use\") under the IEC 61850, SCADA networking and Engineering Suite tools: what the tool is, why it is needed, what to understand first, what you need, how to use it, what you get, how to read the result, the technical basis and the limits.",
+      "New: 61850 Academy, an IEC 61850 training simulator of a 132/33 kV substation with ten guided labs, a packet sniffer, an incident timeline and quizzes, with a how-to guide and a worked example.",
+    ],
+  },
   {
     date: "November 2026",
     title: "SCL NetStudio: ports, cables and asset register",
