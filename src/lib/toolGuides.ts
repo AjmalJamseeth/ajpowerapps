@@ -195,6 +195,197 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/mac-frame-decoder": {
+    what: "A decoder for MAC addresses and the first bytes of an Ethernet frame, tuned to substation traffic: GOOSE, sampled values, PTP, PRP/HSR, MRP, spanning tree and IP multicast.",
+    can: [
+      "Tell whether an address is broadcast, multicast or unicast, manufacturer-assigned or locally administered, and which protocol uses a well-known multicast address.",
+      "Decode a frame header from hex or a Wireshark hex dump: VLAN ID and priority, EtherType, HSR tag, PRP trailer.",
+      "For GOOSE and SV: check the APPID against the IEC 61850 ranges, show the simulation bit and decode the PDU fields (gocbRef, time allowed to live, data set, stNum, sqNum, confRev, svID, smpCnt, smpSynch).",
+      "Look up the manufacturer of a unicast address from the IEEE registry file you open.",
+    ],
+    why: [
+      "Switch MAC tables, alarms and captures show raw addresses; knowing at a glance that 01-0C-CD-04-… is sampled values or 01-80-C2-00-00-0E never crosses a switch saves time when tracing a fault.",
+      "Wrong APPID ranges, missing VLAN tags and low priorities are common GOOSE configuration errors that are easy to see in the first 26 bytes.",
+    ],
+    understand: [
+      "The lowest bit of the first byte marks a multicast address; switches flood multicast to every port in the VLAN unless a static filter limits it.",
+      "GOOSE and SV are Layer 2 multicast. IGMP snooping filters IP multicast (01-00-5E-…), not GOOSE or SV.",
+      "The VLAN tag (0x8100) carries the VLAN ID and the 802.1Q priority (0–7) that switches use to queue the frame.",
+      "The first three bytes of a manufacturer-assigned unicast address are the OUI registered to the maker of the network interface — not necessarily the maker of the device.",
+    ],
+    need: [
+      "A MAC address in any common format, and/or the bytes of a frame: in Wireshark select the frame and use Copy → as Hex Dump or as Hex Stream.",
+      "Optionally the IEEE OUI registry (oui.csv or oui.txt) downloaded from standards-oui.ieee.org, for manufacturer names.",
+      BROWSER,
+    ],
+    output: [
+      "Address type, the protocol it belongs to and notes on ranges and flooding.",
+      "The decoded header and GOOSE/SV fields, and checks marked Problem, Check, Note or OK.",
+    ],
+    interpret: [
+      "An APPID or MAC outside the recommended range is allowed by the protocol but usually breaks a project's addressing rules or a switch's static filter.",
+      "No VLAN tag, or priority below 4, means switches treat GOOSE/SV as ordinary traffic: fix the publisher's VLAN-ID and VLAN-PRIORITY.",
+      "Simulation bit set, or GOOSE 'simulation' TRUE: the publisher is in test or simulation mode and normal subscribers should ignore it.",
+      "sqNum 0 with a new stNum is the first transmission after a change; rising sqNum are repetitions.",
+    ],
+    basis: [
+      "Multicast and APPID ranges per IEC 61850-8-1 and -9-2 (Edition 2 Type 1A ranges 8000–BFFF and C000–FFFF accepted).",
+      "Well-known addresses from IEEE 802.1D/Q, IEEE 802.1AB, IEEE 1588, IEC 62439-2/-3, RFC 1112, RFC 2464 and RFC 5798.",
+      "PDU fields decoded with ASN.1 BER (tags 0x80–0x8A and 0xAB for GOOSE, 0x80–0x88 inside each ASDU for SV); UtcTime as seconds, a 24-bit fraction and a quality byte.",
+      "Manufacturer names come only from the IEEE file you open; nothing is bundled or guessed.",
+    ],
+    limits: [
+      "It decodes what you paste; it does not capture traffic or check a whole stream (use the GOOSE & SV Capture Analyzer for that).",
+      "Data-set values inside allData and seqData are counted, not interpreted, because their types come from the SCD.",
+      "Vendor-specific multicast addresses not in the list are reported as unknown multicast.",
+    ],
+    use: [
+      "Type or paste a MAC address in the left panel and read what it is.",
+      "Paste a frame in hex (or click Load sample GOOSE) in the right panel; read the header, the GOOSE/SV fields and the checks.",
+      "For manufacturer names, download oui.csv from the IEEE once and open it with Open IEEE OUI file.",
+    ],
+  },
+
+  "/calculators/scada-value-converter": {
+    what: "A set of converters for the values SCADA engineers decode by hand: Modbus register pairs and notation, IEC 104 normalised, short-float and time values, and IEC 104 / IEC 61850 quality.",
+    can: [
+      "Show two Modbus registers as float32, int32 and uint32 in all four byte orders, and one register as uint16, int16, hex and BCD.",
+      "Give the two registers to write for a float, in each order.",
+      "Translate Modbus notation (40001, 400001, 30010) into the table, the 0-based protocol address and the function codes.",
+      "Convert IEC 104 normalised values to and from raw and engineering values, show the short-float bytes on the wire, and decode or check a CP56Time2a time tag.",
+      "Decode IEC 104 QDS, SIQ and DIQ bytes and IEC 61850 quality flag by flag.",
+    ],
+    why: [
+      "A value that is 'wrong' between a device and SCADA is usually an encoding mismatch, not a fault: word order, a one-register offset, a full-scale mismatch or an unread quality flag.",
+      "Seeing every interpretation side by side shows the right setting in seconds instead of trial and error on a live system.",
+    ],
+    understand: [
+      "Modbus registers are 16 bits; 32-bit values span two registers and the standard does not fix their order, so devices differ.",
+      "Manuals often number registers from 1 (40001) while the protocol sends the address from 0.",
+      "An IEC 104 normalised value is a fraction of a full scale agreed by both ends; the full scale is not sent.",
+      "A quality flag such as IV (invalid) or NT (not topical) means the value must not be used as a measurement, whatever its number.",
+    ],
+    need: [
+      "The raw register values or bytes from the device, the gateway diagnostics or a capture, and ideally the true value shown on the device's display.",
+      "The device's register map or IEC 104 interoperability list.",
+      BROWSER,
+    ],
+    output: [
+      "All interpretations of the registers, the registers to write, the protocol address and function codes, NVA and resolution, the decoded time with its flags, and the meaning of each quality bit.",
+    ],
+    interpret: [
+      "The correct byte order is the one whose value matches the device display; huge or tiny values (1e38, 1e-41) mean the order is wrong.",
+      "Every value shifted by one register means a 0-based / 1-based addressing mismatch.",
+      "An NVA stuck at ±1 means the configured full scale is too small; poor resolution means it is too large.",
+      "A CP56Time2a with IV set comes from a clock that is not synchronised: the event order may still be right, the absolute time is not.",
+    ],
+    basis: [
+      "IEEE 754 single precision; byte orders ABCD (big-endian, Modbus standard), CDAB (word swap), BADC (byte swap), DCBA (little-endian).",
+      "Modbus Application Protocol V1.1b3: function codes 01–06, 15, 16 and the register tables.",
+      "IEC 60870-5-101/104: NVA = raw / 32768 (−1 … +1 − 2⁻¹⁵); short float as IEEE 754 sent least significant byte first; CP56Time2a field layout; QDS, SIQ and DIQ bit positions.",
+      "IEC 61850-7-3 quality: validity (good 00, invalid 01, reserved 10, questionable 11) and detail flags in bits 2–12.",
+    ],
+    limits: [
+      "It interprets numbers you enter; it does not read from a device.",
+      "Vendor-specific encodings (scaled integers with private factors, 64-bit values, strings) are not covered.",
+    ],
+    use: [
+      "Pick the section for your problem: Modbus registers, register notation, IEC 104 values, CP56Time2a or quality.",
+      "Enter the raw values exactly as the device, gateway diagnostics or capture shows them (decimal or hex).",
+      "Compare each interpretation with the true value on the device display and choose the one that matches.",
+      "Apply that setting (byte order, address offset, full scale) in the SCADA or gateway configuration and confirm with a known value.",
+    ],
+  },
+
+  "/calculators/iec-104-parameter-checker": {
+    what: "A checker for the link parameters of an IEC 60870-5-104 connection: the window sizes k and w and the timers t0, t1, t2 and t3.",
+    can: [
+      "Check the standard's rules: w ≤ k, w ≤ 2/3 k, t2 < t1, timers within 1–255 s, and t3 relative to t1.",
+      "With the measured round-trip time and the link bit rate, estimate the worst case before an acknowledgement arrives and compare it with t1.",
+      "List every value that differs from the defaults, so both ends can be compared.",
+    ],
+    why: [
+      "IEC 104 links that drop every few minutes or stall during an event burst are often caused by parameters that do not fit each other or the link — not by the network.",
+      "Radio, cellular and satellite links add delays that the default t1 may not cover.",
+    ],
+    understand: [
+      "k is how many I-frames the sender may have unacknowledged; w is after how many I-frames the receiver must acknowledge.",
+      "t1 is the sender's patience: no acknowledgement within t1 and the connection is closed. t2 is how long the receiver may wait before acknowledging when it has nothing to send. t3 is the idle time before a test frame.",
+      "Both ends must use matching values; a mismatch can work in quiet periods and fail under load.",
+    ],
+    need: [
+      "The k, w, t0–t3 settings of the gateway or RTU and of the control centre.",
+      "Optionally the round-trip time (ping between the ends) and the slowest bit rate on the path.",
+      BROWSER,
+    ],
+    output: [
+      "A consistent / needs correcting verdict, the checks with explanations, and the time needed to send k frames on the link.",
+    ],
+    interpret: [
+      "Errors must be fixed on both ends. Warnings are risks that usually show up as dropped connections on slow links.",
+      "When in doubt, return to the defaults (k 12, w 8, t0 30 s, t1 15 s, t2 10 s, t3 20 s) and change only what the link requires.",
+    ],
+    basis: [
+      "IEC 60870-5-104 parameter definitions, defaults and ranges; the recommendation w ≤ 2/3 k.",
+      "Worst case before acknowledgement ≈ round-trip time + time to send k frames (APDU + about 40 bytes TCP/IP each) + t2.",
+    ],
+    limits: [
+      "Simple timing arithmetic: it does not model TCP retransmissions, packet loss or Nagle delays.",
+      "Vendor limits and the control centre's policies also apply.",
+    ],
+    use: [
+      "Enter k and w, then the four timers as set on the device.",
+      "If you know them, enter the round-trip time, the link bit rate and a typical frame size.",
+      "Read the result and the checks; compare the 'different from defaults' list with the other end's settings.",
+    ],
+  },
+
+  "/calculators/serial-polling-calculator": {
+    what: "A calculator for the polling time of serial SCADA links: character time, Modbus RTU gaps, transaction time and the full polling cycle for N devices.",
+    can: [
+      "Compute the character time from baud rate, data bits, parity and stop bits.",
+      "Give the Modbus RTU t1.5 and t3.5 gaps and the request and response lengths for function 03/04.",
+      "Add device turnaround and radio or WAN delay, and give the polling cycle, updates per second and line utilisation, including time-outs of offline devices.",
+    ],
+    why: [
+      "Slow updates on serial lines are usually a polling-budget problem, and adding 'just one more device' can push the cycle past the required scan time.",
+      "The calculation shows which term dominates — baud rate, number of requests, turnaround or link delay — so the fix targets the right one.",
+    ],
+    understand: [
+      "Each character carries a start bit, data bits, an optional parity bit and stop bits: 11 bits per byte for Modbus RTU.",
+      "Many small requests cost more than one large one, because every request pays the gaps, the turnaround and the link delay.",
+      "An offline device costs a full time-out on every poll until it is taken out of scan.",
+    ],
+    need: [
+      "Line settings (baud, data bits, parity, stop bits), number of devices and requests per device, registers per request or frame sizes.",
+      "Device turnaround time (from the manual or a line analyser) and the link delay of radios or modems.",
+      BROWSER,
+    ],
+    output: [
+      "Character time, t1.5/t3.5, request, response and transaction times, the polling cycle against the required scan time, updates per second and line utilisation.",
+    ],
+    interpret: [
+      "Cycle longer than the scan time: read more registers per request, poll slow data less often, raise the baud rate, or split devices over more ports.",
+      "Low line utilisation with a long cycle means delays (turnaround, radio latency) dominate, not the baud rate.",
+    ],
+    basis: [
+      "Character time = (1 + data + parity + stop bits) / baud.",
+      "Modbus over Serial Line V1.02: t1.5 = 1.5 characters and t3.5 = 3.5 characters, fixed at 0.75 ms and 1.75 ms above 19 200 baud.",
+      "Function 03/04: request 8 bytes; response 5 + 2 × registers bytes; at most 125 registers per request.",
+      "Transaction = request + t3.5 + link delay + turnaround + response + link delay + t3.5; cycle = transactions × polls + time-outs.",
+    ],
+    limits: [
+      "Turnaround times vary by device and request; measure them for an exact budget.",
+      "Does not model collisions, retries after CRC errors or report-by-exception protocols (DNP3 unsolicited, IEC 101 balanced mode).",
+    ],
+    use: [
+      "Set the line parameters and choose Modbus RTU (or enter frame sizes for another protocol).",
+      "Enter the number of devices, requests per device and registers per request, the device turnaround and any link delay.",
+      "Enter the required scan time and the time-outs you expect from offline devices.",
+      "Read the cycle against the requirement and the notes on what to change.",
+    ],
+  },
+
   "/calculators/iec-61850-scl-editor": {
     what: "SCL Studio: a viewer, validator and editor for IEC 61850 SCL files (SCD, ICD, CID, IID, SSD, SED) that runs in the browser.",
     can: [

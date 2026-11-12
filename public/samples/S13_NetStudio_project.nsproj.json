@@ -1,0 +1,627 @@
+{
+ "format": "SCL NetStudio project",
+ "v": 1,
+ "name": "S13 132/33 kV Substation",
+ "ieds": [
+  {
+   "name": "GW1",
+   "desc": "Station gateway (IEC 104 to control centre)",
+   "bay": "Station",
+   "role": "gateway",
+   "nets": {
+    "sb": 1,
+    "dmz": 1
+   },
+   "sw": "SW2",
+   "swp": "",
+   "ips": {
+    "sb": "10.13.0.11",
+    "dmz": "10.13.1.11"
+   },
+   "asset": {
+    "panel": "+S01",
+    "mfr": "Vendor C",
+    "model": "SG-4000",
+    "fw": "5.1.2",
+    "serial": "C4K-21-0381",
+    "mac": "02-AA-00-00-01-01",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "HMI1",
+   "desc": "Station HMI",
+   "bay": "Station",
+   "role": "hmi",
+   "nets": {
+    "sb": 1
+   },
+   "sw": "SW2",
+   "swp": "",
+   "ips": {
+    "sb": "10.13.0.12"
+   },
+   "asset": {
+    "panel": "+S02",
+    "mfr": "Vendor D",
+    "model": "Station PC",
+    "fw": "2021 LTSC",
+    "serial": "SPC-77120",
+    "mac": "02-AA-00-00-01-02",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "GPS1",
+   "desc": "GPS master clock (PTP grandmaster)",
+   "bay": "Station",
+   "role": "clock",
+   "nets": {
+    "sb": 1,
+    "pb": 1,
+    "mg": 1
+   },
+   "sw": "SW2",
+   "swp": "PB1",
+   "ips": {
+    "sb": "10.13.0.13",
+    "pb": "10.13.0.139",
+    "mg": "10.13.0.197"
+   },
+   "asset": {
+    "panel": "+S01",
+    "mfr": "Vendor E",
+    "model": "TS-2",
+    "fw": "4.3",
+    "serial": "TS2-008815",
+    "mac": "02-AA-00-00-01-03",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "P132_Q01",
+   "desc": "Line 1 distance protection",
+   "bay": "Q01",
+   "role": "protection",
+   "nets": {
+    "sb": 1,
+    "pb": 1
+   },
+   "sw": "SW1",
+   "swp": "PB1",
+   "ips": {
+    "sb": "10.13.0.14",
+    "pb": "10.13.0.140"
+   },
+   "asset": {
+    "panel": "+R01",
+    "mfr": "Vendor A",
+    "model": "DP-700",
+    "fw": "3.2.1",
+    "serial": "A7-1904411",
+    "mac": "02-AA-00-00-02-01",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "P132_Q02",
+   "desc": "Line 2 distance protection",
+   "bay": "Q02",
+   "role": "protection",
+   "nets": {
+    "sb": 1
+   },
+   "sw": "SW1",
+   "swp": "",
+   "ips": {
+    "sb": "10.13.0.15"
+   },
+   "asset": {
+    "panel": "+R02",
+    "mfr": "Vendor A",
+    "model": "DP-700",
+    "fw": "3.1.4",
+    "serial": "A7-1904412",
+    "mac": "02-AA-00-00-02-02",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "P87T_T1",
+   "desc": "T1 differential protection",
+   "bay": "Q03",
+   "role": "protection",
+   "nets": {
+    "sb": 1,
+    "pb": 1
+   },
+   "sw": "SW1",
+   "swp": "PB1",
+   "ips": {
+    "sb": "10.13.0.16",
+    "pb": "10.13.0.141"
+   },
+   "asset": {
+    "panel": "+R03",
+    "mfr": "Vendor A",
+    "model": "TD-500",
+    "fw": "3.2.1",
+    "serial": "A5-2001876",
+    "mac": "02-AA-00-00-02-03",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "BCU_J01",
+   "desc": "33 kV incomer bay controller",
+   "bay": "J01",
+   "role": "control",
+   "nets": {
+    "sb": 1
+   },
+   "sw": "SW2",
+   "swp": "",
+   "ips": {
+    "sb": "10.13.0.17"
+   },
+   "asset": {
+    "panel": "+J01",
+    "mfr": "Vendor B",
+    "model": "BC-300",
+    "fw": "2.0.8",
+    "serial": "B3-118204",
+    "mac": "02-AA-00-00-03-01",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "MU_Q01",
+   "desc": "Line 1 merging unit",
+   "bay": "Q01",
+   "role": "mu",
+   "nets": {
+    "pb": 1
+   },
+   "sw": "",
+   "swp": "PB1",
+   "ips": {
+    "pb": "10.13.0.142"
+   },
+   "asset": {
+    "panel": "=Q01+K1",
+    "mfr": "Vendor B",
+    "model": "MU-90",
+    "fw": "1.4.0",
+    "serial": "",
+    "mac": "02-AA-00-00-04-01",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "MU_T1",
+   "desc": "T1 HV merging unit",
+   "bay": "Q03",
+   "role": "mu",
+   "nets": {
+    "pb": 1
+   },
+   "sw": "",
+   "swp": "PB1",
+   "ips": {
+    "pb": "10.13.0.143"
+   },
+   "asset": {
+    "panel": "=Q03+K1",
+    "mfr": "Vendor B",
+    "model": "MU-90",
+    "fw": "1.4.0",
+    "serial": "B9-220190",
+    "mac": "02-AA-00-00-04-02",
+    "status": "planned"
+   }
+  }
+ ],
+ "switches": [
+  {
+   "name": "SW1",
+   "bus": "sb",
+   "speed": 100,
+   "uplink": 1000,
+   "desc": "Station bus · 132 kV bays",
+   "ip": "10.13.0.194",
+   "ports": 8,
+   "asset": {
+    "panel": "+S03",
+    "mfr": "Vendor F",
+    "model": "RSW-8",
+    "fw": "6.2",
+    "serial": "RS8-40551",
+    "mac": "02-AA-00-00-0F-01",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "SW2",
+   "bus": "sb",
+   "speed": 100,
+   "uplink": 1000,
+   "desc": "Station bus · station level and 33 kV",
+   "ip": "10.13.0.195",
+   "ports": 8,
+   "asset": {
+    "panel": "+S03",
+    "mfr": "Vendor F",
+    "model": "RSW-8",
+    "fw": "6.2",
+    "serial": "RS8-40552",
+    "mac": "02-AA-00-00-0F-02",
+    "status": "planned"
+   }
+  },
+  {
+   "name": "PB1",
+   "bus": "pb",
+   "speed": 100,
+   "uplink": 1000,
+   "desc": "Process bus",
+   "ip": "10.13.0.196",
+   "ports": 8,
+   "asset": {
+    "panel": "+S04",
+    "mfr": "Vendor F",
+    "model": "RSW-8",
+    "fw": "6.2",
+    "serial": "RS8-40553",
+    "mac": "02-AA-00-00-0F-03",
+    "status": "planned"
+   }
+  }
+ ],
+ "arch": "star",
+ "ip": {
+  "block": "10.13.0.0/22",
+  "gwPos": "first",
+  "reserve": 9,
+  "segs": [
+   {
+    "name": "Station bus",
+    "role": "sb",
+    "hosts": 60,
+    "growth": 50
+   },
+   {
+    "name": "Process bus",
+    "role": "pb",
+    "hosts": 24,
+    "growth": 50
+   },
+   {
+    "name": "Management",
+    "role": "mg",
+    "hosts": 20,
+    "growth": 50
+   },
+   {
+    "name": "SCADA DMZ",
+    "role": "dmz",
+    "hosts": 6,
+    "growth": 100
+   },
+   {
+    "name": "Engineering",
+    "role": "eng",
+    "hosts": 10,
+    "growth": 50
+   }
+  ]
+ },
+ "streams": [
+  {
+   "type": "GOOSE",
+   "pub": "P132_Q01",
+   "ld": "PROT",
+   "cb": "GCB_TRIP",
+   "datSet": "DS_TRIP",
+   "members": 4,
+   "trip": true,
+   "subs": [
+    "P87T_T1",
+    "BCU_J01"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-01-00-01",
+   "appid": "0001",
+   "vlan": 10,
+   "prio": 6,
+   "minT": 4,
+   "maxT": 1000
+  },
+  {
+   "type": "GOOSE",
+   "pub": "P132_Q02",
+   "ld": "PROT",
+   "cb": "GCB_TRIP",
+   "datSet": "DS_TRIP",
+   "members": 4,
+   "trip": true,
+   "subs": [
+    "P87T_T1"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-01-00-02",
+   "appid": "0002",
+   "vlan": 10,
+   "prio": 6,
+   "minT": 4,
+   "maxT": 1000
+  },
+  {
+   "type": "GOOSE",
+   "pub": "P87T_T1",
+   "ld": "PROT",
+   "cb": "GCB_DIFF",
+   "datSet": "DS_DIFF",
+   "members": 6,
+   "trip": true,
+   "subs": [
+    "P132_Q01",
+    "P132_Q02",
+    "BCU_J01"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-01-00-03",
+   "appid": "0003",
+   "vlan": 10,
+   "prio": 6,
+   "minT": 4,
+   "maxT": 1000
+  },
+  {
+   "type": "GOOSE",
+   "pub": "BCU_J01",
+   "ld": "CTRL",
+   "cb": "GCB_IL",
+   "datSet": "DS_ILOCK",
+   "members": 8,
+   "trip": false,
+   "subs": [
+    "P132_Q01",
+    "P132_Q02"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-01-00-04",
+   "appid": "0004",
+   "vlan": 10,
+   "prio": 4,
+   "minT": 4,
+   "maxT": 1000
+  },
+  {
+   "type": "SV",
+   "pub": "MU_Q01",
+   "ld": "MU",
+   "cb": "MSVCB01",
+   "datSet": "PhsMeas1",
+   "members": 8,
+   "smpRate": 80,
+   "nofASDU": 1,
+   "subs": [
+    "P132_Q01"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-04-00-01",
+   "appid": "4001",
+   "vlan": 11,
+   "prio": 4
+  },
+  {
+   "type": "SV",
+   "pub": "MU_T1",
+   "ld": "MU",
+   "cb": "MSVCB01",
+   "datSet": "PhsMeas1",
+   "members": 8,
+   "smpRate": 80,
+   "nofASDU": 1,
+   "subs": [
+    "P87T_T1"
+   ],
+   "confRev": 1,
+   "mac": "01-0C-CD-04-00-02",
+   "appid": "4002",
+   "vlan": 11,
+   "prio": 4
+  }
+ ],
+ "vr": {
+  "scheme": "type",
+  "gV": 10,
+  "svV": 11,
+  "gP": 4,
+  "tripP": 6,
+  "svP": 4,
+  "gMin": 4,
+  "gMax": 1000,
+  "keep": false,
+  "dataVlan": 1,
+  "member": "subs"
+ },
+ "bw": {
+  "f": 50,
+  "filter": "vlan",
+  "mms": 64,
+  "avalanche": true
+ },
+ "lat": {
+  "stream": 0,
+  "hops": 3,
+  "acc": 100,
+  "bb": 1000,
+  "swLat": 5,
+  "mode": "sf",
+  "interf": true,
+  "ahead": 2,
+  "cable": 300,
+  "ta": 1,
+  "tc": 1,
+  "cls": "1A23"
+ },
+ "red": {
+  "n": 12,
+  "speed": 100,
+  "node": 5,
+  "frame": 160,
+  "traffic": 0,
+  "budget": 1,
+  "prpDan": 8,
+  "prpSan": 2
+ },
+ "ts": {
+  "use": "sv_prot",
+  "method": "ptp",
+  "gm": 250,
+  "tc": 4,
+  "tcErr": 50,
+  "bc": 0,
+  "bcErr": 200,
+  "end": 200,
+  "sntp": 1000,
+  "irigLen": 150,
+  "osc": "tcxo",
+  "rss": false
+ },
+ "fw": {
+  "zones": [
+   {
+    "id": "cc",
+    "name": "Control centre (SCADA)",
+    "sl": 2
+   },
+   {
+    "id": "dmz",
+    "name": "Substation DMZ",
+    "sl": 3
+   },
+   {
+    "id": "st",
+    "name": "Station LAN",
+    "sl": 3
+   },
+   {
+    "id": "pb",
+    "name": "Process bus",
+    "sl": 3
+   },
+   {
+    "id": "eng",
+    "name": "Engineering / maintenance",
+    "sl": 2
+   },
+   {
+    "id": "it",
+    "name": "Corporate IT",
+    "sl": 1
+   },
+   {
+    "id": "ven",
+    "name": "Remote vendor access",
+    "sl": 1
+   },
+   {
+    "id": "ts",
+    "name": "Time source (GPS)",
+    "sl": 3
+   }
+  ],
+  "rules": [
+   {
+    "from": "cc",
+    "to": "dmz",
+    "svc": "iec104tls",
+    "note": "Telecontrol from the control centre to the gateway"
+   },
+   {
+    "from": "dmz",
+    "to": "st",
+    "svc": "mms",
+    "note": "Gateway reads IEDs through reports"
+   },
+   {
+    "from": "eng",
+    "to": "st",
+    "svc": "mms",
+    "note": "Engineering tools: settings, disturbance records"
+   },
+   {
+    "from": "eng",
+    "to": "st",
+    "svc": "https",
+    "note": "IED web interfaces"
+   },
+   {
+    "from": "eng",
+    "to": "st",
+    "svc": "ssh",
+    "note": "Switch management"
+   },
+   {
+    "from": "st",
+    "to": "ts",
+    "svc": "ntp",
+    "note": "SNTP for devices without PTP"
+   },
+   {
+    "from": "st",
+    "to": "pb",
+    "svc": "goose",
+    "note": "Trip and interlocking between bays"
+   },
+   {
+    "from": "it",
+    "to": "st",
+    "svc": "rdp",
+    "note": "Corporate users want HMI access"
+   },
+   {
+    "from": "ven",
+    "to": "dmz",
+    "svc": "vpn",
+    "note": "Vendor support into the jump host"
+   },
+   {
+    "from": "st",
+    "to": "eng",
+    "svc": "syslog",
+    "note": "Security event logging"
+   }
+  ]
+ },
+ "cab": {
+  "prefix": "NC",
+  "cu": "Cat6A S/FTP, RJ45",
+  "mm": "OM3 2-fibre, LC duplex",
+  "sm": "OS2 2-fibre, LC duplex",
+  "cuLen": 15,
+  "fLen": 60,
+  "upLen": 30,
+  "upMedia": "mm",
+  "trunkCores": 12
+ },
+ "lk": {
+  "BCU_J01~sb": {
+   "len": 115
+  },
+  "MU_Q01~pb": {
+   "len": 180,
+   "trunk": "FT-YARD-01",
+   "ppA": "=Q01+K1",
+   "ppB": "ODF-1"
+  },
+  "MU_T1~pb": {
+   "len": 220,
+   "trunk": "FT-YARD-01",
+   "ppA": "=Q03+K1",
+   "ppB": "ODF-1"
+  }
+ }
+}

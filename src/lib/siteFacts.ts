@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 919;
+export const AUTOMATED_CHECKS = 940;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,18 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "SCADA helpers, sample files, NetStudio and SCL Studio links",
+    items: [
+      "New: MAC Address & Ethernet Frame Decoder — GOOSE, SV, PTP, PRP/HSR and other substation multicast recognised; VLAN, priority, EtherType, APPID and GOOSE/SV fields decoded and checked; manufacturer from the IEEE OUI file.",
+      "New: SCADA Value Converter — Modbus register pairs in four byte orders, register notation, IEC 104 normalised and short-float values, CP56Time2a, IEC 104 and IEC 61850 quality.",
+      "New: IEC 60870-5-104 Parameter Checker (k, w, t0–t3) and Serial Line & Polling Cycle Calculator (Modbus RTU, RS-485, radio links).",
+      "SCL NetStudio: multicast forwarding matrix and static multicast filters in the switch template; fibre trunks with core allocation, patch-panel positions and a printable cable schedule.",
+      "SCL Studio: Open in NetStudio sends the current file straight to SCL NetStudio, which keeps the previous project for restoring.",
+      "New: sample files page — SCD, GOOSE/SV capture with deliberate faults, NetStudio project, IP and asset registers.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Electrical and SCADA site, tool guides, 61850 Academy",

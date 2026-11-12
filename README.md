@@ -1560,10 +1560,17 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 
 - New views in the app source (apps_cleaned/03 IEC 61850/SCL NetStudio SOURCE - keep private.html): Ports & cables (portPlan, cabRows, bomRows) and Asset register (assetList, assetIssues, assetRows, importAssets); VLAN plan checks (vlanPlanIssues).
 - Project model additions: switches[].ports, switches[].asset, ieds[].asset, P.cab (cable rules), P.lk (per-link overrides keyed by lkKey). migrate() fills them for older project files.
-- Republish: tools/protect-app.js (lock SCLNETSTUDIO), then add noindex/canonical after the meta charset line. Current watermark AJPA-SCLNETSTUDIO-DA5ECAC9C0589889.
+- Republish: tools/protect-app.js (lock SCLNETSTUDIO), then add noindex/canonical after the meta charset line. Current watermark AJPA-SCLNETSTUDIO-D989D0548F8F3715.
 
 ## Tool guides, rebrand and 61850 Academy (November 2026)
 
 - Tool guides: src/lib/toolGuides.ts (ToolGuide: what, can, why, understand, need, use?, output, interpret, basis, limits), rendered by CalcPageExtras as the "Tool guide · know before you use" section. Regression tests require every field and a guide for every Engineering Suite.
 - 61850 Academy: readable source apps_cleaned/03 IEC 61850/61850 Academy SOURCE - keep private.html (wrapped into a full HTML document); published protected at public/61850-academy/index.html (lock ACADEMY61850, watermark AJPA-ACADEMY61850-D6CD95D826111581); page src/app/calculators/iec-61850-academy.
 - Branding: "Electrical Power & SCADA Engineering Tools"; home hero illustration src/components/PowerNetMotif.tsx, divider src/components/TraceDivider.tsx, styles under "Power + network motif" in globals.css.
+
+## Phase A (November 2026)
+
+- New tools: mac-frame-decoder (src/lib/macdecoder.ts), scada-value-converter (src/lib/scadaconvert.ts), iec-104-parameter-checker (src/lib/iec104params.ts), serial-polling-calculator (src/lib/serialpoll.ts); each with a tool guide.
+- SCL NetStudio: mcMatrix/mcRows/mcTable (multicast matrix, static filters in swConfig), trunks/cores/panels in portPlan (P.cab.trunkCores, lk.trunk/cores/ppA/ppB), cabprint action, receiveHandoff (IndexedDB 'ajapps-handoff'), restoreprev. Watermark AJPA-SCLNETSTUDIO-D989D0548F8F3715.
+- SCL Studio: netstudio action writes the SCD to IndexedDB and opens /calculators/scl-netstudio. Watermark AJPA-SCLSTUDIO-3C4E16088EE0C84A.
+- Sample files: public/samples (list in src/lib/samples.ts), page /samples; tool pages show their sample files.

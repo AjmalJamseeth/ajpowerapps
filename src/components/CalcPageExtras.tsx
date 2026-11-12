@@ -7,6 +7,7 @@ import { GUIDES } from "@/lib/guides";
 import { getExamplesForCalculator } from "@/lib/workedExamples";
 import { REFERENCE_TABLES, type RefTable } from "@/lib/referenceTables";
 import { TOOL_GUIDES, type ToolGuide } from "@/lib/toolGuides";
+import { SAMPLE_FILES } from "@/lib/samples";
 
 function DataTable({ t }: { t: RefTable }) {
   return (
@@ -97,10 +98,25 @@ export function CalcPageExtras({ href }: { href: string }) {
   const examples = getExamplesForCalculator(href);
   const refTables = REFERENCE_TABLES[href] ?? [];
   const toolGuide = TOOL_GUIDES[href];
+  const samples = SAMPLE_FILES.filter((f) => f.openIn.some((o) => o.href === href));
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-16 text-sm leading-relaxed text-muted">
       {toolGuide && <ToolGuideSection g={toolGuide} hasHowTo={!!article?.howTo} />}
+      {samples.length > 0 && (
+        <section id="sample-files" className="mb-6 rounded-xl border border-border bg-surface p-6">
+          <h2 className="text-xl font-semibold text-foreground">Sample files for this tool</h2>
+          <p className="mt-1">Download, open and compare with what the guide says you should see.</p>
+          <ul className="mt-3 space-y-2">
+            {samples.map((f) => (
+              <li key={f.file}>
+                <a href={`/samples/${f.file}`} download className="font-mono text-accent-2 hover:underline">{f.file}</a> — {f.title}
+              </li>
+            ))}
+          </ul>
+          <Link href="/samples" className="mt-3 inline-block text-xs text-accent-2 hover:underline">All sample files and what to expect →</Link>
+        </section>
+      )}
       {article?.howTo && (
         <section id="how-to-use" className="mb-6 rounded-xl border border-accent-2/40 bg-surface p-6">
           <h2 className="text-xl font-semibold text-foreground">{article.howTo.title}</h2>

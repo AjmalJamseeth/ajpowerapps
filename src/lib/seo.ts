@@ -37,6 +37,22 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/mac-frame-decoder": {
+    title: "MAC Address & GOOSE Frame Decoder – APPID, VLAN, OUI",
+    description: "Decode a MAC address or Ethernet frame online: IEC 61850 GOOSE and SV multicast, PTP, PRP/HSR, VLAN tag and priority, EtherType, APPID range check, GOOSE stNum/sqNum and manufacturer OUI lookup.",
+  },
+  "/calculators/scada-value-converter": {
+    title: "Modbus Float Converter – Byte Order, IEC 104 & CP56Time2a",
+    description: "Convert two Modbus registers to float or int32 in ABCD, CDAB, BADC and DCBA order, Modbus 40001 notation to address, IEC 104 normalised values, CP56Time2a time and IEC 104 / IEC 61850 quality bits.",
+  },
+  "/calculators/iec-104-parameter-checker": {
+    title: "IEC 104 Parameters k, w, t0–t3 Checker – Timers Explained",
+    description: "Check IEC 60870-5-104 link parameters online: k and w window (w ≤ 2/3 k), t0, t1, t2, t3 timers, defaults and ranges, and whether t1 suits the round-trip time of radio, cellular or satellite links.",
+  },
+  "/calculators/serial-polling-calculator": {
+    title: "Modbus RTU Polling Time Calculator – RS-485 Scan Time",
+    description: "Calculate Modbus RTU character time, t3.5 gap, transaction time and polling cycle for N devices on RS-485 or radio links, and compare it with the required SCADA scan time.",
+  },
   "/calculators/iec-61850-academy": {
     title: "IEC 61850 Training Simulator – GOOSE, MMS & SCADA Labs",
     description: "Learn IEC 61850 on a virtual 132/33 kV substation: GOOSE retransmission and supervision, confRev, test mode, MMS select-before-operate, buffered reports, VLAN faults, protection trips. Ten guided labs with quizzes.",

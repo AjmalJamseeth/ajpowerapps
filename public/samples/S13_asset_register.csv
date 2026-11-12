@@ -1,0 +1,13 @@
+﻿Tag,Asset type,Description,Bay,Panel / location,Manufacturer,Model,Firmware,Serial number,MAC address,IP addresses,Switch port,Tagged VLANs,Status
+GW1,Gateway,Station gateway (IEC 104 to control centre),Station,+S01,Vendor C,SG-4000,5.1.2,C4K-21-0381,02-AA-00-00-01-01,"10.13.0.11, 10.13.1.11",SW2 p1,,Planned
+HMI1,HMI / station PC,Station HMI,Station,+S02,Vendor D,Station PC,2021 LTSC,SPC-77120,02-AA-00-00-01-02,10.13.0.12,SW2 p2,,Planned
+GPS1,Time server,GPS master clock (PTP grandmaster),Station,+S01,Vendor E,TS-2,4.3,TS2-008815,02-AA-00-00-01-03,"10.13.0.13, 10.13.0.139, 10.13.0.197","SW2 p3, PB1 p1",,Planned
+P132_Q01,Protection IED,Line 1 distance protection,Q01,+R01,Vendor A,DP-700,3.2.1,A7-1904411,02-AA-00-00-02-01,"10.13.0.14, 10.13.0.140","SW1 p1, PB1 p2","10, 11",Planned
+P132_Q02,Protection IED,Line 2 distance protection,Q02,+R02,Vendor A,DP-700,3.1.4,A7-1904412,02-AA-00-00-02-02,10.13.0.15,SW1 p2,10,Planned
+P87T_T1,Protection IED,T1 differential protection,Q03,+R03,Vendor A,TD-500,3.2.1,A5-2001876,02-AA-00-00-02-03,"10.13.0.16, 10.13.0.141","SW1 p3, PB1 p3","10, 11",Planned
+BCU_J01,Bay controller,33 kV incomer bay controller,J01,+J01,Vendor B,BC-300,2.0.8,B3-118204,02-AA-00-00-03-01,10.13.0.17,SW2 p4,10,Planned
+MU_Q01,Merging unit,Line 1 merging unit,Q01,=Q01+K1,Vendor B,MU-90,1.4.0,,02-AA-00-00-04-01,10.13.0.142,PB1 p4,11,Planned
+MU_T1,Merging unit,T1 HV merging unit,Q03,=Q03+K1,Vendor B,MU-90,1.4.0,B9-220190,02-AA-00-00-04-02,10.13.0.143,PB1 p5,11,Planned
+SW1,Switch · station bus,Station bus · 132 kV bays,,+S03,Vendor F,RSW-8,6.2,RS8-40551,02-AA-00-00-0F-01,10.13.0.194,,,Planned
+SW2,Switch · station bus,Station bus · station level and 33 kV,,+S03,Vendor F,RSW-8,6.2,RS8-40552,02-AA-00-00-0F-02,10.13.0.195,,,Planned
+PB1,Switch · process bus,Process bus,,+S04,Vendor F,RSW-8,6.2,RS8-40553,02-AA-00-00-0F-03,10.13.0.196,,,Planned

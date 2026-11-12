@@ -19,6 +19,12 @@ import { CALCULATOR_GROUPS } from "../src/lib/calculatorCatalog";
 import { SUITES } from "../src/lib/suites";
 import { runValidation } from "../src/lib/validation";
 import { TOOL_GUIDES } from "../src/lib/toolGuides";
+import { decodeMac, decodeFrame, parseHex, parseOui, lookupOui, SAMPLE_FRAME } from "../src/lib/macdecoder";
+import * as SC from "../src/lib/scadaconvert";
+import { checkIec104, IEC104_DEFAULTS } from "../src/lib/iec104params";
+import { calcSerial, SERIAL_DEFAULTS } from "../src/lib/serialpoll";
+import { SAMPLE_FILES } from "../src/lib/samples";
+import { existsSync } from "fs";
 import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
 import { calcScadaConnect, DEFAULT_SCADA_CONNECT_INPUT } from "../src/lib/scadaconnect";
 import { calcFibreBudget, DEFAULT_FIBRE_BUDGET_INPUT, XCVRS, FIBRES, COMPONENT_LOSS } from "../src/lib/fibrebudget";
@@ -2656,6 +2662,42 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("SCADA helpers — MAC and frame decoder");
+  assertTrue("01-0C-CD-01-00-11 is GOOSE in range; 01-0C-CD-04-02-00 SV out of range", /GOOSE/.test(decodeMac("01-0C-CD-01-00-11")!.traffic!) && /Outside/.test(decodeMac("01:0c:cd:04:02:00")!.notes.join()));
+  assertTrue("PTP, LLDP/peer delay, broadcast and locally administered unicast recognised", /PTP/.test(decodeMac("01-1B-19-00-00-00")!.traffic!) && /never forwarded/.test(decodeMac("01-80-C2-00-00-0E")!.traffic!) && decodeMac("ff:ff:ff:ff:ff:ff")!.kind === "broadcast" && decodeMac("02-AA-00-00-02-01")!.local);
+  const fr = decodeFrame(parseHex(SAMPLE_FRAME)!)!;
+  const pv = (n: string) => fr.pdu.find((x) => x.name === n)?.value;
+  assertTrue("Sample GOOSE frame: VLAN 10 priority 4, APPID 0011, TAL 2000 ms, stNum 5, sqNum 0, confRev 1, 4 entries", fr.vlan?.vid === 10 && fr.vlan.pcp === 4 && fr.iec?.appid === 0x11 && pv("timeAllowedtoLive") === "2000 ms" && pv("stNum") === "5" && pv("sqNum") === "0" && pv("confRev") === "1" && pv("numDatSetEntries") === "4");
+  assertEqual("Wireshark hex dump with offsets and ASCII column parsed to 32 bytes", parseHex("0000   01 0c cd 01 00 11 02 aa 00 00 02 01 81 00 80 0a   ................\n0010   88 b8 00 11 00 8f 00 00 00 00 61 81 84 80 1d 50   ..........a....P")?.length, 32);
+  const reg = parseOui("MA-L,00505F,\"Example, Inc.\",x\n00-0C-29   (hex)\t\tVMware, Inc.");
+  assertTrue("IEEE OUI file (CSV and text forms) parsed and looked up", lookupOui(reg, "00-0C-29-11-22-33") === "VMware, Inc." && lookupOui(reg, "00-50-5F-00-00-01") === "Example, Inc.");
+}
+
+{
+  section("SCADA helpers — value converter");
+  const p = SC.decodePair(0, 0x4148);
+  assertTrue("Registers 0, 16712: CDAB = 12.5, ABCD ≈ 2.34e-41", p.find((x) => x.order === "CDAB")!.float32 === 12.5 && Math.abs(p.find((x) => x.order === "ABCD")!.float32 - 2.34185e-41) < 1e-45);
+  assertTrue("12.5 encodes to 0x4148 0x0000 (ABCD) and 0x0000 0x4148 (CDAB)", (() => { const e = SC.encodeFloat(12.5); return e[0].r1 === 0x4148 && e[0].r2 === 0 && e[1].r1 === 0 && e[1].r2 === 0x4148; })());
+  assertTrue("40001 → holding register, protocol address 0; 30010 → input register 9", SC.parseNotation("40001")!.protocolAddress === 0 && SC.parseNotation("30010")!.table === "inreg" && SC.parseNotation("30010")!.protocolAddress === 9);
+  assertTrue("NVA: 0x4000 = 0.5, 0x8000 = −1; 132 of 150 full scale = raw 28836", SC.nvaFromRaw(0x4000) === 0.5 && SC.nvaFromRaw(0x8000) === -1 && SC.nvaFromEngineering({ engineering: 132, fullScale: 150 }).raw === 28836);
+  assertEqual("Short float 12.5 on the wire (LSB first)", SC.shortFloatBytes(12.5), "00 00 48 41");
+  assertEqual("CP56Time2a 82 91 05 0E AD 0B 1A decodes", SC.decodeCp56("82 91 05 0E AD 0B 1A")?.text, "2026-11-13 14:05:37.250 (Fri)");
+  assertTrue("DIQ 0x82 = ON with IV; IEC 61850 quality 4000 = invalid", SC.decode104Quality("DIQ", 0x82).value === "DPI = 2 (ON)" && SC.decode104Quality("DIQ", 0x82).summary === "Flags set: IV" && SC.decode61850Quality("4000")?.validity === "invalid");
+}
+
+{
+  section("SCADA helpers — IEC 104 parameters and serial polling");
+  assertTrue("IEC 104 defaults pass", checkIec104(IEC104_DEFAULTS).ok);
+  const bad = checkIec104({ k: 12, w: 10, t0: 30, t1: 10, t2: 10, t3: 20, rttMs: 900, kbps: 64, apduBytes: 60 });
+  assertTrue("Example: w > 2/3 k warned, t2 = t1 error, worst case 11.1 s > t1 warned", !bad.ok && bad.findings.some((f) => f.sev === "warning" && /two thirds/.test(f.text)) && bad.findings.some((f) => f.sev === "error" && /t2/.test(f.text)) && bad.findings.some((f) => /11\.1 s/.test(f.text)));
+  assertTrue("w > k is an error", !checkIec104({ ...IEC104_DEFAULTS, w: 13 }).ok);
+  const s1 = calcSerial(SERIAL_DEFAULTS);
+  assertTrue("9600 8E1: 1.146 ms/char, t3.5 4.01 ms, transaction 88.75 ms, cycle 2.13 s (fails 2 s)", Math.abs(s1.charMs - 1.14583) < 1e-4 && Math.abs(s1.t35Ms - 4.0104) < 1e-3 && Math.abs(s1.transactionMs - 88.75) < 1e-6 && Math.abs(s1.cycleMs - 2130) < 1e-6 && !s1.meetsScan);
+  assertTrue("One request of 40 registers: cycle 1.615 s (meets 2 s)", Math.abs(calcSerial({ ...SERIAL_DEFAULTS, registers: 40, pollsPerDevice: 1 }).cycleMs - 1615) < 1e-6);
+  assertTrue("Above 19 200 baud Modbus gaps are fixed (0.75 / 1.75 ms)", (() => { const r = calcSerial({ ...SERIAL_DEFAULTS, baud: 38400 }); return r.t15Ms === 0.75 && r.t35Ms === 1.75; })());
+}
+
+{
   section("Tool guides (know before you use)");
   const live = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
   const entries = Object.entries(TOOL_GUIDES);
@@ -2664,6 +2706,15 @@ section("Worked examples (November 2026)");
   assertTrue("Tools without a step-by-step guide carry their own how-to-use steps", entries.every(([h, g]) => !!CALC_ARTICLES[h]?.howTo || (g.use?.length ?? 0) >= 3));
   assertTrue("Every Engineering Suite has a tool guide", SUITES.every((s) => !!TOOL_GUIDES[s.href]));
   assertTrue("Tool guides never use the word free", !/\bfree\b/i.test(JSON.stringify(TOOL_GUIDES)));
+}
+
+{
+  section("Sample files and app hand-over");
+  const liveS = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
+  assertTrue("Every sample file exists in public/samples and opens in a live tool", SAMPLE_FILES.length >= 6 && SAMPLE_FILES.every((f) => existsSync(`public/samples/${f.file}`) && f.openIn.every((o) => liveS.has(o.href))));
+  assertTrue("Sample SCD and NetStudio project are valid documents", readFileSync("public/samples/S13_Sample.scd", "utf8").includes("<SCL") && JSON.parse(readFileSync("public/samples/S13_NetStudio_project.nsproj.json", "utf8")).ieds.length === 9);
+  const sclHtml = readFileSync("public/iec-61850/scl-studio.html", "utf8"), nsHtml2 = readFileSync("public/scl-netstudio/index.html", "utf8");
+  assertTrue("SCL Studio and SCL NetStudio are both published protected for the hand-over (same site)", /AJPA-SCLSTUDIO-/.test(sclHtml) && /AJPA-SCLNETSTUDIO-/.test(nsHtml2) && /noindex/.test(sclHtml) && /noindex/.test(nsHtml2));
 }
 
 {

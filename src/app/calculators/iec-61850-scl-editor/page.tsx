@@ -11,6 +11,7 @@ const FEATURES: [string, string][] = [
   ["Edit safely", "Schema-guided forms that insert elements in the correct order, a full element explorer and the XML source, with undo and redo."],
   ["Compare two files", "See what changed between two versions of an SCD or CID."],
   ["Export", "Save the edited file, or export a CID for one IED."],
+  ["Open in NetStudio", "Send the file you are working on straight to SCL NetStudio to design its network: IP plan, GOOSE/SV addressing, bandwidth, ports and cables. Nothing is uploaded; the hand-over stays in your browser."],
   ["Engineering registers in Excel", "IED, communication, GOOSE and SV, report, data-set, logical-node and GOOSE-input registers and a full signal list, downloaded as one Excel workbook."],
   ["Change-impact report", "Compare two revisions and get what changed, what it affects and what to re-test, including data sets changed without a new confRev."],
   ["FAT / SAT test sheets", "Point-to-point test sheets generated per IED from the data sets, with the expected check for every signal, ready to print or fill in Excel."],

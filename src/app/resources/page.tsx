@@ -54,6 +54,15 @@ export default function ResourcesHubPage() {
           </Link>
         </div>
 
+        <Link href="/samples" className="group mt-6 flex flex-col rounded-xl border border-border bg-surface p-7 transition-colors hover:border-accent/40">
+          <h2 className="text-xl font-semibold text-foreground">Sample files</h2>
+          <p className="mt-2 text-sm text-muted">
+            An IEC 61850 SCD, a GOOSE and sampled-value capture with deliberate faults, a network design project and registers with seeded
+            errors — to practise with the IEC 61850 and SCADA tools.
+          </p>
+          <span className="mt-4 text-sm font-semibold text-accent-2 group-hover:opacity-80">Download sample files →</span>
+        </Link>
+
         <div className="mt-10 rounded-xl border border-border bg-surface-2 p-6 text-sm text-muted">
           Not sure which to start with? A <span className="font-medium text-foreground">Guide</span>{" "}
           is the right place to start if you&apos;re new to a category and want the underlying theory
