@@ -195,6 +195,61 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/windows-health-analyser": {
+    what: "A two-part health check for Windows SCADA computers: the AJ Collector, a readable PowerShell script that only reads settings and logs and writes one file, and this analyser, which explains that file in your browser.",
+    can: [
+      "Report system, patch and disk state; automatic services that are not running, with their crash history and dependency chain; named service accounts and remote access agents.",
+      "Group and explain the event log; measure boot duration and find Group Policy and Netlogon delays; judge the time service and clock steps; verify the domain secure channel.",
+      "Read ipconfig, route and netstat; compare listening ports with your approved protocol matrix; flag disabled firewall profiles and rules open to any address.",
+      "Check local accounts, administrators, password policy and a security baseline (NLA, SMBv1, UAC, USB, AutoRun, LLMNR, antivirus, audit policy); list expiring or weak certificates.",
+      "Compare a report with a baseline report of the same computer, and create an anonymised copy for vendors and support teams.",
+    ],
+    why: [
+      "Diagnostic software usually cannot be installed on a SCADA server without vendor approval; a short read-only script that can be read before it runs is much easier to approve.",
+      "One report collects in a minute what a support engineer would otherwise ask for piece by piece over days.",
+      "A report taken after commissioning becomes the approved baseline; comparing later reports shows unapproved changes immediately.",
+    ],
+    understand: [
+      "The collector reads only; it does not repair anything. Fixes are made by people, through the site's change process and within the SCADA vendor's approved configuration.",
+      "Run as administrator for a complete report; without it, Security events, audit policy and the secure channel test are skipped and listed as such.",
+      "Findings are judged at the time the report was taken. Thresholds and baseline checks are common practice; the site's own standard and the vendor's requirements take precedence.",
+      "A report contains names, addresses and accounts: anonymise it before it leaves the site.",
+    ],
+    need: [
+      "The AJ-Collector.ps1 script (download on this page; check its SHA-256), copied to the computer through the approved transfer process.",
+      "Windows PowerShell 5.1 (included in Windows 10/11 and Windows Server 2016 onwards); administrator rights for the complete report.",
+      "Optionally an earlier report of the same computer as baseline, and your list of approved listening ports.",
+      BROWSER,
+    ],
+    use: [
+      "Download the script, read it, and check the SHA-256 on the target computer (Get-FileHash).",
+      "Run it in PowerShell as administrator: powershell.exe -ExecutionPolicy Bypass -File .\\AJ-Collector.ps1 (Bypass applies to that run only).",
+      "Open the AJCollector_<computer>_<date>.json file here; enter your approved ports.",
+      "Work through Findings (filter by area), then Services, Events, Ports & firewall and Baseline; open a baseline report to see changes.",
+      "Use Download anonymised copy before sending the report to anyone.",
+    ],
+    output: ["Counts by severity, a system summary, findings by area, service and event tables, a listening-port table against the approved list, the security baseline table, a change list against a baseline, and an anonymised JSON copy."],
+    interpret: [
+      "Problems first: stopped critical services, crashing applications, disk errors, broken secure channel, insecure settings.",
+      "Checks are risks or deviations from common practice; decide each one against the site's standard and record the decision.",
+      "Notes are context (time hierarchy, administrators list, dynamic ports); they explain rather than accuse.",
+      "In the comparison, every added administrator, listening port, service or firewall rule should match an approved change.",
+    ],
+    basis: [
+      "Data as reported by Windows: CIM/WMI classes, Get-Service, Get-WinEvent, Get-NetTCPConnection, Get-NetFirewall*, Get-LocalUser/Group, registry values, w32tm, nltest, net accounts, auditpol.",
+      "Event explanations from the Windows Error & Event Code Explainer; network explanations from the Command Output Explainer.",
+      "Rules stated in each finding: available disk space below 15 / 5 %, available memory below 10 %, last update older than 90 days, boot longer than 2 minutes, dormant account older than 90 days, password length below 8, antivirus signatures older than 7 days, certificate expiry within 30 / 90 days, keys below 2048 bits, SHA-1 or MD5 signatures.",
+      "End-of-support dates: Windows 7 / Server 2008 R2 2020-01-14, Server 2012 / 2012 R2 2023-10-10, Windows 10 2025-10-14, Server 2016 2027-01-12, Server 2019 2029-01-09.",
+      "Anonymisation: host, domain and user names replaced; IPv4 addresses mapped keeping the last octet and /24 relationships; MAC addresses keep the manufacturer prefix.",
+    ],
+    limits: [
+      "A snapshot: it does not monitor. Problems that come and go may not appear in a single report; collect during the problem.",
+      "Non-English Windows output may reduce what the time, network and event explanations recognise.",
+      "It reports configuration, not effectiveness: an enabled antivirus or firewall rule is not proof of protection.",
+      "Not a substitute for a security assessment or the vendor's health check.",
+    ],
+  },
+
   "/calculators/scada-troubleshooting-assistant": {
     what: "A guided troubleshooting assistant: it asks the questions an experienced engineer would ask, in the right order, and ends with the likely cause, what to do, the tool to use and — when another team must act — a ready escalation ticket.",
     can: [

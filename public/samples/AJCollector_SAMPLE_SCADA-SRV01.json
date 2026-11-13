@@ -1,0 +1,1305 @@
+{
+ "format": "AJ Collector report",
+ "version": "1.0",
+ "meta": {
+  "collectedUtc": "2026-11-13T07:30:00.0000000Z",
+  "collectedLocal": "2026-11-13 11:30:00",
+  "computer": "SCADA-SRV01",
+  "user": "S13\\eng.admin",
+  "isAdmin": true,
+  "psVersion": "5.1.17763.6414",
+  "days": 7,
+  "durationS": 41.6
+ },
+ "system": {
+  "os": "Microsoft Windows Server 2019 Standard",
+  "version": "10.0.17763",
+  "build": "17763",
+  "installDate": "2023-03-14T09:00:00.0000000Z",
+  "lastBoot": "2026-11-06T05:00:12.0000000Z",
+  "uptimeHours": 170.5,
+  "manufacturer": "Dell Inc.",
+  "model": "PowerEdge R650",
+  "partOfDomain": true,
+  "domain": "s13.local",
+  "cpu": "Intel(R) Xeon(R) Silver 4310 CPU @ 2.10GHz",
+  "cores": 12,
+  "logical": 24,
+  "ramGB": 32,
+  "ramFreeGB": 3.1,
+  "timeZone": "Arabian Standard Time",
+  "pendingReboot": [
+   "Windows Update"
+  ],
+  "hotfixes": [
+   {
+    "id": "KB5034127",
+    "description": "Security Update",
+    "installedOn": "2026-02-11T00:00:00.0000000Z"
+   },
+   {
+    "id": "KB5036896",
+    "description": "Security Update",
+    "installedOn": "2026-04-09T00:00:00.0000000Z"
+   },
+   {
+    "id": "KB5037765",
+    "description": "Security Update",
+    "installedOn": "2026-05-14T00:00:00.0000000Z"
+   }
+  ]
+ },
+ "disks": [
+  {
+   "name": "C:",
+   "label": "System",
+   "fs": "NTFS",
+   "sizeGB": 120,
+   "freeGB": 9.5
+  },
+  {
+   "name": "D:",
+   "label": "Data",
+   "fs": "NTFS",
+   "sizeGB": 900,
+   "freeGB": 312.4
+  }
+ ],
+ "physicalDisks": [
+  {
+   "name": "PERC H755 SAS RAID",
+   "mediaType": "SSD",
+   "health": "Healthy",
+   "status": "OK",
+   "sizeGB": 1024
+  }
+ ],
+ "services": [
+  {
+   "name": "W32Time",
+   "display": "Windows Time",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "NT AUTHORITY\\LocalService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "ScadaServer",
+   "display": "SCADA Server",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "S13\\svc_scada",
+   "path": "\"C:\\Program Files\\SCADA\\scadasrv.exe\"",
+   "dependsOn": [
+    "MSSQLSERVER",
+    "LicenseServer"
+   ],
+   "dependents": []
+  },
+  {
+   "name": "HistorianSvc",
+   "display": "Historian Service",
+   "state": "Stopped",
+   "startMode": "Auto",
+   "delayed": true,
+   "account": "S13\\svc_hist",
+   "path": "\"C:\\Program Files\\SCADA\\historian.exe\"",
+   "dependsOn": [
+    "MSSQLSERVER"
+   ],
+   "dependents": []
+  },
+  {
+   "name": "OpcUaServer",
+   "display": "OPC UA Server",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "\"C:\\Program Files\\SCADA\\opcua.exe\"",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "LicenseServer",
+   "display": "SCADA Licence Server",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": [
+    "ScadaServer"
+   ]
+  },
+  {
+   "name": "MSSQLSERVER",
+   "display": "SQL Server (MSSQLSERVER)",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "NT Service\\MSSQLSERVER",
+   "path": "",
+   "dependsOn": [],
+   "dependents": [
+    "ScadaServer",
+    "HistorianSvc"
+   ]
+  },
+  {
+   "name": "sppsvc",
+   "display": "Software Protection",
+   "state": "Stopped",
+   "startMode": "Auto",
+   "delayed": true,
+   "account": "NT AUTHORITY\\NetworkService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "gupdate",
+   "display": "Google Update Service (gupdate)",
+   "state": "Stopped",
+   "startMode": "Auto",
+   "delayed": true,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "Spooler",
+   "display": "Print Spooler",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "TermService",
+   "display": "Remote Desktop Services",
+   "state": "Running",
+   "startMode": "Manual",
+   "delayed": false,
+   "account": "NT Authority\\NetworkService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "WinRM",
+   "display": "Windows Remote Management (WS-Management)",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "NT AUTHORITY\\NetworkService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "MpsSvc",
+   "display": "Windows Defender Firewall",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "NT Authority\\LocalService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "WinDefend",
+   "display": "Microsoft Defender Antivirus Service",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "Netlogon",
+   "display": "Netlogon",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "Dnscache",
+   "display": "DNS Client",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "NT AUTHORITY\\NetworkService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "SNMP",
+   "display": "SNMP Service",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "RemoteSupportAgent",
+   "display": "Remote Support Agent",
+   "state": "Running",
+   "startMode": "Auto",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "C:\\Program Files\\RSA\\rsagent.exe",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "RemoteRegistry",
+   "display": "Remote Registry",
+   "state": "Stopped",
+   "startMode": "Manual",
+   "delayed": false,
+   "account": "NT AUTHORITY\\LocalService",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  },
+  {
+   "name": "BITS",
+   "display": "Background Intelligent Transfer Service",
+   "state": "Running",
+   "startMode": "Manual",
+   "delayed": false,
+   "account": "LocalSystem",
+   "path": "",
+   "dependsOn": [],
+   "dependents": []
+  }
+ ],
+ "events": [
+  {
+   "log": "System",
+   "time": "2026-11-12T01:10:05.0000000Z",
+   "id": 7031,
+   "source": "Service Control Manager",
+   "level": "Error",
+   "message": "The Historian Service service terminated unexpectedly. It has done this 1 time(s). The following corrective action will be taken in 60000 milliseconds: Restart the service."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T02:11:05.0000000Z",
+   "id": 7031,
+   "source": "Service Control Manager",
+   "level": "Error",
+   "message": "The Historian Service service terminated unexpectedly. It has done this 2 time(s). The following corrective action will be taken in 60000 milliseconds: Restart the service."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T03:12:05.0000000Z",
+   "id": 7031,
+   "source": "Service Control Manager",
+   "level": "Error",
+   "message": "The Historian Service service terminated unexpectedly. It has done this 3 time(s). The following corrective action will be taken in 60000 milliseconds: Restart the service."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T04:13:05.0000000Z",
+   "id": 7031,
+   "source": "Service Control Manager",
+   "level": "Error",
+   "message": "The Historian Service service terminated unexpectedly. It has done this 4 time(s). The following corrective action will be taken in 60000 milliseconds: Restart the service."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T05:14:05.0000000Z",
+   "id": 7031,
+   "source": "Service Control Manager",
+   "level": "Error",
+   "message": "The Historian Service service terminated unexpectedly. It has done this 5 time(s). The following corrective action will be taken in 60000 milliseconds: Restart the service."
+  },
+  {
+   "log": "Application",
+   "time": "2026-11-12T01:10:03.0000000Z",
+   "id": 1000,
+   "source": "Application Error",
+   "level": "Error",
+   "message": "Faulting application name: historian.exe, version: 7.2.1.0, Faulting module name: ntdll.dll, Exception code: 0xc0000374"
+  },
+  {
+   "log": "Application",
+   "time": "2026-11-12T02:11:03.0000000Z",
+   "id": 1000,
+   "source": "Application Error",
+   "level": "Error",
+   "message": "Faulting application name: historian.exe, version: 7.2.1.0, Faulting module name: ntdll.dll, Exception code: 0xc0000374"
+  },
+  {
+   "log": "Application",
+   "time": "2026-11-12T03:12:03.0000000Z",
+   "id": 1000,
+   "source": "Application Error",
+   "level": "Error",
+   "message": "Faulting application name: historian.exe, version: 7.2.1.0, Faulting module name: ntdll.dll, Exception code: 0xc0000374"
+  },
+  {
+   "log": "Application",
+   "time": "2026-11-11T04:13:03.0000000Z",
+   "id": 1000,
+   "source": "Application Error",
+   "level": "Error",
+   "message": "Faulting application name: historian.exe, version: 7.2.1.0, Faulting module name: ntdll.dll, Exception code: 0xc0000374"
+  },
+  {
+   "log": "Application",
+   "time": "2026-11-11T05:14:03.0000000Z",
+   "id": 1000,
+   "source": "Application Error",
+   "level": "Error",
+   "message": "Faulting application name: historian.exe, version: 7.2.1.0, Faulting module name: ntdll.dll, Exception code: 0xc0000374"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-06T05:02:11.0000000Z",
+   "id": 1129,
+   "source": "Microsoft-Windows-GroupPolicy",
+   "level": "Error",
+   "message": "The processing of Group Policy failed because of lack of network connectivity to a domain controller."
+  },
+  {
+   "log": "System",
+   "time": "2026-10-02T04:58:40.0000000Z",
+   "id": 1129,
+   "source": "Microsoft-Windows-GroupPolicy",
+   "level": "Error",
+   "message": "The processing of Group Policy failed because of lack of network connectivity to a domain controller."
+  },
+  {
+   "log": "System",
+   "time": "2026-10-02T05:06:02.0000000Z",
+   "id": 1129,
+   "source": "Microsoft-Windows-GroupPolicy",
+   "level": "Error",
+   "message": "The processing of Group Policy failed because of lack of network connectivity to a domain controller."
+  },
+  {
+   "log": "System",
+   "time": "2026-10-02T04:58:12.0000000Z",
+   "id": 5719,
+   "source": "NETLOGON",
+   "level": "Error",
+   "message": "This computer was not able to set up a secure session with a domain controller in domain S13 due to the following: There are currently no logon servers available to service the logon request."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-06T05:01:50.0000000Z",
+   "id": 5719,
+   "source": "NETLOGON",
+   "level": "Error",
+   "message": "This computer was not able to set up a secure session with a domain controller in domain S13 due to the following: There are currently no logon servers available to service the logon request."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-08T22:40:00.0000000Z",
+   "id": 153,
+   "source": "disk",
+   "level": "Warning",
+   "message": "The IO operation at logical block address 0x2a1f8 for Disk 0 (PDO name: \\Device\\00000034) was retried."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-09T22:41:00.0000000Z",
+   "id": 153,
+   "source": "disk",
+   "level": "Warning",
+   "message": "The IO operation at logical block address 0x2a1f8 for Disk 0 (PDO name: \\Device\\00000034) was retried."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-010T22:42:00.0000000Z",
+   "id": 153,
+   "source": "disk",
+   "level": "Warning",
+   "message": "The IO operation at logical block address 0x2a1f8 for Disk 0 (PDO name: \\Device\\00000034) was retried."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-011T22:43:00.0000000Z",
+   "id": 153,
+   "source": "disk",
+   "level": "Warning",
+   "message": "The IO operation at logical block address 0x2a1f8 for Disk 0 (PDO name: \\Device\\00000034) was retried."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-09T07:15:22.0000000Z",
+   "id": 4199,
+   "source": "Tcpip",
+   "level": "Error",
+   "message": "The system detected an address conflict for IP address 10.13.0.20 with the system having network hardware address 02-AA-00-00-09-09. Network operations on this system may be disrupted as a result."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T10:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T11:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T12:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T13:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T14:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T15:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T16:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T17:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T18:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T19:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T10:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T11:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T12:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T13:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T14:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T15:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T16:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T17:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T18:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T19:00:00.0000000Z",
+   "id": 10016,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Warning",
+   "message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application with CLSID {D63B10C5-BB46-4990-A94F-E40B9D520160}"
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T00:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T01:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T02:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T03:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-11T04:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T05:30:00.0000000Z",
+   "id": 10009,
+   "source": "Microsoft-Windows-DistributedCOM",
+   "level": "Error",
+   "message": "DCOM was unable to communicate with the computer ENG-WS02 using any of the configured protocols; requested by PID 1d4c (C:\\Program Files\\SCADA\\opcbridge.exe)."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-06T04:59:58.0000000Z",
+   "id": 41,
+   "source": "Microsoft-Windows-Kernel-Power",
+   "level": "Critical",
+   "message": "The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-06T05:00:40.0000000Z",
+   "id": 6008,
+   "source": "EventLog",
+   "level": "Error",
+   "message": "The previous system shutdown at 08:58:31 on 06/11/2026 was unexpected."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-06T05:00:41.0000000Z",
+   "id": 6005,
+   "source": "EventLog",
+   "level": "Information",
+   "message": "The Event log service was started."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-10T03:00:02.0000000Z",
+   "id": 1,
+   "source": "Microsoft-Windows-Kernel-General",
+   "level": "Information",
+   "message": "The system time has changed to 2026-11-10T03:00:02.512Z from 2026-11-10T03:00:04.391Z. Change Reason: System time synchronized with the hardware clock."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-12T11:20:00.0000000Z",
+   "id": 36,
+   "source": "Microsoft-Windows-Time-Service",
+   "level": "Warning",
+   "message": "The time service has not synchronized the system time for 86400 seconds because none of the time service providers provided a usable time stamp."
+  },
+  {
+   "log": "System",
+   "time": "2026-11-04T10:12:00.0000000Z",
+   "id": 7045,
+   "source": "Service Control Manager",
+   "level": "Information",
+   "message": "A service was installed in the system. Service Name: RemoteSupportAgent Service File Name: C:\\Program Files\\RSA\\rsagent.exe Service Type: user mode service Service Start Type: auto start Service Account: LocalSystem"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-10T00:00:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-11T01:01:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-12T02:02:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-10T03:03:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-11T04:04:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-12T05:05:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-10T06:00:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-11T07:01:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-12T08:02:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-10T09:03:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-11T00:04:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-12T01:05:00.0000000Z",
+   "id": 4625,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "An account failed to log on. Account Name: scada_op Failure Reason: Unknown user name or bad password. Status: 0xC000006D Sub Status: 0xC000006A"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-12T09:41:00.0000000Z",
+   "id": 4740,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "A user account was locked out. Account Name: scada_op Caller Computer Name: HMI-02"
+  },
+  {
+   "log": "Security",
+   "time": "2026-11-04T10:13:00.0000000Z",
+   "id": 4732,
+   "source": "Microsoft-Windows-Security-Auditing",
+   "level": "Information",
+   "message": "A member was added to a security-enabled local group. Member: S13\\vendor.support Group: Administrators"
+  },
+  {
+   "log": "Diagnostics-Performance",
+   "time": "2026-11-06T05:04:10.0000000Z",
+   "id": 100,
+   "source": "Microsoft-Windows-Diagnostics-Performance",
+   "level": "Critical",
+   "message": "Windows has started up: Boot Duration : 184523ms IsDegradation : false Incident Time (UTC) : 11/6/2026 5:00:40 AM"
+  },
+  {
+   "log": "Diagnostics-Performance",
+   "time": "2026-10-02T05:07:00.0000000Z",
+   "id": 100,
+   "source": "Microsoft-Windows-Diagnostics-Performance",
+   "level": "Error",
+   "message": "Windows has started up: Boot Duration : 152210ms IsDegradation : false"
+  }
+ ],
+ "time": {
+  "status": "Leap Indicator: 0(no warning)\nStratum: 4 (secondary reference - syncd by (S)NTP)\nPrecision: -23 (119.209ns per tick)\nRoot Delay: 0.0468750s\nRoot Dispersion: 0.5313000s\nReferenceId: 0x0A0D0005 (source IP:  10.13.0.5)\nLast Successful Sync Time: 11/11/2026 11:20:00 AM\nSource: DC01.s13.local\nPoll Interval: 10 (1024s)\n",
+  "configuration": "[TimeProviders]\nNtpClient (Local)\nEnabled: 1 (Local)\nType: NT5DS (Local)\n",
+  "source": "DC01.s13.local",
+  "timeZone": "Arabian Standard Time"
+ },
+ "network": {
+  "ipconfig": "Windows IP Configuration\n\n   Host Name . . . . . . . . . . . . : SCADA-SRV01\n   Primary Dns Suffix  . . . . . . . : s13.local\n\nEthernet adapter SCADA LAN:\n\n   Description . . . . . . . . . . . : Intel(R) Ethernet Server Adapter I350\n   Physical Address. . . . . . . . . : 00-1B-21-AA-10-20\n   DHCP Enabled. . . . . . . . . . . : No\n   IPv4 Address. . . . . . . . . . . : 10.13.0.20(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.128\n   Default Gateway . . . . . . . . . : 10.13.0.1\n   DNS Servers . . . . . . . . . . . : 10.13.0.5\n\nEthernet adapter Corporate:\n\n   Description . . . . . . . . . . . : Intel(R) Ethernet Server Adapter I350 #2\n   Physical Address. . . . . . . . . : 00-1B-21-AA-10-21\n   DHCP Enabled. . . . . . . . . . . : No\n   IPv4 Address. . . . . . . . . . . : 172.20.4.15(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 172.20.4.1\n",
+  "route": "IPv4 Route Table\n===========================================================================\nActive Routes:\nNetwork Destination        Netmask          Gateway       Interface  Metric\n          0.0.0.0          0.0.0.0        10.13.0.1       10.13.0.20     25\n          0.0.0.0          0.0.0.0       172.20.4.1      172.20.4.15     25\n        10.13.0.0  255.255.255.128         On-link        10.13.0.20    281\n       172.20.4.0    255.255.255.0         On-link       172.20.4.15    281\n===========================================================================\n",
+  "arp": "\nInterface: 10.13.0.20 --- 0x6\n  Internet Address      Physical Address      Type\n  10.13.0.1             00-1b-1b-aa-00-01     dynamic\n  10.13.0.14            02-aa-00-00-02-01     dynamic\n",
+  "netstat": "\n  Proto  Local Address          Foreign Address        State           PID\n  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       912\n  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4\n  TCP    0.0.0.0:1433           0.0.0.0:0              LISTENING       3120\n  TCP    0.0.0.0:2404           0.0.0.0:0              LISTENING       4410\n  TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       1180\n  TCP    0.0.0.0:4840           0.0.0.0:0              LISTENING       4620\n  TCP    0.0.0.0:5985           0.0.0.0:0              LISTENING       4\n  TCP    10.13.0.20:52044       10.13.0.14:102         ESTABLISHED     4410\n  TCP    10.13.0.20:52051       10.13.0.17:102         SYN_SENT        4410\n",
+  "adapters": [
+   {
+    "name": "SCADA LAN",
+    "description": "Intel(R) Ethernet Server Adapter I350",
+    "status": "Up",
+    "linkSpeed": "1 Gbps",
+    "mac": "00-1B-21-AA-10-20"
+   },
+   {
+    "name": "Corporate",
+    "description": "Intel(R) Ethernet Server Adapter I350 #2",
+    "status": "Up",
+    "linkSpeed": "1 Gbps",
+    "mac": "00-1B-21-AA-10-21"
+   }
+  ]
+ },
+ "listening": [
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 135,
+   "pid": 912,
+   "process": "svchost"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 445,
+   "pid": 4,
+   "process": "System"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 1433,
+   "pid": 3120,
+   "process": "sqlservr"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 2404,
+   "pid": 4410,
+   "process": "scadasrv"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 3389,
+   "pid": 1180,
+   "process": "svchost"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 4840,
+   "pid": 4620,
+   "process": "opcua"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 5985,
+   "pid": 4,
+   "process": "System"
+  },
+  {
+   "proto": "TCP",
+   "address": "0.0.0.0",
+   "port": 5938,
+   "pid": 5100,
+   "process": "rsagent"
+  },
+  {
+   "proto": "UDP",
+   "address": "0.0.0.0",
+   "port": 123,
+   "pid": 1300,
+   "process": "svchost"
+  },
+  {
+   "proto": "UDP",
+   "address": "0.0.0.0",
+   "port": 161,
+   "pid": 2200,
+   "process": "snmp"
+  }
+ ],
+ "processes": [
+  {
+   "name": "sqlservr",
+   "pid": 3120,
+   "cpuS": 182340.2,
+   "workingSetMB": 12480,
+   "privateMB": 13010,
+   "path": "C:\\Program Files\\Microsoft SQL Server\\MSSQL15.MSSQLSERVER\\MSSQL\\Binn\\sqlservr.exe"
+  },
+  {
+   "name": "scadasrv",
+   "pid": 4410,
+   "cpuS": 96211.5,
+   "workingSetMB": 2210,
+   "privateMB": 2480,
+   "path": "C:\\Program Files\\SCADA\\scadasrv.exe"
+  },
+  {
+   "name": "MsMpEng",
+   "pid": 3400,
+   "cpuS": 40211.0,
+   "workingSetMB": 380,
+   "privateMB": 410,
+   "path": null
+  },
+  {
+   "name": "rsagent",
+   "pid": 5100,
+   "cpuS": 120.3,
+   "workingSetMB": 45,
+   "privateMB": 38,
+   "path": "C:\\Program Files\\RSA\\rsagent.exe"
+  }
+ ],
+ "firewall": {
+  "profiles": [
+   {
+    "name": "Domain",
+    "enabled": "True",
+    "inbound": "Block",
+    "outbound": "Allow"
+   },
+   {
+    "name": "Private",
+    "enabled": "True",
+    "inbound": "Block",
+    "outbound": "Allow"
+   },
+   {
+    "name": "Public",
+    "enabled": "False",
+    "inbound": "NotConfigured",
+    "outbound": "NotConfigured"
+   }
+  ],
+  "rules": [
+   {
+    "name": "RemoteDesktop-UserMode-In-TCP",
+    "display": "Remote Desktop - User Mode (TCP-In)",
+    "group": "Remote Desktop",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain, Private, Public",
+    "protocol": "TCP",
+    "localPort": "3389",
+    "remoteAddress": "Any",
+    "program": null
+   },
+   {
+    "name": "SCADA-IEC104",
+    "display": "SCADA IEC 60870-5-104 from control centre",
+    "group": "",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain",
+    "protocol": "TCP",
+    "localPort": "2404",
+    "remoteAddress": "10.10.0.0/16",
+    "program": null
+   },
+   {
+    "name": "SQL-1433",
+    "display": "SQL Server",
+    "group": "",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain, Private, Public",
+    "protocol": "TCP",
+    "localPort": "1433",
+    "remoteAddress": "Any",
+    "program": null
+   },
+   {
+    "name": "OPCUA-4840",
+    "display": "OPC UA Server",
+    "group": "",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain",
+    "protocol": "TCP",
+    "localPort": "4840",
+    "remoteAddress": "LocalSubnet",
+    "program": null
+   },
+   {
+    "name": "FPS-SMB-In-TCP",
+    "display": "File and Printer Sharing (SMB-In)",
+    "group": "File and Printer Sharing",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain, Private, Public",
+    "protocol": "TCP",
+    "localPort": "445",
+    "remoteAddress": "Any",
+    "program": null
+   },
+   {
+    "name": "WINRM-HTTP-In-TCP",
+    "display": "Windows Remote Management (HTTP-In)",
+    "group": "Windows Remote Management",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain, Private, Public",
+    "protocol": "TCP",
+    "localPort": "5985",
+    "remoteAddress": "Any",
+    "program": null
+   },
+   {
+    "name": "ENG-ALL",
+    "display": "Allow all from engineering PC",
+    "group": "",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain",
+    "protocol": "Any",
+    "localPort": "Any",
+    "remoteAddress": "10.13.0.110",
+    "program": null
+   },
+   {
+    "name": "RSA-Agent",
+    "display": "Remote Support Agent",
+    "group": "",
+    "direction": "Inbound",
+    "action": "Allow",
+    "profile": "Domain, Private, Public",
+    "protocol": "Any",
+    "localPort": "Any",
+    "remoteAddress": "Any",
+    "program": "C:\\Program Files\\RSA\\rsagent.exe"
+   }
+  ]
+ },
+ "accounts": {
+  "users": [
+   {
+    "name": "Administrator",
+    "enabled": true,
+    "lastLogon": "2026-11-12T08:00:00.0000000Z",
+    "passwordLastSet": "2023-03-14T09:30:00.0000000Z",
+    "passwordExpires": null,
+    "passwordRequired": true,
+    "sid": "S-1-5-21-111-222-333-500",
+    "description": "Built-in account for administering the computer/domain"
+   },
+   {
+    "name": "Guest",
+    "enabled": false,
+    "lastLogon": null,
+    "passwordLastSet": null,
+    "passwordExpires": null,
+    "passwordRequired": false,
+    "sid": "S-1-5-21-111-222-333-501",
+    "description": "Built-in account for guest access"
+   },
+   {
+    "name": "scada_op",
+    "enabled": true,
+    "lastLogon": "2026-11-12T09:30:00.0000000Z",
+    "passwordLastSet": "2024-01-10T08:00:00.0000000Z",
+    "passwordExpires": null,
+    "passwordRequired": true,
+    "sid": "S-1-5-21-111-222-333-1001",
+    "description": "Shared operator account"
+   },
+   {
+    "name": "commissioning",
+    "enabled": true,
+    "lastLogon": "2025-12-02T10:00:00.0000000Z",
+    "passwordLastSet": "2025-06-01T08:00:00.0000000Z",
+    "passwordExpires": null,
+    "passwordRequired": false,
+    "sid": "S-1-5-21-111-222-333-1002",
+    "description": "FAT account"
+   }
+  ],
+  "admins": [
+   {
+    "name": "S13\\Domain Admins",
+    "source": "ActiveDirectory",
+    "class": "Group"
+   },
+   {
+    "name": "SCADA-SRV01\\Administrator",
+    "source": "Local",
+    "class": "User"
+   },
+   {
+    "name": "S13\\eng.admin",
+    "source": "ActiveDirectory",
+    "class": "User"
+   },
+   {
+    "name": "S13\\vendor.support",
+    "source": "ActiveDirectory",
+    "class": "User"
+   },
+   {
+    "name": "SCADA-SRV01\\scada_op",
+    "source": "Local",
+    "class": "User"
+   }
+  ],
+  "rdpUsers": [
+   {
+    "name": "S13\\scada.operators",
+    "source": "ActiveDirectory",
+    "class": "Group"
+   }
+  ],
+  "netAccounts": "Force user logoff how long after time expires?:       Never\nMinimum password age (days):                          0\nMaximum password age (days):                          Unlimited\nMinimum password length:                              6\nLength of password history maintained:                None\nLockout threshold:                                    Never\nLockout duration (minutes):                           30\nLockout observation window (minutes):                 30\nComputer role:                                        SERVER\nThe command completed successfully.\n"
+ },
+ "security": {
+  "rdpDenied": 0,
+  "nla": 0,
+  "smb1": true,
+  "enableLUA": 1,
+  "usbStorStart": 3,
+  "noDriveTypeAutoRun": null,
+  "llmnrEnableMulticast": null,
+  "defender": {
+   "serviceEnabled": true,
+   "antivirusEnabled": true,
+   "realTime": true,
+   "signaturesUpdated": "2026-10-20T03:00:00.0000000Z",
+   "productVersion": "4.18.24090.11"
+  },
+  "auditpol": "System audit policy\nCategory/Subcategory                      Setting\nLogon/Logoff\n  Logon                                   Success and Failure\n  Account Lockout                         Success\nAccount Management\n  User Account Management                 Success\nPolicy Change\n  Audit Policy Change                     No Auditing\n"
+ },
+ "domain": {
+  "partOfDomain": true,
+  "name": "s13.local",
+  "secureChannel": true,
+  "scVerify": "Flags: b0 HAS_IP  HAS_TIMESERV\nTrusted DC Name \\\\DC01.s13.local\nTrusted DC Connection Status Status = 0 0x0 NERR_Success\nTrust Verification Status = 0 0x0 NERR_Success\nThe command completed successfully\n",
+  "dsgetdc": "           DC: \\\\DC01.s13.local\n      Address: \\\\10.13.0.5\n     Dom Name: s13.local\nThe command completed successfully\n",
+  "gpresult": "COMPUTER SETTINGS\n------------------\n    Last time Group Policy was applied: 11/13/2026 at 11:02:10 AM\n    Group Policy was applied from:      DC01.s13.local\n"
+ },
+ "software": [
+  {
+   "name": "SCADA Server",
+   "version": "7.2.1",
+   "publisher": "SCADA Vendor",
+   "installDate": "20230320"
+  },
+  {
+   "name": "Microsoft SQL Server 2019 (64-bit)",
+   "version": "15.0.2000.5",
+   "publisher": "Microsoft Corporation",
+   "installDate": "20230315"
+  },
+  {
+   "name": "Remote Support Agent",
+   "version": "3.4",
+   "publisher": "RSA Tools",
+   "installDate": "20261104"
+  },
+  {
+   "name": "Google Chrome",
+   "version": "118.0.5993.89",
+   "publisher": "Google LLC",
+   "installDate": "20231020"
+  },
+  {
+   "name": "7-Zip 23.01 (x64)",
+   "version": "23.01",
+   "publisher": "Igor Pavlov",
+   "installDate": "20240105"
+  }
+ ],
+ "certificates": [
+  {
+   "store": "My",
+   "subject": "CN=SCADA-SRV01.s13.local",
+   "issuer": "CN=S13-ISSUING-CA, DC=s13, DC=local",
+   "notBefore": "2025-11-28T00:00:00.0000000Z",
+   "notAfter": "2026-11-28T00:00:00.0000000Z",
+   "thumbprint": "5A1C9E0B7D33F2A64C18E2D90B6A7F1C2E3D4B5A",
+   "hasPrivateKey": true,
+   "sigAlg": "sha256RSA",
+   "keySize": 2048,
+   "eku": [
+    "Server Authentication",
+    "Client Authentication"
+   ],
+   "dns": [
+    "SCADA-SRV01.s13.local"
+   ]
+  },
+  {
+   "store": "My",
+   "subject": "CN=SCADA-SRV01 OPC UA Server, O=Sample Substation",
+   "issuer": "CN=SCADA-SRV01 OPC UA Server, O=Sample Substation",
+   "notBefore": "2025-03-01T00:00:00.0000000Z",
+   "notAfter": "2030-03-01T00:00:00.0000000Z",
+   "thumbprint": "4BA78D56541830393573F122010AA12D4117B782",
+   "hasPrivateKey": true,
+   "sigAlg": "sha256RSA",
+   "keySize": 2048,
+   "eku": [
+    "Server Authentication",
+    "Client Authentication"
+   ],
+   "dns": [
+    "scada-srv01"
+   ]
+  },
+  {
+   "store": "My",
+   "subject": "CN=SQL-OLD",
+   "issuer": "CN=SQL-OLD",
+   "notBefore": "2020-01-01T00:00:00.0000000Z",
+   "notAfter": "2025-01-01T00:00:00.0000000Z",
+   "thumbprint": "9F0E1D2C3B4A59687766554433221100FFEEDDCC",
+   "hasPrivateKey": true,
+   "sigAlg": "sha1RSA",
+   "keySize": 1024,
+   "eku": [
+    "Server Authentication"
+   ],
+   "dns": []
+  },
+  {
+   "store": "Remote Desktop",
+   "subject": "CN=SCADA-SRV01.s13.local",
+   "issuer": "CN=SCADA-SRV01.s13.local",
+   "notBefore": "2026-04-02T00:00:00.0000000Z",
+   "notAfter": "2027-04-02T00:00:00.0000000Z",
+   "thumbprint": "1122334455667788990011223344556677889900",
+   "hasPrivateKey": true,
+   "sigAlg": "sha256RSA",
+   "keySize": 2048,
+   "eku": [
+    "Server Authentication"
+   ],
+   "dns": [
+    "SCADA-SRV01.s13.local"
+   ]
+  }
+ ],
+ "skipped": []
+}

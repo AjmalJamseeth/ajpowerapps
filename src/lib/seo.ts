@@ -37,6 +37,10 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/windows-health-analyser": {
+    title: "SCADA Server Health Check – Windows Services, Events, Security",
+    description: "Read-only PowerShell collector and online analyser for SCADA servers and HMIs: services, crashes, event logs, slow logon, time sync, domain, open ports, firewall, local admins, hardening baseline, certificates.",
+  },
   "/calculators/scada-troubleshooting-assistant": {
     title: "SCADA Troubleshooting Guide – No Comms, IEC 104, Time, GOOSE",
     description: "Step-by-step SCADA troubleshooting: no communication with an IED, IEC 104 link drops, wrong time, slow HMI, logon and domain problems, disk full, GOOSE not received — with a ready escalation ticket.",

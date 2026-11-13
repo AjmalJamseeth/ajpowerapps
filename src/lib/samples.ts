@@ -71,6 +71,18 @@ export const SAMPLE_FILES: SampleFile[] = [
     ],
   },
   {
+    file: "AJCollector_SAMPLE_SCADA-SRV01.json",
+    title: "AJ Collector report of a SCADA server, with deliberate faults",
+    format: "AJ Collector report (.json)",
+    openIn: [{ name: "Windows Health Analyser", href: "/calculators/windows-health-analyser" }],
+    what: "A report as the AJ Collector writes it, for a Windows Server 2019 SCADA server with typical problems: a crashing historian, slow logon, open remote access, weak settings and an expired certificate.",
+    expect: [
+      "Services: Historian Service stopped after five crashes (7031) with historian.exe faults (1000).",
+      "Boot and logon: 185 s boot with Group Policy 1129 and Netlogon 5719 at start-up.",
+      "Security: NLA off, SMBv1 on, Public firewall profile off, a remote support agent open to any address, an operator account in Administrators, a passwordless commissioning account.",
+    ],
+  },
+  {
     file: "S13_asset_register.csv",
     title: "Asset register — export format and import template",
     format: "CSV (opens in Excel)",

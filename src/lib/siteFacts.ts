@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 955;
+export const AUTOMATED_CHECKS = 963;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "AJ Collector and Windows Health Analyser",
+    items: [
+      "New: AJ Collector 1.0, a readable, read-only PowerShell script (no installation) that writes a health report of a Windows SCADA server, HMI, historian or engineering workstation. Its SHA-256 is published with it.",
+      "New: Windows Health Analyser — services and crashes, events, boot and logon delays, time, domain, network, listening ports against an approved list, firewall, accounts, security baseline and certificates; comparison with a baseline report and an anonymised copy for support.",
+      "New sample file: an AJ Collector report of a SCADA server with deliberate faults.",
+    ],
+  },
   {
     date: "November 2026",
     title: "SCADA Communications, Network & IT",

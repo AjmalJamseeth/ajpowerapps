@@ -31,6 +31,9 @@ import { TREES, ticketText } from "../src/lib/troubleshoot";
 import { decodeOid, analyseWalk, SAMPLE_WALK } from "../src/lib/snmphelper";
 import { loadCerts, parseCert, checkCert, SAMPLE_CERT } from "../src/lib/certinspect";
 import { parsePerfCsv, analysePerf, sampleCsv } from "../src/lib/perflog";
+import { parseReport, analyse as whAnalyse, compareReports, anonymise } from "../src/lib/winhealth";
+import { COLLECTOR_SHA256 } from "../src/lib/collectorInfo";
+import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
 import { calcScadaConnect, DEFAULT_SCADA_CONNECT_INPUT } from "../src/lib/scadaconnect";
@@ -2744,6 +2747,28 @@ section("Worked examples (November 2026)");
   assertTrue("Certificate checks: expiry warning at 19 days, IP match for TLS", checkCert(cert, "opcua", new Date("2026-11-13T20:00:00Z")).some((x) => x.sev === "warning" && /19 day/.test(x.text)) && checkCert(cert, "tls-server", new Date("2026-11-13T20:00:00Z"), "10.13.0.20").some((x) => x.sev === "ok" && /matches/.test(x.text)));
   const pr = analysePerf(parsePerfCsv(sampleCsv())!, { cores: 4, ramGB: 16 });
   assertTrue("Sample performance log: CPU critical, disk read latency critical, historian memory growth, antivirus busiest", pr.findings.some((f) => f.area === "CPU" && f.sev === "error") && pr.findings.some((f) => f.area === "Disk" && f.sev === "error" && /read/.test(f.text)) && pr.growth.some((g) => g.name === "historian") && pr.topCpu[0].name === "MsMpEng");
+}
+
+{
+  section("Phase C — AJ Collector and Windows Health Analyser");
+  const ps = readFileSync("public/tools/AJ-Collector.ps1");
+  assertEqual("Published collector matches the SHA-256 shown on the page", createHash("sha256").update(ps).digest("hex").toUpperCase(), COLLECTOR_SHA256);
+  const pst = ps.toString("utf8");
+  assertTrue("Collector is ASCII-only and uses only read commands (no Set-/Stop-/Start-/Remove-/New-Item/Restart-/Invoke-WebRequest)", !/[^\x00-\x7F]/.test(pst) && !/\b(Set-(Item|ItemProperty|Service|NetFirewall|Content|ExecutionPolicy|Date)|Stop-|Start-Service|Restart-|Remove-|New-Item|Invoke-WebRequest|Invoke-RestMethod|Disable-|Enable-|-Repair)\b/i.test(pst.replace(/^\s*#.*$/gm, "").replace(/<#[\s\S]*?#>/g, "")));
+  const wr = parseReport(readFileSync("public/samples/AJCollector_SAMPLE_SCADA-SRV01.json", "utf8"));
+  const wa = whAnalyse(wr);
+  const has = (area: string, re: RegExp, sev?: string) => wa.findings.some((f) => f.area === area && re.test(f.text) && (!sev || f.sev === sev));
+  assertTrue("Sample: historian stopped after 5 crashes; Group Policy/Netlogon at boot; 185 s boot", has("Services", /Historian Service.*5 time/, "error") && has("Boot & logon", /1129.*5719/) && wa.bootTimesS.some((b) => Math.round(b.seconds) === 185));
+  assertTrue("Sample: NLA off and SMBv1 on are errors; Public firewall profile off; remote agent flagged", has("Security baseline", /Network Level Authentication/, "error") && has("Security baseline", /SMBv1/, "error") && has("Ports & firewall", /Public profile is disabled/) && has("Services", /Remote access service/));
+  assertTrue("Sample: passwordless account, operator in Administrators, expired SHA-1 certificate", has("Accounts", /does not require a password/, "error") && has("Accounts", /scada_op is a member of Administrators/) && has("Certificates", /SQL-OLD.*expired/, "error"));
+  assertTrue("Sample: listening ports 135, 445, 1433, 5938, 5985 not approved; 2404 approved", ["135", "445", "1433", "5938", "5985"].every((p) => wa.ports.some((x) => String(x.port) === p && !x.approved)) && wa.ports.some((x) => x.port === 2404 && x.approved));
+  const wb = JSON.parse(JSON.stringify(wr));
+  wb.accounts.admins = wb.accounts.admins.slice(0, 3);
+  wb.listening = wb.listening.filter((l: { port: number }) => l.port !== 5938);
+  const ch = compareReports(wb, wr);
+  assertTrue("Compare: two added administrators and the new port 5938 detected", ch.filter((c) => c.area === "Administrators" && c.kind === "added").length === 2 && ch.some((c) => c.area === "Listening ports" && /5938/.test(c.text)));
+  const an = anonymise(wr).json;
+  assertTrue("Anonymised copy removes host, domain, user names and real addresses but keeps version numbers", !/SCADA-SRV01|s13\.local|eng\.admin|svc_scada|10\.13\.0\.20/i.test(an) && /version: 7\.2\.1\.0/.test(an) && /"computer": "HOST-01"/.test(an));
 }
 
 {
