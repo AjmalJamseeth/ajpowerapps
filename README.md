@@ -1574,3 +1574,8 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - SCL NetStudio: mcMatrix/mcRows/mcTable (multicast matrix, static filters in swConfig), trunks/cores/panels in portPlan (P.cab.trunkCores, lk.trunk/cores/ppA/ppB), cabprint action, receiveHandoff (IndexedDB 'ajapps-handoff'), restoreprev. Watermark AJPA-SCLNETSTUDIO-D989D0548F8F3715.
 - SCL Studio: netstudio action writes the SCD to IndexedDB and opens /calculators/scl-netstudio. Watermark AJPA-SCLSTUDIO-3C4E16088EE0C84A.
 - Sample files: public/samples (list in src/lib/samples.ts), page /samples; tool pages show their sample files.
+
+## Phase B (November 2026)
+
+- New category scada-it (calculatorCatalog, categories slug scada-communications-it, guide src/lib/guides/scadait.ts, icon Router).
+- New tools: scada-troubleshooting-assistant (troubleshoot.ts), command-output-explainer (cmdexplain.ts, cmdnet.ts, cmdsamples.ts), windows-error-event-codes (errorcodes.ts), snmp-helper (snmphelper.ts), certificate-inspector (certinspect.ts, sample certificate generated with openssl, valid 2026-11-13 to 2026-12-03), performance-log-analyser (perflog.ts).

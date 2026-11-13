@@ -62,15 +62,27 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
   },
   {
     id: "iec-61850",
-    title: "IEC 61850, SCADA & Substation Automation",
+    title: "IEC 61850 & Substation Automation",
     description:
-      "View, check and edit IEC 61850 SCL files (SCD, ICD, CID, IID, SSD) in the browser, check GOOSE and sampled-value traffic in Wireshark captures against the standard, and check substation and SCADA networks: IP addressing, fibre links and IP registers.",
+      "View, check and edit IEC 61850 SCL files (SCD, ICD, CID, IID, SSD) in the browser, design the station network, check GOOSE and sampled-value traffic in Wireshark captures against the standard, and learn IEC 61850 on a live virtual substation.",
     icon: "Network",
     calculators: [
       { name: "IEC 61850 SCL Editor (SCL Studio)", description: "Open, view, validate and edit SCD, ICD, CID, IID and SSD files: substation single-line structure, IED data model, GOOSE and sampled-value publishers and subscribers, report control blocks, communication addressing, file compare and CID export. Files stay on your computer.", href: "/calculators/iec-61850-scl-editor", status: "live" },
       { name: "SCL NetStudio (IEC 61850 network design)", description: "Design the substation network: IP plan with VLSM, VLAN and multicast addressing for GOOSE/SV with switch port membership, bandwidth per port, GOOSE transfer time against TT classes, PRP/HSR sizing, PTP time-error budget, IEC 62443 firewall zones and a switch-port and cable schedule, a network asset register and a capture analyser to verify on site.", href: "/calculators/scl-netstudio", status: "live" },
       { name: "GOOSE & Sampled Values Capture Analyzer", description: "Check a Wireshark capture (.pcap/.pcapng) against IEC 61850-8-1 and 9-2: addressing, stNum/sqNum, time allowed to live, retransmission, data-set consistency, flags, lost samples, sample rate and synchronisation — 86 checks with clause references, optional comparison with the SCD.", href: "/calculators/goose-sv-analyzer", status: "live" },
       { name: "61850 Academy (IEC 61850 training simulator)", description: "Learn IEC 61850 on a live virtual 132/33 kV substation: SCADA control with select-before-operate, interlocking, distance, differential and breaker-failure protection over GOOSE, LGOS supervision, buffered reports, test mode and VLAN faults. Ten guided labs with automatic step checks, a packet sniffer, an incident timeline and quizzes.", href: "/calculators/iec-61850-academy", status: "live" },
+    ],
+  },
+  {
+    id: "scada-it",
+    title: "SCADA Communications, Network & IT",
+    description:
+      "Plain-language tools for SCADA and commissioning engineers: why a laptop cannot reach an IED, what an ipconfig or ping output means, Windows error and event codes, SNMP, certificates, slow servers, IEC 104 and Modbus values, and a guided troubleshooting assistant that writes the ticket for the support team.",
+    icon: "Router",
+    calculators: [
+      { name: "SCADA Troubleshooting & Escalation Assistant", description: "Pick the symptom — no communication, IEC 104 drops, wrong time, slow workstation, logon problems, disk full, GOOSE not received — answer a few questions, and get the likely cause, the actions, the tool to use and a ready escalation ticket with the evidence to attach.", href: "/calculators/scada-troubleshooting-assistant", status: "live" },
+      { name: "Command Output Explainer (ipconfig, ping, route, netstat, w32tm)", description: "Paste the output of ipconfig /all, route print, arp -a, ping, tracert, netstat -ano, w32tm or nslookup and get it explained in plain language with the problems flagged: duplicate and link-local addresses, wrong gateways, which route is used, blocked ports, unsynchronised clocks.", href: "/calculators/command-output-explainer", status: "live" },
+      { name: "Windows Error & Event Code Explainer", description: "Meaning, typical causes on SCADA systems and what to check for Windows error codes (10060, 10061, 0x80070005, 1789 …) and event IDs (7031, 1129, 5719, 4625, DCOM 10016 …), covering network, time, domain logon, services, disks, DCOM/OPC DA and TLS.", href: "/calculators/windows-error-event-codes", status: "live" },
       { name: "SCADA Connectivity Assistant", description: "Can my laptop talk to the IED? Enter both IP addresses, masks and gateways: the assistant checks the addressing from both sides and explains in plain language whether they can talk directly, only through a router or not at all, finds one-way mask mismatches, duplicates and bad gateways, and suggests a working laptop address.", href: "/calculators/scada-connectivity", status: "live" },
       { name: "Fibre-Optic Link Budget", description: "Power budget of 100BASE-FX/LX10 and 1000BASE-SX/LX/LX10/ZX transceivers against fibre, connector and splice loss (TIA-568.3-D) with a safety margin, the IEEE 802.3 reach limit for OS2 and OM1–OM4 fibre, receiver overload and maximum link length.", href: "/calculators/fibre-link-budget", status: "live" },
       { name: "IP Address Register Checker", description: "Paste or open the IP address list of a substation or SCADA network: finds duplicate IPs, MACs and names, network or broadcast addresses, gateways outside their subnet, mixed masks per VLAN and overlapping subnets, with line numbers and CSV export.", href: "/calculators/ip-register-checker", status: "live" },
@@ -78,6 +90,9 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
       { name: "SCADA Value Converter (Modbus, IEC 104, IEC 61850)", description: "Two Modbus registers to float or 32-bit integer in all four byte orders, register notation to protocol address, IEC 104 normalised and short-float values, the CP56Time2a time tag, and IEC 104 / IEC 61850 quality bits.", href: "/calculators/scada-value-converter", status: "live" },
       { name: "IEC 60870-5-104 Parameter Checker", description: "Check k, w and the timers t0–t3 of an IEC 104 link against the standard's rules (w ≤ 2/3 k, t2 < t1, ranges) and against the round-trip time and bit rate of slow, radio or satellite links.", href: "/calculators/iec-104-parameter-checker", status: "live" },
       { name: "Serial Line & Polling Cycle Calculator", description: "Character time, Modbus RTU t1.5/t3.5 gaps, request and response times and the polling cycle for N devices on RS-485, radio or WAN links, compared with the required SCADA scan time.", href: "/calculators/serial-polling-calculator", status: "live" },
+      { name: "SNMP Helper (OID decoder, snmpwalk analyser, SNMPv3)", description: "Decode OIDs of the common MIBs, paste an snmpwalk from a switch for a port table with down links, CRC errors, duplex mismatches and spanning-tree changes, and check SNMPv3 security settings.", href: "/calculators/snmp-helper", status: "live" },
+      { name: "Certificate Inspector (OPC UA, TLS, IEC 62351)", description: "Open a certificate to see subject, issuer, expiry, key, signature, names and usages, with checks for expiry, weak algorithms, name mismatches, OPC UA ApplicationUri and chain order; SHA-1 thumbprint and SHA-256 fingerprint.", href: "/calculators/certificate-inspector", status: "live" },
+      { name: "Performance & Disk Log Analyser", description: "Open a Performance Monitor CSV from a SCADA server or HMI: CPU, memory, disk latency, free space, network and the busiest processes judged against stated thresholds, with memory-leak detection.", href: "/calculators/performance-log-analyser", status: "live" },
     ],
   },
   {

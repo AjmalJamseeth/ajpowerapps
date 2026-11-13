@@ -8,7 +8,7 @@ import type { WorkedExample } from "./types";
 export const NETWORKING_EXAMPLES: WorkedExample[] = [
   {
     slug: "laptop-cannot-ping-ied-subnet-mask-mismatch",
-    groupId: "iec-61850",
+    groupId: "scada-it",
     calculatorHref: "/calculators/scada-connectivity",
     calculatorName: "SCADA Connectivity Assistant",
     title: "Worked Example: Laptop Cannot Ping the IED — a One-Way Subnet Mask Mismatch",
@@ -69,7 +69,7 @@ export const NETWORKING_EXAMPLES: WorkedExample[] = [
   },
   {
     slug: "fibre-link-budget-1000base-lx-3-km-single-mode",
-    groupId: "iec-61850",
+    groupId: "scada-it",
     calculatorHref: "/calculators/fibre-link-budget",
     calculatorName: "Fibre-Optic Link Budget Calculator",
     title: "Worked Example: Fibre Link Budget for a 3.2 km 1000BASE-LX Link Between Substations",
@@ -138,7 +138,7 @@ export const NETWORKING_EXAMPLES: WorkedExample[] = [
   },
   {
     slug: "substation-ip-address-register-check-duplicates-overlaps",
-    groupId: "iec-61850",
+    groupId: "scada-it",
     calculatorHref: "/calculators/ip-register-checker",
     calculatorName: "IP Address Register Consistency Checker",
     title: "Worked Example: Checking a Substation IP Address Register Before Configuration",

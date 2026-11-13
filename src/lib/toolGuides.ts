@@ -195,6 +195,249 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/scada-troubleshooting-assistant": {
+    what: "A guided troubleshooting assistant: it asks the questions an experienced engineer would ask, in the right order, and ends with the likely cause, what to do, the tool to use and — when another team must act — a ready escalation ticket.",
+    can: [
+      "Guide seven common symptoms: no communication with a device, IEC 104 drops, wrong time, slow workstation, logon and domain problems, disk full, GOOSE not received.",
+      "Explain why each question matters and what each answer means.",
+      "Give the likely cause with the actions and links to the right tool.",
+      "Write an escalation ticket with site details, the checks made, the likely cause, a precise request and an evidence checklist.",
+    ],
+    why: [
+      "Support requests from site often wait because they arrive without basic checks or evidence and go back and forth.",
+      "Following a fixed order of checks avoids skipping the simple causes (cable, address, VLAN) that cause most problems.",
+    ],
+    understand: [
+      "The assistant cannot see your network; it relies on your answers. Make each check before answering.",
+      "Work from the bottom up: physical link, addressing, Ethernet (ARP), IP (ping), then the service port and the application.",
+      "A conclusion is the most likely cause given your answers, not a certainty; confirm it with the evidence it lists.",
+    ],
+    need: [
+      "Access to the device, the laptop or server, and the ability to run basic commands (ipconfig, ping, arp, netstat, w32tm).",
+      "The device's expected IP address, VLAN and switch port from the IP register or SCD.",
+      BROWSER,
+    ],
+    use: [
+      "Choose the symptom card that matches the problem.",
+      "Answer each question after making the check it describes; use Back to change an answer.",
+      "Read the likely cause, do the actions you can, and use the linked tools.",
+      "If escalation is needed, fill in the site fields, replace the <placeholders>, and copy or download the ticket with the evidence attached.",
+    ],
+    output: ["The path of questions and answers, the likely cause and actions, the tools to use, and an escalation ticket as text."],
+    interpret: [
+      "Red results are faults to fix; amber results are probable causes to confirm; green means the area checked is healthy and the problem lies elsewhere.",
+      "If the actions do not fix it, go back one question and check your answer again before escalating.",
+    ],
+    basis: [
+      "Layered troubleshooting order (physical, link, network, transport, application) and the behaviour of ARP, ICMP and TCP (RFC 826, 792, 9293).",
+      "IEC 60870-5-104 link timers, IEC 61850-8-1 GOOSE subscription and supervision, Windows Time, Group Policy and Netlogon behaviour.",
+    ],
+    limits: [
+      "Covers the common causes, not every possible fault; rare or vendor-specific faults need the vendor.",
+      "It does not test anything itself.",
+    ],
+  },
+
+  "/calculators/command-output-explainer": {
+    what: "An explainer for the output of the Windows network and time commands that support teams ask for: it reads the text you paste and explains it in plain language, with the problems it shows.",
+    can: [
+      "Recognise ipconfig /all, route print, arp -a, ping, tracert, netstat -ano, w32tm /query /status, w32tm /stripchart and nslookup automatically.",
+      "Flag duplicate and link-local addresses, gateways outside the subnet, several default gateways, VPN and Wi-Fi conflicts and overlapping adapters.",
+      "Show which route Windows uses for an address, what 'Destination host unreachable' and time-outs really mean, blocked ports (SYN_SENT), connection leaks and exposed services.",
+      "Judge the Windows time service: unsynchronised, local clock, host time provider, dispersion and measured offset.",
+    ],
+    why: [
+      "These outputs contain the answer to most site communication problems, but they are hard to read without network experience.",
+      "Understanding them yourself turns 'please help' into 'the laptop has two default gateways' — fixed in minutes, or escalated precisely.",
+    ],
+    understand: [
+      "Each command shows one layer: ipconfig the adapter settings, route print the routing decision, arp the Ethernet neighbours, ping and tracert IP reachability, netstat the connections, w32tm the clock.",
+      "A message 'Reply from' your own address is not a reply from the target.",
+      "Command outputs are snapshots; repeat them while the problem is happening.",
+    ],
+    need: [
+      "The output of the command, copied from Command Prompt (select and press Enter, or add | clip to the command). English-language Windows output is recognised.",
+      "For route print: the address you want to reach.",
+      BROWSER,
+    ],
+    use: [
+      "Run the command (the list on the page shows each one and what it is for) and paste the output.",
+      "Leave 'Detect automatically' or choose the command if it is not recognised.",
+      "Read 'What it says' first, then the values and the table read from the output.",
+      "Follow the next steps; paste the next command's output to continue.",
+    ],
+    output: ["A summary, findings marked Problem, Check, Note or OK, the key values and a table of what was read, and suggested next steps."],
+    interpret: [
+      "Problems explain a failure on their own (a duplicate address, a gateway outside the subnet, an unsynchronised clock); fix them first.",
+      "Checks are conditions that often cause problems (two default gateways, VPN connected); confirm whether they apply to your case.",
+    ],
+    basis: [
+      "IPv4 addressing and routing (RFC 791, 950, 1122): longest-prefix match, then lowest metric.",
+      "ICMP messages (RFC 792), ARP (RFC 826), link-local addresses (RFC 3927), TCP states (RFC 9293), NTP as used by the Windows Time service (RFC 5905).",
+      "TTL interpretation (64 / 128 / 255 starting values) is labelled as a rule of thumb.",
+    ],
+    limits: [
+      "Reads only the text pasted; it cannot see the network or the time of the test.",
+      "Non-English Windows output may not be recognised.",
+      "IPv6 lines are ignored.",
+    ],
+  },
+
+  "/calculators/windows-error-event-codes": {
+    what: "A reference of the Windows error codes and event IDs most often met on SCADA servers, historians and engineering workstations, each explained with typical causes and what to check.",
+    can: [
+      "Find an entry by decimal or hex number, symbolic name or word; a Win32 code entered as 0x8007xxxx is found too.",
+      "Filter by area: network, time, domain logon, services and crashes, disk, DCOM/OPC DA, TLS, security, hardware.",
+      "Explain logon failure sub-status codes and Kerberos errors.",
+    ],
+    why: [
+      "Problems first appear as an error number or an event ID; knowing what it means points straight at the cause.",
+      "Many codes look alike but mean opposite things (10060 timed out versus 10061 refused).",
+    ],
+    understand: [
+      "Event IDs are only unique together with their source: event 47 from Time-Service and event 47 from WHEA-Logger are different.",
+      "Some events are normal or harmless on their own (7036 service state change, many DCOM 10016); look at the time and the surrounding events.",
+    ],
+    need: ["The error number or the event ID and source from Event Viewer (System, Application or Security log).", BROWSER],
+    use: [
+      "Type the number exactly as shown, or a word from the message.",
+      "Check that the source of the entry matches the event's source in Event Viewer.",
+      "Read the causes and checks, and compare with the events logged at the same time.",
+    ],
+    output: ["Matching entries with meaning, typical causes on a SCADA system and what to check."],
+    interpret: [
+      "Use the 'what to check' list in order; the first items are the most common causes.",
+      "Correlate by time: a 7031 crash is explained by the Application Error 1000 logged a moment earlier.",
+    ],
+    basis: [
+      "Microsoft-documented Win32, HRESULT and Windows Sockets error codes; Windows event IDs of Service Control Manager, Kernel-Power, disk, Ntfs, Time-Service, GroupPolicy, NETLOGON, DistributedCOM, Schannel and Security auditing; Kerberos errors (RFC 4120).",
+    ],
+    limits: [
+      "A selection, not the complete Microsoft list. The event text and Microsoft's documentation remain the reference.",
+      "Vendor-specific SCADA application codes are not included.",
+    ],
+  },
+
+  "/calculators/snmp-helper": {
+    what: "A helper for SNMP: an OID decoder, an analyser for snmpwalk output from switches and devices, and an SNMPv3 settings check.",
+    can: [
+      "Decode common OIDs (system, interfaces, EtherLike, bridge, VLAN, LLDP, entity, host resources, standard traps) and identify vendor OIDs.",
+      "Turn an snmpwalk into a port table and flag down links, CRC errors, duplex mismatches, 10 Mb/s links, output discards and spanning-tree changes; list LLDP neighbours.",
+      "Assess SNMPv3 security level and protocols and list what both ends must match.",
+    ],
+    why: [
+      "Switch port counters reveal most cabling and port faults without waiting for the network team.",
+      "SNMP configuration errors (wrong version, user or protocol) are a common reason monitoring shows devices as down.",
+    ],
+    understand: [
+      "Interface counters are totals since the last reset: compare two readings some minutes apart to see whether errors are still rising.",
+      "An OID ends with an instance: .0 for single values, the interface index for table rows.",
+      "SNMPv1/v2c communities travel in clear text; SNMPv3 authPriv authenticates and encrypts.",
+    ],
+    need: [
+      "An snmpwalk of the device (from the management system or a read-only command such as snmpwalk -v2c -c <community> <address> 1.3.6.1.2.1), in named or numeric form.",
+      "Or an OID from a trap, alarm or manual.",
+      BROWSER,
+    ],
+    use: [
+      "Paste an OID to see what it is.",
+      "Paste an snmpwalk (or load the sample switch) and read the port table and findings.",
+      "Choose the SNMPv3 settings planned for the switch and the management system and read the assessment.",
+    ],
+    output: ["The OID meaning and instance; device information, port table, LLDP neighbours and findings; an SNMPv3 assessment."],
+    interpret: [
+      "Rising CRC errors on one port: replace the patch cord or SFP, then check again.",
+      "Half duplex or late collisions: fix negotiation on both ends.",
+      "Output discards: the port is congested — check the traffic (multicast filtering, bandwidth).",
+    ],
+    basis: ["SNMPv2-MIB, IF-MIB (RFC 2863), EtherLike-MIB (RFC 3635), BRIDGE-MIB (RFC 4188), Q-BRIDGE-MIB (RFC 4363), LLDP-MIB (IEEE 802.1AB), ENTITY-MIB (RFC 6933), HOST-RESOURCES-MIB (RFC 2790), SNMPv3 USM (RFC 3414), AES (RFC 3826), SHA-2 (RFC 7860)."],
+    limits: [
+      "It does not poll devices (a browser cannot send SNMP); it analyses output you paste.",
+      "Vendor-private OIDs need the vendor's MIB file.",
+    ],
+  },
+
+  "/calculators/certificate-inspector": {
+    what: "A certificate viewer and checker for OPC UA, HTTPS, VPN and IEC 62351 certificates, working entirely in the browser.",
+    can: [
+      "Read PEM (single or chain) and DER certificate files.",
+      "Show subject, issuer, validity, key, signature, key usages, extended key usages, alternative names, key identifiers, CRL locations, SHA-1 thumbprint and SHA-256 fingerprint.",
+      "Check expiry, not-yet-valid, SHA-1/MD5 signatures, short RSA keys, self-signed status, name or IP mismatch, OPC UA ApplicationUri and key usages, and chain order.",
+    ],
+    why: [
+      "Secure connections fail with vague errors when a certificate expires, is not trusted, or does not match the name or ApplicationUri.",
+      "Certificate expiry is a common cause of sudden OPC UA or HTTPS outages; knowing the dates lets you renew in time.",
+    ],
+    understand: [
+      "A certificate binds a public key to names, signed by an issuer; clients trust it if they trust the issuer — or this exact certificate when it is self-signed.",
+      "Modern TLS clients check the subject alternative names, not the CN.",
+      "OPC UA clients compare the URI in the certificate with the server's ApplicationUri.",
+    ],
+    need: [
+      "The certificate only (.cer, .crt, .der, .pem) — never the private key. Export it from the Windows certificate manager or the OPC UA application's PKI folder.",
+      BROWSER,
+    ],
+    use: [
+      "Open the file or paste the PEM text (or load the sample).",
+      "Choose what the certificate is for: OPC UA, TLS server or general; for TLS enter the name or address clients use.",
+      "Read the checks, then the details; note the expiry date and thumbprint for the asset register.",
+    ],
+    output: ["Checks marked Problem, Check, Note or OK, and the full certificate details with thumbprints."],
+    interpret: [
+      "Expired or soon-expiring: renew and distribute the new certificate to every system that trusts it before the date.",
+      "Name or URI mismatch: reissue with the correct names; changing the client's connection name to match is a workaround only.",
+      "SHA-1 or short keys: reissue — current clients may already reject it.",
+    ],
+    basis: ["X.509 v3 (RFC 5280) parsed with ASN.1 DER rules; TLS server identity checks (RFC 6125); OPC UA application instance certificate conventions (OPC 10000-4 and -6); fingerprints computed with the browser's Web Crypto API."],
+    limits: [
+      "It does not check revocation (CRL/OCSP) or validate signatures against a trust store.",
+      "Password-protected .pfx/.p12 files are not read.",
+    ],
+  },
+
+  "/calculators/performance-log-analyser": {
+    what: "An analyser for Windows Performance Monitor logs from SCADA servers, HMIs and historians, that turns counters into a verdict on CPU, memory, disk, network and processes.",
+    can: [
+      "Read CSV logs from typeperf, relog or a Data Collector Set.",
+      "Give min, average, maximum and 95th percentile per counter and the share of time above warning and critical levels.",
+      "List the busiest processes and the processes whose memory keeps growing.",
+      "Provide the counter list and the typeperf command to record the log.",
+    ],
+    why: [
+      "'Slow' has many causes; a log shows which resource is saturated and when, instead of guessing.",
+      "A leaking process or an antivirus scan during operation is easy to see in a log and hard to see any other way.",
+    ],
+    understand: [
+      "Short peaks are normal; what matters is how long a counter stays above its level.",
+      "Disk latency (seconds per read or write) shows a slow disk better than disk queue length.",
+      "Process CPU in Performance Monitor is per core (it can exceed 100 %); the analyser divides by the number of cores.",
+    ],
+    need: [
+      "A Performance Monitor log in CSV, recorded during the slow period (the page gives the counter file and the typeperf command).",
+      "The number of CPU cores and the installed RAM of the computer.",
+      BROWSER,
+    ],
+    use: [
+      "Download counters.txt, run the typeperf command on the server during the slow period, and copy the CSV.",
+      "Open the CSV and enter the cores and RAM.",
+      "Read the findings, then the busiest processes and the counter table.",
+    ],
+    output: ["Findings by area, busiest processes, memory growth and a table of every counter with its statistics and rule."],
+    interpret: [
+      "A resource above its critical level for a large share of the time is the bottleneck; fix it first.",
+      "If nothing exceeds its level, the delay is probably in the application or a remote server.",
+    ],
+    basis: [
+      "Rules of thumb stated with each counter: CPU above 80 / 90 %, processor queue above 2 per core, available memory below 10 % of RAM, committed memory above 80 %, disk latency above 20 / 50 ms, available disk space below 15 / 5 %, network above 70 % of the link speed.",
+      "Memory growth: a positive least-squares trend with at least 30 % and 100 MB growth over the log.",
+    ],
+    limits: [
+      "Thresholds are guidance; follow the vendor's sizing requirements where they differ.",
+      "Short logs can mislead; record several hours.",
+      ".blg files must be converted to CSV first (relog file.blg -f csv -o file.csv).",
+    ],
+  },
+
   "/calculators/mac-frame-decoder": {
     what: "A decoder for MAC addresses and the first bytes of an Ethernet frame, tuned to substation traffic: GOOSE, sampled values, PTP, PRP/HSR, MRP, spanning tree and IP multicast.",
     can: [

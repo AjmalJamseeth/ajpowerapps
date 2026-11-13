@@ -27,10 +27,18 @@ export const CATEGORY_PAGES: Record<string, CategoryPage> = {
   },
   "iec-61850": {
     slug: "iec-61850",
-    title: "IEC 61850 & SCADA Tools – SCL, GOOSE, Networks",
+    title: "IEC 61850 Tools – SCL, SCD, GOOSE & Network Design",
     intro: [
-      "Tools for substation automation and SCADA engineers. SCL Studio opens, validates and edits SCD, ICD, CID, IID and SSD files; SCL NetStudio designs the station network; the GOOSE & SV Capture Analyzer checks Wireshark captures against the standard; and 61850 Academy teaches IEC 61850 on a live virtual substation.",
-      "For everyday site problems: the SCADA Connectivity Assistant explains why a laptop cannot reach an IED, the IP Address Register Checker finds duplicates and wrong masks before they reach site, and the Fibre-Optic Link Budget checks fibre links. Every tool explains its method and limits, and files never leave your computer.",
+      "Tools for substation automation engineers. SCL Studio opens, validates and edits SCD, ICD, CID, IID and SSD files; SCL NetStudio designs the station network; the GOOSE & SV Capture Analyzer checks Wireshark captures against the standard; and 61850 Academy teaches IEC 61850 on a live virtual substation.",
+      "For network, Windows and protocol problems on site, see SCADA Communications, Network & IT. Every tool explains its method and limits, and files never leave your computer.",
+    ],
+  },
+  "scada-it": {
+    slug: "scada-communications-it",
+    title: "SCADA Communications, Network & IT Tools",
+    intro: [
+      "Tools for the network, Windows and protocol questions SCADA engineers meet every day — written so that an engineer without an IT background can diagnose the common problems and escalate the rest with evidence.",
+      "Start with the Troubleshooting & Escalation Assistant, read command outputs with the Command Output Explainer, look up error and event codes, check addressing, registers, fibre links, SNMP counters and certificates, and convert Modbus and IEC 104 values. Everything runs in your browser; nothing is uploaded.",
     ],
   },
   cables: {

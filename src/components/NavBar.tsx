@@ -17,6 +17,7 @@ import {
   Building2,
   CircuitBoard,
   Network,
+  Router,
   ChevronDown,
   GraduationCap,
   BookOpen,
@@ -42,6 +43,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   Building2,
   CircuitBoard,
   Network,
+  Router,
 };
 
 export default function NavBar() {

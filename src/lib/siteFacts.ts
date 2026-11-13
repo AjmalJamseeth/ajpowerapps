@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 940;
+export const AUTOMATED_CHECKS = 955;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,18 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "SCADA Communications, Network & IT",
+    items: [
+      "New category, SCADA Communications, Network & IT, with a guide: Network and IT Basics for SCADA Engineers.",
+      "New: SCADA Troubleshooting & Escalation Assistant — seven guided symptoms ending in the likely cause, actions, tools and a ready escalation ticket.",
+      "New: Command Output Explainer for ipconfig /all, route print, arp -a, ping, tracert, netstat -ano, w32tm and nslookup.",
+      "New: Windows Error & Event Code Explainer for network, time, domain, service, disk, DCOM/OPC DA, TLS and security codes.",
+      "New: SNMP Helper (OID decoder, snmpwalk port analysis, SNMPv3 check), Certificate Inspector (OPC UA, TLS, IEC 62351) and Performance & Disk Log Analyser.",
+      "The SCADA connectivity, IP register, fibre budget, MAC decoder, value converter, IEC 104 and serial polling tools moved to the new category.",
+    ],
+  },
   {
     date: "November 2026",
     title: "SCADA helpers, sample files, NetStudio and SCL Studio links",

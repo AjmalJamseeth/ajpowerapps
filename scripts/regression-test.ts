@@ -24,6 +24,13 @@ import * as SC from "../src/lib/scadaconvert";
 import { checkIec104, IEC104_DEFAULTS } from "../src/lib/iec104params";
 import { calcSerial, SERIAL_DEFAULTS } from "../src/lib/serialpoll";
 import { SAMPLE_FILES } from "../src/lib/samples";
+import { explain as cmdExplain, detect as cmdDetect, pickRoute } from "../src/lib/cmdexplain";
+import { CMD_SAMPLES } from "../src/lib/cmdsamples";
+import { searchCodes, CODES } from "../src/lib/errorcodes";
+import { TREES, ticketText } from "../src/lib/troubleshoot";
+import { decodeOid, analyseWalk, SAMPLE_WALK } from "../src/lib/snmphelper";
+import { loadCerts, parseCert, checkCert, SAMPLE_CERT } from "../src/lib/certinspect";
+import { parsePerfCsv, analysePerf, sampleCsv } from "../src/lib/perflog";
 import { existsSync } from "fs";
 import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
 import { calcScadaConnect, DEFAULT_SCADA_CONNECT_INPUT } from "../src/lib/scadaconnect";
@@ -2709,6 +2716,37 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Phase B — command output explainer");
+  const keys = Object.keys(CMD_SAMPLES) as (keyof typeof CMD_SAMPLES)[];
+  assertTrue("Every example output is recognised as its own command", keys.every((k) => cmdDetect(CMD_SAMPLES[k]) === k));
+  const ipc = cmdExplain(CMD_SAMPLES.ipconfig)!;
+  assertTrue("ipconfig: gateway outside subnet, link-local address and two default gateways flagged", ipc.findings.some((f) => f.sev === "error" && /outside the adapter's subnet/.test(f.text)) && ipc.findings.some((f) => /169\.254/.test(f.text)) && ipc.findings.some((f) => /2 connected adapters have a default gateway/.test(f.text)));
+  const pg = cmdExplain(CMD_SAMPLES.ping)!;
+  assertTrue("ping: 'Destination host unreachable' from own address is not a reply, despite 0 % loss", pg.findings.some((f) => f.sev === "error" && /not from the target/.test(f.text) && /counts these messages/.test(f.text)));
+  const rt = cmdExplain(CMD_SAMPLES.route, "route", "10.13.0.50")!;
+  assertTrue("route print: 10.13.0.50 goes On-link through 10.13.0.200; two default routes warned", rt.facts.some((f) => /On-link/.test(f.value) && /10\.13\.0\.200/.test(f.value)) && rt.findings.some((f) => /2 default routes/.test(f.text)));
+  assertTrue("netstat: SYN_SENT to MMS port 102 flagged", cmdExplain(CMD_SAMPLES.netstat)!.findings.some((f) => f.sev === "error" && /SYN_SENT/.test(f.text) && /102/.test(f.text)));
+  assertTrue("w32tm: Local CMOS Clock flagged as not synchronised; stripchart offset −1842.5 ms (ahead)", cmdExplain(CMD_SAMPLES.w32tm)!.findings.some((f) => f.sev === "error" && /Local CMOS Clock/.test(f.text)) && cmdExplain(CMD_SAMPLES.stripchart)!.findings.some((f) => /1842\.5 ms ahead/.test(f.text)));
+}
+
+{
+  section("Phase B — error codes, troubleshooting, SNMP, certificates, performance");
+  assertTrue("10061 → refused, 0x8007052E → 1326 logon failure, 1129 → Group Policy", /refused/.test(searchCodes("10061")[0].title) && searchCodes("0x8007052E")[0].codes.includes("1326") && searchCodes("1129")[0].source.includes("GroupPolicy"));
+  assertTrue("Every code entry has meaning, causes and checks", CODES.length >= 80 && CODES.every((c) => c.meaning && c.causes.length && c.check.length));
+  assertTrue("Every troubleshooting path ends in a defined result", TREES.length >= 7 && TREES.every((t) => !!t.nodes[t.start] && Object.values(t.nodes).every((n) => n.options.every((o) => (o.next && t.nodes[o.next]) || (o.result && t.results[o.result])))));
+  const tk = ticketText(TREES[0], [{ node: "link", q: "Q", answer: "A" }], "blocked", { Site: "S13" });
+  assertTrue("Ticket text carries site, checks, cause, request and evidence", /Site: S13/.test(tk) && /Checks done/.test(tk) && /Request to/.test(tk) && /Evidence attached/.test(tk));
+  assertTrue("OID 1.3.6.1.2.1.2.2.1.8.3 = ifOperStatus, instance 3; 1.3.6.1.4.1.9 = Cisco", decodeOid("1.3.6.1.2.1.2.2.1.8.3").def?.name === "ifOperStatus" && decodeOid("1.3.6.1.2.1.2.2.1.8.3").instance === "3" && decodeOid(".1.3.6.1.4.1.9.9.13").enterprise === "Cisco");
+  const sw = analyseWalk(SAMPLE_WALK);
+  assertTrue("Sample walk: port 4 duplex mismatch and CRC errors, port 2 down, 5 ports", sw.ifs.length === 5 && sw.findings.some((f) => f.sev === "error" && /port4/.test(f.text) && /duplex mismatch/.test(f.text)) && sw.findings.some((f) => /port2/.test(f.text) && /down/.test(f.text)));
+  const cert = parseCert(loadCerts(SAMPLE_CERT)[0]);
+  assertTrue("Sample certificate: RSA 2048, SHA-256, OPC UA URI and IP in SAN, 4 key usages", cert.keySize === "2048 bit" && cert.sigAlg === "sha256WithRSAEncryption" && cert.san.some((x) => x.type === "URI") && cert.san.some((x) => x.type === "IP" && x.value === "10.13.0.20") && cert.keyUsage.length === 4);
+  assertTrue("Certificate checks: expiry warning at 19 days, IP match for TLS", checkCert(cert, "opcua", new Date("2026-11-13T20:00:00Z")).some((x) => x.sev === "warning" && /19 day/.test(x.text)) && checkCert(cert, "tls-server", new Date("2026-11-13T20:00:00Z"), "10.13.0.20").some((x) => x.sev === "ok" && /matches/.test(x.text)));
+  const pr = analysePerf(parsePerfCsv(sampleCsv())!, { cores: 4, ramGB: 16 });
+  assertTrue("Sample performance log: CPU critical, disk read latency critical, historian memory growth, antivirus busiest", pr.findings.some((f) => f.area === "CPU" && f.sev === "error") && pr.findings.some((f) => f.area === "Disk" && f.sev === "error" && /read/.test(f.text)) && pr.growth.some((g) => g.name === "historian") && pr.topCpu[0].name === "MsMpEng");
+}
+
+{
   section("Sample files and app hand-over");
   const liveS = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
   assertTrue("Every sample file exists in public/samples and opens in a live tool", SAMPLE_FILES.length >= 6 && SAMPLE_FILES.every((f) => existsSync(`public/samples/${f.file}`) && f.openIn.every((o) => liveS.has(o.href))));
@@ -2738,7 +2776,7 @@ section("Worked examples (November 2026)");
 {
   section("Site search index");
   const idx = buildSearchIndex();
-  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 12 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);
+  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 13 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);
 }
 
 section("Published figures");

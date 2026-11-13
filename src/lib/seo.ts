@@ -37,6 +37,30 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/scada-troubleshooting-assistant": {
+    title: "SCADA Troubleshooting Guide – No Comms, IEC 104, Time, GOOSE",
+    description: "Step-by-step SCADA troubleshooting: no communication with an IED, IEC 104 link drops, wrong time, slow HMI, logon and domain problems, disk full, GOOSE not received — with a ready escalation ticket.",
+  },
+  "/calculators/command-output-explainer": {
+    title: "ipconfig, ping, route & netstat Output Explained – Online",
+    description: "Paste ipconfig /all, ping, tracert, route print, arp -a, netstat -ano, w32tm or nslookup output and get it explained in plain language with problems flagged: duplicate IP, APIPA, wrong gateway, blocked ports.",
+  },
+  "/calculators/windows-error-event-codes": {
+    title: "Windows Error & Event ID Lookup – 10060, 10061, 7031, 1129",
+    description: "Meaning, causes and checks for Windows error codes and event IDs on SCADA servers: WinSock 10060/10061, 0x80070005, 1789 trust failure, 7031, 1129, 5719, 4625, DCOM 10016, Schannel, Time-Service.",
+  },
+  "/calculators/snmp-helper": {
+    title: "SNMP OID Decoder & snmpwalk Analyser – Switch Port Errors",
+    description: "Decode SNMP OIDs (IF-MIB, BRIDGE, LLDP, ENTITY), analyse an snmpwalk of a switch for down links, CRC errors, duplex mismatch and spanning-tree changes, and check SNMPv3 settings.",
+  },
+  "/calculators/certificate-inspector": {
+    title: "X.509 Certificate Viewer Online – OPC UA & TLS Checker",
+    description: "Open a certificate (.cer, .crt, .pem, .der) to see subject, issuer, expiry, key, SAN and usages, with checks for expiry, SHA-1, name mismatch, OPC UA ApplicationUri and thumbprint. Nothing uploaded.",
+  },
+  "/calculators/performance-log-analyser": {
+    title: "Performance Monitor Log Analyser – CPU, Memory, Disk Latency",
+    description: "Analyse a Windows Performance Monitor CSV from a SCADA server: CPU, memory, disk latency, free space, network and busiest processes against stated thresholds, with memory-leak detection.",
+  },
   "/calculators/mac-frame-decoder": {
     title: "MAC Address & GOOSE Frame Decoder – APPID, VLAN, OUI",
     description: "Decode a MAC address or Ethernet frame online: IEC 61850 GOOSE and SV multicast, PTP, PRP/HSR, VLAN tag and priority, EtherType, APPID range check, GOOSE stNum/sqNum and manufacturer OUI lookup.",
