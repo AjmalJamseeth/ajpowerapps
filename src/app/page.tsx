@@ -4,49 +4,17 @@ import SiteSearch from "@/components/SiteSearch";
 import { buildSearchIndex } from "@/lib/searchIndex";
 import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
-import {
-  ShieldCheck,
-  Cable,
-  Zap,
-  Waypoints,
-  Activity,
-  CircleGauge,
-  BatteryCharging,
-  Gauge,
-  Sun,
-  Building2,
-  CircuitBoard,
-  Network,
-  Router,
-  ClipboardCheck,
-  type LucideIcon,
-} from "lucide-react";
+import { GROUP_ICONS } from "@/components/groupIcons";
+import { DOMAIN_LIST, groupsOf, suitesOf, liveCount, domainOfHref } from "@/lib/domains";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
 import { SITE_URL, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
-import { SUITES } from "@/lib/suites";
 import { BUILD_LABEL } from "@/lib/buildInfo";
 import { PowerNetMotif } from "@/components/PowerNetMotif";
 import { TraceDivider } from "@/components/TraceDivider";
 
 export const metadata = { ...pageMeta("/", "AJ Power Apps – Electrical & SCADA Engineering Calculators", "Electrical power, protection and SCADA engineering tools: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, IEC 61850 SCL and GOOSE tools, substation networks and more — every method explained. No signup."), title: { absolute: "AJ Power Apps – Electrical & SCADA Engineering Calculators" } };
 
-const GROUP_ICONS: Record<string, LucideIcon> = {
-  ShieldCheck,
-  Cable,
-  Zap,
-  Waypoints,
-  Activity,
-  CircleGauge,
-  BatteryCharging,
-  Gauge,
-  Sun,
-  Building2,
-  CircuitBoard,
-  Network,
-  Router,
-  ClipboardCheck,
-};
 
 const POPULAR: [string, string][] = [
   ["/calculators/idmt", "IDMT relay coordination calculator"],
@@ -65,6 +33,12 @@ const POPULAR: [string, string][] = [
   ["/calculators/rolling-sphere", "Rolling sphere method calculator"],
   ["/calculators/transformer-sizer", "Transformer sizing calculator"],
   ["/calculators/ct-sizing", "CT sizing & saturation calculator"],
+  ["/calculators/scl-netstudio", "IEC 61850 network design (SCL NetStudio)"],
+  ["/calculators/goose-troubleshooter", "GOOSE troubleshooter (why is my GOOSE not working?)"],
+  ["/calculators/scada-protocol-analyser", "IEC 104, Modbus & DNP3 capture analyser"],
+  ["/calculators/time-sync-analyser", "PTP & NTP time sync analyser"],
+  ["/calculators/scada-connectivity", "SCADA connectivity assistant"],
+  ["/calculators/windows-health-analyser", "Windows health analyser for SCADA servers"],
 ];
 
 const HOME_JSON_LD = [
@@ -117,12 +91,12 @@ export default function Home() {
             {TOTAL_LIVE_COUNT} tools · power · protection · IEC 61850 · SCADA
           </span>
           <h1 className="hero-title mt-6 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Electrical power and SCADA engineering — calculated, and explained.
+            Electrical power and SCADA engineering — two disciplines, calculated and explained.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
-            AJapps (AJ Power Apps) brings power-system design, protection, substation automation and SCADA networking together:
-            calculators and full engineering suites for protection coordination, cables, earthing, short circuit and arc flash,
-            IEC 61850 SCL, GOOSE and network design, and the IT and network checks SCADA engineers meet on site.
+            AJapps (AJ Power Apps) has two sections. Electrical Power Engineering: short circuit and arc flash, protection,
+            cables, earthing, transformers, power quality and fault records. SCADA, IEC 61850 &amp; Automation: SCL files, GOOSE and
+            sampled values, station networks, telecontrol protocols, time synchronisation and commissioning.
           </p>
           <p className="mt-3 max-w-xl text-sm text-muted">
             Every tool states what it does, what it needs from you, the standard, formula and assumptions behind each result, and
@@ -131,19 +105,15 @@ export default function Home() {
           <div className="mt-8">
             <SiteSearch items={buildSearchIndex()} />
           </div>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link
-              href="/calculators"
-              className="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-            >
-              Browse all calculators
-            </Link>
-            <a
-              href="#about"
-              className="rounded-md border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-accent-2/60 hover:text-accent-2"
-            >
-              What is AJapps? ↓
-            </a>
+          <div className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
+            {DOMAIN_LIST.map((d) => (
+              <Link key={d.id} href={d.href} className={`group rounded-xl border bg-surface/80 p-5 transition-colors ${d.id === "electrical" ? "border-accent/40 hover:border-accent" : "border-accent-2/40 hover:border-accent-2"}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>{d.kicker}</div>
+                <div className="mt-1 text-lg font-semibold text-foreground">{d.title}</div>
+                <div className="mt-1 text-sm text-muted">{liveCount(d.id)} tools · {groupsOf(d.id).length} categories · {suitesOf(d.id).length} suites</div>
+                <span className={`mt-3 inline-block text-sm font-semibold ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>Enter →</span>
+              </Link>
+            ))}
           </div>
 
           <div className="mt-10 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
@@ -166,30 +136,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Engineering suites */}
-      <section className="band-white border-b border-border">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <div className="kicker">Full applications</div>
-              <h2 className="mt-1 text-2xl font-semibold text-foreground">Engineering Suites</h2>
-              <p className="mt-1 max-w-2xl text-sm text-muted">Full applications for whole studies, running in your browser with nothing uploaded.</p>
-            </div>
-            <Link href="/suites" className="text-sm font-semibold text-accent-2 hover:underline">
-              All engineering suites →
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SUITES.map((s) => (
-              <Link key={s.href} href={s.href} className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent-2/60">
-                <div className="font-semibold text-foreground">{s.name}</div>
-                <p className="mt-2 text-sm text-muted">{s.tagline}</p>
-                <span className="mt-3 inline-block text-sm font-semibold text-accent-2">Open →</span>
+      {DOMAIN_LIST.map((d) => (
+        <section key={d.id} id={d.id} className={`border-b border-border ${d.id === "electrical" ? "band-white" : "bg-surface/40"}`}>
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <div className={`kicker ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>{d.kicker}</div>
+                <h2 className="mt-1 text-2xl font-semibold text-foreground">{d.title}</h2>
+                <p className="mt-1 max-w-3xl text-sm text-muted">{d.tagline}</p>
+              </div>
+              <Link href={d.href} className={`text-sm font-semibold hover:underline ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>
+                Open the {d.short} section →
               </Link>
-            ))}
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {suitesOf(d.id).map((s) => (
+                <Link key={s.href} href={s.href} className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent-2/60">
+                  <div className="text-xs text-muted">Engineering suite</div>
+                  <div className="font-semibold text-foreground">{s.name}</div>
+                  <p className="mt-2 text-sm text-muted">{s.tagline}</p>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {groupsOf(d.id).map((g) => {
+                const Icon = GROUP_ICONS[g.icon];
+                return (
+                  <Link key={g.id} href={categoryHref(g.id)} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface/70 px-4 py-3 transition-colors hover:border-accent/40">
+                    <span className="flex items-center gap-2.5">
+                      {Icon && <Icon className={`h-4 w-4 ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`} aria-hidden="true" />}
+                      <span className="text-sm font-medium text-foreground">{g.title}</span>
+                    </span>
+                    <span className="text-xs text-muted">{g.calculators.length}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       <TraceDivider />
 
@@ -270,50 +255,18 @@ export default function Home() {
 
       {/* Popular calculators — direct links help visitors and search engines reach the main tools */}
       <section className="mx-auto w-full max-w-6xl px-6 pt-20">
-        <h2 className="text-2xl font-semibold text-foreground">Popular calculators</h2>
-        <ul className="mt-6 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
-          {POPULAR.map(([href, label]) => (
-            <li key={href}>
-              <Link href={href} className="text-accent-2 hover:underline">
-                {label}
-              </Link>
-            </li>
+        <h2 className="text-2xl font-semibold text-foreground">Popular tools</h2>
+        <div className="mt-6 grid gap-10 sm:grid-cols-2">
+          {DOMAIN_LIST.map((d) => (
+            <div key={d.id}>
+              <h3 className={`text-sm font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>{d.title}</h3>
+              <ul className="mt-3 space-y-2 text-sm">
+                {POPULAR.filter(([href]) => (domainOfHref(href) ?? "electrical") === d.id).map(([href, label]) => (
+                  <li key={href}><Link href={href} className="text-foreground hover:underline">{label}</Link></li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
-      </section>
-
-      {/* Browse by category */}
-      <section id="calculators" className="mx-auto w-full max-w-6xl px-6 py-20">
-        <h2 className="text-2xl font-semibold text-foreground">Browse by category</h2>
-        <p className="mt-2 max-w-2xl text-muted">
-          {TOTAL_LIVE_COUNT} live calculators across {CALCULATOR_GROUPS.length}{" "}
-          categories — protection, cabling, earthing, transformers, power
-          quality, motors, backup power, instrumentation, renewables and
-          facilities. Each category page lists every calculator with a full
-          &ldquo;About this tool&rdquo; panel.
-        </p>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {CALCULATOR_GROUPS.map((g) => {
-            const Icon = GROUP_ICONS[g.icon];
-            return (
-              <Link
-                key={g.id}
-                href={categoryHref(g.id)}
-                className="group flex flex-col rounded-xl border border-border bg-surface p-6 transition-colors hover:border-accent/40"
-              >
-                <div className="flex items-center gap-2.5">
-                  {Icon && <Icon className="h-5 w-5 text-accent-2" aria-hidden="true" />}
-                  <h3 className="text-base font-semibold text-foreground">{g.title}</h3>
-                </div>
-                <p className="mt-2 flex-1 text-sm text-muted">{g.description}</p>
-                <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-muted">{g.calculators.length} {g.calculators.length === 1 ? "tool" : "calculators"}</span>
-                  <span className="font-semibold text-accent-2 group-hover:opacity-80">View category →</span>
-                </div>
-              </Link>
-            );
-          })}
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import NavBar from "@/components/NavBar";
+import { DOMAINS, domainOfGroup } from "@/lib/domains";
 import { JsonLd } from "@/components/JsonLd";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { CATEGORY_PAGES, categoryHref, groupIdForSlug } from "@/lib/categories";
@@ -57,7 +58,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           },
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
-            { name: "Calculators", path: "/calculators" },
+            { name: DOMAINS[domainOfGroup(id)].title, path: DOMAINS[domainOfGroup(id)].href },
             { name: group.title, path: categoryHref(id) },
           ]),
         ]}
@@ -66,7 +67,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       <div className="mx-auto w-full max-w-6xl px-6 py-12">
         <nav aria-label="Breadcrumb" className="text-xs text-muted">
           <Link href="/" className="hover:text-accent-2">Home</Link> ›{" "}
-          <Link href="/calculators" className="hover:text-accent-2">Calculators</Link> › <span className="text-foreground">{group.title}</span>
+          <Link href={DOMAINS[domainOfGroup(id)].href} className={domainOfGroup(id) === "electrical" ? "text-accent hover:underline" : "text-accent-2 hover:underline"}>{DOMAINS[domainOfGroup(id)].title}</Link> › <span className="text-foreground">{group.title}</span>
         </nav>
         <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">{page.title}</h1>
         {page.intro.map((p, i) => (

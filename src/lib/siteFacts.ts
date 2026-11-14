@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 1025;
+export const AUTOMATED_CHECKS = 1045;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Two sections: Electrical and SCADA — and Phase H tools",
+    items: [
+      "The site is now organised in two distinct sections with their own hubs, menus and colours: Electrical Power Engineering (/electrical) and SCADA, IEC 61850 & Automation (/scada). Every category, suite, guide and sample file belongs to one of them; tool URLs are unchanged.",
+      "New (SCADA): Commissioning Test Manager — FAT/SAT point-to-point steps from a signal list, results, IEC 104 evidence, punch list and printed report; Alarm Rationalisation Analyser (EEMUA 191 / ISA-18.2); Communication Availability Analyser (availability, MTBF, MTTR, common-cause outages).",
+      "New (Electrical): COMTRADE Viewer & Fault Analyser; Distance Protection Setting Assistant; Circuit Breaker Wear Analyser; Transformer Thermal Loading & Ageing (IEC 60076-7); Power Quality & Energy File Analyser (maximum demand, EN 50160).",
+      "New sample files: GW1 IEC 104 signal list, alarm journal, communication status log, a COMTRADE line-fault record, a load profile, a week of 33 kV PQ values, a breaker operations history and a transformer summer-day load.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Capture, time and incident diagnostics",

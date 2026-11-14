@@ -37,7 +37,10 @@ export const COMMISSIONING_GUIDE: GuideDoc = {
     { title: "Verify computers after the change", body: "Run the AJ Collector and compare the report with the baseline report.", calculatorHref: "/calculators/windows-health-analyser", calculatorName: "Windows Health Analyser" },
     { title: "Audit the switches", body: "Import the switch configuration exports, LLDP and MAC tables and fix every broken stream path, missing VLAN, untrusted priority and misplaced cable.", calculatorHref: "/calculators/scl-netstudio", calculatorName: "SCL NetStudio → Switch audit" },
     { title: "Check what is on the network", body: "Compare a scan of each subnet with the register and close unknown devices, MAC mismatches and unapproved services.", calculatorHref: "/calculators/discovery-result-checker", calculatorName: "Network Discovery Result Checker" },
+    { title: "Test point to point", body: "Turn the signal list into FAT/SAT test steps, record each result as you test and link the IEC 104 capture as evidence.", calculatorHref: "/calculators/commissioning-test-manager", calculatorName: "Commissioning Test Manager" },
     { title: "Hand over", body: "Record cable tests and lifecycle data and issue the handover pack from SCL NetStudio.", calculatorHref: "/calculators/scl-netstudio", calculatorName: "SCL NetStudio" },
+    { title: "Review the alarm load after energisation", body: "Measure the first weeks of the alarm journal against EEMUA 191 and fix chattering, standing and consequential alarms.", calculatorHref: "/calculators/alarm-rationalisation-analyser", calculatorName: "Alarm Rationalisation Analyser" },
+    { title: "Report communication availability", body: "Compute availability, MTBF and MTTR per link from the status log and find outages with a common cause.", calculatorHref: "/calculators/comm-availability-analyser", calculatorName: "Communication Availability Analyser" },
   ],
   commonMistakes: [
     { mistake: "Trusting file names and dates to identify the approved configuration.", whyItMatters: "Copies are renamed and dates change on copying; only the content fingerprint is certain." },

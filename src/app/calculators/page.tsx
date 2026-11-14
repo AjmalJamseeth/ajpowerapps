@@ -3,44 +3,13 @@ import { categoryHref } from "@/lib/categories";
 import NavBar from "@/components/NavBar";
 import SiteSearch from "@/components/SiteSearch";
 import { buildSearchIndex } from "@/lib/searchIndex";
-import {
-  ShieldCheck,
-  Cable,
-  Zap,
-  Waypoints,
-  Activity,
-  CircleGauge,
-  BatteryCharging,
-  Gauge,
-  Sun,
-  Building2,
-  CircuitBoard,
-  Network,
-  Router,
-  ClipboardCheck,
-  type LucideIcon,
-} from "lucide-react";
+import { GROUP_ICONS } from "@/components/groupIcons";
+import { DOMAIN_LIST, groupsOf, liveCount } from "@/lib/domains";
 import { CALCULATOR_GROUPS, ROADMAP_ITEMS, TOTAL_LIVE_COUNT, type CalcCard } from "@/lib/calculatorCatalog";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/calculators", `Electrical & SCADA Engineering Calculators (${TOTAL_LIVE_COUNT} Tools)`, "Standards-based electrical engineering calculators: IDMT relay coordination, arc flash, short circuit, cable sizing, earthing, transformers, motors, VFDs and more.");
 
-const GROUP_ICONS: Record<string, LucideIcon> = {
-  ShieldCheck,
-  Cable,
-  Zap,
-  Waypoints,
-  Activity,
-  CircleGauge,
-  BatteryCharging,
-  Gauge,
-  Sun,
-  Building2,
-  CircuitBoard,
-  Network,
-  Router,
-  ClipboardCheck,
-};
 
 function CalcTile({ c }: { c: CalcCard }) {
   return (
@@ -75,30 +44,32 @@ export default function CalculatorsIndex() {
       <div className="mx-auto w-full max-w-6xl px-6 py-16">
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Calculators</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          {TOTAL_LIVE_COUNT} standards-based electrical engineering tools,
-          organized into {CALCULATOR_GROUPS.length} categories. Jump to a
-          category or scroll through all of them below.
+          {TOTAL_LIVE_COUNT} tools in two sections — <Link href="/electrical" className="text-accent hover:underline">Electrical Power Engineering</Link> and{" "}
+          <Link href="/scada" className="text-accent-2 hover:underline">SCADA, IEC 61850 &amp; Automation</Link> — organized into {CALCULATOR_GROUPS.length} categories.
         </p>
         <div className="mt-6">
           <SiteSearch items={buildSearchIndex()} />
         </div>
 
         <div className="sticky top-16 z-10 -mx-6 mt-8 border-b border-border bg-background/95 px-6 py-3 backdrop-blur">
-          <div className="flex flex-wrap gap-2">
-            {CALCULATOR_GROUPS.map((g) => (
-              <a
-                key={g.id}
-                href={`#${g.id}`}
-                className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-medium text-muted transition-colors hover:border-accent-2/60 hover:text-accent-2"
-              >
-                {g.title}
-              </a>
-            ))}
-          </div>
+          {DOMAIN_LIST.map((d) => (
+            <div key={d.id} className="flex flex-wrap items-center gap-2 py-0.5">
+              <a href={`#${d.id}`} className={`mr-1 text-xs font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>{d.short}</a>
+              {groupsOf(d.id).map((g) => (
+                <a key={g.id} href={`#${g.id}`} className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-medium text-muted transition-colors hover:border-accent-2/60 hover:text-accent-2">{g.title}</a>
+              ))}
+            </div>
+          ))}
         </div>
 
-        <div className="mt-10 space-y-16">
-          {CALCULATOR_GROUPS.map((g) => {
+        {DOMAIN_LIST.map((d) => (
+          <div key={d.id} id={d.id} className="mt-14 scroll-mt-32">
+            <div className={`border-b pb-3 ${d.id === "electrical" ? "border-accent/40" : "border-accent-2/40"}`}>
+              <div className={`text-xs font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}>{d.kicker}</div>
+              <h2 className="mt-1 text-2xl font-semibold text-foreground"><Link href={d.href} className="hover:underline">{d.title}</Link> <span className="text-sm font-normal text-muted">· {liveCount(d.id)} tools</span></h2>
+            </div>
+            <div className="mt-10 space-y-16">
+          {groupsOf(d.id).map((g) => {
             const Icon = GROUP_ICONS[g.icon];
             return (
               <section key={g.id} id={g.id} className="scroll-mt-32">
@@ -124,7 +95,9 @@ export default function CalculatorsIndex() {
               </section>
             );
           })}
-        </div>
+            </div>
+          </div>
+        ))}
 
         <section className="mt-16 rounded-xl border border-dashed border-border bg-surface/40 p-6">
           <h2 className="text-base font-semibold text-foreground">Roadmap — not built yet</h2>

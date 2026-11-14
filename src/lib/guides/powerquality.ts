@@ -114,6 +114,12 @@ export const POWERQUALITY_GUIDE: GuideDoc = {
       calculatorHref: "/calculators/tariff",
       calculatorName: "Demand Charge / TOU Tariff",
     },
+    {
+      title: "Measure demand and EN 50160 compliance from the recorded files",
+      body: "Find the maximum demand and its cause in the meter's load profile, and check a week of 10-minute PQ values against EN 50160.",
+      calculatorHref: "/calculators/power-quality-energy-analyser",
+      calculatorName: "Power Quality & Energy File Analyser",
+    },
   ],
   commonMistakes: [
     {

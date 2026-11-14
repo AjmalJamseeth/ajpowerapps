@@ -3,8 +3,9 @@ import NavBar from "@/components/NavBar";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
 import { GUIDES, TOTAL_GUIDES } from "@/lib/guides";
 import { pageMeta } from "@/lib/seo";
+import { DOMAIN_LIST, domainOfGroup } from "@/lib/domains";
 
-export const metadata = pageMeta("/guides", "Electrical Engineering Guides by Topic", "Plain-language electrical engineering guides explaining the methods and standards behind each calculator.");
+export const metadata = pageMeta("/guides", "Electrical & SCADA Engineering Guides by Topic", "Plain-language electrical power and SCADA / IEC 61850 engineering guides explaining the methods and standards behind each tool.");
 
 export default function GuidesIndexPage() {
   const guidesWithGroup = GUIDES.map((guide) => ({
@@ -28,8 +29,11 @@ export default function GuidesIndexPage() {
           instead.
         </p>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {guidesWithGroup.map(({ guide, group }) => (
+        {DOMAIN_LIST.map((d) => (
+        <div key={d.id} className="mt-10">
+        <h2 className={`text-sm font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}><Link href={d.href} className="hover:underline">{d.title}</Link></h2>
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+          {guidesWithGroup.filter(({ guide }) => domainOfGroup(guide.groupId) === d.id).map(({ guide, group }) => (
             <Link
               key={guide.slug}
               href={`/guides/${guide.slug}`}
@@ -49,7 +53,7 @@ export default function GuidesIndexPage() {
             </Link>
           ))}
 
-          {CALCULATOR_GROUPS.filter((g) => !GUIDES.some((guide) => guide.groupId === g.id)).map((g) => (
+          {CALCULATOR_GROUPS.filter((g) => domainOfGroup(g.id) === d.id && !GUIDES.some((guide) => guide.groupId === g.id)).map((g) => (
             <div
               key={g.id}
               className="flex flex-col rounded-xl border border-dashed border-border bg-surface/40 p-6 text-muted"
@@ -62,6 +66,8 @@ export default function GuidesIndexPage() {
             </div>
           ))}
         </div>
+        </div>
+        ))}
       </div>
     </div>
   );

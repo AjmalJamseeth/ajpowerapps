@@ -113,6 +113,12 @@ export const TRANSFORMERS_GUIDE: GuideDoc = {
       calculatorHref: "/calculators/polarization-index",
       calculatorName: "Polarization Index (PI)",
     },
+    {
+      title: "Check the thermal loading on the hottest days",
+      body: "Run the IEC 60076-7 thermal model through a peak-day load and ambient profile to see the hot-spot and the ageing it costs.",
+      calculatorHref: "/calculators/transformer-thermal-ageing",
+      calculatorName: "Transformer Thermal Loading & Ageing",
+    },
   ],
   commonMistakes: [
     {

@@ -29,13 +29,21 @@ export function MobileNav() {
       {open && (
         <div className="absolute inset-x-0 top-full z-50 border-b border-border bg-background px-6 py-4 shadow-xl">
           <nav className="flex flex-col gap-1 text-sm">
+            <Link href="/electrical" onClick={close} className="flex items-center gap-2.5 rounded-md px-2 py-2.5 font-semibold text-foreground hover:bg-surface-2">
+              <span className="h-2 w-2 flex-none rounded-full bg-accent" aria-hidden="true" />
+              Electrical Power Engineering
+            </Link>
+            <Link href="/scada" onClick={close} className="flex items-center gap-2.5 rounded-md px-2 py-2.5 font-semibold text-foreground hover:bg-surface-2">
+              <span className="h-2 w-2 flex-none rounded-full bg-accent-2" aria-hidden="true" />
+              SCADA, IEC 61850 &amp; Automation
+            </Link>
             <Link
               href="/calculators"
               onClick={close}
               className="flex items-center gap-2.5 rounded-md px-2 py-2.5 font-medium text-foreground hover:bg-surface-2"
             >
               <LayoutGrid className="h-4 w-4 flex-none text-accent-2" aria-hidden="true" />
-              Calculators
+              All tools
             </Link>
             <Link
               href="/suites"

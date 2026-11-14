@@ -1,6 +1,6 @@
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
-import { SUITES } from "@/lib/suites";
+import { DOMAIN_LIST, suitesOf } from "@/lib/domains";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta(
@@ -21,8 +21,11 @@ export default function SuitesPage() {
           to install and nothing uploaded: your projects and files stay on your computer.
         </p>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {SUITES.map((s) => (
+        {DOMAIN_LIST.map((d) => (
+          <div key={d.id} className="mt-10">
+            <h2 className={`text-sm font-semibold uppercase tracking-wide ${d.id === "electrical" ? "text-accent" : "text-accent-2"}`}><Link href={d.href} className="hover:underline">{d.title}</Link></h2>
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
+          {suitesOf(d.id).map((s) => (
             <section key={s.href} className="flex flex-col rounded-xl border border-border bg-surface p-6 transition-colors hover:border-accent-2/60">
               <h2 className="text-xl font-semibold text-foreground">{s.name}</h2>
               <p className="mt-1 text-sm text-muted">{s.tagline}</p>
@@ -44,6 +47,9 @@ export default function SuitesPage() {
             </section>
           ))}
         </div>
+
+          </div>
+        ))}
 
         <p className="mt-8 text-sm text-muted">
           Looking for a single calculation instead? <Link href="/calculators" className="text-accent-2 hover:underline">Browse all calculators</Link>.

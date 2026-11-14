@@ -134,6 +134,24 @@ export const PROTECTION_GUIDE: GuideDoc = {
       calculatorHref: "/calculators/generator-fault-contribution",
       calculatorName: "Parallel Generator Fault Contribution",
     },
+    {
+      title: "Set the line distance relays",
+      body: "Propose zone reaches, times and resistive reaches from the line and network data, in primary and secondary ohms, with load-encroachment and SIR checks.",
+      calculatorHref: "/calculators/distance-protection-settings",
+      calculatorName: "Distance Protection Setting Assistant",
+    },
+    {
+      title: "After every trip: read the disturbance record",
+      body: "Open the relay's COMTRADE record to confirm fault type, trip and breaker times and the distance to fault.",
+      calculatorHref: "/calculators/comtrade-fault-analyser",
+      calculatorName: "COMTRADE Viewer & Fault Analyser",
+    },
+    {
+      title: "Track breaker wear from the interrupted currents",
+      body: "Sum the contact wear per pole and follow the opening time to plan breaker maintenance by condition.",
+      calculatorHref: "/calculators/breaker-wear-analyser",
+      calculatorName: "Circuit Breaker Wear Analyser",
+    },
   ],
   commonMistakes: [
     {

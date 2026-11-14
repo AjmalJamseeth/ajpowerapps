@@ -1,0 +1,12 @@
+Device,Tag,Description,IEC104 type,CA,IOA,Unit,EU low,EU high
+P132_Q01,Q01_PROT_TRIP,Line 1 protection trip,M_SP_TB_1,1,1001,,,
+P132_Q01,Q01_AR_BLK,Line 1 autoreclose blocked,M_SP_TB_1,1,1002,,,
+P132_Q01,Q01_SF6_LOW,Line 1 CB SF6 low,M_SP_TB_1,1,1003,,,
+P132_Q01,Q01_TCS_FLT,Line 1 trip circuit fault,M_SP_TB_1,1,1004,,,
+P132_Q01,Q01_QA1_POS,Line 1 CB QA1 position,M_DP_TB_1,1,2001,,,
+P132_Q01,Q01_QB1_POS,Line 1 disconnector QB1 position,M_DP_TB_1,1,2002,,,
+P132_Q01,Q01_U,Line 1 voltage,M_ME_TF_1,1,3001,kV,0,150
+P132_Q01,Q01_I,Line 1 current,M_ME_TF_1,1,3002,A,0,1000
+P132_Q01,Q01_P,Line 1 active power,M_ME_TF_1,1,3003,MW,-200,200
+P132_Q01,Q01_Q,Line 1 reactive power,M_ME_TF_1,1,3004,Mvar,-100,100
+P132_Q01,Q01_QA1_CMD,Line 1 CB QA1 control,C_DC_NA_1,1,5001,,,

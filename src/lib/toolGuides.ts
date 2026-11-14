@@ -1362,4 +1362,360 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
       "Not a full CAD system; for issued drawings, follow your company's CAD standard.",
     ],
   },
+  "/calculators/commissioning-test-manager": {
+    what: "A point-to-point test manager for FAT and SAT: it turns a signal list into test steps with expected results, records the outcome of every step and prints the report with punch list, evidence and sign-off.",
+    can: [
+      "Read a signal list CSV (tag, description, type or IEC 104 type id, CA, IOA, unit, engineering range) — the Gateway Mapping Builder export works directly.",
+      "Create the steps for each kind of signal: single point ON / OFF / invalid; double point closed / open / intermediate; analog injections at 0, 50 and 100 % of range, limits and invalid; counters; commands select-execute both ways and blocked by interlocking or local mode; set points.",
+      "Record pass, fail or not applicable with the observed value, a remark, the tester and the date; filter open and failed steps; show progress per device.",
+      "Link evidence from an IEC 104 capture: values and confirmations seen per CA/IOA, points never seen, and addresses in the capture that are not in the list.",
+      "Print the test report with punch list and signatures, export the results as CSV, and save / reopen the test file so testing can continue another day.",
+    ],
+    why: [
+      "A substation has hundreds of points with several states each, tested by different people over days; spreadsheets lose track of what was really tested and how.",
+      "The punch list and the evidence are usually rebuilt at the end; recording them step by step makes the FAT/SAT traceable and the report immediate.",
+    ],
+    understand: [
+      "Point-to-point means end to end: the state is created at the source (the breaker, the relay input, an injection) and checked at the far end (gateway, control centre), so every link in between is proved at once.",
+      "Each signal kind has its own states to prove: a double point needs both positions and the intermediate/bad state; an analog needs the scaling at several points of the range, not only one value.",
+      "Commands are proved in both directions and also where they must be refused — interlocking, local/remote, select-before-operate timeouts.",
+      "A capture is evidence that a value really travelled on the link with the right address; it does not replace the observation at the HMI or control centre.",
+    ],
+    need: [
+      "The signal list of the device or gateway (CSV), with the IEC 104 addresses if a capture will be used as evidence.",
+      "Optionally a capture (.pcap / .pcapng) of the IEC 104 link taken during the test.",
+      "Work is kept in this browser's storage; save the test file to keep or share it.",
+      BROWSER,
+    ],
+    use: [
+      "Open the signal list (or load the sample) and enter the project, device and test stage.",
+      "Work through the steps: create the state at the source, read the far end, set the result and the observed value.",
+      "Optionally open the capture taken during the test to link evidence and see points not seen.",
+      "Save the test file at the end of the day; print the report when the stage is complete.",
+    ],
+    output: [
+      "Test steps per point with expected result, outcome, observed value, remark, tester and date.",
+      "Progress per device, the punch list of failed and open steps, the evidence table, the printed report and a CSV of the results.",
+    ],
+    interpret: [
+      "A point not seen in the capture: it was not tested during the capture, or the source never sent it — check the mapping and the spontaneous transmission setting.",
+      "An address in the capture that is not in the list: the control centre or gateway use a different list revision — resolve before sign-off.",
+      "A failed analog at 0 % or 100 % but correct at 50 %: scaling offset or range wrong, not the wiring.",
+      "A command executed while it should be blocked: interlocking or local/remote logic error — a safety item, never a minor punch.",
+    ],
+    basis: [
+      "IEC 62381 (FAT, FIT, SAT), IEC 61850-4 and -10 (engineering process and testing).",
+      "IEC 60870-5-104 type identifications, causes of transmission and addressing for the evidence check.",
+    ],
+    limits: [
+      "The tool records the test; it does not create the signals — a test set, simulator or the plant does.",
+      "Evidence is read from IEC 104 captures only; for other protocols record the observation manually.",
+      "Browser storage can be cleared by the browser: save the test file regularly.",
+    ],
+  },
+  "/calculators/alarm-rationalisation-analyser": {
+    what: "An analyser that measures an alarm journal against alarm management targets and finds the few alarms that cause most of the load.",
+    can: [
+      "Read an alarm journal CSV: time, tag, description, state (alarm / return / acknowledge) and priority (1–3 or high / medium / low).",
+      "Compute the average alarm rate per 10 minutes and per day, the peak 10-minute rate and the share of time in flood, and list every flood with its main contributors.",
+      "List the top 10 alarms and their share, chattering alarms (three within a minute), standing alarms (active over 24 h), the priority distribution and consequential pairs (B follows A within 2 s at least 80 % of the time).",
+    ],
+    why: [
+      "When every event is an alarm, operators stop reading them: a real trip is lost among door-open and spring-charging alarms.",
+      "Rationalisation needs numbers: a handful of bad actors usually produce most of the load, and fixing them is the fastest improvement.",
+    ],
+    understand: [
+      "EEMUA 191 and ISA-18.2 suggest about one alarm per 10 minutes per operator as manageable and more than 10 in 10 minutes as a flood.",
+      "A suggested priority split is about 80 % low, 15 % medium, 5 % high; if everything is high, nothing is.",
+      "Chattering alarms need a deadband, delay or filter; standing alarms need a fix in the plant or a shelving decision; consequential alarms can be suppressed when their cause is active.",
+      "An alarm should require an operator action; events that need no action belong in the event list, not the alarm list.",
+    ],
+    need: [
+      "An export of the SCADA alarm journal (CSV) covering at least a week of normal operation; a month is better.",
+      BROWSER,
+    ],
+    use: [
+      "Open the journal (or load the sample) and check the column mapping and the period.",
+      "Read the KPIs against the targets, then the top 10, chattering and standing lists.",
+      "Open each flood to see what started it; use the consequential pairs to propose suppression.",
+    ],
+    output: [
+      "KPI cards (rates, peak, flood share, priority split) with findings against the targets.",
+      "Tables of floods, top alarms, chattering, standing alarms and consequential pairs.",
+    ],
+    interpret: [
+      "Top 10 alarms above about 50 % of the total: a short list of bad actors — fix them first.",
+      "A flood at a trip with dozens of alarms: consider first-out and consequential suppression so the cause stays visible.",
+      "Standing for days: the alarm either reflects a real defect to repair, or it should not be an alarm.",
+    ],
+    basis: [
+      "EEMUA Publication 191; ANSI/ISA-18.2 and IEC 62682 performance indicators.",
+      "Rates are counted from alarm (not return or acknowledge) records; standing = no return within 24 h or still active at the end.",
+    ],
+    limits: [
+      "Operator workload depends on how many consoles share the alarms; the rates assume one operator position.",
+      "The journal does not show whether an alarm was useful — the rationalisation decisions remain with operations.",
+    ],
+  },
+  "/calculators/comm-availability-analyser": {
+    what: "An analyser that computes availability, MTBF and MTTR of telecontrol and station links from the SCADA communication status log, and finds outages with a common cause.",
+    can: [
+      "Read a status log CSV (time, device or link, state such as OK / FAIL, up / down, 1 / 0, comm fail / normal).",
+      "Per link: outages, total downtime, availability, MTBF, MTTR, longest outage and short flaps under 10 s.",
+      "Flag links still down at the end of the log, find common-cause outages (three or more links down within 5 s) and compare with the availability target.",
+    ],
+    why: [
+      "Contracts and grid codes set availability targets for telecontrol, and operations need to know which links fail, how often and for how long.",
+      "Outages that hit several devices at once point to a shared component — a switch, a power supply, a telecom circuit — rather than to each device.",
+    ],
+    understand: [
+      "Availability = 1 − downtime / period. 99.9 % allows about 43 minutes of outage a month; 99.99 % about 4 minutes.",
+      "MTBF = uptime / number of failures; MTTR = downtime / number of failures. Many short outages and one long outage can give the same availability but need different fixes.",
+      "Flaps (failures shorter than about 10 s) usually mean a marginal link — fibre budget, duplex mismatch, overloaded switch — rather than a device failure.",
+    ],
+    need: [
+      "The communication status events from the SCADA event or alarm journal (CSV), covering the reporting period.",
+      BROWSER,
+    ],
+    use: [
+      "Open the log (or load the sample) and set the availability target.",
+      "Read the table per link, then the common-cause outages and the links still down.",
+      "For each weak link, check what it shares with others and whether the outages are long (repair) or short (link quality).",
+    ],
+    output: [
+      "Per link: availability, outages, downtime, MTBF, MTTR, longest outage, flaps; findings against the target.",
+      "A list of common-cause outages with the links involved and their duration.",
+    ],
+    interpret: [
+      "Low availability from one long outage: a repair-time problem (spares, access, response).",
+      "Low availability from many short outages: a quality problem in the link — check the network and the supervision timers.",
+      "Common-cause outage: look for what the links share at that moment (switch, router, UPS, telecom provider).",
+    ],
+    basis: [
+      "IEC 60050-192 and IEC 61907 dependability definitions; IEC 62439-1 network availability.",
+      "Outage = time from a fail state to the next OK state of the same link; a link still failed at the end counts to the end of the log.",
+    ],
+    limits: [
+      "The SCADA can only see a link from its own side: an outage of the SCADA server or its network looks like an outage of every link.",
+      "Results depend on the supervision timers that generate the events (e.g. IEC 104 t1, t3).",
+    ],
+  },
+  "/calculators/comtrade-fault-analyser": {
+    what: "A COMTRADE disturbance record viewer that classifies the fault, measures protection and breaker times and computes the fault impedance and distance.",
+    can: [
+      "Read .cfg + .dat pairs and single .cff files (1999 and 2013) in ASCII, BINARY, BINARY32 and FLOAT32, with channel scaling and primary / secondary conversion.",
+      "Plot analog channels and digital signals with markers at fault inception and clearance.",
+      "Detect inception, compute phasors before and during the fault, classify the fault (A-G … ABC) and give the phase and residual currents.",
+      "Measure trip time and breaker time from the digital channels and clearance time from the currents.",
+      "Compute the apparent impedance of the faulted loop (phase-earth with k0, phase-phase) and the distance to fault from the line constants; warn for clipping, missing samples and neutral mismatch.",
+    ],
+    why: [
+      "After every trip the record answers the key questions: what fault, how much current, how fast the protection and breaker were, and where the fault was.",
+      "Vendor tools read only their own relays; COMTRADE is common to all, so one viewer works for every relay in the substation.",
+    ],
+    understand: [
+      "A record is a .cfg (channels, scaling, rates, start time) and a .dat (samples); the .cff (2013) packs both in one file.",
+      "Phasors are computed over one cycle; the 'during fault' window is taken one cycle after inception, when the DC offset and transient have mostly settled.",
+      "Phase-earth loop impedance = Vph / (Iph + k0·3I0) with k0 = (Z0 − Z1) / 3Z1; distance = loop reactance / line reactance per km for low fault resistance.",
+      "Trip time is from inception to the trip output; breaker time from trip to the breaker auxiliary contact; clearance is when the current reaches zero.",
+    ],
+    need: [
+      "The disturbance record (.cfg and .dat together, or the .cff).",
+      "For the distance: the line R1, X1, R0, X0 per km (or k0) and the line length.",
+      BROWSER,
+    ],
+    use: [
+      "Open both .cfg and .dat at once (or the .cff), or load the sample.",
+      "Check the channel assignment of currents, voltages, trip and breaker contacts; enter the line constants.",
+      "Read the summary, then check the plots and the phasor table.",
+    ],
+    output: [
+      "Fault type, fault currents, trip, breaker and clearance times, loop impedance and distance; findings and warnings.",
+      "Waveform plots, digital channel bars and a phasor table before and during the fault.",
+    ],
+    interpret: [
+      "Distance close to the relay's own fault locator: both are consistent; a big difference suggests fault resistance, infeed or wrong line data.",
+      "Breaker time above its rated value: check the breaker mechanism (see the breaker wear analyser).",
+      "3I0 present without a phase current rise: CT or wiring problem, not a fault.",
+    ],
+    basis: [
+      "IEEE C37.111 / IEC 60255-24 COMTRADE; one-cycle DFT phasors; Fortescue symmetrical components.",
+      "IEC 60255-121 loop impedance with residual compensation.",
+    ],
+    limits: [
+      "The single-ended reactance method is affected by fault resistance with remote infeed and by mutual coupling of parallel lines.",
+      "Channels are identified from their names and units; check the assignment for unusual naming.",
+    ],
+  },
+  "/calculators/distance-protection-settings": {
+    what: "A setting assistant that proposes distance relay zone reaches, times and resistive reaches for a line from the line and network data.",
+    can: [
+      "Compute the line impedance, angle and residual compensation k0 from R1, X1, R0, X0 and the length.",
+      "Propose zone 1, zone 2, zone 3 and a reverse zone in primary and secondary ohms with their times and the rule behind each.",
+      "Propose earth-fault and phase-fault resistive reaches and limit them by the minimum load impedance at the load angle.",
+      "Warn for load encroachment, source impedance ratio above 4 and short lines; sketch the quadrilateral characteristics.",
+    ],
+    why: [
+      "Each zone rule has a limit set by the adjacent lines, the load and the source; laying them out together keeps the setting sheet consistent.",
+      "Primary and secondary ohms side by side avoid the most common setting error — a wrong CT/VT ratio conversion.",
+    ],
+    understand: [
+      "Zone 1 under-reaches the remote end (80 %) so it can trip instantly without overreaching for errors in line data, CTs and VTs.",
+      "Zone 2 covers the rest of the line with a delay (0.3–0.4 s) and must not reach beyond zone 1 of the shortest adjacent line.",
+      "Zone 3 backs up the adjacent lines (0.8–1.0 s) and is the zone most at risk of tripping on heavy load.",
+      "Secondary ohms = primary ohms × CT ratio / VT ratio.",
+    ],
+    need: [
+      "Line R1, X1, R0, X0 per km and length; the shortest and longest adjacent lines.",
+      "CT and VT ratios, system voltage, maximum load and load angle, source impedance, fault resistances to cover.",
+      BROWSER,
+    ],
+    use: [
+      "Enter the line and network data (the defaults show the worked example).",
+      "Read the proposed zones and the checks; adjust the resistances or the reach rules if a check fails.",
+      "Transfer the values to the relay's setting sheet, using the relay's own settings for k0 and the characteristic.",
+    ],
+    output: [
+      "A table of zones with reach in primary and secondary ohms, earth and phase resistive reaches and times.",
+      "Load impedance, resistive reach limit, SIR and checks; a quadrilateral sketch.",
+    ],
+    interpret: [
+      "Zone 3 reaches into the load area: reduce the resistive reach or use load encroachment blinders.",
+      "SIR above 4: zone 1 accuracy suffers on a weak source — consider a lower zone 1 reach or a teleprotection scheme.",
+      "Very short line: zone 1 may be impractical; use line differential or a permissive scheme.",
+    ],
+    basis: [
+      "IEC 60255-121, IEEE C37.113 and common utility practice (80 % / 120 % / 0.3–0.4 s / 0.8–1.0 s).",
+      "Zone 2 = max(1.2 ZL, ZL + 0.5 Zadj,short), capped at ZL + 0.64 Zadj,short; zone 3 = 1.2 (ZL + Zadj,long); reverse 15 %; resistive reach 1.2 × 2 Rf (earth), 1.2 × Rarc (phase), ≤ 0.8 × Zload,min × cos(load angle).",
+    ],
+    limits: [
+      "A starting point, not the setting study: infeed, mutual coupling, series compensation, power swing and teleprotection schemes need the full study.",
+      "Relay-specific characteristics, k0 formats and angle conventions differ — follow the manufacturer's manual.",
+    ],
+  },
+  "/calculators/breaker-wear-analyser": {
+    what: "An analyser that estimates the electrical wear of each breaker pole from the interrupted currents and checks operations and opening time.",
+    can: [
+      "Read an operations history CSV: date, type, interrupted current per phase or one value, and optionally opening time.",
+      "Build the electrical endurance curve through two manufacturer points and sum the wear per pole.",
+      "Give the remaining interruptions at 25, 50 and 100 % of the rated short-circuit current, compare operations with mechanical endurance, and flag opening times outside tolerance and their trend.",
+    ],
+    why: [
+      "A breaker wears mainly when it interrupts current: a few high fault currents use more of the contacts than thousands of load operations.",
+      "Summing wear per pole tells which breakers need attention first, so maintenance follows condition rather than the calendar.",
+    ],
+    understand: [
+      "The endurance curve N(I) = Nr × (Ir / I)^n is a straight line on log-log axes between the rated current point and the short-circuit point.",
+      "Each interruption uses 1 / N(I) of the life of that pole; the sum is the wear (1.0 = endurance reached).",
+      "Opening time rising over the years usually points to the mechanism (lubrication, trip coil, latch), not the contacts.",
+    ],
+    need: [
+      "The breaker's operations history from the relay or breaker monitor (CSV), including interrupted currents.",
+      "The manufacturer's endurance points (operations at rated current and at rated short-circuit current), mechanical endurance and opening time with tolerance.",
+      BROWSER,
+    ],
+    use: [
+      "Open the history (or load the sample) and enter the breaker data.",
+      "Read the wear per pole, the assessment and the list of fault interruptions.",
+      "Repeat after each fault (or each year) with the updated history to follow the trend.",
+    ],
+    output: [
+      "Wear per pole in %, the curve exponent, remaining interruptions, findings on mechanical endurance and opening time, and a table of fault interruptions.",
+    ],
+    interpret: [
+      "Wear above about 70 % on a pole: plan contact inspection or replacement.",
+      "Opening time outside tolerance with low contact wear: inspect and service the mechanism.",
+      "Large differences between poles: single-phase faults concentrated on one phase — normal on lines, but confirm the CT and recording.",
+    ],
+    basis: [
+      "IEC 62271-100 electrical (E1/E2) and mechanical (M1/M2) endurance classes; manufacturer's endurance curve.",
+    ],
+    limits: [
+      "The two-point log-log line approximates the manufacturer's curve; use the curve itself where it is available.",
+      "Interrupted currents from the relay are RMS values at contact separation; arcing time and DC offset are not included.",
+    ],
+  },
+  "/calculators/transformer-thermal-ageing": {
+    what: "A thermal model of an oil-immersed transformer that computes top-oil and hot-spot temperatures through a load and ambient profile, with relative ageing and loss of life (IEC 60076-7).",
+    can: [
+      "Compute the steady top-oil and hot-spot temperatures at rated load and the maximum continuous load for a hot-spot limit.",
+      "Run the IEC 60076-7 difference equations minute by minute through a load and ambient profile, with thermal constants per cooling mode (ONAN, ONAF, OF, OD).",
+      "Compute the relative ageing rate and equivalent ageing for normal or thermally upgraded paper, and check against the normal cyclic limits, 1.5 pu current and 140 °C bubbling.",
+    ],
+    why: [
+      "A transformer's life is the life of its paper, which ages exponentially with the hot-spot temperature.",
+      "In hot climates and contingencies the question is how hot the winding gets through the day and how much life that costs, not the nameplate MVA.",
+    ],
+    understand: [
+      "Hot-spot = ambient + top-oil rise + hot-spot gradient; both rises grow with the load (with exponents x and y) and lag it with the oil and winding time constants.",
+      "For normal paper the ageing rate doubles for every 6 K above 98 °C; thermally upgraded paper has its reference at 110 °C.",
+      "Normal cyclic loading limits: hot-spot 120 °C, top oil 105 °C, current 1.5 pu.",
+    ],
+    need: [
+      "The transformer's cooling mode, top-oil rise, hot-spot gradient and load-loss ratio (from the heat-run test report).",
+      "A load profile CSV (time, load in pu, optionally ambient).",
+      BROWSER,
+    ],
+    use: [
+      "Enter the transformer data and the ambient; read the steady-state values.",
+      "Open the load profile (or load the sample) and read the assessment and the temperature chart.",
+      "Try the other cooling mode or a reduced peak to see how much margin each option gives.",
+    ],
+    output: [
+      "Steady top-oil and hot-spot, maximum continuous load, peak temperatures through the profile, relative ageing, equivalent ageing hours and findings.",
+    ],
+    interpret: [
+      "Hot-spot above 120 °C for a few hours with relative ageing below 1: acceptable for life, but outside normal cyclic limits — reduce the peak or start the fans earlier.",
+      "Relative ageing above 1 every day: the transformer is losing life faster than designed — plan load transfer or reinforcement.",
+    ],
+    basis: [
+      "IEC 60076-7:2018 difference equations, thermal constants, ageing rate equations and limits; IEC 60076-2 temperature rises.",
+    ],
+    limits: [
+      "Uses IEC default thermal constants unless better manufacturer values are entered; moisture and oxygen effects on ageing are not modelled.",
+      "The result is only as good as the heat-run data; fibre-optic hot-spot measurements, where fitted, are the reference.",
+    ],
+  },
+  "/calculators/power-quality-energy-analyser": {
+    what: "An analyser for meter and PQ analyser exports: maximum demand and load factor from a load profile, and EN 50160 compliance from a week of 10-minute values.",
+    can: [
+      "Load profile: read kW per interval, kWh per interval or cumulative kWh; compute maximum block demand (15/30/60 min), average, load factor, energy, daily maxima, 24-hour average profile, top 10 peaks and peak / off-peak energy.",
+      "Power quality: read phase voltages, THDu, Pst/Plt, unbalance and frequency; compute EN 50160 compliance per parameter with percentiles and extremes; count values below 90 % of Un.",
+    ],
+    why: [
+      "Demand charges are set by a handful of peaks; knowing when and why they happen is the cheapest saving.",
+      "Power-quality complaints are settled against EN 50160 over a full week, with percentiles that are easy to get wrong by hand.",
+    ],
+    understand: [
+      "Maximum demand is the highest average over the tariff's integration period, not the highest instantaneous value.",
+      "Load factor = average demand / maximum demand: a low value means short peaks that cost demand charges.",
+      "EN 50160 sets limits for 95 % (or 99 %) of the 10-minute values of a week: e.g. THDu ≤ 8 %, Plt ≤ 1, unbalance ≤ 2 %, voltage within ±10 %.",
+    ],
+    need: [
+      "A load profile export from the meter (CSV), ideally a full month.",
+      "A week of 10-minute values from a PQ analyser (CSV) and the nominal voltage.",
+      BROWSER,
+    ],
+    use: [
+      "Choose the tab, open the file (or load the sample) and set the demand period or the nominal voltage and network level.",
+      "Read the KPIs and findings, then the profile, peaks or the parameter table.",
+      "For a failing PQ parameter, note the time pattern of the worst values and measure the suspected loads.",
+    ],
+    output: [
+      "Load: maximum demand with time, average, load factor, energy, findings, hourly profile and top peaks.",
+      "PQ: compliance per parameter with limit, percentage within limit and extremes; findings.",
+    ],
+    interpret: [
+      "One day's peak well above the others: a coincidence of starts — staggering them cuts the demand charge.",
+      "THDu failing in the evening only: a specific load (rectifiers, drives) — locate it with harmonic measurements per feeder.",
+      "Plt failing on working days: a fluctuating load such as an arc furnace or welder.",
+    ],
+    basis: [
+      "EN 50160; IEC 61000-4-30 10-minute aggregation; IEC 61000-4-15 flicker; tariff block-demand practice.",
+    ],
+    limits: [
+      "EN 50160 frequency limits refer to 10-second values over a year; 10-minute values give an indication only.",
+      "The tool reads the meter's values; it cannot correct for wrong CT/VT ratios or a meter set to the wrong integration period.",
+    ],
+  },
 };

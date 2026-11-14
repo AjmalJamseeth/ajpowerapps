@@ -36,6 +36,13 @@ import { analysePrp, analyseHsr, analyseRstp } from "../src/lib/redundancy";
 import { analysePtp, analyseNtp, parseW32tm, bestClass } from "../src/lib/timesync";
 import { parseText as tlText, parseCaptureEvents as tlCap, analyseSources as tlAnalyse, timeline as tlTimeline } from "../src/lib/timeline";
 import { svStreams, analyseSv } from "../src/lib/svview";
+import { DOMAINS, DOMAIN_LIST, domainOfHref, groupsOf } from "../src/lib/domains";
+import { parsePointList, newProject as ctNewProject, linkEvidence as ctLink } from "../src/lib/commtest";
+import { parseAlarms, alarmKpi, parseStatus, availability } from "../src/lib/opsanalysis";
+import { parseCfg, parseDat, analyseFault } from "../src/lib/comtrade";
+import { analyseLoad, analysePq } from "../src/lib/pqenergy";
+import { parseCbOps, breakerWear, parseLoadProfile, thermal, COOLING, steadyHotSpot, distanceSettings } from "../src/lib/powerassets";
+import { GUIDES } from "../src/lib/guides";
 import { analyse104, decodeAsdu } from "../src/lib/iec104cap";
 import { analyseMb } from "../src/lib/modbuscap";
 import { analyseDnp3, crcDnp } from "../src/lib/dnp3cap";
@@ -2924,6 +2931,50 @@ section("Worked examples (November 2026)");
   const sv0 = analyseSv(svStreams(demo)[0]);
   assertTrue("SV: 8 lost samples, neutral mismatch at sample 1506, 70.71 A and 44.9 kV phasors 120° apart, 50 Hz", sv0.lost === 8 && sv0.findings.some((f) => /sample 1506/.test(f.text)) && Math.abs(sv0.phasors[0].mag - 70.71) < 0.05 && Math.abs(sv0.phasors[4].mag - 44901) < 5 && Math.abs(Math.abs(sv0.phasors[5].ang) - 120) < 0.5 && Math.abs((sv0.freq ?? 0) - 50) < 0.01);
   assertTrue("Every Phase G tool has a tool guide and sample files", ["/calculators/goose-troubleshooter", "/calculators/network-redundancy-analyser", "/calculators/time-sync-analyser", "/calculators/soe-incident-timeline", "/calculators/sv-waveform-viewer"].every((h) => !!TOOL_GUIDES[h] && SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
+}
+
+{
+  section("Phase H — two sections, commissioning, operations and power-system analysis");
+  const allGroups = CALCULATOR_GROUPS.map((g) => g.id), dg = DOMAIN_LIST.flatMap((d) => d.groups);
+  assertTrue("Every calculator group belongs to exactly one section (Electrical or SCADA)", allGroups.every((g) => dg.filter((x) => x === g).length === 1) && dg.length === allGroups.length);
+  assertTrue("Section hubs exist: /electrical and /scada", existsSync("src/app/electrical/page.tsx") && existsSync("src/app/scada/page.tsx"));
+  assertTrue("Every engineering suite is placed in one section", SUITES.every((s) => domainOfHref(s.href) !== null));
+  const liveH = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
+  assertTrue("Cross-links point to live tools of the other section", DOMAIN_LIST.every((d) => d.cross.every((h) => liveH.has(h) && domainOfHref(h) !== d.id)));
+  assertTrue("SCADA section holds IEC 61850, SCADA & IT and commissioning; COMTRADE is under Electrical", groupsOf("scada").map((g) => g.id).join() === "iec-61850,scada-it,commissioning" && domainOfHref("/calculators/comtrade-fault-analyser") === "electrical" && DOMAINS.scada.cross.includes("/calculators/comtrade-fault-analyser"));
+  const P = "public/samples/";
+  const pl = parsePointList(readFileSync(P + "S13_GW1_IEC104_signal_list.csv", "utf8")), pj = ctNewProject("S13", "FAT", pl.points);
+  const pk = capPackets(readCapture(new Uint8Array(readFileSync(P + "S13_IEC104_gateway_capture.pcap")))), cs = analyse104(tcpConns(pk, [2404]));
+  const ev = new Map<string, { ca: number; ioa: number; values: string[]; cots: string[] }>();
+  for (const c of cs) for (const a of c.apdus) if (a.asdu) for (const o of a.asdu.objs) { if (o.ioa <= 0) continue; const k = `${a.asdu.ca}|${o.ioa}`; const e = ev.get(k) ?? { ca: a.asdu.ca, ioa: o.ioa, values: [], cots: [] }; if (!e.values.includes(String(o.value))) e.values.push(String(o.value)); ev.set(k, e); }
+  const lk = ctLink(pj, [...ev.values()], "capture");
+  assertTrue("Commissioning test manager: 11 points → 33 steps; capture links 10 points, IOA 3004 not seen, IOA 5099 not in the list", pl.points.length === 11 && pj.steps.length === 33 && lk.linked === 10 && lk.notSeen.map((p) => p.ioa).join() === "3004" && lk.unknown.some((u) => u.ioa === 5099));
+  const ak = alarmKpi(parseAlarms(readFileSync(P + "S13_SCADA_alarm_journal.csv", "utf8")).alarms);
+  assertTrue("Alarm journal: 967 alarms in 7 days, 2 floods, chattering T1_FAN_SUP, standing BAT_CHG, pair Q01_QA1_OPEN → Q01_LINE_DEAD", ak.total === 967 && ak.floods.length === 2 && ak.chatter.map((c) => c.tag).join() === "T1_FAN_SUP" && ak.standing.map((c) => c.tag).join() === "BAT_CHG" && ak.pairs[0]?.a === "Q01_QA1_OPEN" && ak.pairs[0]?.b === "Q01_LINE_DEAD");
+  const av = availability(parseStatus(readFileSync(P + "S13_comm_status_log.csv", "utf8")).ev), avr = (d: string) => av.rows.find((r) => r.dev === d)!;
+  assertTrue("Availability: BCU_J01 99.416 %, GW1-CC 99.694 %, P132_Q02 9 flaps, common cause on 19 Nov", avr("BCU_J01").avail.toFixed(3) === "99.416" && avr("GW1-CC link").avail.toFixed(3) === "99.694" && avr("P132_Q02").flaps === 9 && av.findings.some((f) => /Common-cause outage at 2026-11-19 11:40/.test(f.text)));
+  const cfg = parseCfg(readFileSync(P + "S13_Q01_fault_P132_Q01.cfg", "utf8")), rec = parseDat(cfg, new Uint8Array(readFileSync(P + "S13_Q01_fault_P132_Q01.dat")));
+  const z1 = { re: 0.08, im: 0.4 }, z0 = { re: 0.25, im: 1.2 }, k0m = Math.hypot(z0.re - z1.re, z0.im - z1.im) / (3 * Math.hypot(z1.re, z1.im)), k0a = (Math.atan2(z0.im - z1.im, z0.re - z1.re) - Math.atan2(z1.im, z1.re)) * 180 / Math.PI;
+  const ft = analyseFault(rec, { z1: Math.hypot(0.08, 0.4), ang1: Math.atan2(0.4, 0.08) * 180 / Math.PI, k0mag: k0m, k0ang: k0a });
+  assertTrue("COMTRADE: BINARY record read (7 analog channels, 1600 Hz), A-G fault, IA 5.0 kA", cfg.analog.length === 7 && rec.n === 640 && ft.type === "A-G" && Math.abs(ft.fault.IA.mag - 5000) < 20);
+  assertTrue("COMTRADE: trip 30.6 ms and breaker 80.6 ms after inception", Math.abs((ft.trip!.t - ft.inception!) * 1000 - 30.6) < 0.7 && Math.abs((ft.cbOpen!.t - ft.inception!) * 1000 - 80.6) < 0.7);
+  assertClose("COMTRADE: distance to fault ≈ 10 km (model value 10 km)", ft.distanceKm!, 10, 0.3);
+  assertClose("COMTRADE: loop impedance ≈ 4.08 Ω (model |Z1| × 10 km)", ft.z!.mag, Math.hypot(0.8, 4), 0.06);
+  const ld = analyseLoad(readFileSync(P + "S13_J01_load_profile.csv", "utf8"), 30) as { maxDemand: number; loadFactor: number };
+  assertTrue("Load profile: maximum 30-min demand 5717 kW, load factor 49 %", Math.round(ld.maxDemand) === 5717 && Math.round(100 * ld.loadFactor) === 49);
+  const pq = analysePq(readFileSync(P + "S13_33kV_PQ_week.csv", "utf8"), 33, "MV") as { findings: { sev: string; text: string }[] };
+  assertTrue("EN 50160 (MV): THDu and Plt fail, voltage, unbalance and frequency comply", pq.findings.filter((f) => f.sev === "error").length === 2 && pq.findings.some((f) => f.sev === "error" && /THDu: 93\.9 %/.test(f.text)) && pq.findings.some((f) => f.sev === "error" && /Plt: 78\.7 %/.test(f.text)));
+  const bw = breakerWear({ isc: 40000, nsc: 30, ir: 2000, nr: 10000, mech: 10000, openMs: 30, tolMs: 3 }, parseCbOps(readFileSync(P + "S13_Q01_QA1_operations.csv", "utf8")).ops);
+  assertTrue("Breaker wear: pole A 5.1 %, opening time 33.8 ms outside 30 ± 3 ms", (100 * bw.wear.A).toFixed(1) === "5.1" && bw.findings.some((f) => /33\.8 ms/.test(f.text)));
+  const xd = { cooling: "ONAF" as const, dThOr: 50, dThHr: 26, R: 6, upgraded: true, ...COOLING.ONAF };
+  const th = thermal(xd, parseLoadProfile(readFileSync(P + "S13_T1_summer_day_load.csv", "utf8")).pts, 40);
+  assertTrue("Transformer thermal: hot-spot 129.7 °C (error), relative ageing 0.85", th.findings.some((f) => f.sev === "error" && /129\.7 °C/.test(f.text)) && th.findings.some((f) => /relative ageing 0\.85/.test(f.text)));
+  assertClose("IEC 60076-7 steady hot-spot at rated load, ONAN 52/26 K, 20 °C ambient = 98 °C", steadyHotSpot({ cooling: "ONAN", dThOr: 52, dThHr: 26, R: 6, upgraded: false, ...COOLING.ONAN }, 1, 20).hs, 98, 0.01);
+  const ds = distanceSettings({ r1: 0.08, x1: 0.4, r0: 0.25, x0: 1.2, len: 40, shortAdjLen: 25, shortAdjZ: 0.408, longAdjLen: 60, longAdjZ: 0.408, ctPri: 800, ctSec: 1, vtPri: 132000, vtSec: 110, vKv: 132, maxLoadMva: 150, loadAngle: 30, zsOhm: 20, rf: 10, rfPP: 3 });
+  assertTrue("Distance settings: ZL 16.32 Ω, Z1 13.05 Ω (8.70 Ω sec.), Z2 21.42 Ω, Z3 48.96 Ω, earth R 24 Ω", ds.ZL.toFixed(2) === "16.32" && ds.zones[0].reach.toFixed(2) === "13.05" && ds.zones[0].sec.toFixed(2) === "8.70" && ds.zones[1].reach.toFixed(2) === "21.42" && ds.zones[2].reach.toFixed(2) === "48.96" && ds.zones[0].rPG.toFixed(0) === "24");
+  const H = ["/calculators/commissioning-test-manager", "/calculators/alarm-rationalisation-analyser", "/calculators/comm-availability-analyser", "/calculators/comtrade-fault-analyser", "/calculators/distance-protection-settings", "/calculators/breaker-wear-analyser", "/calculators/transformer-thermal-ageing", "/calculators/power-quality-energy-analyser"];
+  assertTrue("Every Phase H tool is live, has a full tool guide and appears in a guide workflow", H.every((h) => liveH.has(h) && TOOL_GUIDES[h]?.limits?.length && GUIDES.some((g) => g.workflow.some((w) => w.calculatorHref === h))));
+  assertTrue("Every Phase H file-based tool has a sample file", H.filter((h) => h !== "/calculators/distance-protection-settings").every((h) => SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
 }
 
 {

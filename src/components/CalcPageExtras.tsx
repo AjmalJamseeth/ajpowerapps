@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DOMAINS, domainOfGroup } from "@/lib/domains";
 import { BUILD_LABEL } from "@/lib/buildInfo";
 import { categoryHref } from "@/lib/categories";
 import { CALCULATOR_GROUPS } from "@/lib/calculatorCatalog";
@@ -102,6 +103,13 @@ export function CalcPageExtras({ href }: { href: string }) {
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-16 text-sm leading-relaxed text-muted">
+      {group && (() => { const d = DOMAINS[domainOfGroup(group.id)]; return (
+        <nav aria-label="Section" className={`mb-6 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5 text-xs ${d.id === "electrical" ? "border-accent/40" : "border-accent-2/40"}`}>
+          <span className={`h-2 w-2 rounded-full ${d.id === "electrical" ? "bg-accent" : "bg-accent-2"}`} aria-hidden="true" />
+          <Link href={d.href} className={`font-semibold ${d.id === "electrical" ? "text-accent" : "text-accent-2"} hover:underline`}>{d.title}</Link>
+          <span>›</span>
+          <Link href={categoryHref(group.id)} className="text-foreground hover:underline">{group.title}</Link>
+        </nav>); })()}
       {toolGuide && <ToolGuideSection g={toolGuide} hasHowTo={!!article?.howTo} />}
       {samples.length > 0 && (
         <section id="sample-files" className="mb-6 rounded-xl border border-border bg-surface p-6">

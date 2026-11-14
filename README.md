@@ -1618,3 +1618,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Libraries: l2cap.ts (Ethernet/VLAN, PRP trailer + supervision, HSR tag, RSTP BPDU, GOOSE, SV, PTP, NTP), goosetrouble.ts, redundancy.ts, timesync.ts, timeline.ts, svview.ts; component FindingList.tsx.
 - Pages: goose-troubleshooter, network-redundancy-analyser, time-sync-analyser, soe-incident-timeline, sv-waveform-viewer.
 - Samples from scripts/gen-phaseg-samples.py (Scapy STP/PTP layers; GOOSE/PRP/HSR/NTP with small encoders). T0 = 2026-11-14 06:12:00 UTC; the disturbance at 06:12:31.231.
+
+## Phase H (November 2026)
+
+- Two sections: src/lib/domains.ts (DOMAINS electrical / scada: groups, suites, cross-links), src/components/DomainHub.tsx, hub pages src/app/electrical and src/app/scada. NavBar has one mega-menu per section; home, all-tools, suites and guides pages are grouped by section; calculator pages show a section ribbon.
+- Libraries: commtest.ts (FAT/SAT point-to-point), opsanalysis.ts (alarm KPIs, availability), comtrade.ts (C37.111 reader and fault analysis), pqenergy.ts (load profile, EN 50160), powerassets.ts (breaker wear, IEC 60076-7 thermal model, distance settings).
+- Pages: commissioning-test-manager, alarm-rationalisation-analyser, comm-availability-analyser, comtrade-fault-analyser, distance-protection-settings, breaker-wear-analyser, transformer-thermal-ageing, power-quality-energy-analyser.
+- Samples from scripts/gen-phaseh-samples.py (random.seed(13)); the COMTRADE record is generated from a known A-G fault at 10 km so the analysis can be checked against the model.
