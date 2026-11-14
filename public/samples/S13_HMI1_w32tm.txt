@@ -1,0 +1,20 @@
+C:\>w32tm /query /status
+Leap Indicator: 0(no warning)
+Stratum: 2 (secondary reference - syncd by (S)NTP)
+Precision: -23 (119.209ns per tick)
+Root Delay: 0.0012000s
+Root Dispersion: 7.7754118s
+ReferenceId: 0x0A0D000D (source IP:  10.13.0.13)
+Last Successful Sync Time: 14/11/2026 05:41:13
+Source: 10.13.0.13,0x8
+Poll Interval: 15 (32768s)
+
+C:\>w32tm /stripchart /computer:10.13.0.13 /samples:5 /dataonly
+Tracking 10.13.0.13 [10.13.0.13:123].
+Collecting 5 samples.
+The current time is 14/11/2026 10:12:31.
+10:12:31, -00.8512301s
+10:12:33, -00.8509922s
+10:12:35, -00.8514118s
+10:12:37, -00.8511004s
+10:12:39, -00.8512777s

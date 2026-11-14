@@ -30,6 +30,12 @@ import { searchCodes, CODES } from "../src/lib/errorcodes";
 import { TREES, ticketText } from "../src/lib/troubleshoot";
 import { decodeOid, analyseWalk, SAMPLE_WALK, SAMPLE_WALK_2, compareWalks } from "../src/lib/snmphelper";
 import { readCapture, packets as capPackets, tcpConns } from "../src/lib/pcapnet";
+import { eth as l2eth, goose as l2goose } from "../src/lib/l2cap";
+import { expectedFromScd, observe as gObserve, diagnose as gDiagnose } from "../src/lib/goosetrouble";
+import { analysePrp, analyseHsr, analyseRstp } from "../src/lib/redundancy";
+import { analysePtp, analyseNtp, parseW32tm, bestClass } from "../src/lib/timesync";
+import { parseText as tlText, parseCaptureEvents as tlCap, analyseSources as tlAnalyse, timeline as tlTimeline } from "../src/lib/timeline";
+import { svStreams, analyseSv } from "../src/lib/svview";
 import { analyse104, decodeAsdu } from "../src/lib/iec104cap";
 import { analyseMb } from "../src/lib/modbuscap";
 import { analyseDnp3, crcDnp } from "../src/lib/dnp3cap";
@@ -2877,6 +2883,47 @@ section("Worked examples (November 2026)");
   const sclP = readFileSync("public/iec-61850/scl-studio.html", "utf8");
   assertTrue("SCL Studio republished protected after the Phase F additions", /AJPA-SCLSTUDIO-/.test(sclP) && /noindex/.test(sclP) && !/AJPA-SCLSTUDIO-3C4E16088EE0C84A/.test(sclP));
   assertTrue("Every Phase F tool has a tool guide and sample files", ["/calculators/scada-protocol-analyser", "/calculators/gateway-mapping-builder", "/calculators/interlocking-logic-tester"].every((h) => !!TOOL_GUIDES[h]) && ["/calculators/scada-protocol-analyser", "/calculators/gateway-mapping-builder"].every((h) => SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
+}
+
+{
+  section("Phase G — capture, time and incident diagnostics");
+  const L = (f: string) => l2eth(readCapture(new Uint8Array(readFileSync("public/samples/" + f))));
+  const demo = L("GOOSE_SV_demo_bay1.pcap");
+  const g1 = demo.map(l2goose).find((g) => g)!;
+  assertTrue("GOOSE decode: first frame BAY1_TRIP, gocbRef, TAL 2000 ms, confRev 1, 2 entries", g1.goID === "BAY1_TRIP" && g1.gocbRef === "BAY1_PROTPROT/LLN0$GO$gcbTrip" && g1.tal === 2000 && g1.confRev === 1 && g1.n === 2);
+  const dd = gDiagnose(expectedFromScd(readFileSync("public/samples/GOOSE_SV_demo_bay1.scd", "utf8")), gObserve(demo), "", demo[demo.length - 1].t);
+  const chk = (t: string, id: string) => dd.find((d) => d.title.endsWith(t))?.checks.find((c) => c.id === id)?.st;
+  assertTrue("GOOSE troubleshooter (demo): gcbTrip late repetition, gcbStatus confRev 2≠3, gcbIntlk simulation and stNum fault, gcbAlarm not on the wire", chk("gcbTrip", "tal") === "fail" && chk("gcbStatus", "confrev") === "fail" && chk("gcbIntlk", "sim") === "fail" && chk("gcbIntlk", "stnum") === "fail" && chk("gcbAlarm", "present") === "fail");
+  const s13 = L("S13_GOOSE_station_bus.pcap"), d13 = gDiagnose(expectedFromScd(readFileSync("public/samples/S13_Sample.scd", "utf8")), gObserve(s13), "", s13[s13.length - 1].t);
+  assertTrue("GOOSE troubleshooter (S13): GCB_TRIP goID wrong, GCB_DIFF VLAN 11, GCB_OLD not in the SCD", d13.find((d) => d.title.endsWith("GCB_TRIP"))?.checks.find((c) => c.id === "goid")?.st === "fail" && d13.find((d) => d.title.endsWith("GCB_DIFF"))?.checks.find((c) => c.id === "vlan")?.st === "fail" && d13.some((d) => !d.exp && /GCB_OLD/.test(d.title)));
+  const pr = analysePrp(L("S13_PRP_RSTP_capture.pcap")), pf = (re: RegExp) => pr.findings.some((f) => re.test(f.text));
+  assertTrue("PRP: GW1 frames on LAN B at LAN A, 5 lost frames of P87T_T1, wrong LSDU size and no supervision for BCU_J01, RedBox with 2 VDANs", pf(/02-AA-00-00-01-01: all its frames carry LAN B/) && pf(/02-AA-00-00-02-03: 5 frame/) && pf(/02-AA-00-00-03-01: LSDU size/) && pf(/02-AA-00-00-03-01 sends PRP frames but no supervision/) && pf(/represents 2 single-attached/));
+  const rs = analyseRstp(L("S13_PRP_RSTP_capture.pcap"));
+  assertTrue("RSTP: root change SW1 → SW2, topology changes, BCU_J01 running its own spanning tree", rs.findings.some((f) => /root bridge changed: 32768\/02-AA-00-00-0F-01 → 4096\/02-AA-00-00-0F-02/.test(f.text)) && rs.tcs === 3 && rs.findings.some((f) => /02-AA-00-00-03-01 sends BPDUs claiming to be root/.test(f.text)));
+  const hs = analyseHsr(L("S13_HSR_ring_capture.pcap"));
+  assertTrue("HSR: MU_T1 frame circulating, MU_Q01 3 frames missing", hs.nodes.find((n) => n.mac === "02-AA-00-00-04-02")!.dup === 3 && hs.nodes.find((n) => n.mac === "02-AA-00-00-04-01")!.lost === 3);
+  const pt = analysePtp(L("S13_PTP_capture.pcap")), tf = (re: RegExp, sev?: string) => pt.findings.some((f) => re.test(f.text) && (!sev || f.sev === sev));
+  assertTrue("PTP: rogue grandmaster wins by priority1, UTC offset 36, holdover, missing Follow_Up, domain 93, Delay_Req", tf(/wins because of its priority1 64/, "error") && tf(/currentUtcOffset 36/, "error") && tf(/class to 7/) && tf(/without Follow_Up \(sequence 7\)/) && tf(/domain 93/) && tf(/Delay_Req/));
+  assertTrue("PTP: Sync every 1 s from GPS1, capture clock within 1 ms of PTP time", pt.syncStats?.n === 10 && Math.abs((pt.syncStats?.mean ?? 0) - 1) < 1e-6 && Math.abs(pt.captureOffset ?? 1) < 0.001);
+  const np = analyseNtp(L("S13_NTP_capture.pcap")), gps = np.servers.find((s) => s.ip === "10.13.0.13")!;
+  const med = gps.samples.map((x) => x.offset).sort((a, b) => a - b)[3];
+  assertClose("NTP: HMI1 is 850 ms ahead of GPS1 (offset −850 ms)", med * 1000, -850, 0.5);
+  assertTrue("NTP: 10.13.1.1 unsynchronised (stratum 16)", np.findings.some((f) => f.sev === "error" && /10\.13\.1\.1 is not synchronised/.test(f.text)));
+  const w3 = parseW32tm(readFileSync("public/samples/S13_HMI1_w32tm.txt", "utf8"));
+  assertTrue("w32tm: root dispersion 7.78 s, poll interval 32768 s, stripchart −851 ms", w3.findings.some((f) => /Root dispersion 7\.78/.test(f.text)) && w3.findings.some((f) => /32768 s/.test(f.text)) && w3.findings.some((f) => /-851\.2 ms/.test(f.text)));
+  assertTrue("Time classes: 0.8 µs → T5, 50 µs → T2, 5 ms → T0", bestClass(0.8e-6) === "T5" && bestClass(50e-6) === "T2" && bestClass(0.005) === "T0");
+  const P = "public/samples/";
+  const src = ["S13_SOE_P132_Q01.csv", "S13_SOE_P87T_T1.csv", "S13_SCADA_event_list.csv", "S13_switch_syslog.log"].map((f) => tlText(f, readFileSync(P + f, "utf8"), 2026));
+  src.push(tlCap("S13_GOOSE_station_bus.pcap", new Uint8Array(readFileSync(P + "S13_GOOSE_station_bus.pcap"))));
+  const ta = tlAnalyse(src);
+  assertTrue("Timeline checks: SCADA list 4 h ahead, P87T_T1 not synchronised + chattering, duplicate, intertrip 307 ms before it was sent", ta.suggestions.some((g) => g.src === "S13_SCADA_event_list.csv" && g.offset === -14400) && ta.findings.some((f) => /recorded 307 ms BEFORE P132_Q01 sent it/.test(f.text)) && ta.findings.some((f) => /chattering/.test(f.text)) && ta.findings.some((f) => /recorded twice/.test(f.text)) && ta.findings.some((f) => /not synchronised/.test(f.text)));
+  for (const g of ta.suggestions) src.find((s) => s.name === g.src)!.offset += g.offset;
+  const tl = tlTimeline(src, 2), at = (re: RegExp) => tl.rows.find((r) => re.test(`${r.signal} ${r.desc}`) && r.value !== "0")?.rel ?? NaN;
+  assertTrue("Disturbance reconstructed: start −19 ms, GOOSE trip 0, intertrip received +4 ms, breaker open +50 ms, link down +67 ms", Math.round(at(/PDIS1\.Str/) * 1000) === -19 && Math.round(at(/GOOSE GCB_TRIP/) * 1000) === 0 && Math.round(at(/Ind_LINE_TRIP/) * 1000) === 4 && Math.round(at(/XCBR1\.Pos/) * 1000) === 50 && Math.round(at(/LINK-3-UPDOWN/) * 1000) === 67);
+  assertTrue("After corrections no causality error remains", !tlAnalyse(src).findings.some((f) => f.sev === "error"));
+  const sv0 = analyseSv(svStreams(demo)[0]);
+  assertTrue("SV: 8 lost samples, neutral mismatch at sample 1506, 70.71 A and 44.9 kV phasors 120° apart, 50 Hz", sv0.lost === 8 && sv0.findings.some((f) => /sample 1506/.test(f.text)) && Math.abs(sv0.phasors[0].mag - 70.71) < 0.05 && Math.abs(sv0.phasors[4].mag - 44901) < 5 && Math.abs(Math.abs(sv0.phasors[5].ang) - 120) < 0.5 && Math.abs((sv0.freq ?? 0) - 50) < 0.01);
+  assertTrue("Every Phase G tool has a tool guide and sample files", ["/calculators/goose-troubleshooter", "/calculators/network-redundancy-analyser", "/calculators/time-sync-analyser", "/calculators/soe-incident-timeline", "/calculators/sv-waveform-viewer"].every((h) => !!TOOL_GUIDES[h] && SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
 }
 
 {

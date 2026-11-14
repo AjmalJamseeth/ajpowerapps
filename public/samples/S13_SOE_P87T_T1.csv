@@ -1,0 +1,11 @@
+Time (UTC),Device,Signal,Value,Description,Time quality
+2026-11-14 06:12:29.688,P87T_T1,SYS/GGIO1.Alm3,1,Cooling fan supply,not synchronised
+2026-11-14 06:12:30.088,P87T_T1,SYS/GGIO1.Alm3,0,Cooling fan supply,not synchronised
+2026-11-14 06:12:30.488,P87T_T1,SYS/GGIO1.Alm3,1,Cooling fan supply,not synchronised
+2026-11-14 06:12:30.888,P87T_T1,SYS/GGIO1.Alm3,0,Cooling fan supply,not synchronised
+2026-11-14 06:12:30.924,P87T_T1,PROT/PTRC1.Ind_LINE_TRIP,1,Intertrip received from P132_Q01 (GOOSE),not synchronised
+2026-11-14 06:12:31.024,P87T_T1,PROT/PTRC1.Ind_LINE_TRIP,0,Intertrip reset,not synchronised
+2026-11-14 06:12:31.288,P87T_T1,SYS/GGIO1.Alm3,1,Cooling fan supply,not synchronised
+2026-11-14 06:12:31.688,P87T_T1,SYS/GGIO1.Alm3,0,Cooling fan supply,not synchronised
+2026-11-14 06:12:32.088,P87T_T1,SYS/GGIO1.Alm3,1,Cooling fan supply,not synchronised
+2026-11-14 06:12:32.488,P87T_T1,SYS/GGIO1.Alm3,0,Cooling fan supply,not synchronised

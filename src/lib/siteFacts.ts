@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 1008;
+export const AUTOMATED_CHECKS = 1025;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,15 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Capture, time and incident diagnostics",
+    items: [
+      "New: GOOSE Troubleshooter — why a GOOSE is not accepted, from the SCD and a capture, check by check.",
+      "New: PRP, HSR & RSTP Capture Analyser; New: Time Sync Analyser (PTP power profile, NTP, w32tm, time classes); New: SOE Checker & Incident Timeline; New: Sampled Values Waveform & Phasor Viewer.",
+      "New sample files: S13 GOOSE, PRP/RSTP, HSR, PTP and NTP captures, w32tm output, and a line-fault disturbance recorded by two IEDs, SCADA, a switch and a capture.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Protocols and IEC 61850 engineering",

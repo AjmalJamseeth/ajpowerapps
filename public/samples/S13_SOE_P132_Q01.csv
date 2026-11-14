@@ -1,0 +1,7 @@
+Time (UTC),Device,Signal,Value,Description,Time quality
+2026-11-14 06:12:31.212,P132_Q01,PROT/PDIS1.Str.general,1,Distance zone 1 start,synchronised
+2026-11-14 06:12:31.231,P132_Q01,PROT/PDIS1.Op.general,1,Distance zone 1 operate,synchronised
+2026-11-14 06:12:31.231,P132_Q01,PROT/PTRC1.Tr.general,1,Trip,synchronised
+2026-11-14 06:12:31.281,P132_Q01,CTRL/XCBR1.Pos.stVal,off,QA1 open,synchronised
+2026-11-14 06:12:31.330,P132_Q01,PROT/PTRC1.Tr.general,0,Trip reset,synchronised
+2026-11-14 06:12:31.335,P132_Q01,PROT/PDIS1.Str.general,0,Start reset,synchronised

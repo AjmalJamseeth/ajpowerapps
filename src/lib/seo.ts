@@ -69,6 +69,26 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "Windows Error & Event ID Lookup – 10060, 10061, 7031, 1129",
     description: "Meaning, causes and checks for Windows error codes and event IDs on SCADA servers: WinSock 10060/10061, 0x80070005, 1789 trust failure, 7031, 1129, 5719, 4625, DCOM 10016, Schannel, Time-Service.",
   },
+  "/calculators/goose-troubleshooter": {
+    title: "GOOSE Troubleshooter – Why Is My IEC 61850 GOOSE Not Working?",
+    description: "Compare a Wireshark capture with the SCD for every GOOSE stream: MAC, APPID, VLAN, goID, confRev, data set, simulation, time allowed to live, stNum/sqNum — find why the subscriber rejects it.",
+  },
+  "/calculators/sv-waveform-viewer": {
+    title: "IEC 61850-9-2LE Sampled Values Waveform & Phasor Viewer",
+    description: "Plot merging-unit sampled values from a pcap: waveforms, DFT phasors, frequency, sequence components, lost samples, smpSynch, quality and neutral or phase-sequence errors.",
+  },
+  "/calculators/network-redundancy-analyser": {
+    title: "PRP, HSR & RSTP Capture Analyser – IEC 62439-3 Redundancy Check",
+    description: "Find hidden PRP/HSR faults in a capture — LAN A/B mixing, lost frames, LSDU size, missing supervision, circulating HSR frames — and RSTP root changes and topology changes.",
+  },
+  "/calculators/time-sync-analyser": {
+    title: "PTP & NTP Time Sync Analyser – IEC 61850-9-3 Power Profile, w32tm",
+    description: "Check PTP grandmasters, clock class, UTC offset and power-profile settings, NTP offset and stratum from a capture, and Windows w32tm output against IEC 61850-5 time classes.",
+  },
+  "/calculators/soe-incident-timeline": {
+    title: "SOE Checker & Substation Incident Timeline Builder",
+    description: "Merge IED SOE files, SCADA event lists, syslog and captures on one UTC time line; detect unsynchronised clocks, local time, duplicates, chattering and cause-effect violations.",
+  },
   "/calculators/scada-protocol-analyser": {
     title: "IEC 104, Modbus TCP & DNP3 Capture Analyser – Wireshark pcap Decoder",
     description: "Analyse a pcap of a SCADA link: IEC 60870-5-104 sequence, k/w, t1–t3, ASDUs and time tags; Modbus TCP exceptions, response times and register map; DNP3 CRC, IIN and objects.",
