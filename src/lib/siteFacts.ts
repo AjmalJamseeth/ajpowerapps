@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 989;
+export const AUTOMATED_CHECKS = 1008;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,17 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Protocols and IEC 61850 engineering",
+    items: [
+      "New: SCADA Protocol Capture Analyser — IEC 60870-5-104, Modbus TCP and DNP3 decoded from pcap/pcapng, with protocol checks, an IEC 104 point list and a Modbus register map.",
+      "New: Gateway Mapping Builder — the gateway signal list derived from the SCD with IEC 104, Modbus and DNP3 addresses, checked and compared with the gateway's point list.",
+      "New: Interlocking Logic Tester — bay interlocking evaluated over every position combination, against the specification and for fail-safe GOOSE behaviour, with FAT test steps.",
+      "SCL Studio: deeper subscription checks in Validation, and an acceptance test plan generated from the change-impact report.",
+      "New sample files: IEC 104, Modbus TCP and DNP3 captures, a gateway point list and SCD revision B.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Vendor formats: Hirschmann, RUGGEDCOM, GE MultiLink, Palo Alto",

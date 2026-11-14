@@ -69,6 +69,18 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "Windows Error & Event ID Lookup – 10060, 10061, 7031, 1129",
     description: "Meaning, causes and checks for Windows error codes and event IDs on SCADA servers: WinSock 10060/10061, 0x80070005, 1789 trust failure, 7031, 1129, 5719, 4625, DCOM 10016, Schannel, Time-Service.",
   },
+  "/calculators/scada-protocol-analyser": {
+    title: "IEC 104, Modbus TCP & DNP3 Capture Analyser – Wireshark pcap Decoder",
+    description: "Analyse a pcap of a SCADA link: IEC 60870-5-104 sequence, k/w, t1–t3, ASDUs and time tags; Modbus TCP exceptions, response times and register map; DNP3 CRC, IIN and objects.",
+  },
+  "/calculators/gateway-mapping-builder": {
+    title: "IEC 61850 Gateway Mapping Builder – SCD to IEC 104, Modbus, DNP3 Signal List",
+    description: "Build a station gateway signal list from the SCD: IEC 104 types and IOAs, Modbus registers and DNP3 points for reported data sets and controls, checked and compared with the gateway export.",
+  },
+  "/calculators/interlocking-logic-tester": {
+    title: "Interlocking Logic Tester – IEC 61850 GOOSE Bay Interlocking Truth Table",
+    description: "Test substation bay interlocking logic over every switchgear position, compare with the specification, check fail-safe behaviour for lost or invalid GOOSE and generate FAT test steps.",
+  },
   "/calculators/discovery-result-checker": {
     title: "Network Discovery Result Checker – nmap Scan vs IP & Asset Register",
     description: "Compare an nmap scan, ARP table or IP list with the substation IP or asset register: unknown devices, missing devices, MAC mismatches, wrong addresses and open ports not on the approved list.",

@@ -477,6 +477,115 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/scada-protocol-analyser": {
+    what: "An analyser for captures of SCADA telecontrol links: it decodes IEC 60870-5-104, Modbus TCP and DNP3 from a Wireshark file and checks them against the protocol rules.",
+    can: [
+      "Read pcap and pcapng files and reassemble each TCP connection in both directions (retransmissions dropped, missing data reported).",
+      "IEC 104: decode I, S and U frames and 40 ASDU types with value, quality and CP56Time2a time tag; check STARTDT, sequence numbers, k and w, unconfirmed TESTFR/STARTDT within t1, idle time t3, general interrogation and command sequences, causes 44–47, time-tag offset; build a point list.",
+      "Modbus TCP: match requests and responses, explain exceptions, find unanswered requests, measure response times, list polling blocks and their cycle, and build a register map of every address read or written.",
+      "DNP3: check the CRC of every link-frame block, reassemble transport segments, decode function codes, IIN bits and the common object groups, and find unanswered requests, SELECT without OPERATE and unconfirmed unsolicited responses.",
+    ],
+    why: [
+      "When data stops or arrives wrong, the capture shows which side is at fault — but reading hundreds of frames by hand is slow, and the protocol rules are not obvious.",
+      "Gateways, RTUs and control centres from different vendors interpret parameters (k, w, timers, cause of transmission, word order, IIN handling) differently; the capture is the neutral evidence.",
+    ],
+    understand: [
+      "IEC 104 numbers every I-frame; the receiver acknowledges with N(R). A jump in N(S) means frames were lost or repeated, and the connection must be closed. The sender may have at most k unacknowledged frames; the receiver should acknowledge at the latest after w frames or t2 seconds.",
+      "Cause of transmission tells why a value is sent: spontaneous (3), interrogated (20), activation (6), confirmation (7), termination (10); causes 44–47 mean the receiver does not know the type, cause, common address or object address — a configuration mismatch.",
+      "Modbus has no time stamps, no quality and no events: the master polls, and an exception code tells why a request failed (2 = address not in the map, 11 = the device behind a gateway did not answer).",
+      "DNP3 protects each 16-byte block with a CRC; internal indications (IIN) in every response report device restart, need time, event buffer overflow and trouble.",
+    ],
+    need: [
+      "A capture (.pcap or .pcapng) taken at a mirror port or TAP next to the gateway, RTU or SCADA front end, ideally including a general interrogation or integrity poll.",
+      "The link parameters configured on the devices (IEC 104 k, w, t1–t3, ports) if they differ from the defaults.",
+      BROWSER,
+    ],
+    use: [
+      "Open the capture or load a sample; the tab with the most traffic opens first.",
+      "Enter the configured IEC 104 parameters and ports if they are not the defaults.",
+      "Read the findings with their frame numbers, then look at those frames in Wireshark if needed. Export the IEC 104 point list or the Modbus register map.",
+    ],
+    output: ["Per connection: statistics, findings with frame numbers, a frame table; the IEC 104 point list (CSV); Modbus polling blocks and register map (CSV); DNP3 application messages with IIN and objects."],
+    interpret: [
+      "Sequence-number errors and unconfirmed TESTFR: the link is unreliable or one side does not follow the timers — compare the parameters on both sides.",
+      "Causes 44–47 and Modbus exception 2: the two configurations do not match (address list, common address, register map, offset).",
+      "Time tags off by whole hours: one side uses local time instead of UTC. DNP3 NEED TIME: the outstation clock is not set.",
+      "Invalid quality (IV, NT) on points: the gateway has lost the source IED or the value is not refreshed.",
+    ],
+    basis: [
+      "IEC 60870-5-104 APCI and timers; ASDU structure, type identifications, causes and CP56Time2a per IEC 60870-5-101/104 (cause of transmission 2 octets, common address 2 octets, object address 3 octets).",
+      "Modbus Application Protocol V1.1b3 and Modbus Messaging on TCP/IP (MBAP header, limits of 2000 bits / 125 registers per read and 123 per write).",
+      "IEEE 1815 DNP3: link frame 0x0564 with CRC-16 (polynomial 0x3D65), transport header FIR/FIN/sequence, application control and function codes, IIN.",
+      "The sample captures were generated with Scapy's independent IEC 104 and Modbus implementations; the DNP3 CRC is checked against the published example 05 64 05 C0 01 00 00 04 → E9 21.",
+    ],
+    limits: [
+      "Encrypted links (TLS) cannot be decoded; IEC 101 and DNP3 serial links need a capture in pcap form from a serial-to-Ethernet tap.",
+      "IP fragments are not reassembled; captures with lost packets are decoded around the gaps, which are reported.",
+      "DNP3 objects are decoded for the common groups (binary, double-bit, analog, counter, CROB, analog output, time); other groups are listed by header only.",
+    ],
+  },
+  "/calculators/gateway-mapping-builder": {
+    what: "A builder that derives the station gateway's signal list from the SCD and allocates IEC 104, Modbus and DNP3 addresses by rules — and checks the gateway's own point list against it.",
+    can: [
+      "Collect the members of data sets used by report control blocks whose client is the gateway, and the controllable objects with a control model other than status-only.",
+      "Resolve each signal's common data class (also sub-objects such as A.phsA) and description from the SCD.",
+      "Allocate IEC 104 types (with or without time tag) and IOAs per IED and kind of signal; Modbus discrete inputs, input registers, coils and holding registers (32-bit values in two registers, word order selectable); DNP3 points with event classes.",
+      "Check duplicates, overflowing ranges, commands without position feedback, double control objects (CSWI and XCBR); compare a gateway point list by 61850 reference for missing, extra, wrong-type and different-address points.",
+    ],
+    why: [
+      "The gateway signal list is usually retyped from the SCD by hand — the most error-prone step of SCADA engineering. Errors appear only at point-to-point testing.",
+      "Deriving the list by fixed rules and comparing the gateway's export with it removes typing errors before testing.",
+    ],
+    understand: [
+      "The gateway receives IED data through reports: only the members of the data sets of report control blocks enabled for the gateway can reach SCADA.",
+      "Each common data class has a natural telecontrol type: SPS/ACT/ACD → single point, DPS/DPC → double point, MV/CMV → measured value, INS/ENS → scaled value, BCR → integrated total; SPC/DPC/APC/INC/BSC controls → single, double, set-point and step commands (IEC 61850-80-1 gives the detailed mapping).",
+      "Modbus has no quality and no time stamp; IEC 104 types with time tag keep the IED's event time; DNP3 event classes decide what is reported as events.",
+    ],
+    need: ["The SCD with the IEDs, data sets, report control blocks (with ClientLN) and data type templates.", "The control centre's addressing convention, to set the ranges.", "Optionally the point list exported from the gateway tool (CSV).", BROWSER],
+    use: [
+      "Open the SCD (or load the sample) and choose the gateway IED.",
+      "Set the common address, the first IOA, the block per IED and the offsets per kind of signal, and whether time-tagged types are used.",
+      "Untick signals that must not be mapped (for example XCBR.Pos control when control goes through CSWI).",
+      "Export the mapping, enter it in the gateway tool, export the gateway point list and open it here to compare.",
+    ],
+    output: ["The mapping table in IEC 104, Modbus and DNP3 views, findings, and the comparison with the gateway list; CSV export."],
+    interpret: [
+      "Wrong type in the gateway (a double point sent as a single point): the control centre decodes the value wrongly — correct before testing.",
+      "Gateway points not in the SCD: wrong reference, or a data-set member removed — the point would never update.",
+      "SCD signals missing in the gateway: SCADA will not see them.",
+    ],
+    basis: ["IEC 61850-6 data sets, report control blocks, ClientLN and templates; IEC 61850-7-3 common data classes; IEC 61850-80-1 mapping principles; IEC 60870-5-101/104 type identifications and IOA (3 octets, 1–16 777 215); Modbus data tables; IEEE 1815 object groups.", "Allocation is deterministic: IEDs in SCD order, signals in data-set order, controls after."],
+    limits: ["The allocation rules are a proposal; the control centre's convention governs.", "The tool does not write gateway configuration files.", "References are compared after removing the attribute (stVal, general, mag.f, ctlVal); vendor-specific reference formats may need adjusting in the CSV."],
+  },
+  "/calculators/interlocking-logic-tester": {
+    what: "An offline tester for bay interlocking conditions: it evaluates the release logic over every combination of switchgear positions and checks it against a specification and against fail-safe rules.",
+    can: [
+      "Read conditions such as QA1 = OFF & QC1 = OFF & (QB2 = OFF | BC_QA1 = ON) with double points (ON, OFF, INT, BAD) and single points.",
+      "Evaluate every combination (up to 65 536 per condition) with fail-safe logic and compare with the specification: unsafe and restrictive differences.",
+      "Show where a quality-blind implementation would still release when a GOOSE input is lost, invalid or in test, and where a BAD position satisfies a '!=' test; find contradictions and conditions that block nothing.",
+      "Write test steps: a released state, each input changed to the value that must block, and each GOOSE interrupted.",
+    ],
+    why: [
+      "A misplaced bracket or a '!=' test can release a disconnector or earth switch in hundreds of position combinations that nobody tests by hand.",
+      "With GOOSE, positions of other bays travel over the network: the logic must block when a message is lost, invalid or from a device in test.",
+    ],
+    understand: [
+      "A double point has four states: intermediate (00), off (01), on (10) and bad (11). Only a definite position may release an operation.",
+      "In IEC 61850 the interlocking function (CILO) gives EnaOpn / EnaCls; the control (CSWI) refuses an operation without the release.",
+      "Operator precedence: NOT before AND before OR (as in IEC 61131-3). 'A & B | C' means '(A & B) | C'.",
+      "Fail-safe: an unknown input (bad position, invalid quality, GOOSE time allowed to live expired, test mode) must block.",
+    ],
+    need: ["The signal list of the bay (position names, double or single point, local or GOOSE with the publishing IED).", "The release conditions as configured in the bay controller, and the specification if available.", BROWSER],
+    use: ["List the signals, then write one condition per line: name: condition. Use the same names in the specification.", "Read each condition's findings, then the differences, released states and test steps.", "Export the test sheet for the FAT or SAT."],
+    output: ["Per condition: combinations, released states, differences from the specification, fail-safe findings and test steps; a CSV test sheet."],
+    interpret: [
+      "Released where the specification blocks: unsafe — correct the bay controller logic.",
+      "BAD position satisfies a '!=' test: rewrite with '= OFF' / '= ON'.",
+      "GOOSE input that keeps the release when lost: configure the subscriber to use the quality and GOOSE supervision so a lost input blocks.",
+    ],
+    basis: ["IEC 61850-7-4 CILO / CSWI; IEC 61850-7-3 Dbpos and quality; IEC 61850-8-1 GOOSE time allowed to live and simulation. Evaluation by exhaustive enumeration with three-valued (Kleene) logic: unknown never releases."],
+    limits: ["It tests the logic you write, not the device: transcribe the configured logic exactly and confirm in the FAT.", "Timing (operating times, sequences) and dynamic conditions are not modelled."],
+  },
   "/calculators/discovery-result-checker": {
     what: "A checker that compares a network scan (what is on the network) with the approved IP or asset register (what should be on it).",
     can: [
@@ -846,6 +955,8 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
       "Show the substation structure, the IEDs with their data model, data sets, GOOSE, sampled-value, report and log control blocks, and the communication section.",
       "Validate the file with more than 40 rules: duplicate MAC or APPID, IP addresses outside their subnet, unresolved ExtRefs, missing data-set members, report settings and more.",
       "Edit addresses and attributes, compare two revisions with a change-impact report, export signal lists and registers to Excel, generate FAT/SAT test sheets, check a SCADA tag list, and export a CID for one IED.",
+      "Check subscriptions in depth: serviceType against the control block type, subscriber on the publisher's subnetwork, IEDName lists, quality published and subscribed, inputs bound twice, Edition 1 inputs without srcCBName, unbound inputs and blocks nobody subscribes to.",
+      "Turn the change-impact report into an acceptance test plan: test steps with acceptance criteria for every change, configuration control and regression checks, with a sign-off table.",
     ],
     why: [
       "The SCD is the single reference for a substation automation system, but vendor tools often show only their own IEDs and are not available to every engineer.",

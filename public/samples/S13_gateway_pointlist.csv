@@ -1,0 +1,8 @@
+Point,61850 reference,CA,IOA,Type,Description
+1,P132_Q01PROT/MMXU1.TotW.mag.f,1,1400,M_ME_TF_1,Line 1 active power
+2,P132_Q01PROT/MMXU1.Hz.mag.f,1,1401,M_ME_NC_1,Line 1 frequency
+3,P132_Q01PROT/PTRC1.Str.general,1,1001,M_SP_TB_1,Line 1 protection start
+4,P132_Q01CTRL/XCBR1.Pos.stVal,1,1200,M_SP_TB_1,Line 1 CB position
+5,P132_Q01CTRL/CSWI1.Pos.Oper.ctlVal,1,1801,C_DC_TA_1,Line 1 CB control
+6,P132_Q01PROT/PTRC1.Tr.general,1,1002,M_SP_TB_1,Line 1 trip
+7,P132_Q01PROT/PDIS1.Op.general,1,1002,M_SP_TB_1,Line 1 distance operate

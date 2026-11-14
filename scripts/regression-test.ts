@@ -29,6 +29,12 @@ import { CMD_SAMPLES } from "../src/lib/cmdsamples";
 import { searchCodes, CODES } from "../src/lib/errorcodes";
 import { TREES, ticketText } from "../src/lib/troubleshoot";
 import { decodeOid, analyseWalk, SAMPLE_WALK, SAMPLE_WALK_2, compareWalks } from "../src/lib/snmphelper";
+import { readCapture, packets as capPackets, tcpConns } from "../src/lib/pcapnet";
+import { analyse104, decodeAsdu } from "../src/lib/iec104cap";
+import { analyseMb } from "../src/lib/modbuscap";
+import { analyseDnp3, crcDnp } from "../src/lib/dnp3cap";
+import { extractSignals, buildMap, checkMap, parseGatewayList, compareGateway } from "../src/lib/gatewaymap";
+import { testAll, SAMPLE_SIGNALS, SAMPLE_IMPL, SAMPLE_SPEC } from "../src/lib/interlock";
 import { parseScan, parseRegister as discRegister, parseRules, checkDiscovery, DEFAULT_RULES } from "../src/lib/discovery";
 import { loadCerts, parseCert, checkCert, SAMPLE_CERT } from "../src/lib/certinspect";
 import { parsePerfCsv, analysePerf, sampleCsv } from "../src/lib/perflog";
@@ -2835,6 +2841,42 @@ section("Worked examples (November 2026)");
   assertTrue("Palo Alto sample: deny rule before the DMZ MMS rule, an any-service engineering rule and Telnet", pa.indexOf('"block-dmz-to-station" action deny') < pa.indexOf('"DMZ-to-STATION-LAN-mms" action allow') && /"eng-maintenance-any" service any/.test(pa) && /application telnet/.test(pa));
   assertTrue("ROX sample: fwrule entries, Telnet rule R90, accept policy loc → net and a final drop policy", /fwrule R1\r\n   action           accept/.test(rox) && /destination-ports 23/.test(rox) && /fwpolicy P1\r\n   source-zone      loc\r\n   destination-zone net\r\n   policy           accept/.test(rox) && /policy           drop/.test(rox));
   assertTrue("NetStudio guide lists the vendor formats and the firewall comparison", TOOL_GUIDES["/calculators/scl-netstudio"].limits.some((l) => /Hirschmann HiOS/.test(l) && /RUGGEDCOM ROS/.test(l) && /ML2400/.test(l)) && TOOL_GUIDES["/calculators/scl-netstudio"].can.some((c) => /Palo Alto/.test(c) && /ROX II/.test(c)));
+}
+
+{
+  section("Phase F — protocol captures, gateway mapping, interlocking");
+  const cap = (f: string) => { const pk = capPackets(readCapture(new Uint8Array(readFileSync("public/samples/" + f)))); return { pk, conns: tcpConns(pk, [2404, 502, 20000]) }; };
+  const i4 = analyse104(cap("S13_IEC104_gateway_capture.pcap").conns)[0];
+  const ff = (re: RegExp, sev?: string) => i4.findings.some((f) => re.test(f.text) && (!sev || f.sev === sev));
+  assertTrue("IEC 104 sample: 27 I-frames, one interrogation, 3 commands, k peak 10", i4.stats.i === 27 && i4.stats.gi === 1 && i4.stats.cmds === 3 && i4.stats.maxUnackS === 10);
+  assertTrue("IEC 104 findings: sequence jump 16 → 18, w exceeded, TESTFR unconfirmed, COT 47, IV quality on IOA 3003", ff(/jumps from 16 to 18/, "error") && ff(/without acknowledging/, "warning") && ff(/TESTFR act .* not confirmed/, "error") && ff(/COT 47/, "error") && ff(/IOA 3003/, "warning"));
+  assertClose("IEC 104 time tags are 4 h (local time) ahead of the capture clock", i4.stats.timeOffset ?? 0, 14400, 0.01);
+  const gi = i4.points.find((p) => p.ioa === 3002), dp = i4.points.find((p) => p.ioa === 2001);
+  assertTrue("IEC 104 values decoded as Scapy encoded them: IOA 2001 double point ON, IOA 3002 last 413.1", dp?.last === "ON (10)" && gi?.last === "413.1");
+  const ad = decodeAsdu(new Uint8Array([0x1e, 0x01, 0x03, 0x00, 0x01, 0x00, 0xe9, 0x03, 0x00, 0x01, 0xd2, 0x04, 0x05, 0x06, 0x0e, 0x0b, 0x1a]));
+  assertTrue("ASDU M_SP_TB_1: IOA 1001 ON at 2026-11-14 06:05:01.234", ad.type === 30 && ad.objs[0].ioa === 1001 && ad.objs[0].value === "ON" && ad.objs[0].time?.iso === "2026-11-14 06:05:01.234");
+  const mb = analyseMb(cap("S13_ModbusTCP_meter_capture.pcap").conns)[0];
+  assertTrue("Modbus sample: 31 requests, 1 unanswered, exceptions 2 and 11, slow 830 ms response", mb.stats.req === 31 && mb.stats.noResp === 1 && mb.findings.some((f) => /exception 2 "Illegal data address"/.test(f.text)) && mb.findings.some((f) => /exception 11/.test(f.text)) && Math.round(mb.stats.maxMs ?? 0) === 830);
+  assertTrue("Modbus register map: holding 0–9, input 100–103, coils 0–7 and the written register 40 of unit 1", mb.regs.filter((r) => r.unit === 1 && r.table === "holding").length === 11 && mb.regs.filter((r) => r.table === "input").length === 4 && mb.regs.filter((r) => r.table === "coil").length === 8 && mb.regs.some((r) => r.addr === 40 && r.writes === 1));
+  assertEqual("DNP3 CRC of the published example 05 64 05 C0 01 00 00 04", crcDnp(new Uint8Array([5, 0x64, 5, 0xc0, 1, 0, 0, 4])).toString(16), "21e9");
+  const dn = cap("S13_DNP3_RTU_capture.pcap"), d3 = analyseDnp3(dn.conns, dn.pk);
+  const df = (re: RegExp) => d3.findings.some((f) => re.test(f.text));
+  assertTrue("DNP3 sample: CRC error, restart not cleared, need time, event buffer overflow, SELECT without OPERATE, unconfirmed unsolicited, no response", df(/CRC error/) && df(/DEVICE RESTART and the master never cleared/) && df(/NEED TIME/) && df(/EVENT BUFFER OVERFLOW/) && df(/SELECT without OPERATE/) && df(/did not confirm/) && df(/got no response/));
+  assertTrue("DNP3 objects: g1v2 0–3 and g30v1 1324 / −12, CROB pulse on 500 ms", d3.apps.some((m) => m.objs.some((o) => o.g === 30 && o.values.join() === "0: 1324,1: -12")) && d3.apps.some((m) => m.objs.some((o) => o.g === 12 && /PULSE ON TRIP, count 1, on 500 ms/.test(o.values[0] ?? ""))));
+  const sm = extractSignals(readFileSync("public/samples/S13_Sample.scd", "utf8"), "GW1"), rows = buildMap(sm.signals);
+  assertTrue("Gateway mapping: 7 signals of P132_Q01; XCBR1.Pos as M_DP_TB_1 at IOA 1200, A.phsA float at 1402, CSWI1.Pos control C_DC_TA_1 at 1801", rows.length === 7 && rows.some((r) => /XCBR1\.Pos$/.test(r.ref) && r.t104 === 31 && r.ioa === 1200) && rows.some((r) => /A\.phsA$/.test(r.ref) && r.t104 === 36 && r.ioa === 1402) && rows.some((r) => /CSWI1\.Pos$/.test(r.ref) && r.t104 === 59 && r.ioa === 1801));
+  assertTrue("Gateway mapping checks: CSWI and XCBR both controllable noted; no conflicts", checkMap(rows).some((f) => /both CSWI1\.Pos and XCBR1\.Pos/.test(f.text)) && !checkMap(rows).some((f) => f.sev === "error"));
+  const gc = compareGateway(rows, parseGatewayList(readFileSync("public/samples/S13_gateway_pointlist.csv", "utf8")));
+  assertTrue("Gateway list comparison: duplicate IOA 1002, XCBR1.Pos wrong type, two orphan points, A.phsA missing", gc.some((f) => f.sev === "error" && /IOA 1002/.test(f.text)) && gc.some((f) => f.sev === "error" && /XCBR1\.Pos.*M_SP_TB_1/.test(f.text)) && gc.filter((f) => /not a reported or controllable signal/.test(f.text)).length === 2 && gc.some((f) => /A\.phsA/.test(f.text)));
+  const il = testAll(SAMPLE_SIGNALS, SAMPLE_IMPL, SAMPLE_SPEC);
+  const q1 = il.res.find((r) => r.rule.name === "QB1 operate")!, qa = il.res.find((r) => r.rule.name === "QA1 close")!, qc = il.res.find((r) => r.rule.name === "QC9 close")!;
+  assertTrue("Interlocking: QB1 precedence fault releases in 252 combinations the specification blocks", q1.total === 16384 && q1.mismatches.filter((m) => m.impl && !m.spec).length === 252);
+  assertTrue("Interlocking: QB2 and QB9 identical to the specification", il.res.filter((r) => /QB[29] operate/.test(r.rule.name)).every((r) => r.mismatches.length === 0));
+  assertTrue("Interlocking: QA1 '!= INT' satisfied by BAD positions; lost LINE_V GOOSE keeps a quality-blind release of QC9", qa.findings.filter((f) => /BAD \(11\)/.test(f.text)).length === 3 && qc.findings.some((f) => /LINE_V \(GOOSE from P132_Q01\)/.test(f.text)));
+  assertTrue("Interlocking test steps follow the specification and include GOOSE interruption with expected BLOCKED", q1.tests.length > 5 && q1.tests.some((t) => /Interrupt the GOOSE from BCU_BC/.test(t.action) && t.expect === "BLOCKED"));
+  const sclP = readFileSync("public/iec-61850/scl-studio.html", "utf8");
+  assertTrue("SCL Studio republished protected after the Phase F additions", /AJPA-SCLSTUDIO-/.test(sclP) && /noindex/.test(sclP) && !/AJPA-SCLSTUDIO-3C4E16088EE0C84A/.test(sclP));
+  assertTrue("Every Phase F tool has a tool guide and sample files", ["/calculators/scada-protocol-analyser", "/calculators/gateway-mapping-builder", "/calculators/interlocking-logic-tester"].every((h) => !!TOOL_GUIDES[h]) && ["/calculators/scada-protocol-analyser", "/calculators/gateway-mapping-builder"].every((h) => SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
 }
 
 {
