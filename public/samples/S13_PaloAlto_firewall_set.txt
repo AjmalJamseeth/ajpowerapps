@@ -1,0 +1,87 @@
+# Palo Alto PAN-OS - configuration in set format (show config running, set format)
+set zone SCADA-WAN network layer3 [ ethernet1/1 ]
+set zone DMZ network layer3 [ ethernet1/2 ]
+set zone STATION-LAN network layer3 [ ethernet1/3 ]
+set zone PROCESS-BUS network layer3 [ ethernet1/4 ]
+set zone ENGINEERING network layer3 [ ethernet1/5 ]
+set zone CORP-IT network layer3 [ ethernet1/6 ]
+set zone VENDOR-VPN network layer3 [ ethernet1/7 ]
+set zone GPS network layer3 [ ethernet1/8 ]
+set service tcp-19998 protocol tcp port 19998
+set rulebase security rules "block-dmz-to-station" from DMZ
+set rulebase security rules "block-dmz-to-station" to STATION-LAN
+set rulebase security rules "block-dmz-to-station" source any
+set rulebase security rules "block-dmz-to-station" destination any
+set rulebase security rules "block-dmz-to-station" application any
+set rulebase security rules "block-dmz-to-station" service any
+set rulebase security rules "block-dmz-to-station" action deny
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" from SCADA-WAN
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" to DMZ
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" source any
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" destination any
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" application iec-60870-5-104
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" service tcp-19998
+set rulebase security rules "SCADA-WAN-to-DMZ-iec104tls" action allow
+set rulebase security rules "DMZ-to-STATION-LAN-mms" from DMZ
+set rulebase security rules "DMZ-to-STATION-LAN-mms" to STATION-LAN
+set rulebase security rules "DMZ-to-STATION-LAN-mms" source any
+set rulebase security rules "DMZ-to-STATION-LAN-mms" destination any
+set rulebase security rules "DMZ-to-STATION-LAN-mms" application iec-61850-mms
+set rulebase security rules "DMZ-to-STATION-LAN-mms" service application-default
+set rulebase security rules "DMZ-to-STATION-LAN-mms" action allow
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" from ENGINEERING
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" to STATION-LAN
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" source any
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" destination any
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" application iec-61850-mms
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" service application-default
+set rulebase security rules "ENGINEERING-to-STATION-LAN-mms" action allow
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" from ENGINEERING
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" to STATION-LAN
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" source any
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" destination any
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" application ssl
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" service application-default
+set rulebase security rules "ENGINEERING-to-STATION-LAN-https" action allow
+set rulebase security rules "STATION-LAN-to-GPS-ntp" from STATION-LAN
+set rulebase security rules "STATION-LAN-to-GPS-ntp" to GPS
+set rulebase security rules "STATION-LAN-to-GPS-ntp" source any
+set rulebase security rules "STATION-LAN-to-GPS-ntp" destination any
+set rulebase security rules "STATION-LAN-to-GPS-ntp" application ntp
+set rulebase security rules "STATION-LAN-to-GPS-ntp" service application-default
+set rulebase security rules "STATION-LAN-to-GPS-ntp" action allow
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" from CORP-IT
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" to STATION-LAN
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" source any
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" destination any
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" application ms-rdp
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" service application-default
+set rulebase security rules "CORP-IT-to-STATION-LAN-rdp" action allow
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" from VENDOR-VPN
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" to DMZ
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" source any
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" destination any
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" application ipsec
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" service application-default
+set rulebase security rules "VENDOR-VPN-to-DMZ-vpn" action allow
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" from STATION-LAN
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" to ENGINEERING
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" source any
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" destination any
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" application syslog
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" service application-default
+set rulebase security rules "STATION-LAN-to-ENGINEERING-syslog" action allow
+set rulebase security rules "eng-maintenance-any" from ENGINEERING
+set rulebase security rules "eng-maintenance-any" to [ STATION-LAN PROCESS-BUS ]
+set rulebase security rules "eng-maintenance-any" source any
+set rulebase security rules "eng-maintenance-any" destination any
+set rulebase security rules "eng-maintenance-any" application any
+set rulebase security rules "eng-maintenance-any" service any
+set rulebase security rules "eng-maintenance-any" action allow
+set rulebase security rules "eng-telnet-relays" from ENGINEERING
+set rulebase security rules "eng-telnet-relays" to STATION-LAN
+set rulebase security rules "eng-telnet-relays" source any
+set rulebase security rules "eng-telnet-relays" destination any
+set rulebase security rules "eng-telnet-relays" application telnet
+set rulebase security rules "eng-telnet-relays" service application-default
+set rulebase security rules "eng-telnet-relays" action allow

@@ -1,0 +1,46 @@
+! configuration exported from SW2
+!
+enable
+configure
+system name SW2
+vlan database
+vlan add 10
+name 10 GOOSE-10
+exit
+interface 1/1
+name "GW1 NC-SB-004"
+vlan participation include 10
+vlan pvid 10
+vlan participation exclude 1
+classofservice trust dot1p
+exit
+interface 1/2
+name "HMI1 NC-SB-005"
+classofservice trust dot1p
+exit
+interface 1/3
+name "GPS1 NC-SB-006"
+classofservice trust dot1p
+exit
+interface 1/4
+name "BCU_J01 NC-SB-007"
+vlan participation include 10
+vlan tagging 10
+classofservice trust dot1p
+exit
+interface 1/5
+shutdown
+exit
+interface 1/6
+shutdown
+exit
+interface 1/7
+shutdown
+exit
+interface 1/8
+name "SW1 NC-SB-008"
+vlan participation include 10
+vlan tagging 10
+classofservice trust dot1p
+exit
+exit

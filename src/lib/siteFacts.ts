@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 983;
+export const AUTOMATED_CHECKS = 989;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Vendor formats: Hirschmann, RUGGEDCOM, GE MultiLink, Palo Alto",
+    items: [
+      "SCL NetStudio switch audit reads Hirschmann HiOS CLI scripts, RUGGEDCOM ROS config.csv tables and GE MultiLink ML2400 tag-VLAN commands, in addition to Cisco-style configurations and the CSV template; HiOS LLDP and MAC table output is also read.",
+      "SCL NetStudio writes switch configuration drafts in Cisco IOS, Hirschmann HiOS, RUGGEDCOM ROS and GE ML2400 syntax from the plan.",
+      "SCL NetStudio Firewall: new comparison of a Palo Alto (XML or set commands) or RUGGEDCOM ROX II firewall configuration with the planned zones and conduits.",
+      "New sample files for each vendor format, with deliberate faults.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Switch audit, network architecture and discovery checks",

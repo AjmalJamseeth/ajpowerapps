@@ -1,0 +1,41 @@
+#
+# System Identification
+#
+#System Name,Location,Contact
+"PB1","",""
+#
+# Port Parameters
+#
+#Port,Name,State
+1,"GPS1",Enabled
+2,"P132_Q01",Enabled
+3,"P87T_T1",Enabled
+4,"MU_Q01",Enabled
+5,"MU_T1",Enabled
+6,"unused",Disabled
+7,"unused",Disabled
+8,"unused",Disabled
+#
+# Static VLANs
+#
+#VID,VLAN Name,Forbidden Ports
+1,"STATION-DATA",""
+11,"SV-11",""
+#
+# Port VLAN Parameters
+#
+#Port,Type,PVID,PVID Format
+1,Edge,1,Untagged
+2,Trunk,1,Untagged
+3,Trunk,1,Untagged
+4,Trunk,1,Untagged
+5,Trunk,1,Untagged
+6,Edge,1,Untagged
+7,Edge,1,Untagged
+8,Edge,1,Untagged
+#
+# Static Multicast Groups
+#
+#MAC Address,VID,Ports
+01-0C-CD-04-00-01,11,"2,4"
+01-0C-CD-04-00-02,11,"3,5"

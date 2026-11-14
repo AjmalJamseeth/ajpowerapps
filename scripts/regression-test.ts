@@ -2822,7 +2822,19 @@ section("Worked examples (November 2026)");
   assertTrue("Switch audit samples carry the seeded faults (VLAN 10 missing on SW1 port 2, wrong untagged VLAN on SW2 port 1, GW1/HMI1 swapped, laptop on SW1 port 4)", /GigabitEthernet1\/0\/2\r\n[\s\S]*?allowed vlan 1\r\n/.test(sw1) && /^SW2,1,GW1,10,/m.test(csvp) && /^SW2,1,HMI1,/m.test(lldp) && /^SW1,4,LAPTOP-ENG07/m.test(lldp));
   assertTrue("Every Phase E tool has a tool guide and sample files", ["/calculators/discovery-result-checker", "/calculators/scl-netstudio", "/calculators/snmp-helper"].every((h) => !!TOOL_GUIDES[h]) && ["/calculators/discovery-result-checker", "/calculators/scl-netstudio"].every((h) => SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
   const nsG = TOOL_GUIDES["/calculators/scl-netstudio"];
-  assertTrue("NetStudio guide explains the switch audit and failure analysis, with their limits", nsG.can.some((c) => /Audit the installed switches/.test(c)) && nsG.basis.some((b) => /Failure analysis/.test(b)) && nsG.limits.some((l) => /three formats/.test(l)));
+  assertTrue("NetStudio guide explains the switch audit and failure analysis, with their limits", nsG.can.some((c) => /Audit the installed switches/.test(c)) && nsG.basis.some((b) => /Failure analysis/.test(b)) && nsG.limits.some((l) => /CSV template/.test(l) && /Cisco IOS-style/.test(l)));
+}
+
+{
+  section("Vendor sample files (HiOS, ROS, ML2400, Palo Alto, ROX)");
+  const hi = readFileSync("public/samples/S13_SW2_HiOS_running-config.txt", "utf8"), ros = readFileSync("public/samples/S13_PB1_ROS_config.csv", "utf8"), ml = readFileSync("public/samples/S13_SW2_ML2400_config.txt", "utf8");
+  assertTrue("HiOS sample: interface 1/1 (GW1) with PVID 10 and VLAN 1 excluded; trust dot1p on the IED ports", /interface 1\/1\r\nname "GW1[^"]*"\r\nvlan participation include 10\r\nvlan pvid 10\r\nvlan participation exclude 1/.test(hi) && /classofservice trust dot1p/.test(hi));
+  assertTrue("ROS sample: Port VLAN Parameters, Static VLANs table, merging-unit ports as Trunk", /# Port VLAN Parameters\r\n#\r\n#Port,Type,PVID,PVID Format/.test(ros) && /#VID,VLAN Name,Forbidden Ports\r\n1,"STATION-DATA",""\r\n11,"SV-11",""/.test(ros) && /^4,Trunk,1,Untagged/m.test(ros));
+  assertTrue("ML2400 sample: tag VLAN commands with port 1 moved to VLAN 10", /vlan type=tag/.test(ml) && /set-port port=1 default id=10/.test(ml) && /set-port port=1 leave id=1/.test(ml));
+  const pa = readFileSync("public/samples/S13_PaloAlto_firewall_set.txt", "utf8"), rox = readFileSync("public/samples/S13_RUGGEDCOM_ROX_firewall.txt", "utf8");
+  assertTrue("Palo Alto sample: deny rule before the DMZ MMS rule, an any-service engineering rule and Telnet", pa.indexOf('"block-dmz-to-station" action deny') < pa.indexOf('"DMZ-to-STATION-LAN-mms" action allow') && /"eng-maintenance-any" service any/.test(pa) && /application telnet/.test(pa));
+  assertTrue("ROX sample: fwrule entries, Telnet rule R90, accept policy loc → net and a final drop policy", /fwrule R1\r\n   action           accept/.test(rox) && /destination-ports 23/.test(rox) && /fwpolicy P1\r\n   source-zone      loc\r\n   destination-zone net\r\n   policy           accept/.test(rox) && /policy           drop/.test(rox));
+  assertTrue("NetStudio guide lists the vendor formats and the firewall comparison", TOOL_GUIDES["/calculators/scl-netstudio"].limits.some((l) => /Hirschmann HiOS/.test(l) && /RUGGEDCOM ROS/.test(l) && /ML2400/.test(l)) && TOOL_GUIDES["/calculators/scl-netstudio"].can.some((c) => /Palo Alto/.test(c) && /ROX II/.test(c)));
 }
 
 {

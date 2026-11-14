@@ -1,0 +1,11 @@
+! configuration exported from SW2
+# hostname SW2
+vlan type=tag
+add id=10 name=GOOSE-10 port=4,8
+set-port port=4,8 tagging id=10 status=tagged
+set-port port=1,2,3,4,8 default id=1
+set-port port=1 join id=10
+set-port port=1 default id=10
+set-port port=1 tagging id=10 status=untagged
+set-port port=1 leave id=1
+# unused ports: disable them in the port settings (ports 5,6,7)

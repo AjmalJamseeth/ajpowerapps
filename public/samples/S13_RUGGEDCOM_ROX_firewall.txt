@@ -1,0 +1,102 @@
+! RUGGEDCOM ROX II - show running-config security firewall
+security firewall
+ fwconfig fw1
+  fwzone net
+   type ipv4
+  !
+  fwzone dmz
+   type ipv4
+  !
+  fwzone loc
+   type ipv4
+  !
+  fwzone pb
+   type ipv4
+  !
+  fwzone eng
+   type ipv4
+  !
+  fwzone corp
+   type ipv4
+  !
+  fwzone vpn
+   type ipv4
+  !
+  fwzone gps
+   type ipv4
+  !
+  fwrule R1
+   action           accept
+   source-zone      net
+   destination-zone dmz
+   protocol         tcp
+   destination-ports 19998
+  !
+  fwrule R2
+   action           accept
+   source-zone      dmz
+   destination-zone loc
+   protocol         tcp
+   destination-ports 102
+  !
+  fwrule R3
+   action           accept
+   source-zone      eng
+   destination-zone loc
+   protocol         tcp
+   destination-ports 102
+  !
+  fwrule R4
+   action           accept
+   source-zone      eng
+   destination-zone loc
+   protocol         tcp
+   destination-ports 443
+  !
+  fwrule R6
+   action           accept
+   source-zone      loc
+   destination-zone gps
+   protocol         udp
+   destination-ports 123
+  !
+  fwrule R8
+   action           accept
+   source-zone      corp
+   destination-zone loc
+   protocol         tcp
+   destination-ports 3389
+  !
+  fwrule R9
+   action           accept
+   source-zone      vpn
+   destination-zone dmz
+   protocol         udp
+   destination-ports 500,4500
+  !
+  fwrule R10
+   action           accept
+   source-zone      loc
+   destination-zone eng
+   protocol         udp
+   destination-ports 514
+  !
+  fwrule R90
+   action           accept
+   source-zone      eng
+   destination-zone loc
+   protocol         tcp
+   destination-ports 23
+  !
+  fwpolicy P1
+   source-zone      loc
+   destination-zone net
+   policy           accept
+  !
+  fwpolicy P2
+   source-zone      all
+   destination-zone all
+   policy           drop
+  !
+ !
+!
