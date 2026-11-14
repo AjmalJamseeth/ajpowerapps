@@ -280,9 +280,149 @@ IF-MIB::ifInErrors.1 = Counter32: 0
 IF-MIB::ifInErrors.4 = Counter32: 1843
 IF-MIB::ifInErrors.8 = Counter32: 0
 IF-MIB::ifOutDiscards.8 = Counter32: 212
+IF-MIB::ifHCInOctets.1 = Counter64: 412339120
+IF-MIB::ifHCInOctets.3 = Counter64: 9120330
+IF-MIB::ifHCInOctets.4 = Counter64: 71200455
+IF-MIB::ifHCInOctets.8 = Counter64: 88412907551
+IF-MIB::ifHCOutOctets.1 = Counter64: 1203348810
+IF-MIB::ifHCOutOctets.3 = Counter64: 30551204
+IF-MIB::ifHCOutOctets.4 = Counter64: 190220771
+IF-MIB::ifHCOutOctets.8 = Counter64: 61007215302
 EtherLike-MIB::dot3StatsDuplexStatus.4 = INTEGER: halfDuplex(2)
 EtherLike-MIB::dot3StatsLateCollisions.4 = Counter32: 37
 BRIDGE-MIB::dot1dStpTopChanges.0 = Counter32: 14`;
+
+/** The same switch read again 5 minutes later (for the two-reading comparison). */
+export const SAMPLE_WALK_2 = `SNMPv2-MIB::sysDescr.0 = STRING: Industrial Ethernet switch, 8 ports, firmware 6.2
+SNMPv2-MIB::sysUpTime.0 = Timeticks: (25950000) 3 days, 0:05:00.00
+SNMPv2-MIB::sysName.0 = STRING: SW2
+IF-MIB::ifName.1 = STRING: port1
+IF-MIB::ifName.2 = STRING: port2
+IF-MIB::ifName.3 = STRING: port3
+IF-MIB::ifName.4 = STRING: port4
+IF-MIB::ifName.8 = STRING: port8
+IF-MIB::ifAlias.1 = STRING: GW1
+IF-MIB::ifAlias.2 = STRING: HMI1
+IF-MIB::ifAlias.3 = STRING: GPS1
+IF-MIB::ifAlias.4 = STRING: BCU_J01
+IF-MIB::ifAlias.8 = STRING: Uplink SW1
+IF-MIB::ifHighSpeed.1 = Gauge32: 100
+IF-MIB::ifHighSpeed.2 = Gauge32: 100
+IF-MIB::ifHighSpeed.3 = Gauge32: 100
+IF-MIB::ifHighSpeed.4 = Gauge32: 10
+IF-MIB::ifHighSpeed.8 = Gauge32: 1000
+IF-MIB::ifAdminStatus.1 = INTEGER: up(1)
+IF-MIB::ifAdminStatus.2 = INTEGER: up(1)
+IF-MIB::ifAdminStatus.3 = INTEGER: up(1)
+IF-MIB::ifAdminStatus.4 = INTEGER: up(1)
+IF-MIB::ifAdminStatus.8 = INTEGER: up(1)
+IF-MIB::ifOperStatus.1 = INTEGER: up(1)
+IF-MIB::ifOperStatus.2 = INTEGER: down(2)
+IF-MIB::ifOperStatus.3 = INTEGER: down(2)
+IF-MIB::ifOperStatus.4 = INTEGER: up(1)
+IF-MIB::ifOperStatus.8 = INTEGER: up(1)
+IF-MIB::ifInErrors.1 = Counter32: 0
+IF-MIB::ifInErrors.4 = Counter32: 2068
+IF-MIB::ifInErrors.8 = Counter32: 0
+IF-MIB::ifOutDiscards.8 = Counter32: 212
+IF-MIB::ifHCInOctets.1 = Counter64: 418339120
+IF-MIB::ifHCInOctets.3 = Counter64: 9120330
+IF-MIB::ifHCInOctets.4 = Counter64: 71850455
+IF-MIB::ifHCInOctets.8 = Counter64: 90412907551
+IF-MIB::ifHCOutOctets.1 = Counter64: 1599348810
+IF-MIB::ifHCOutOctets.3 = Counter64: 30551204
+IF-MIB::ifHCOutOctets.4 = Counter64: 193220771
+IF-MIB::ifHCOutOctets.8 = Counter64: 91007215302
+EtherLike-MIB::dot3StatsDuplexStatus.4 = INTEGER: halfDuplex(2)
+EtherLike-MIB::dot3StatsLateCollisions.4 = Counter32: 41
+BRIDGE-MIB::dot1dStpTopChanges.0 = Counter32: 15`;
+
+// --------------------------------------------------------------- two readings: rates
+export interface DeltaRow {
+  index: string;
+  name: string;
+  alias: string;
+  speedMb: number | null;
+  operA: number | null;
+  operB: number | null;
+  dInErr: number | null;
+  dOutErr: number | null;
+  dInDisc: number | null;
+  dOutDisc: number | null;
+  dLate: number | null;
+  inMbps: number | null;
+  outMbps: number | null;
+  utilPct: number | null;
+}
+export interface DeltaResult {
+  seconds: number;
+  source: "sysUpTime" | "entered" | "none";
+  restarted: boolean;
+  rows: DeltaRow[];
+  findings: { sev: "error" | "warning" | "info" | "ok"; text: string }[];
+}
+
+const ticks = (text: string) => {
+  const w = parseWalk(text).find((x) => x.name === "sysUpTime");
+  const m = w?.value.match(/\((\d+)\)/);
+  return m ? +m[1] : null;
+};
+
+/**
+ * Compare two snmpwalk readings of the same device. The interval is taken from
+ * sysUpTime when both readings have it, otherwise from enteredSeconds.
+ * 32-bit counters (ifInOctets/ifOutOctets, error counters) that went backwards
+ * are treated as one wrap at 2^32; 64-bit counters that went backwards mean a reset.
+ */
+export function compareWalks(a: string, b: string, enteredSeconds = 0): DeltaResult {
+  const A = analyseWalk(a), B = analyseWalk(b);
+  const ta = ticks(a), tb = ticks(b);
+  let seconds = enteredSeconds > 0 ? enteredSeconds : 0, source: DeltaResult["source"] = enteredSeconds > 0 ? "entered" : "none";
+  let restarted = false;
+  if (ta != null && tb != null) {
+    if (tb < ta) restarted = true;
+    else if (tb > ta) { seconds = (tb - ta) / 100; source = "sysUpTime"; }
+  }
+  const hcA = new Set(parseWalk(a).filter((x) => /^ifHC/.test(x.name)).map((x) => x.index));
+  const F: DeltaResult["findings"] = [];
+  if (restarted) F.push({ sev: "warning", text: "sysUpTime is lower in the second reading: the device (or its SNMP agent) restarted between the readings, so the counters started again from zero. Take two new readings." });
+  if (!seconds && !restarted) F.push({ sev: "info", text: "No interval: sysUpTime is missing in one reading and no interval was entered. Changes are shown as counts, without rates." });
+  const d32 = (x: number, y: number) => (y >= x ? y - x : y + 2 ** 32 - x);
+  const rows: DeltaRow[] = [];
+  for (const rb of B.ifs) {
+    const ra = A.ifs.find((r) => r.index === rb.index);
+    if (!ra) continue;
+    const dc = (x: number, y: number) => (restarted ? null : d32(x, y));
+    const oct = (x: number | null, y: number | null) => {
+      if (restarted || x == null || y == null) return null;
+      if (y >= x) return y - x;
+      return hcA.has(rb.index) ? null : d32(x, y);
+    };
+    const dIn = oct(ra.inOct, rb.inOct), dOut = oct(ra.outOct, rb.outOct);
+    const inMbps = dIn != null && seconds ? (dIn * 8) / seconds / 1e6 : null, outMbps = dOut != null && seconds ? (dOut * 8) / seconds / 1e6 : null;
+    const sp = rb.speedMb ?? ra.speedMb;
+    const utilPct = sp && (inMbps != null || outMbps != null) ? (100 * Math.max(inMbps ?? 0, outMbps ?? 0)) / sp : null;
+    const r: DeltaRow = { index: rb.index, name: rb.name || ra.name, alias: rb.alias || ra.alias, speedMb: sp, operA: ra.oper, operB: rb.oper, dInErr: dc(Math.max(ra.inErr, ra.fcs), Math.max(rb.inErr, rb.fcs)), dOutErr: dc(ra.outErr, rb.outErr), dInDisc: dc(ra.inDisc, rb.inDisc), dOutDisc: dc(ra.outDisc, rb.outDisc), dLate: dc(ra.late, rb.late), inMbps, outMbps, utilPct };
+    rows.push(r);
+    const n = `${r.name || "ifIndex " + r.index}${r.alias ? ` (${r.alias})` : ""}`;
+    const per = (x: number) => (seconds ? ` (${((x * 60) / seconds).toFixed(x * 60 / seconds < 10 ? 1 : 0)} per minute)` : "");
+    if (r.operA !== r.operB && r.operA != null && r.operB != null) F.push({ sev: "warning", text: `${n}: link state changed from ${r.operA === 1 ? "up" : "down"} to ${r.operB === 1 ? "up" : "down"} between the readings. If nobody unplugged it, look for a loose connector, a failing SFP or a device that restarted.` });
+    if (r.dInErr) F.push({ sev: "error", text: `${n}: ${r.dInErr} new receive errors${per(r.dInErr)}. The fault is active now — check the cable, connectors, SFP and duplex setting.` });
+    if (r.dLate) F.push({ sev: "error", text: `${n}: ${r.dLate} new late collisions — the duplex mismatch is still there.` });
+    if (r.dOutDisc) F.push({ sev: "warning", text: `${n}: ${r.dOutDisc} new output discards${per(r.dOutDisc)} — the port is congested now. Find what fills it (bursts of sampled values, a GOOSE avalanche, a backup or file copy on the station bus).` });
+    if (r.dInDisc) F.push({ sev: "info", text: `${n}: ${r.dInDisc} new input discards (filtered or unknown frames, or a full input buffer).` });
+    if (utilPct != null && utilPct >= 70) F.push({ sev: utilPct >= 90 ? "error" : "warning", text: `${n}: average ${utilPct.toFixed(0)} % of ${sp} Mb/s over ${Math.round(seconds)} s. Peaks are higher than the average; on a station or process bus keep the average well below the line rate so a GOOSE burst still fits.` });
+  }
+  if (!restarted) {
+    const stA = parseWalk(a).find((x) => x.name === "dot1dStpTopChanges"), stB = parseWalk(b).find((x) => x.name === "dot1dStpTopChanges");
+    if (stA && stB) {
+      const dt = d32(num(stA.value), num(stB.value));
+      if (dt > 0) F.push({ sev: "warning", text: `Spanning tree changed topology ${dt} time${dt > 1 ? "s" : ""} between the readings. Each change flushes MAC tables and floods traffic; find the port that went up or down.` });
+    }
+  }
+  if (!F.length && rows.length) F.push({ sev: "ok", text: `No new errors, discards or link changes in ${seconds ? Math.round(seconds) + " s" : "the interval"}.` });
+  return { seconds, source, restarted, rows, findings: F };
+}
 
 // --------------------------------------------------------------- SNMPv3
 export type SecLevel = "noAuthNoPriv" | "authNoPriv" | "authPriv";

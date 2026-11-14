@@ -1,0 +1,17 @@
+Switch,Port,Description,Untagged VLAN,Tagged VLANs,Status,Speed,QoS trust
+SW2,1,GW1,10,"",enabled,auto,yes
+SW2,2,HMI1,1,"",enabled,auto,yes
+SW2,3,GPS1,1,"",enabled,auto,yes
+SW2,4,BCU_J01,1,"10",enabled,auto,yes
+SW2,5,,1,,disabled,auto,yes
+SW2,6,,1,,disabled,auto,yes
+SW2,7,,1,,disabled,auto,yes
+SW2,8,SW1,1,"10",enabled,1000,yes
+PB1,1,GPS1,1,"",enabled,auto,yes
+PB1,2,P132_Q01,1,"11",enabled,auto,yes
+PB1,3,P87T_T1,1,"11",enabled,auto,yes
+PB1,4,MU_Q01,1,"11",enabled,auto,yes
+PB1,5,MU_T1,1,"11",enabled,auto,yes
+PB1,6,,1,,disabled,auto,yes
+PB1,7,,1,,disabled,auto,yes
+PB1,8,,1,,disabled,auto,yes

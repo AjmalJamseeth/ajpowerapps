@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 971;
+export const AUTOMATED_CHECKS = 983;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Switch audit, network architecture and discovery checks",
+    items: [
+      "SCL NetStudio: new Switch audit — reads switch configuration exports (CSV template, NetStudio template, Cisco-style CLI) and compares every port with the plan, traces each GOOSE/SV stream through the configured ports, checks priority-to-queue mapping, and compares LLDP neighbours and MAC address tables with the planned port map. Sample exports with deliberate faults are included.",
+      "SCL NetStudio: new Architecture view — automatic drawing (SVG), what is lost when each switch or inter-switch link fails, and a bill of materials with transceivers by type, cable ordering lengths, patch panels and trunk cables.",
+      "SNMP Helper: compare two readings of a switch for rising errors, discards, link changes and port utilisation.",
+      "New: Network Discovery Result Checker — an nmap scan, ARP table or IP list against the IP / asset register, with unknown devices, MAC mismatches, devices at the wrong address and unapproved open ports.",
+    ],
+  },
   {
     date: "November 2026",
     title: "Commissioning, change and configuration management",

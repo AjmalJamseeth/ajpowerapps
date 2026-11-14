@@ -1,0 +1,18 @@
+SW1#show mac address-table
+          Mac Address Table
+-------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+1       02aa.0000.0201    DYNAMIC     Gi1/0/1
+10      02aa.0000.0201    DYNAMIC     Gi1/0/1
+1       02aa.0000.0202    DYNAMIC     Gi1/0/2
+10      02aa.0000.0202    DYNAMIC     Gi1/0/2
+1       02aa.0000.0203    DYNAMIC     Gi1/0/3
+10      02aa.0000.0203    DYNAMIC     Gi1/0/3
+1       02aa.0000.0101    DYNAMIC     Gi1/0/8
+1       02aa.0000.0102    DYNAMIC     Gi1/0/8
+1       02aa.0000.0103    DYNAMIC     Gi1/0/8
+1       02aa.0000.0301    DYNAMIC     Gi1/0/8
+1       02bb.0000.0007    DYNAMIC     Gi1/0/4
+Total Mac Addresses for this criterion: 11

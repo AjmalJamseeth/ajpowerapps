@@ -477,12 +477,63 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/discovery-result-checker": {
+    what: "A checker that compares a network scan (what is on the network) with the approved IP or asset register (what should be on it).",
+    can: [
+      "Read nmap XML, grepable and normal output, a Windows or Linux ARP table, or a CSV / plain list of addresses.",
+      "Read the register as an IP register (one row per address), the SCL NetStudio asset register (several addresses per device) or an SCL NetStudio project.",
+      "Find unknown devices, registered addresses not found in the scanned range, addresses answered by a different MAC address, devices found at another address (their MAC is registered elsewhere), and one MAC answering for several addresses.",
+      "Check every open port against an approved-services list per device name or IP, and call out clear-text and high-risk services.",
+    ],
+    why: [
+      "An unregistered laptop, a replaced relay with a new MAC, an IED at the wrong address or Telnet left enabled are found only by comparing reality with the register — and IEC 62443 requires the asset owner to know what is connected and to disable what is not needed.",
+      "A scan of a substation subnet gives hundreds of lines; comparing it with a register by eye is slow and misses things.",
+    ],
+    understand: [
+      "On the local subnet a scan uses ARP, which every device must answer, and sees each device's MAC address; from another subnet it can only use ping or TCP probes, which many devices ignore, and it sees no MAC addresses.",
+      "A MAC address identifies the network interface: a different MAC on a registered IP means a different device (or a replaced one); the same MAC on another IP means the device was given a different address.",
+      "An open port means a service is listening. Every service that is not needed is an attack surface (IEC 62443-3-3 SR 7.7, least functionality).",
+      "Scanning can disturb old devices: scan only with permission, in an agreed window, and start with host discovery before a port scan.",
+    ],
+    need: [
+      "A scan result of the subnet (for example nmap -sn 10.13.0.0/25 for discovery, nmap -sS -p 1-1024,2404,3389,5900,8080 -oX scan.xml for ports), an ARP table (arp -a) or a list of addresses.",
+      "The approved IP or asset register (CSV with a heading line) or the SCL NetStudio project.",
+      "The list of approved services per device type (edit the example).",
+      BROWSER,
+    ],
+    use: [
+      "Open or paste the scan and the register, or load the samples.",
+      "Edit the approved-services list: one line per device name or IP pattern (* and ? as wildcards), then the ports, for example GW*: 2404/tcp, 22/tcp. Lines add up, and * applies to every device.",
+      "Check the scanned range (taken from the nmap command line when the file has it) so registered addresses outside the scan are not reported as missing.",
+      "Work through the findings and export the table as CSV for the change record.",
+    ],
+    output: ["A summary, the findings with severity, and a table of every address with its status (in register, unknown, not found, MAC mismatch), the MAC and vendor seen, the open ports and the ports not approved."],
+    interpret: [
+      "Unknown device: identify it; register it if it belongs, remove it if not.",
+      "MAC mismatch: if the device was replaced, update the register (and any MAC-based port security); if not, look for a duplicate IP address.",
+      "Device found at another address: correct the device or the register — SCADA, the gateway and firewall rules use the registered address.",
+      "Not found: the device may be off, disconnected or ignoring probes; confirm on site before concluding.",
+      "Port not approved: disable the service on the device, or approve it with a documented reason. Telnet, FTP, TFTP and HTTP send passwords in clear text.",
+    ],
+    basis: [
+      "Matching by IP address first, then by MAC address for devices not found at their registered address.",
+      "Scope: the targets on the nmap command line, the range you enter, or else the /24 networks of the hosts found.",
+      "Port approval: a port is approved when any rule whose pattern matches the device's register name or its IP lists the port (protocol optional).",
+      "IEC 62443-2-1 (asset inventory), IEC 62443-3-3 SR 7.7 (least functionality) and SR 7.8 (control system component inventory); ARP (RFC 826).",
+    ],
+    limits: [
+      "It analyses a scan you ran; it does not scan (a browser cannot).",
+      "A port scan shows what answered at that moment from where it ran; filtered ports and UDP services are not seen unless scanned for.",
+      "Vendor names come from the scan file (the scanner's OUI database).",
+    ],
+  },
   "/calculators/snmp-helper": {
     what: "A helper for SNMP: an OID decoder, an analyser for snmpwalk output from switches and devices, and an SNMPv3 settings check.",
     can: [
       "Decode common OIDs (system, interfaces, EtherLike, bridge, VLAN, LLDP, entity, host resources, standard traps) and identify vendor OIDs.",
       "Turn an snmpwalk into a port table and flag down links, CRC errors, duplex mismatches, 10 Mb/s links, output discards and spanning-tree changes; list LLDP neighbours.",
       "Assess SNMPv3 security level and protocols and list what both ends must match.",
+      "Compare two readings of the same switch: new errors, discards and late collisions per port (with the rate per minute), link and spanning-tree changes, and the average traffic and utilisation of each port from the octet counters.",
     ],
     why: [
       "Switch port counters reveal most cabling and port faults without waiting for the network team.",
@@ -501,15 +552,16 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     use: [
       "Paste an OID to see what it is.",
       "Paste an snmpwalk (or load the sample switch) and read the port table and findings.",
+      "To see whether a fault is active now, take a second walk 5–15 minutes later and paste it as the second reading (or load the sample second reading).",
       "Choose the SNMPv3 settings planned for the switch and the management system and read the assessment.",
     ],
-    output: ["The OID meaning and instance; device information, port table, LLDP neighbours and findings; an SNMPv3 assessment."],
+    output: ["The OID meaning and instance; device information, port table, LLDP neighbours and findings; the change between two readings with rates and utilisation; an SNMPv3 assessment."],
     interpret: [
       "Rising CRC errors on one port: replace the patch cord or SFP, then check again.",
       "Half duplex or late collisions: fix negotiation on both ends.",
       "Output discards: the port is congested — check the traffic (multicast filtering, bandwidth).",
     ],
-    basis: ["SNMPv2-MIB, IF-MIB (RFC 2863), EtherLike-MIB (RFC 3635), BRIDGE-MIB (RFC 4188), Q-BRIDGE-MIB (RFC 4363), LLDP-MIB (IEEE 802.1AB), ENTITY-MIB (RFC 6933), HOST-RESOURCES-MIB (RFC 2790), SNMPv3 USM (RFC 3414), AES (RFC 3826), SHA-2 (RFC 7860)."],
+    basis: ["Two readings: interval = difference of sysUpTime (hundredths of a second), or the interval you enter; rate = counter change ÷ interval; a 32-bit counter that went backwards is counted as one wrap at 2^32; a lower sysUpTime means the device restarted and the counters started again; utilisation = octets × 8 ÷ interval ÷ port speed (ifHighSpeed), the higher of in and out — an average over the interval, peaks are higher.", "SNMPv2-MIB, IF-MIB (RFC 2863), EtherLike-MIB (RFC 3635), BRIDGE-MIB (RFC 4188), Q-BRIDGE-MIB (RFC 4363), LLDP-MIB (IEEE 802.1AB), ENTITY-MIB (RFC 6933), HOST-RESOURCES-MIB (RFC 2790), SNMPv3 USM (RFC 3414), AES (RFC 3826), SHA-2 (RFC 7860)."],
     limits: [
       "It does not poll devices (a browser cannot send SNMP); it analyses output you paste.",
       "Vendor-private OIDs need the vendor's MIB file.",
@@ -839,6 +891,8 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
       "Plan IP addresses with a subnet calculator and VLSM planner; allocate GOOSE and SV MAC addresses, APPIDs, VLANs and priorities and derive switch-port VLAN membership.",
       "Calculate bandwidth per port and uplink, GOOSE transfer time against IEC 61850-5 classes, PRP/HSR sizing and a PTP time-error budget.",
       "Plan firewall zones and conduits, schedule switch ports and cables, keep a network asset register, and compare a Wireshark capture with the plan.",
+      "Draw the architecture automatically, show what is lost when each switch or inter-switch link fails, and list the bill of materials (switches, transceivers by type, cables with an ordering allowance, patch panels, trunk cables).",
+      "Audit the installed switches: read their configuration exports and compare every port with the plan, trace each GOOSE/SV stream through the configured ports, check where each priority lands in the switch queues, and compare LLDP neighbours and MAC address tables with the planned port map.",
     ],
     why: [
       "Substation networks are usually designed in spreadsheets that are not checked against each other: the IP plan, the VLAN plan and the switch configuration drift apart.",
@@ -856,18 +910,22 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
       "The address block for the substation, the number of hosts per network and the growth allowance.",
       "Switch port speeds and counts, cable types and route lengths, and asset data (manufacturer, model, firmware, serial) when you build the register.",
       "For the capture analyser, a Wireshark capture taken on site.",
+      "For the switch audit, the configuration exported from each switch (or filled into the CSV template), and optionally the LLDP neighbour and MAC address tables (command output, CSV or snmpwalk).",
       BROWSER,
     ],
     output: [
       "IP plan, stream addressing, switch-port VLAN tables and vendor-neutral switch configuration templates.",
       "Bandwidth, latency, redundancy and time-sync results with pass/fail against the stated limits.",
       "Firewall rule table, port and cable schedule with cable quantities, asset register, capture findings, an Excel design workbook and an updated SCD.",
+      "An architecture drawing (SVG), a switch and link failure table, a bill of materials, and a switch audit with findings per port, the VLAN path of every stream, a queue assessment and as-built LLDP / MAC results — each exportable to Excel.",
     ],
     interpret: [
       "Treat every check result as a design review item: errors must be resolved, warnings justified.",
       "Bandwidth: keep steady load well below 50 % and bursts below 80 % of a port, as engineering practice; above that, filter multicast or split traffic.",
       "Latency and time-sync results are estimates from your inputs; confirm with manufacturer data and site tests.",
       "The switch configuration template must be translated to the switch vendor's syntax and reviewed before use.",
+      "Switch audit: a broken path means a protection or interlocking message does not arrive — fix it before any functional test; a port that does not trust 802.1p puts GOOSE in the ordinary queue. Swapped cables and unknown devices found by LLDP or the MAC table are corrected on site and recorded.",
+      "Failure analysis: a switch marked as a single point of failure for protection needs a redundant network (PRP/HSR, a ring) or a backup such as a hard-wired trip.",
     ],
     basis: [
       "VLSM: largest segments placed first on their natural boundary; addresses assigned in a fixed order by role and bay.",
@@ -875,11 +933,15 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
       "Frame load = (frame bytes + 20) × 8 × frames per second (preamble and inter-frame gap included).",
       "Transfer time per IEC 61850-5 with frame transmission, switch latency, worst-case queuing behind a full-size frame and propagation; PTP budget per IEC 61850-9-3; PRP/HSR per IEC 62439-3; zones and conduits in the style of IEC 62443.",
       "Cable limits: 100 m twisted-pair channel (IEEE 802.3, ISO/IEC 11801); multimode reach by speed.",
+      "Switch audit: a port carries a VLAN when it is its untagged (PVID / native / access) VLAN or in its tagged (allowed) list (IEEE 802.1Q); a stream path is the shortest switch path from the publisher's port to the subscriber's port, and every port on it must carry the stream's VLAN; a static multicast entry must include each egress port. Priority-to-queue mapping as entered (default: the 4-queue table recommended in IEEE 802.1D-1998, used by many switches).",
+      "Failure analysis: a switch or link is removed from the planned topology and every publisher–subscriber pair is checked for a remaining path; PRP keeps every device on the other LAN (IEC 62439-3). Transceiver types follow the medium and speed of each fibre link (IEEE 802.3: 100BASE-FX, 1000BASE-SX on multimode; 100BASE-LX10, 1000BASE-LX on single-mode).",
     ],
     limits: [
       "Engineering estimates from stated assumptions, not a network simulation.",
       "The firewall planner proposes rules for review; it is not a security assessment.",
       "Switch templates are vendor-neutral; PRP/HSR and PTP behaviour depends on the actual products.",
+      "The switch audit reads three formats (CSV template, NetStudio template, Cisco IOS-style CLI); other vendors' exports must first be put into the CSV template. It checks configuration, not hardware: a port configured correctly can still have a faulty cable — use the SNMP Helper's two-reading comparison for that.",
+      "The port number in a Cisco-style file is the last number of the interface name; for stacked switches or modules use the CSV template. Many IEDs do not send LLDP, so the MAC table is the stronger as-built check for them.",
     ],
   },
 

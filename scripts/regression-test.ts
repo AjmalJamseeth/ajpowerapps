@@ -28,7 +28,8 @@ import { explain as cmdExplain, detect as cmdDetect, pickRoute } from "../src/li
 import { CMD_SAMPLES } from "../src/lib/cmdsamples";
 import { searchCodes, CODES } from "../src/lib/errorcodes";
 import { TREES, ticketText } from "../src/lib/troubleshoot";
-import { decodeOid, analyseWalk, SAMPLE_WALK } from "../src/lib/snmphelper";
+import { decodeOid, analyseWalk, SAMPLE_WALK, SAMPLE_WALK_2, compareWalks } from "../src/lib/snmphelper";
+import { parseScan, parseRegister as discRegister, parseRules, checkDiscovery, DEFAULT_RULES } from "../src/lib/discovery";
 import { loadCerts, parseCert, checkCert, SAMPLE_CERT } from "../src/lib/certinspect";
 import { parsePerfCsv, analysePerf, sampleCsv } from "../src/lib/perflog";
 import { parseReport, analyse as whAnalyse, compareReports, anonymise } from "../src/lib/winhealth";
@@ -2795,6 +2796,33 @@ section("Worked examples (November 2026)");
   const pr = analysePatches(pm, parseApprovals(readFileSync("public/samples/S13_vendor_patch_approvals.csv", "utf8")), "SCADA-SRV01=SCADA-SRV02");
   assertTrue("Patch register: unapproved KB5039217 on SRV02, missing approved updates, pair differs", pr.findings.some((f) => f.sev === "error" && /SRV02.*KB5039217/.test(f.text)) && pr.findings.some((f) => /approved update\(s\) not installed/.test(f.text)) && pr.findings.some((f) => /Redundant pair .* differ/.test(f.text)));
   assertTrue("Every Phase D tool has a tool guide and sample files", ["/calculators/change-comparison", "/calculators/configuration-version-log", "/calculators/scada-tag-validator", "/calculators/patch-compatibility-register"].every((h) => !!TOOL_GUIDES[h] && SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
+}
+
+{
+  section("Phase E — switch audit, architecture, SNMP readings, discovery");
+  const dw = compareWalks(SAMPLE_WALK, SAMPLE_WALK_2);
+  const p4 = dw.rows.find((r) => r.name === "port4"), p8 = dw.rows.find((r) => r.name === "port8");
+  assertTrue("Two SNMP readings: 300 s from sysUpTime, port 4 +225 errors and +4 late collisions, port 8 at 80 % of 1 Gb/s", dw.seconds === 300 && dw.source === "sysUpTime" && p4?.dInErr === 225 && p4?.dLate === 4 && Math.abs((p8?.utilPct ?? 0) - 80) < 0.01);
+  assertTrue("Two SNMP readings: link change on port 3 and a spanning-tree change reported", dw.findings.some((f) => /port3/.test(f.text) && /link state changed/.test(f.text)) && dw.findings.some((f) => /Spanning tree changed topology 1 time/.test(f.text)));
+  const rs = compareWalks(SAMPLE_WALK_2, SAMPLE_WALK);
+  assertTrue("A lower sysUpTime in the second reading is reported as a restart, with no rates", rs.restarted && rs.rows.every((r) => r.inMbps == null && r.dInErr == null));
+  const wrap = compareWalks("IF-MIB::ifName.1 = STRING: p1\nIF-MIB::ifInOctets.1 = Counter32: 4294967000\nIF-MIB::ifHighSpeed.1 = Gauge32: 100", "IF-MIB::ifName.1 = STRING: p1\nIF-MIB::ifInOctets.1 = Counter32: 704\nIF-MIB::ifHighSpeed.1 = Gauge32: 100", 10);
+  assertClose("32-bit octet counter wrap: (2^32 − 4294967000 + 704) × 8 / 10 s", (wrap.rows[0].inMbps ?? 0) * 1e6, ((2 ** 32 - 4294967000 + 704) * 8) / 10, 0.001);
+  const scan = parseScan(readFileSync("public/samples/S13_station_bus_scan.xml", "utf8"));
+  const dc = checkDiscovery(scan, discRegister(readFileSync("public/samples/S13_asset_register.csv", "utf8")), parseRules(DEFAULT_RULES));
+  assertTrue("Sample scan: nmap XML, 8 hosts, scope 10.13.0.0/25 from the command line", scan.format === "nmap XML (-oX)" && scan.hosts.length === 8 && dc.scope.join() === "10.13.0.0/25");
+  assertTrue("Discovery: 5 matched, 2 unknown, 1 missing (P87T_T1), 1 MAC mismatch (P132_Q02), 8 ports not approved", dc.counts.matched === 5 && dc.counts.unknown === 2 && dc.counts.missing === 1 && dc.counts.macMismatch === 1 && dc.counts.unapproved === 8);
+  assertTrue("Discovery: P87T_T1 found at 10.13.0.21 by its MAC, Telnet on BCU_J01 is an error, 8 errors and 4 warnings", dc.findings.some((f) => f.code === "MOVED" && /P87T_T1/.test(f.text)) && dc.findings.some((f) => f.sev === "error" && /BCU_J01.*23\/tcp/.test(f.text)) && dc.findings.filter((f) => f.sev === "error").length === 8 && dc.findings.filter((f) => f.sev === "warning").length === 4);
+  const arp = parseScan("Interface: 10.13.0.50 --- 0x5\n  Internet Address      Physical Address      Type\n  10.13.0.11            02-aa-00-00-01-01     dynamic\n  10.13.0.255           ff-ff-ff-ff-ff-ff     static\n  224.0.0.22            01-00-5e-00-00-16     static");
+  const gn = parseScan("Host: 10.13.0.11 (gw1)\tPorts: 22/open/tcp//ssh///, 2404/open/tcp//iec-104///"), nn = parseScan("Nmap scan report for gw1 (10.13.0.11)\n22/tcp   open  ssh\nMAC Address: 02:AA:00:00:01:01 (Vendor C)");
+  assertTrue("Scan formats: Windows ARP table (broadcast and multicast skipped), nmap grepable and normal output", arp.hosts.length === 1 && arp.hosts[0].mac === "02-AA-00-00-01-01" && gn.hosts[0].ports.length === 2 && nn.hosts[0].mac === "02-AA-00-00-01-01" && nn.hosts[0].name === "gw1");
+  const nsReg = discRegister(readFileSync("public/samples/S13_NetStudio_project.nsproj.json", "utf8"));
+  assertTrue("Register from a NetStudio project: 9 devices and 3 switches with their addresses", nsReg.length === 12 && nsReg.find((e) => e.name === "GPS1")?.ips.length === 3);
+  const sw1 = readFileSync("public/samples/S13_SW1_running-config.txt", "utf8"), csvp = readFileSync("public/samples/S13_switch_ports_SW2_PB1.csv", "utf8"), lldp = readFileSync("public/samples/S13_LLDP_neighbours.csv", "utf8");
+  assertTrue("Switch audit samples carry the seeded faults (VLAN 10 missing on SW1 port 2, wrong untagged VLAN on SW2 port 1, GW1/HMI1 swapped, laptop on SW1 port 4)", /GigabitEthernet1\/0\/2\r\n[\s\S]*?allowed vlan 1\r\n/.test(sw1) && /^SW2,1,GW1,10,/m.test(csvp) && /^SW2,1,HMI1,/m.test(lldp) && /^SW1,4,LAPTOP-ENG07/m.test(lldp));
+  assertTrue("Every Phase E tool has a tool guide and sample files", ["/calculators/discovery-result-checker", "/calculators/scl-netstudio", "/calculators/snmp-helper"].every((h) => !!TOOL_GUIDES[h]) && ["/calculators/discovery-result-checker", "/calculators/scl-netstudio"].every((h) => SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
+  const nsG = TOOL_GUIDES["/calculators/scl-netstudio"];
+  assertTrue("NetStudio guide explains the switch audit and failure analysis, with their limits", nsG.can.some((c) => /Audit the installed switches/.test(c)) && nsG.basis.some((b) => /Failure analysis/.test(b)) && nsG.limits.some((l) => /three formats/.test(l)));
 }
 
 {

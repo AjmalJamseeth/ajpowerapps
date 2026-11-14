@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<nmaprun scanner="nmap" args="nmap -sS -p 1-1024,2404,3389,5900,8080 -oX S13_station_bus_scan.xml 10.13.0.0/25" start="1794650400" startstr="Sat Nov 14 06:00:00 2026" version="7.95" xmloutputversion="1.05">
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.11" addrtype="ipv4"/>
+<address addr="02:AA:00:00:01:01" addrtype="mac" vendor="Vendor C"/>
+<hostnames><hostname name="gw1" type="PTR"/></hostnames>
+<ports><extraports state="closed" count="1024"><extrareasons reason="reset" count="1024"/></extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2404"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iec-104" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.12" addrtype="ipv4"/>
+<address addr="02:AA:00:00:01:02" addrtype="mac" vendor="Vendor D"/>
+<hostnames><hostname name="hmi1" type="PTR"/></hostnames>
+<ports><extraports state="closed" count="1025"><extrareasons reason="reset" count="1025"/></extraports>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5900"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="vnc" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.13" addrtype="ipv4"/>
+<address addr="02:AA:00:00:01:03" addrtype="mac" vendor="Vendor E"/>
+<hostnames></hostnames>
+<ports><extraports state="closed" count="1026"><extrareasons reason="reset" count="1026"/></extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.14" addrtype="ipv4"/>
+<address addr="02:AA:00:00:02:01" addrtype="mac" vendor="Vendor A"/>
+<hostnames></hostnames>
+<ports><extraports state="closed" count="1027"><extrareasons reason="reset" count="1027"/></extraports>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.15" addrtype="ipv4"/>
+<address addr="02:AA:00:00:02:12" addrtype="mac" vendor="Vendor A"/>
+<hostnames></hostnames>
+<ports><extraports state="closed" count="1027"><extrareasons reason="reset" count="1027"/></extraports>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.17" addrtype="ipv4"/>
+<address addr="02:AA:00:00:03:01" addrtype="mac" vendor="Vendor B"/>
+<hostnames></hostnames>
+<ports><extraports state="closed" count="1025"><extrareasons reason="reset" count="1025"/></extraports>
+<port protocol="tcp" portid="23"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.21" addrtype="ipv4"/>
+<address addr="02:AA:00:00:02:03" addrtype="mac" vendor="Vendor A"/>
+<hostnames></hostnames>
+<ports><extraports state="closed" count="1027"><extrareasons reason="reset" count="1027"/></extraports>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+</ports></host>
+<host starttime="1794650400" endtime="1794650402"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.13.0.88" addrtype="ipv4"/>
+<address addr="02:BB:00:00:00:07" addrtype="mac" vendor="Laptop vendor"/>
+<hostnames><hostname name="LAPTOP-ENG07" type="PTR"/></hostnames>
+<ports><extraports state="closed" count="1024"><extrareasons reason="reset" count="1024"/></extraports>
+<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="msrpc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+</ports></host>
+<runstats><finished time="1794650472" timestr="Sat Nov 14 06:01:12 2026" elapsed="72.4" exit="success"/><hosts up="8" down="120" total="128"/></runstats>
+</nmaprun>

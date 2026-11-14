@@ -1591,3 +1591,10 @@ The Protection & Arc-Flash Studio is built and tested but not public. `FEATURES.
 - Category commissioning (guide src/lib/guides/commissioning.ts, icon ClipboardCheck). Tools: change-comparison (changecompare.ts), configuration-version-log (configlog.ts), scada-tag-validator (tagvalidate.ts), patch-compatibility-register (patchreg.ts).
 - SCL NetStudio: lifeIssues/modelList/lifeRowsX (P.life), testRows/testIssues/testRowsX (lk loss/cert/tdate, cab.attMM/attSM), handover action. Watermark AJPA-SCLNETSTUDIO-684AC024C4194DE5.
 - .gitattributes keeps public/tools and public/samples byte-exact (collector SHA-256 and sample SCD fingerprint depend on it).
+
+## Phase E (November 2026)
+
+- SCL NetStudio views 'audit' (Switch audit, group Verify) and 'arch' (Architecture). Code block "Phase E" at the end of the script in the source (apps_cleaned): auCisco/auTemplate/auCsv/auParse (switch exports), auCheck (port vs plan), auTrace (VLAN path per stream), auQos (P.au.qos), auLldp/auMacT/auAsBuilt, auSample (generated exports with seeded faults), archFail/archBom/archSvg (P.bo). Project fields P.au and P.bo (added by migrate).
+- Website samples S13_SW1_running-config.txt, S13_switch_ports_SW2_PB1.csv, S13_LLDP_neighbours.csv, S13_SW1_mac-address-table.txt are produced by auSample() of the source (jsdom) with an S13_ prefix and CRLF.
+- SNMP Helper: compareWalks + SAMPLE_WALK_2 (src/lib/snmphelper.ts). New tool discovery-result-checker (src/lib/discovery.ts), sample S13_station_bus_scan.xml.
+- NetStudio watermark AJPA-SCLNETSTUDIO-7509B28373920747.

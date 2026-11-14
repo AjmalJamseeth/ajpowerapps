@@ -69,9 +69,13 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "Windows Error & Event ID Lookup – 10060, 10061, 7031, 1129",
     description: "Meaning, causes and checks for Windows error codes and event IDs on SCADA servers: WinSock 10060/10061, 0x80070005, 1789 trust failure, 7031, 1129, 5719, 4625, DCOM 10016, Schannel, Time-Service.",
   },
+  "/calculators/discovery-result-checker": {
+    title: "Network Discovery Result Checker – nmap Scan vs IP & Asset Register",
+    description: "Compare an nmap scan, ARP table or IP list with the substation IP or asset register: unknown devices, missing devices, MAC mismatches, wrong addresses and open ports not on the approved list.",
+  },
   "/calculators/snmp-helper": {
     title: "SNMP OID Decoder & snmpwalk Analyser – Switch Port Errors",
-    description: "Decode SNMP OIDs (IF-MIB, BRIDGE, LLDP, ENTITY), analyse an snmpwalk of a switch for down links, CRC errors, duplex mismatch and spanning-tree changes, and check SNMPv3 settings.",
+    description: "Decode SNMP OIDs (IF-MIB, BRIDGE, LLDP, ENTITY), analyse an snmpwalk of a switch for down links, CRC errors, duplex mismatch and spanning-tree changes, compare two readings for rising errors and utilisation, and check SNMPv3 settings.",
   },
   "/calculators/certificate-inspector": {
     title: "X.509 Certificate Viewer Online – OPC UA & TLS Checker",
@@ -103,7 +107,7 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
   },
   "/calculators/scl-netstudio": {
     title: "IEC 61850 Network Design Tool – VLAN, PTP, PRP/HSR",
-    description: "Design an IEC 61850 substation network online: IP plan, GOOSE/SV VLAN and multicast addressing, bandwidth, GOOSE latency (TT6), PRP/HSR, PTP time sync budget, firewall zones and capture check.",
+    description: "Design an IEC 61850 substation network online: IP plan, GOOSE/SV VLAN and multicast addressing, bandwidth, GOOSE latency (TT6), PRP/HSR, PTP budget, firewall zones, switch configuration audit, architecture and capture check.",
   },
   "/calculators/scada-connectivity": {
     title: "Can My Laptop Talk to the IED? – SCADA IP Checker",
