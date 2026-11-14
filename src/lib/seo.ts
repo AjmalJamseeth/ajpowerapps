@@ -37,6 +37,22 @@ const CALC_SEO: Record<string, { title: string; description: string }> = {
     title: "DGA Analyzer – Duval Triangle & IEC 60599 Online",
     description: "Transformer oil dissolved gas analysis online: IEC 60599 gas ratios, Duval Triangles and Pentagons, IEEE C57.104-2019 status, gas trends, fleet dashboard and lab PDF import.",
   },
+  "/calculators/change-comparison": {
+    title: "Compare Two Versions of a Register, Tag List or Network Design",
+    description: "Compare approved and current versions of an IP register, asset register, SCADA tag list, cable list or SCL NetStudio project: added, removed and changed items with the impact on testing and documentation.",
+  },
+  "/calculators/configuration-version-log": {
+    title: "SCD / CID Configuration Version Log with SHA-256 Check",
+    description: "Log which SCD, CID, switch, RTU, PLC or firmware version is approved and installed in each device by SHA-256 fingerprint, read SCL header history, and check any file against the log.",
+  },
+  "/calculators/scada-tag-validator": {
+    title: "SCADA Tag List Validator – Duplicates, Addresses, Alarm Limits",
+    description: "Validate a SCADA tag or point list online: duplicate tags and addresses, IEC 104 IOA and Modbus addressing, missing descriptions and units, engineering ranges and alarm limits out of order.",
+  },
+  "/calculators/patch-compatibility-register": {
+    title: "SCADA Patch Register – Windows Updates vs Vendor Approval",
+    description: "Compare Windows updates installed on SCADA servers with the vendor's approved list: unapproved or withdrawn updates, missing approved patches and redundant servers on different patch levels.",
+  },
   "/calculators/windows-health-analyser": {
     title: "SCADA Server Health Check – Windows Services, Events, Security",
     description: "Read-only PowerShell collector and online analyser for SCADA servers and HMIs: services, crashes, event logs, slow logon, time sync, domain, open ports, firewall, local admins, hardening baseline, certificates.",

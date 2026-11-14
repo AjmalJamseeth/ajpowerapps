@@ -33,6 +33,10 @@ import { loadCerts, parseCert, checkCert, SAMPLE_CERT } from "../src/lib/certins
 import { parsePerfCsv, analysePerf, sampleCsv } from "../src/lib/perflog";
 import { parseReport, analyse as whAnalyse, compareReports, anonymise } from "../src/lib/winhealth";
 import { COLLECTOR_SHA256 } from "../src/lib/collectorInfo";
+import { parseTable, diffTables, guessKey, diffProjects } from "../src/lib/changecompare";
+import { parseLog, checkAgainstLog, logIssues, sclInfo } from "../src/lib/configlog";
+import { validateTags } from "../src/lib/tagvalidate";
+import { machineFromReport, parseApprovals, analysePatches } from "../src/lib/patchreg";
 import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { parseIp as ipParse, parseMask as ipMask, subnetOf as ipSubnet, ipStr as ipToStr, specialRange as ipSpecial } from "../src/lib/ipv4";
@@ -2772,6 +2776,28 @@ section("Worked examples (November 2026)");
 }
 
 {
+  section("Phase D — change comparison, configuration log, tag validator, patch register");
+  const ra = parseTable(readFileSync("public/samples/S13_IP_register_with_errors.csv", "utf8")), rb = parseTable(readFileSync("public/samples/S13_IP_register_rev_B.csv", "utf8"));
+  const dr = diffTables("IP", ra, rb, { keyCols: [guessKey(ra.headers)] }).changes;
+  assertTrue("IP register rev A → B: 2 changed, 1 added (P132_Q04), 1 removed (LAPTOP)", dr.filter((c) => c.kind === "changed").length === 2 && dr.some((c) => c.kind === "added" && c.key === "P132_Q04") && dr.some((c) => c.kind === "removed" && c.key === "LAPTOP"));
+  const pc = diffProjects(JSON.parse(readFileSync("public/samples/S13_NetStudio_project.nsproj.json", "utf8")), JSON.parse(readFileSync("public/samples/S13_NetStudio_project_rev_B.nsproj.json", "utf8")));
+  assertTrue("NetStudio rev A → B: IP change, new device, confRev change with reload impact, removed firewall rule, firmware change", pc.some((c) => c.section === "Devices" && c.key === "P132_Q02") && pc.some((c) => c.section === "Devices" && c.kind === "added") && pc.some((c) => /GOOSE/.test(c.section) && /reload the publisher AND every subscriber/.test(c.impact ?? "")) && pc.some((c) => c.section === "Firewall rules" && c.kind === "removed") && pc.some((c) => c.section === "Assets" && c.fields.some((f) => f.field === "Firmware")));
+  const clog = parseLog(readFileSync("public/samples/S13_configuration_log.json", "utf8"));
+  const scdHash = createHash("sha256").update(readFileSync("public/samples/S13_Sample.scd")).digest("hex");
+  assertTrue("Configuration log: S13_Sample.scd matches SCD 1.2 rev A installed; an unknown file is flagged for the device", checkAgainstLog(clog, "S13_Sample.scd", scdHash, "S13 station").sev === "ok" && checkAgainstLog(clog, "x", "0".repeat(64), "S13 station").sev === "error");
+  assertTrue("Configuration log checks: approved-not-installed and missing reason reported", logIssues(clog).filter((x) => /approved .* not yet marked Installed/.test(x.text)).length === 2 && logIssues(clog).some((x) => /no reason or no author/.test(x.text)));
+  const si = sclInfo(readFileSync("public/samples/S13_Sample.scd", "utf8"));
+  assertTrue("SCL header read: version 1.2 rev A, 3 IEDs, 2 history items, kind SCD", si?.version === "1.2" && si.revision === "A" && si.ieds.length === 3 && si.history.length === 2 && si.guessedKind === "SCD");
+  const tv = validateTags(readFileSync("public/samples/S13_SCADA_tag_list_with_errors.csv", "utf8"), { naming: "^[A-Z0-9]+_[A-Z0-9_]+$" });
+  const tc = (c: string) => tv.findings.some((f) => f.code === c);
+  assertTrue("Tag list: 5 errors (TAG-DUP, ADDR-DUP, LIMITS, MODBUS-TYPE, IOA-RANGE), unit spelling and limit-range warnings", tv.counts.error === 5 && ["TAG-DUP", "ADDR-DUP", "LIMITS", "MODBUS-TYPE", "IOA-RANGE", "UNIT-SPELL", "LIMIT-RANGE"].every(tc));
+  const pm = ["AJCollector_SAMPLE_SCADA-SRV01.json", "AJCollector_SAMPLE_SCADA-SRV02.json"].map((f) => machineFromReport(JSON.parse(readFileSync("public/samples/" + f, "utf8"))));
+  const pr = analysePatches(pm, parseApprovals(readFileSync("public/samples/S13_vendor_patch_approvals.csv", "utf8")), "SCADA-SRV01=SCADA-SRV02");
+  assertTrue("Patch register: unapproved KB5039217 on SRV02, missing approved updates, pair differs", pr.findings.some((f) => f.sev === "error" && /SRV02.*KB5039217/.test(f.text)) && pr.findings.some((f) => /approved update\(s\) not installed/.test(f.text)) && pr.findings.some((f) => /Redundant pair .* differ/.test(f.text)));
+  assertTrue("Every Phase D tool has a tool guide and sample files", ["/calculators/change-comparison", "/calculators/configuration-version-log", "/calculators/scada-tag-validator", "/calculators/patch-compatibility-register"].every((h) => !!TOOL_GUIDES[h] && SAMPLE_FILES.some((f) => f.openIn.some((o) => o.href === h))));
+}
+
+{
   section("Sample files and app hand-over");
   const liveS = new Set(CALCULATOR_GROUPS.flatMap((g) => g.calculators.filter((c) => c.status === "live").map((c) => c.href)));
   assertTrue("Every sample file exists in public/samples and opens in a live tool", SAMPLE_FILES.length >= 6 && SAMPLE_FILES.every((f) => existsSync(`public/samples/${f.file}`) && f.openIn.every((o) => liveS.has(o.href))));
@@ -2801,7 +2827,7 @@ section("Worked examples (November 2026)");
 {
   section("Site search index");
   const idx = buildSearchIndex();
-  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 13 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);
+  assertTrue("Search index covers every calculator, guide and worked example", idx.filter((i) => i.kind === "Calculator").length >= 87 && idx.filter((i) => i.kind === "Guide").length === 14 && idx.filter((i) => i.kind === "Worked example").length === WORKED_EXAMPLES.length);
 }
 
 section("Published figures");

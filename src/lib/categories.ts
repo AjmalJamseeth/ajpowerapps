@@ -41,6 +41,14 @@ export const CATEGORY_PAGES: Record<string, CategoryPage> = {
       "Start with the Troubleshooting & Escalation Assistant, read command outputs with the Command Output Explainer, look up error and event codes, check addressing, registers, fibre links, SNMP counters and certificates, and convert Modbus and IEC 104 values. Everything runs in your browser; nothing is uploaded.",
     ],
   },
+  commissioning: {
+    slug: "commissioning-change-configuration",
+    title: "Commissioning, Change & Configuration Management Tools",
+    intro: [
+      "A substation automation system is only as reliable as the control of its changes. These tools compare the approved and current versions of registers, tag lists and network designs, log which configuration file is approved and installed in every device by its SHA-256 fingerprint, validate SCADA tag databases before loading, and keep Windows patches in line with the SCADA vendor's approvals.",
+      "Everything runs in your browser; files are never uploaded. Download the logs and reports and keep them with the project records.",
+    ],
+  },
   cables: {
     slug: "cables-line-engineering",
     title: "Cable Sizing & Line Engineering Calculators",

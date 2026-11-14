@@ -1,6 +1,6 @@
 // Shared site facts quoted on several pages. The regression suite checks that
 // AUTOMATED_CHECKS equals its own total, so the published figure cannot drift.
-export const AUTOMATED_CHECKS = 963;
+export const AUTOMATED_CHECKS = 971;
 
 // Open items users should know about. Remove an entry when it is fixed and log the fix in CHANGE_LOG.
 export const KNOWN_ISSUES: string[] = [
@@ -21,6 +21,16 @@ export interface ChangeEntry {
 
 // Public change log for calculation results and published content, newest first.
 export const CHANGE_LOG: ChangeEntry[] = [
+  {
+    date: "November 2026",
+    title: "Commissioning, change and configuration management",
+    items: [
+      "New category, Commissioning, Change & Configuration, with a guide on change and configuration management.",
+      "New: Network & Configuration Change Comparison (registers, tag lists, NetStudio projects, collector reports) with the impact of each change.",
+      "New: Configuration Version Log with SHA-256 fingerprints and SCL header reading; New: SCADA Tag Database Validator; New: SCADA Patch Compatibility Register.",
+      "SCL NetStudio: cable and fibre test register (measured against allowed loss), firmware lifecycle per model, and a printable handover pack with sign-off.",
+    ],
+  },
   {
     date: "November 2026",
     title: "AJ Collector and Windows Health Analyser",

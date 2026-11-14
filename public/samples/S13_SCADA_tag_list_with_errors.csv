@@ -1,0 +1,21 @@
+﻿Tag,Description,Device,Protocol,Address,Type,Unit,EU Low,EU High,LoLo,Lo,Hi,HiHi,Normal State
+Q01_U_AB,Line 1 voltage L1-L2,GW1,IEC 104,1001,Analog,kV,0,150,110,120,145,148,
+Q01_I_A,Line 1 current L1,GW1,IEC 104,1002,Analog,A,0,2000,,,1600,1800,
+Q01_P,Line 1 active power,GW1,IEC 104,1003,Analog,MW,-200,200,,,180,190,
+Q01_Q,Line 1 reactive power,GW1,IEC 104,1004,Analog,Mvar,-150,150,,,,,
+Q02_U_AB,Line 2 voltage L1-L2,GW1,IEC 104,1011,Analog,KV,0,150,110,120,145,148,
+Q02_I_A,Line 2 current L1,GW1,IEC 104,1012,Analog,A,0,2000,,,1800,1600,
+Q02_P,Line 1 active power,GW1,IEC 104,1013,Analog,MW,-200,200,,,180,190,
+T1_OIL_TEMP,T1 top oil temperature,GW1,IEC 104,1021,Analog,,0,150,,,90,160,
+T1_TAP,T1 tap position,GW1,IEC 104,1022,Analog,,1,19,,,,,
+Q01_CB_POS,Line 1 breaker position,GW1,IEC 104,2001,Double point,,,,,,,,CLOSED
+Q01_PROT_TRIP,Line 1 protection trip,GW1,IEC 104,2002,Single point,,,,,,,,
+Q02_CB_POS,Line 2 breaker position,GW1,IEC 104,2011,Double point,,,,,,,,CLOSED
+Q02_PROT_TRIP,Line 2 protection trip,GW1,IEC 104,2002,Single point,,,,,,,,0
+T1_BUCHHOLZ ALARM,T1 Buchholz alarm,GW1,IEC 104,2021,Single point,,,,,,,,0
+Q01_CB_POS,Line 1 breaker position (copy),GW1,IEC 104,2031,Double point,,,,,,,,CLOSED
+AUX_BATT_V,Station battery voltage,MET1,Modbus,40011,Analog,V,0,150,,100,135,,
+AUX_CHG_FAIL,Battery charger fail,MET1,Modbus,40012,Digital,,,,,,,,
+AUX_FREQ,Busbar frequency,MET1,Modbus,00021,Float,Hz,45,55,,49.5,50.5,,
+AUX_SPARE,,MET1,Modbus,40013,Analog,V,0,10,,,,,
+J01_IOA_BAD,33 kV incomer energy,GW1,IEC 104,16777300,Counter,MWh,0,999999,,,,,

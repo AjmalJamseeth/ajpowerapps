@@ -18,6 +18,7 @@ import {
   CircuitBoard,
   Network,
   Router,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { CALCULATOR_GROUPS, TOTAL_LIVE_COUNT } from "@/lib/calculatorCatalog";
@@ -44,6 +45,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   CircuitBoard,
   Network,
   Router,
+  ClipboardCheck,
 };
 
 const POPULAR: [string, string][] = [

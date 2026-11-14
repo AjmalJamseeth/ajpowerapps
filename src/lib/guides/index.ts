@@ -7,6 +7,7 @@ import { SHORTCIRCUIT_GUIDE } from "./shortcircuit";
 import { PROTECTION_GUIDE } from "./protection";
 import { IEC61850_GUIDE } from "./iec61850";
 import { SCADAIT_GUIDE } from "./scadait";
+import { COMMISSIONING_GUIDE } from "./commissioning";
 import { CABLES_GUIDE } from "./cables";
 import { EARTHING_GUIDE } from "./earthing";
 import { TRANSFORMERS_GUIDE } from "./transformers";
@@ -22,6 +23,7 @@ export const GUIDES: GuideDoc[] = [
   PROTECTION_GUIDE,
   IEC61850_GUIDE,
   SCADAIT_GUIDE,
+  COMMISSIONING_GUIDE,
   CABLES_GUIDE,
   EARTHING_GUIDE,
   TRANSFORMERS_GUIDE,

@@ -1,0 +1,7 @@
+﻿KB,Status,Date,Note
+KB5034127,Approved,2026-02-20,Tested on SCADA 7.2
+KB5036896,Approved,2026-04-18,
+KB5037765,Approved,2026-05-25,
+KB5039217,Not approved,2026-06-20,Breaks OPC DA DCOM authentication on SCADA 7.2
+KB5040430,Approved,2026-07-22,
+KB5041578,Under test,2026-08-30,

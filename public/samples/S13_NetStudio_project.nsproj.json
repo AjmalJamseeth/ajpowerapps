@@ -605,7 +605,29 @@
   "fLen": 60,
   "upLen": 30,
   "upMedia": "mm",
-  "trunkCores": 12
+  "trunkCores": 12,
+  "attMM": 3,
+  "attSM": 0.5
+ },
+ "life": {
+  "Vendor A|DP-700": {
+   "approvedFw": "3.2.1",
+   "eos": "2031-12-31",
+   "status": "Active",
+   "note": ""
+  },
+  "Vendor B|MU-90": {
+   "approvedFw": "1.4.0",
+   "eos": "2027-06-30",
+   "status": "End of life",
+   "note": "Successor MU-95 announced"
+  },
+  "Vendor F|RSW-8": {
+   "approvedFw": "6.2",
+   "eos": "2026-09-30",
+   "status": "Obsolete",
+   "note": "Replace with RSW-8G"
+  }
  },
  "lk": {
   "BCU_J01~sb": {
@@ -615,13 +637,21 @@
    "len": 180,
    "trunk": "FT-YARD-01",
    "ppA": "=Q01+K1",
-   "ppB": "ODF-1"
+   "ppB": "ODF-1",
+   "loss": 2.1,
+   "tdate": "2026-10-20"
   },
   "MU_T1~pb": {
    "len": 220,
    "trunk": "FT-YARD-01",
    "ppA": "=Q03+K1",
-   "ppB": "ODF-1"
+   "ppB": "ODF-1",
+   "loss": 4.6,
+   "tdate": "2026-10-20"
+  },
+  "P132_Q01~sb": {
+   "cert": "pass",
+   "tdate": "2026-10-18"
   }
  }
 }

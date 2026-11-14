@@ -195,6 +195,110 @@ export const TOOL_GUIDES: Record<string, ToolGuide> = {
     ],
   },
 
+  "/calculators/change-comparison": {
+    what: "A comparison tool for two versions of an engineering record: tables (registers, tag and point lists, port and cable lists), SCL NetStudio network projects and AJ Collector reports.",
+    can: [
+      "Match table rows by a key column (or two) and columns by name, and list added, removed and changed rows with old and new values.",
+      "Compare NetStudio projects section by section — devices, switches, IP segments, GOOSE/SV streams, firewall rules, assets, cable overrides — and state the impact of each change.",
+      "Compare two AJ Collector reports of the same computer.",
+      "Report duplicate keys and columns present in only one version; export all changes to CSV.",
+    ],
+    why: [
+      "Faults introduced by modifications usually come from a difference nobody noticed.",
+      "A complete list of differences is the basis of the change request, the test plan and the updated documentation.",
+    ],
+    understand: [
+      "The key identifies the same item in both versions (tag name, device name, cable ID). A wrong key makes everything look added and removed.",
+      "A change is only as safe as the tests that follow it; the impact notes say which tests and documents each kind of change touches.",
+    ],
+    need: ["Both versions: CSV or text copied from Excel with headings in the first row, or two NetStudio project files, or two collector reports.", BROWSER],
+    use: [
+      "Open or paste version A (approved) and version B (current or proposed), or load an example.",
+      "For tables, check the key column (and add a second one if names repeat per device); list columns to ignore, such as comments or dates.",
+      "Read the counts, then each section's changes and impacts; export the list for the change record.",
+    ],
+    output: ["Added, removed and changed items with field-level differences, impact notes for network designs, warnings about duplicate keys and columns, and a CSV export."],
+    interpret: [
+      "Every difference should correspond to an approved change; anything else needs an explanation before the revision is accepted.",
+      "Impact notes are minimum actions: GOOSE data set or confRev changes always mean reloading the publisher and every subscriber and retesting.",
+    ],
+    basis: ["Keyed comparison of rows with case-insensitive values (case-sensitive for network projects); columns matched by heading; impact rules from IEC 61850-6 engineering practice and IEC 62443 change management."],
+    limits: ["Does not understand SCL files themselves — use SCL Studio's Compare for SCD/ICD/CID.", "Cannot judge whether a change is correct, only that it exists."],
+  },
+
+  "/calculators/configuration-version-log": {
+    what: "A configuration version log that identifies every SCD, CID, switch, RTU, PLC, HMI and firmware file by its SHA-256 fingerprint, with device, version, status, author and reason.",
+    can: [
+      "Fingerprint files in the browser and fill version, revision, date, author and reason from the SCL Header and History.",
+      "Check any file (for example a CID read back from a relay) against the log: approved or installed, superseded, draft, recorded for another device, or unknown.",
+      "Flag several Installed versions for one device, approved versions not yet installed, missing reasons and one file under two versions.",
+      "Export the log as JSON (to reopen) and CSV.",
+    ],
+    why: [
+      "Years after commissioning nobody is sure which file is the approved one; a fingerprint gives a definite answer.",
+      "Configuration control is required by IEC 62443 and is the basis of fault investigation after an incident.",
+    ],
+    understand: [
+      "Any change to a file — even a space — changes its SHA-256. Two files with the same fingerprint are identical.",
+      "The same configuration exported twice by a tool may differ (for example a time stamp in the file); record the file that was actually loaded into the device.",
+      "The log in the browser is a convenience; the downloaded JSON file is the record.",
+    ],
+    need: ["The configuration files (from the engineering tools, or read back from the devices).", "Device names, versions and the change request or reason.", BROWSER],
+    use: [
+      "Load the sample log, or start a new one with the site name.",
+      "Add a version: choose the file, complete device, type, version, status and reason, and add it.",
+      "When a version is loaded into the device, set its status to Installed and the previous one to Superseded.",
+      "Check files read back from devices; download the log after every change.",
+    ],
+    output: ["The log grouped by device, log checks, file check results, JSON and CSV exports."],
+    interpret: [
+      "OK: the file is the recorded approved or installed version.",
+      "Not a recorded version: find out what changed before using the file.",
+      "Superseded or draft: an old or unapproved version is in use.",
+    ],
+    basis: ["SHA-256 (FIPS 180-4) computed with the browser's Web Crypto API; SCL Header and Hitem attributes per IEC 61850-6."],
+    limits: ["It cannot read files from devices itself; use the manufacturer's tool to read back the configuration.", "It does not judge the content of the configuration."],
+  },
+
+  "/calculators/scada-tag-validator": {
+    what: "A validator for SCADA, gateway and RTU tag or point lists exported as CSV or copied from Excel.",
+    can: [
+      "Find duplicate tag names and duplicate addresses per device, common address, protocol and data table.",
+      "Flag missing descriptions, copied descriptions, missing or inconsistently written units, spaces in names and names that break your naming rule.",
+      "Check engineering ranges, alarm limits (LoLo ≤ Lo < Hi ≤ HiHi), limits outside the range, large deadbands, and trip or alarm signals without a normal state.",
+      "Check Modbus addressing (analog values in coil or discrete-input tables) and IEC 104 information object addresses.",
+    ],
+    why: ["Copy errors in large point lists load without complaint and surface only in testing or operation.", "Checking before loading is much cheaper than finding the error point by point."],
+    understand: [
+      "Columns are recognised from their headings; rename them (Tag, Description, Device, Protocol, Address, Type, Unit, EU Low/High, LoLo/Lo/Hi/HiHi, Normal State) if they are not found.",
+      "Analog and digital points are recognised from the Type column; checks that depend on it need that column.",
+    ],
+    need: ["The tag list with headings in the first row.", "Optionally your naming rule as a regular expression.", BROWSER],
+    use: ["Open the CSV, paste the table or load the sample.", "Enter the naming rule if you have one.", "Work through errors, then warnings; export the findings."],
+    output: ["Counts, recognised columns, and findings with line numbers, exportable to CSV."],
+    interpret: ["Errors cause wrong or lost values and must be fixed before loading.", "Warnings are probable mistakes or poor practice; notes help find copied rows."],
+    basis: ["Modbus Application Protocol V1.1b3 data tables; IEC 60870-5-101/104 3-octet information object address (1–16 777 215); alarm management principles of ISA-18.2 / EEMUA 191."],
+    limits: ["Checks consistency, not correctness against the device's real register map — confirm in point-to-point testing.", "Vendor-specific address formats may not be interpreted."],
+  },
+
+  "/calculators/patch-compatibility-register": {
+    what: "A register of the Windows updates installed on each SCADA computer (from AJ Collector reports) against the SCADA vendor's approval list, with checks between redundant servers.",
+    can: [
+      "Show a matrix of updates × computers with the vendor's status.",
+      "Flag updates installed but not approved, withdrawn or still under test; approved updates not installed; updates the vendor has not assessed; old patch levels.",
+      "Compare redundant pairs and their operating systems.",
+      "Export the matrix to CSV.",
+    ],
+    why: ["Untested updates can break SCADA drivers, OPC DA or redundancy; missing approved updates leave vulnerabilities open.", "Redundant servers on different patch levels may not fail over as tested."],
+    understand: ["The vendor's approval list is the authority for which updates may be installed.", "Windows' installed-update list (Get-HotFix) covers most but not all update types."],
+    need: ["AJ Collector reports of the computers.", "The vendor's approval list as CSV (KB, status, date, note).", "The names of redundant pairs.", BROWSER],
+    use: ["Add the collector reports (or load the sample).", "Open or paste the vendor list.", "Enter redundant pairs such as SCADA-SRV01=SCADA-SRV02.", "Read the findings and the matrix; export it for the maintenance plan."],
+    output: ["Findings per computer and per pair, and the update matrix with vendor status."],
+    interpret: ["Not approved or withdrawn updates: ask the vendor and plan removal if required.", "Missing approved updates: plan installation on both servers of a pair in the same window."],
+    basis: ["IEC 62443-2-3 patch management practice; KB numbers normalised from the collector reports and the approval list."],
+    limits: ["Does not download or install updates.", "Depends on the completeness of the vendor list and the collector reports."],
+  },
+
   "/calculators/windows-health-analyser": {
     what: "A two-part health check for Windows SCADA computers: the AJ Collector, a readable PowerShell script that only reads settings and logs and writes one file, and this analyser, which explains that file in your browser.",
     can: [

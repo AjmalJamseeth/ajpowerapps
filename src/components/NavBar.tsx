@@ -18,6 +18,7 @@ import {
   CircuitBoard,
   Network,
   Router,
+  ClipboardCheck,
   ChevronDown,
   GraduationCap,
   BookOpen,
@@ -44,6 +45,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   CircuitBoard,
   Network,
   Router,
+  ClipboardCheck,
 };
 
 export default function NavBar() {

@@ -97,6 +97,19 @@ export const CALCULATOR_GROUPS: CalcGroup[] = [
     ],
   },
   {
+    id: "commissioning",
+    title: "Commissioning, Change & Configuration",
+    description:
+      "Keep substation automation and SCADA systems under control after commissioning: compare versions of registers, tag lists and network designs, log which configuration file is approved and installed in each device, validate SCADA tag databases, and track Windows patches against the vendor's approvals.",
+    icon: "ClipboardCheck",
+    calculators: [
+      { name: "Network & Configuration Change Comparison", description: "Compare the approved and current versions of an IP or asset register, SCADA tag list, port or cable list (CSV/Excel), SCL NetStudio project or AJ Collector report: added, removed and changed items, with the documents to update and tests to repeat for each change.", href: "/calculators/change-comparison", status: "live" },
+      { name: "Configuration Version Log (SHA-256)", description: "Record which version of each SCD, CID, switch, RTU, PLC, HMI or firmware file is approved and installed in each device, identified by its SHA-256 fingerprint; read SCL header and history; check any file against the log.", href: "/calculators/configuration-version-log", status: "live" },
+      { name: "SCADA Tag Database Validator", description: "Check a SCADA, gateway or RTU tag list: duplicate names and addresses, missing descriptions and units, engineering ranges, alarm limits out of order, Modbus and IEC 104 addressing, naming rules and copied rows.", href: "/calculators/scada-tag-validator", status: "live" },
+      { name: "SCADA Patch Compatibility Register", description: "Installed Windows updates from AJ Collector reports against the SCADA vendor's approval list: not approved, under test or withdrawn updates installed, approved updates missing, and redundant servers on different patch levels.", href: "/calculators/patch-compatibility-register", status: "live" },
+    ],
+  },
+  {
     id: "cables",
     title: "Cables & Line Engineering",
     description:
